@@ -1,9 +1,7 @@
-@Library('libpipelines@master') _
+@Library('libpipelines') _
 
 hose {
     EMAIL = 'cd'
-    NEW_VERSIONING = 'true'
-    ANCHORE_TEST = true
     DEPLOYONPRS = false
     GENERATE_QA_ISSUE = false
 //    ANCHORE_NIGHTLY_JOB = true
@@ -15,16 +13,8 @@ hose {
                   'zk_id=1'],
             'sleep': 5]]]
 
-	ATSERVICES = [
-		['ZOOKEEPER': [
-			'image': 'jplock/zookeeper:3.5.2-alpha',
-			'env': [
-				'zk_id=1',
-				'USER=\$REMOTE_USER'],
-			'sleep': 5]]]
-
     DEV = { config ->
-        doCompile(config)
+        doCompile(conf: config, buildToolOverride: [BUILDTOOL_CPU_LIMIT: "4"])
         //doUT(config)
         //doIT(config)
 	parallel(UT: {
