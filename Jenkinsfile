@@ -19,9 +19,9 @@ hose {
         //doUT(config)
         //doIT(config)
 	parallel(UT: {
-        	doUT(config)
+        	doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
             }, IT: {
-                doIT(config)
+                doIT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
             }, failFast: true)
         doPackage(config)
 	doDeploy(conf: config)
