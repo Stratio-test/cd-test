@@ -16,13 +16,14 @@ hose {
 
     DEV = { config ->
         doCompile(conf: config, buildToolOverride: [BUILDTOOL_CPU_LIMIT: "4"])
-        //doUT(config)
+        doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
         //doIT(config)
-	parallel(UT: {
+	/*parallel(UT: {
         	doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
             }, IT: {
                 doIT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
             }, failFast: true)
+	    */
         doPackage(config)
 	doDeploy(conf: config)
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
