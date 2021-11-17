@@ -16,8 +16,8 @@ hose {
             'sleep': 5]]]
 
     DEV = { config ->
-        doCompile(conf: config, buildToolOverride: [BUILDTOOL_CPU_LIMIT: "4"])
-        doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
+        doCompile(conf: config)
+        //doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
         //doIT(config)
 	/*parallel(UT: {
         	doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
@@ -25,10 +25,17 @@ hose {
                 doIT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
             }, failFast: true)
 	    */
-        doPackage(config)
-	doDeploy(conf: config)
+        //doPackage(config)
+	//doDeploy(conf: config)
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
-	doDocker(conf: config)
+	//doDocker(conf: config)
+	doSsh(conf: config, 
+	      sshConf: [files: 'testfile', 
+			remoteFolder: 'rocketqa/CCT/discovery/test', 
+			remoteServer: 'rocketqa.int.stratio.com', 
+			activeDelete: false, 
+			credentials: 'CREDENTIALS_ROCKET_SSH'
+			])
 		    
 	//doRenameImages(conf: config)
     }
