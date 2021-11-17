@@ -33,7 +33,7 @@ hose {
 	      sshConf: [files: 'testfile', 
 			remoteFolder: 'rocketqa/CCT/discovery/test', 
 			remoteServer: 'rocketqa.int.stratio.com', 
-			activeDelete: false, 
+			activeDelete: true, 
 			credentials: 'CREDENTIALS_ROCKET_SSH'
 			])
 		    
