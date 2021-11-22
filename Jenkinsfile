@@ -25,17 +25,11 @@ hose {
                 doIT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
             }, failFast: true)
 	    */
-        //doPackage(config)
+        doPackage(config)
 	//doDeploy(conf: config)
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
 	//doDocker(conf: config)
-	doSsh(conf: config, 
-	      sshConf: [files: 'testfile', 
-			remoteFolder: 'rocketqa/CCT/discovery/test', 
-			remoteServer: 'rocketqa.int.stratio.com', 
-			activeDelete: true, 
-			credentials: 'CREDENTIALS_ROCKET_SSH'
-			])
+
 		    
 	//doRenameImages(conf: config)
     }
