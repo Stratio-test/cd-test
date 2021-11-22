@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.77.5 (upcoming)
+## 0.77.6 (upcoming)
 
 * Milestone testing
 
