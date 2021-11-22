@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <dependencies>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>6.14.3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <parent>
+        <groupId>com.stratio</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.12.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>cd-test</artifactId>
+    <version>0.77.6-SNAPSHOT</version>
+
+    <properties>
+	<revision>0.48.0</revision>
+	<sha1/>
+	<changelist/>
+        <javax.json.version>1.0.4</javax.json.version>
+        <retrofit.version>2.3.0</retrofit.version>
+        <java.version>1.8</java.version>
+        <junit.version>4.12</junit.version>
+        <jsoup.version>1.8.3</jsoup.version>
+	<maven.compiler.source>1.8</maven.compiler.source>
+	<maven.compiler.target>1.8</maven.compiler.target>
+	<cd-test-parent.version>0.5.0-24b33af</cd-test-parent.version>
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+        </plugin>
+        </plugins>
+    </build>
+</project>
+
