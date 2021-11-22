@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.77.6 (upcoming)
+## 0.77.6 (November 22, 2021)
 
 * Milestone testing
 
