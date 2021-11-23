@@ -18,7 +18,7 @@ hose {
 
     DEV = { config ->
         doCompile(conf: config)
-        //doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
+        doUT(conf: config)
         //doIT(config)
 	/*parallel(UT: {
         	doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true])
