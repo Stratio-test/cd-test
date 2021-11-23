@@ -5,6 +5,7 @@ hose {
     DEPLOYONPRS = false
     GENERATE_QA_ISSUE = false
     SHOW_RAW_YAML = true
+    MAVEN_DEBUG_MODE = true
 //    ANCHORE_NIGHTLY_JOB = true
 
     ITSERVICES = [
