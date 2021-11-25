@@ -13,11 +13,7 @@ hose {
 
     DEV = { config ->
         doCompile(config)
-	parallel(UT: {
-        	doUT(config)
-            }, IT: {
-                doIT(config)
-            }, failFast: true)
+	doUT(config)
         doPackage(config)
 	doDeploy(conf: config)
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
