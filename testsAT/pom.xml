@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>cd-test.testsAT</artifactId>
-    <version>0.76.0-${revision}</version>
+    <version>0.76.0-SNAPSHOT</version>
 
     <properties>
         <stratio-test-bdd.version>0.7.0</stratio-test-bdd.version>
