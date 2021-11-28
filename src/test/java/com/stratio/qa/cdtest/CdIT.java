@@ -5,12 +5,12 @@ import org.testng.annotations.Test;
 
 public class CdIT {
 
-    @Test(groups={"integration"})
+    @Test
     public void exampleIntegrationTest(){
         String[] args = new String[2];
         CdTest.main(args);
         try {
-            System.out.println("Waiting for 10 seconds");
+            System.out.println("Waiting for 100 seconds");
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
