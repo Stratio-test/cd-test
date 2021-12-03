@@ -1,4 +1,4 @@
-@Library('libpipelines@feature-maven-multiple-pom-files') _
+@Library('libpipelines') _
 
 hose {
     EMAIL = 'cd'
@@ -24,13 +24,8 @@ hose {
     MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
     DEV = { config ->
         doCompile(config)
-        //doUT(config)
-        //doIT(config)
-	parallel(UT: {
-        	doUT(config)
-            }, IT: {
-                doIT(config)
-            }, failFast: true)
+        doUT(config)
+        doIT(config)
         doPackage(config)
 	doDeploy(conf: config)
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
