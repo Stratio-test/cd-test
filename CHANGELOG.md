@@ -1,4 +1,8 @@
 # Changelog
+## 0.80.2 (upcoming)
+
+* Another hotfix change
+
 ## 0.80.1 (2022-01-11)
 
 * Some hotfix change
