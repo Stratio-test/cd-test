@@ -1,5 +1,5 @@
 # Changelog
-## 0.80.3 (upcoming)
+## 0.80.3 (2022-01-11)
 
 * Another of those pesky changes
 
