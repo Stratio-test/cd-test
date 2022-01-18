@@ -4,6 +4,7 @@ hose {
     EMAIL = 'cd'
     DEPLOYONPRS = false
     GENERATE_QA_ISSUE = true
+    JIRAPROJECT = 'cd-test-project'
 //    ANCHORE_NIGHTLY_JOB = true
 
     ITSERVICES = [
@@ -25,7 +26,7 @@ hose {
     DEV = { config ->
         doCompile(config)
         doUT(config)
-        doIT(config)
+        //doIT(config)
         doPackage(config)
 	doDeploy(conf: config)
 	doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"], [conf: config, image: "cd-test"]])
