@@ -31,7 +31,7 @@ hose {
         doPackage(config)
 	doDeploy(conf: config)
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"], [conf: config, image: "cd-test"]])
-	doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test"], [conf:config, dockerfile:"Dockerfile.test2", image: "cd-test2"]])
+	doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test"], [conf:config, dockerfile:"Dockerfile", image: "cd-test2"]])
 	//doDocker(conf: config)
 		    
 	//doRenameImages(conf: config)
