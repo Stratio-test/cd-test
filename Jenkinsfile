@@ -25,17 +25,19 @@ hose {
 			'sleep': 5]]]
     MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
     DEV = { config ->
-	    useClonedVolume(config) {
-		doCompile(config)
-		//doUT(config)
-		//doIT(config)
-		doPackage(config)
-		doDeploy(conf: config)
-		//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"], [conf: config, image: "cd-test"]])
-		doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test"], [conf:config, dockerfile:"Dockerfile.test2", image: "cd-test2"]])
-		//doDocker(conf: config)
+	    stage('test clone volumes Stage'){
+		    useClonedVolume(config) {
+			doCompile(config)
+			//doUT(config)
+			//doIT(config)
+			doPackage(config)
+			doDeploy(conf: config)
+			//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"], [conf: config, image: "cd-test"]])
+			doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test"], [conf:config, dockerfile:"Dockerfile.test2", image: "cd-test2"]])
+			//doDocker(conf: config)
 
-		//doRenameImages(conf: config)
+			//doRenameImages(conf: config)
+		    }
 	    }
     }
 }
