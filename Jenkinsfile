@@ -27,7 +27,7 @@ hose {
     DEV = { config ->
 	    useClonedVolume(config) {
 		doCompile(config)
-		doUT(config)
+		//doUT(config)
 		//doIT(config)
 		doPackage(config)
 		doDeploy(conf: config)
