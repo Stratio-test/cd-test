@@ -25,7 +25,7 @@ hose {
 			'sleep': 5]]]
     MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
     DEV = { config ->
-	    parallel{case_a: {
+	    parallel(case_a: {
 	    useClonedVolume(config) { volumneName -> 
 		doCompile(config)
 		//doUT(config)
@@ -53,7 +53,7 @@ hose {
 		//doRenameImages(conf: config)
 	    }
 	 }
-	}
+	)
     }
     
 }
