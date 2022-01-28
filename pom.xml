@@ -15,11 +15,6 @@
         <artifactId>plexus-build-</artifactId>
         <version>0.0.6</version>
     </dependency>
-    <dependency>
-        <groupId>org.sonatype.plexus</groupId>
-        <artifactId>plexus-build-api</artifactId>
-        <version>0.0.6</version>
-    </dependency>
     </dependencies>
 
     <parent>
