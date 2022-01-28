@@ -23,7 +23,7 @@ hose {
 				'zk_id=1',
 				'USER=\$REMOTE_USER'],
 			'sleep': 5]]]
-    MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
+    //MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
     DEV = { config ->
 	    parallel(case_a: {
 	    useClonedVolume(config) { volumneName -> 
