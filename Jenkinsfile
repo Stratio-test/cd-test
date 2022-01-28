@@ -27,8 +27,7 @@ hose {
     DEV = { config ->
 	    parallel(case_a: {
 	    useClonedVolume(config) { volumneName -> 
-		doPackage(config)
-		doDeploy(conf: config)
+		
 		//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"], [conf: config, image: "cd-test"]])
 		doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test"], [conf:config, dockerfile:"Dockerfile.test2", image: "cd-test2"]], volumeName: volumneName)
 		//doDocker(conf: config)
@@ -39,8 +38,6 @@ hose {
 		    case_b: {
 		useClonedVolume(config) { volumneName -> 
 
-		doPackage(config)
-		doDeploy(conf: config)
 		//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"], [conf: config, image: "cd-test"]])
 		doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test"], [conf:config, dockerfile:"Dockerfile.test2", image: "cd-test2"]], volumeName: volumneName)
 		//doDocker(conf: config)
