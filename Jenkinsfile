@@ -27,7 +27,7 @@ hose {
     DEV = { config ->
 		//doCompile(config)
 		//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"], [conf: config, image: "cd-test"]])
-		doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test"], [conf:config, dockerfile:"Dockerfile.test2", image: "cd-test2"]])
+		doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test_a"], [conf:config, dockerfile:"Dockerfile.test2", image: "cd-test_b"]])
 		//doDocker(conf: config)
 
 		//doRenameImages(conf: config)
