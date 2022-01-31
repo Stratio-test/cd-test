@@ -1,1 +1,6 @@
-FROM python:3.10.1-slim
+FROM ubuntu:16.04
+MAINTAINER CD "cd@stratio.com"
+
+ARG VERSION
+
+CMD ["/usr/bin/tail", "-f", "/dev/null"]
