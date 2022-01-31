@@ -1,6 +1,3 @@
-FROM stratio/ubuntu-base:16.04
-MAINTAINER CD "cd@stratio.com"
+FROM python:3.10.1-slim
 
 ARG VERSION
-
-CMD ["tail", "-f", "/dev/null"]
