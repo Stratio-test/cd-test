@@ -1,2 +1,2 @@
-FROM ubuntu:16.04
+FROM stratio/ubuntu-base:16.04
 CMD ["echo", "Hello test_x!"]
