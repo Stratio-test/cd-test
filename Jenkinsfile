@@ -1,10 +1,12 @@
 @Library('libpipelines@preproduction') _
 
 hose {
-    EMAIL = 'cd'
+    EMAIL = 'cd-email'
+    EMAIL_FLAG = false
+    JIRA_FLAG = true
     DEPLOYONPRS = false
     GENERATE_QA_ISSUE = true
-    JIRAPROJECT = 'cd-test-project'
+    JIRAPROJECT = 'cd-test-project-name'
    // ANCHORE_TEST = true
 //    ANCHORE_NIGHTLY_JOB = true
 
