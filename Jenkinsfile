@@ -7,6 +7,8 @@ hose {
     DEPLOYONPRS = false
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project-name'
+    ANCHORE_EMAIL_FLAG = true
+    ANCHORE_JIRA_FLAG = true
    // ANCHORE_TEST = true
 //    ANCHORE_NIGHTLY_JOB = true
 
