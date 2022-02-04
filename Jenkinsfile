@@ -7,6 +7,7 @@ hose {
     GENERATE_QA_ISSUE = true
     ENABLE_CONCURRENT_BUILDS = true
     SHOW_RAW_YAML = true
+    DEPLOYONPRS = true
 //    ANCHORE_NIGHTLY_JOB = true
 //    ITPARAMETERS = """
 //    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
