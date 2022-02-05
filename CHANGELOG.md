@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.83.1 (upcoming)
+## 0.83.1 (2022-02-05)
 
 * Extra changes
 
