@@ -1,4 +1,4 @@
-@Library('libpipelines') _
+@Library('libpipelines@override-buildtoolcommand') _
 
 hose {
     EMAIL = 'cd'
@@ -12,7 +12,8 @@ hose {
 //    | """
 
     DEV = { config ->
-        doCompile(config)
+	    doCustomStage(conf: config, goal: "dummy", buildToolOverride: [CUSTOM_COMMAND: "gulp"], stageName: "Test custom")
+        //doCompile(config)
         //doUT(config)
 	/*    
 	parallel(
@@ -64,10 +65,10 @@ hose {
                 doIT(config)
             }, failFast: true)
 	    */
-        doPackage(config)
+        //doPackage(config)
 	//doStaticAnalysis(conf: config)
-	doDeploy(conf: config)
+	//doDeploy(conf: config)
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
-	doDocker(conf: config, credentials: 'ATHENS_SSH_KEY')
+	//doDocker(conf: config, credentials: 'ATHENS_SSH_KEY')
     }
 }
