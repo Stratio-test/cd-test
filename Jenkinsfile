@@ -30,7 +30,7 @@ hose {
     //MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
     DEV = { config ->
 		//doCompile(config)
-		doDockers(conf:config, dockerImages: [[conf: config, dockerfile:"Dockerfile", image: "cd-test-test-1"]])
+		doDockers(conf:config, dockerImages: [[conf: config, dockerfile:"Dockerfile.test2", image: "cd-test-test-2"]])
 		//doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test-x-3"], [conf:config, dockerfile:"Dockerfile.testy", image: "cd-test-y-3"]])
 		//doDocker(conf: config)
 
