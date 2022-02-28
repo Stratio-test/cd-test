@@ -9,6 +9,7 @@ hose {
     JIRAPROJECT = 'cd-test-project-name'
     ANCHORE_EMAIL_FLAG = false
     ANCHORE_JIRA_FLAG = true
+    VERSIONING_TYPE = 'stratioVersion'
    // ANCHORE_TEST = true
 //    ANCHORE_NIGHTLY_JOB = true
 
