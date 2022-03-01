@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.82.4 (upcoming)
+
+* doDockers podTemplate
+
 ## 0.82.3 (2022-03-01)
 
 * doDockers podTemplate
