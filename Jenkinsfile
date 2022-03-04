@@ -8,6 +8,7 @@ hose {
     ENABLE_CONCURRENT_BUILDS = true
     SHOW_RAW_YAML = true
     DEPLOYONPRS = true
+    VERSIONING_TYPE = "stratioVersion"
 //    ANCHORE_NIGHTLY_JOB = true
 //    ITPARAMETERS = """
 //    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
