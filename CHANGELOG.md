@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.85.2 (upcoming)
+
+* Some changes that should not be lost in translation
+* And more changes
+
 ## 0.85.1 (2022-03-08)
 
 * Some changes that should not be lost in translation
