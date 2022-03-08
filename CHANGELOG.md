@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.85.3 (upcoming)
+## 0.85.3 (2022-03-08)
 
 * Some changes that should not be lost in translation
 * And more changes
