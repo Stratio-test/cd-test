@@ -1,4 +1,4 @@
-@Library('libpipelines') _
+@Library('libpipelines@preproduction') _
 
 hose {
     EMAIL = 'cd'
