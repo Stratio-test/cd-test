@@ -5,6 +5,7 @@ hose {
     DEPLOYONPRS = false
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
+    VERSIONING_TYPE = 'liveStratio'
    // ANCHORE_TEST = true
 //    ANCHORE_NIGHTLY_JOB = true
 
