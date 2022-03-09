@@ -1,7 +1,7 @@
 @Library('libpipelines@preproduction') _
 
 hose {
-    EMAIL = 'cd'
+    EMAIL = 'cdcd'
     DEPLOYONPRS = false
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
