@@ -7,7 +7,6 @@ hose {
     GENERATE_QA_ISSUE = true
     ENABLE_CONCURRENT_BUILDS = false
     SHOW_RAW_YAML = false
-    VERSIONING_TYPE = "liveVersion"
 //    ITPARAMETERS = """
 //    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
 //    | """
