@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.86.1 (upcoming)
+
+* New test 1
+
 ## 0.86.0 (2022-03-24)
 
 * Some changes that should not be lost in translation
