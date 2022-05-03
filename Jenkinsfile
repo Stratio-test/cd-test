@@ -12,6 +12,7 @@ hose {
 //    | """
 
     DEV = { config ->
+	doSemgrepAnalysis(conf: config, configs: ["p/ci", "p/jwt", "p/r2c", "p/xss", "p/scala", "p/owasp-top-ten", "p/sql-injection", "p/security-audit", "p/command-injection", "p/r2c-security-audit", "p/insecure-transport"], excludes: ["*.js", "*.py", "*.json", "testsAT"])
         doCompile(config)
         //doUT(config)
 	/*    
