@@ -7,5 +7,9 @@ public class CdTest {
         if (name == "technical"){
             System.out.println("Into a if!!");
         }
+        String a = "a";
+        if(a == "a"){
+            System.out.println("a comparation");
+        }
     }
 }
