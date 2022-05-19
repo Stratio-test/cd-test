@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.86.6 (upcoming)
+
+* New test 1
+
 ## 0.86.5 (2022-05-13)
 
 * New test 1
