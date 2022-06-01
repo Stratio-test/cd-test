@@ -6,7 +6,7 @@ hose {
     DEPLOYONPRS = true
     GENERATE_QA_ISSUE = true
     BUILDTOOL = 'docker'
-    SHOW_RAW_YAML = false
+    SHOW_RAW_YAML = true
     BUILDTOOL_MEMORY_LIMIT = '12Gi'
     BUILDTOOL_MEMORY_REQUEST = '12Gi'
     BUILDTOOL_CPU_REQUEST = '2'
