@@ -1,4 +1,4 @@
-@Library('libpipelines@redefine-buildtool') _
+@Library('libpipelines@preproduction') _
 
 hose {
     EMAIL = 'cd'
