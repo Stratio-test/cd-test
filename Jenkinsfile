@@ -12,6 +12,8 @@ hose {
 //    | """
 
     DEV = { config ->
+	doSsh(config, [onPr: true, remoteFolder: "%%PRID/egeo-demo", activeDelete: true, credentials: "EGEO_DOWNLOADS_USER", files: "dist/egeo-demo", 
+                       remoteServer: "test01"])
         doCompile(config)
         //doUT(config)
 	/*    
