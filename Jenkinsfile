@@ -13,7 +13,7 @@ hose {
 
     DEV = { config ->
 	doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "/var/www/egeostatics/egeo/PR-1402/egeo-demo", activeDelete: false, credentials: "EGEO_DOWNLOADS_USER", files: "dist/egeo-demo", 
-                       remoteServer: "egeo-statics.int.stratio.com"])
+                       remoteServer: "downloads.int.stratio.com"])
         doCompile(config)
         //doUT(config)
 	/*    
