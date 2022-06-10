@@ -8,7 +8,7 @@ hose {
     BUILDTOOL = 'docker'
     ENABLE_CONCURRENT_BUILDS = false
     SHOW_RAW_YAML = false
-	BUILDTOOL_IMAGE = 'eeacms/scp-server'
+    //BUILDTOOL_IMAGE = 'eeacms/scp-server'
 //    ITPARAMETERS = """
 //    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
 //    | """
