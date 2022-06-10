@@ -5,10 +5,10 @@ hose {
     ANCHORE_TEST = false
     DEPLOYONPRS = true
     GENERATE_QA_ISSUE = true
-    BUILDTOOL = 'docker'
+    //BUILDTOOL = 'docker'
     ENABLE_CONCURRENT_BUILDS = false
     SHOW_RAW_YAML = false
-    BUILDTOOL_IMAGE = 'eeacms/scp-server'
+    BUILDTOOL_IMAGE = 'backflow/docker-maven-alpine'
 //    ITPARAMETERS = """
 //    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
 //    | """
