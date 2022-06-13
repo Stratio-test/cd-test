@@ -1,4 +1,4 @@
-@Library('libpipelines@master') _
+@Library('libpipelines@preproduction') _
 
 hose {
     EMAIL = 'cd'
@@ -6,6 +6,7 @@ hose {
     ANCHORE_TEST = false
     DEPLOYONPRS = false
     GENERATE_QA_ISSUE = false
+    SHOW_RAW_YAML = true
 
     ITSERVICES = [
         ['ZOOKEEPER': [
@@ -24,7 +25,7 @@ hose {
 
     DEV = { config ->
         doCompile(config)
-        doUT(config)
+        doUT(conf: config, buildToolOverwrite: [storageClass: 'portworx'])
         doIT(config)
         doPackage(config)
         doDeploy(conf: config)
