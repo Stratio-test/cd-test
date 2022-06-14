@@ -20,7 +20,7 @@ hose {
 	doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "egeo", activeDelete: true, credentials: "EGEO_DOWNLOADS_USER", files: "dist/egeo-demo", 
                        remoteServer: "egeo-statics.int.stratio.com", localFolder: "dist/egeo-demo/", branchOnPath: true])
         doCompile(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
-	doUT(conf: config, buildToolOverride: [storageClass: 'portworx'])
+	doUT(conf: config, buildToolOverride: [BUILDTOOL: 'maven', storageClass: 'portworx'])
         doPackage(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	//doStaticAnalysis(conf: config)
 	doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
