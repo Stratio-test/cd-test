@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.86.7 (upcoming)
+## 0.86.7 (2022-06-20)
 
 * New test 1
 
