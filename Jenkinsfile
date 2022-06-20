@@ -22,7 +22,7 @@ hose {
         //               remoteServer: "egeo-statics.int.stratio.com", localFolder: "dist/egeo-demo/", branchOnPath: true])
         //doCompile(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	//doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true, BUILDTOOL: "maven", storageClass: "portworx"])
-        doPackage(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
+        //doPackage(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	//doStaticAnalysis(conf: config)
 	//doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
