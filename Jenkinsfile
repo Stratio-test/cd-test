@@ -16,7 +16,6 @@ hose {
 //    ITPARAMETERS = """
 //    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
 //    | """
-    STORAGE_CLASS_NAME = 'local-path'
 
     DEV = { config ->
 	//doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "egeo", activeDelete: true, credentials: "EGEO_DOWNLOADS_USER", files: "dist/egeo-demo", 
