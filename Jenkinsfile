@@ -24,7 +24,7 @@ hose {
 	//doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true, BUILDTOOL: "maven", storageClass: "portworx"])
         doPackage(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	//doStaticAnalysis(conf: config)
-	doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
+	//doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
 	doDocker(conf: config, credentialsMap: [[credentials: "ATHENS_SSH_KEY", credentialsType: "sshagent"]], dockerfile: 'Dockerfile.test2')
     }
