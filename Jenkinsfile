@@ -16,6 +16,8 @@ hose {
 //    ITPARAMETERS = """
 //    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
 //    | """
+    VERSIONING_TYPE = 'stratioVersion-3-3-3'
+    UPSTREAM_VERSION = '1.0.0_2.0.0'
 
     DEV = { config ->
 	//doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "egeo", activeDelete: true, credentials: "EGEO_DOWNLOADS_USER", files: "dist/egeo-demo", 
