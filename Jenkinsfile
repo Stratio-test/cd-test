@@ -18,7 +18,7 @@ hose {
                        remoteServer: "egeo-statics.int.stratio.com", localFolder: "dist/egeo-demo/", branchOnPath: true])
         doCompile(config)
         //doUT(config)
-	/*    
+	   
 	parallel(
 		ZOOKEEPER: {
 			def zookeeperServices = [
@@ -27,7 +27,7 @@ hose {
 	    				healthcheck: 2181,
             				'env': [
                   				'zk_id=1'],
-            				'sleep': 180,
+            				//'sleep': 180,
 	    				'volumes': ["/tmp2:/tmp2"]
 				]]	
 			]
@@ -37,7 +37,7 @@ hose {
 			def sftpServices = [
 				['SFTP': [
 					image: 'stratio/rocket-sftp-it:0.1.0-M1',
-					sleep: 600,
+					//sleep: 600,
 					healthcheck: 2222,
 					cmd: 'foo:pass:1001',
 					volumes: ['/tmp:/home/foo/tmp']
@@ -49,7 +49,7 @@ hose {
 			def postgresServices = [
 				['POSTGRES': [
 					image: 'postgres:9.6',
-					sleep: 60,
+					//sleep: 60,
 					healthcheck: 5432,
 					env: ['POSTGRES_USER=admin', 'POSTGRES_PASSWORD=1234', 'POSTGRES_DATABASE=db', 'PGDATA=/pgtmpfs'],
 					k8sVolumes: [
@@ -60,14 +60,13 @@ hose {
 			doIT(conf: config, parameters: "-DPOSTGRES_HOST=%%POSTGRES", services: postgresServices, stageName: 'Postgres')
 		}
 	)
-	*/
-	/*
+	
 	    parallel(UT: {
         	doUT(config)
             }, IT: {
                 doIT(config)
             }, failFast: true)
-	    */
+	    
         doPackage(config)
 	//doStaticAnalysis(conf: config)
 	doDeploy(conf: config)
