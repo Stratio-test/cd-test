@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.86.10 (upcoming)
+## 0.86.10 (2022-06-24)
 
 * New test 1
 * New test 2
