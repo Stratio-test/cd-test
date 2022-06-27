@@ -7,6 +7,7 @@ hose {
     GENERATE_QA_ISSUE = true
     BUILDTOOL = 'docker'
     SHOW_RAW_YAML = true
+    ANCHORE_TEST = true
     //STORAGE_CLASS_NAME = 'px-sharedv4-sc'
 //     BUILDTOOL_MEMORY_LIMIT = '12Gi'
 //     BUILDTOOL_MEMORY_REQUEST = '12Gi'
