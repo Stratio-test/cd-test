@@ -9,12 +9,12 @@ hose {
     SHOW_RAW_YAML = true
     ANCHORE_TEST = true
     WORKSPACE_STORAGE_SIZE = '5Gi'
-    PROJECT_LIST = """
+    repositories = """
     | cct-applications-query
     | stratio-microservices
     | """.stripMargin().stripIndent()
 
     DEV = { config ->
-	licenses(conf: config, repositories: PROJECT_LIST)
+	licenses(conf: config, repositories: repositories)
     }
 }
