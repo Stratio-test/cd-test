@@ -10,7 +10,7 @@ hose {
     ANCHORE_TEST = true
     WORKSPACE_STORAGE_SIZE = '5Gi'
     REPOSITORIES = """cct-applications-query
-    | stratio-microservices""".stripMargin().stripIndent()
+    | stratio-microservices""".stripMargin().stripIndent().replaceAll(" ","").split("\n")
 
     DEV = { config ->
 	licenses(conf: config)
