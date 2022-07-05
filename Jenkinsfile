@@ -15,6 +15,6 @@ hose {
     | """
 
     DEV = { config ->
-	licenses(conf: config)
+	licenses(conf: config, repositories: PROJECT_LIST)
     }
 }
