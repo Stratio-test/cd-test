@@ -12,7 +12,7 @@ hose {
     PROJECT_LIST = """
     | cct-applications-query
     | stratio-microservices
-    | """
+    | """.stripMargin().stripIndent()
 
     DEV = { config ->
 	licenses(conf: config, repositories: PROJECT_LIST)
