@@ -2,6 +2,7 @@
 
 hose {
     EMAIL = 'cd'
+    ENABLE_MAVEN_M2_REDISSON_SYNC = false
     ANCHORE_TEST = false
     DEPLOYONPRS = true
     GENERATE_QA_ISSUE = true
