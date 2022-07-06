@@ -10,8 +10,10 @@ hose {
     SHOW_RAW_YAML = true
     ANCHORE_TEST = true
     WORKSPACE_STORAGE_SIZE = '5Gi'
-    REPOSITORIES = """cct-applications-query
-    | stratio-microservices""".stripMargin().stripIndent().replaceAll(" ","").split("\n")
+    REPOSITORIES = [
+	    'cct-applications-query:0.5.0',
+	    'virtualizer:0.2.3'
+    ]
 
     DEV = { config ->
 	licenses(conf: config)
