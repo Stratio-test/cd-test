@@ -33,6 +33,6 @@ hose {
     | stratio-microservices""".stripMargin().stripIndent().replaceAll(" ","").split("\n")
 
     DEV = { config ->
-	licenses(conf: config)
+	license(conf: config)
     }
 }
