@@ -5,7 +5,7 @@ hose {
     ANCHORE_TEST = false
     DEPLOYONPRS = true
     GENERATE_QA_ISSUE = true
-    BUILDTOOL = 'docker'
+    BUILDTOOL = 'maven'
     SHOW_RAW_YAML = true
     ANCHORE_TEST = true
     //STORAGE_CLASS_NAME = 'px-sharedv4-sc'
