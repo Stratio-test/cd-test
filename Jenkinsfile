@@ -65,6 +65,6 @@ hose {
     ]
 
     DEV = { config ->
-	license-npm(conf: config)
+	licenseNPM(conf: config)
     }
 }
