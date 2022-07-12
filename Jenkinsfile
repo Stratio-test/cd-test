@@ -8,31 +8,28 @@ hose {
     BUILDTOOL = 'maven'
     SHOW_RAW_YAML = true
     ANCHORE_TEST = true
+    JIRAPROJECT = 'TEST1'
     //STORAGE_CLASS_NAME = 'px-sharedv4-sc'
 //     BUILDTOOL_MEMORY_LIMIT = '12Gi'
 //     BUILDTOOL_MEMORY_REQUEST = '12Gi'
 //     BUILDTOOL_CPU_REQUEST = '2'
 //     BUILDTOOL_CPU_LIMIT = '2'
     WORKSPACE_STORAGE_SIZE = '5Gi'
-//    ITPARAMETERS = """
-//    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
-//    | """
-
-//     DEV = { config ->
-// 	//doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "egeo", activeDelete: true, credentials: "EGEO_DOWNLOADS_USER", files: "dist/egeo-demo", 
-//         //               remoteServer: "egeo-statics.int.stratio.com", localFolder: "dist/egeo-demo/", branchOnPath: true])
-//         doCompile(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
-// 	//doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true, BUILDTOOL: "maven", storageClass: "portworx"])
-//         doPackage(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
-// 	//doStaticAnalysis(conf: config)
-// 	doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
-// 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
-// 	doDocker(conf: config, credentialsMap: [[credentials: "ATHENS_SSH_KEY", credentialsType: "sshagent"]], dockerfile: 'Dockerfile.test2')
-//     }
-	REPOSITORIES = """cct-applications-query
-    | stratio-microservices""".stripMargin().stripIndent().replaceAll(" ","").split("\n")
+    CREATE_NEW_VERSION_JIRA = true
+    ITPARAMETERS = """
+    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
+    | """
 
     DEV = { config ->
-	license(conf: config)
+	//doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "egeo", activeDelete: true, credentials: "EGEO_DOWNLOADS_USER", files: "dist/egeo-demo", 
+        //               remoteServer: "egeo-statics.int.stratio.com", localFolder: "dist/egeo-demo/", branchOnPath: true])
+        doCompile(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
+	//doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true, BUILDTOOL: "maven", storageClass: "portworx"])
+        doPackage(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
+	//doStaticAnalysis(conf: config)
+	doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
+	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
+	doDocker(conf: config, credentialsMap: [[credentials: "ATHENS_SSH_KEY", credentialsType: "sshagent"]], dockerfile: 'Dockerfile.test2')
     }
+
 }
