@@ -29,7 +29,7 @@ hose {
 	//doStaticAnalysis(conf: config)
 	doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
-	doDocker(conf: config, credentialsMap: [[credentials: "ATHENS_SSH_KEY", credentialsType: "sshagent"]], dockerfile: 'Dockerfile.test2')
+	//doDocker(conf: config, credentialsMap: [[credentials: "ATHENS_SSH_KEY", credentialsType: "sshagent"]], dockerfile: 'Dockerfile.test2')
     }
 
 }
