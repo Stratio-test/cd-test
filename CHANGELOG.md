@@ -1,5 +1,5 @@
 # Changelog 
-## 0.86.13 (upcoming)
+## 0.86.13 (2022-07-12)
 
 * New test 1
 * New test 2
