@@ -1,18 +1,13 @@
 @Library('libpipelines@preproduction') _
 
 hose {
-    EMAIL = 'cd'
+    EMAIL = 'adoblas'
     ANCHORE_TEST = false
     DEPLOYONPRS = true
     GENERATE_QA_ISSUE = true
     BUILDTOOL = 'docker'
     SHOW_RAW_YAML = true
     ANCHORE_TEST = true
-    //STORAGE_CLASS_NAME = 'px-sharedv4-sc'
-//     BUILDTOOL_MEMORY_LIMIT = '12Gi'
-//     BUILDTOOL_MEMORY_REQUEST = '12Gi'
-//     BUILDTOOL_CPU_REQUEST = '2'
-//     BUILDTOOL_CPU_LIMIT = '2'
     WORKSPACE_STORAGE_SIZE = '5Gi'
 
 
@@ -74,7 +69,7 @@ hose {
 
     DEV = { config ->
         doCompile(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
-        doIT(config)
+        //doIT(config)
 	// //doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "egeo", activeDelete: true, credentials: "EGEO_DOWNLOADS_USER", files: "dist/egeo-demo", 
  //        //               remoteServer: "egeo-statics.int.stratio.com", localFolder: "dist/egeo-demo/", branchOnPath: true])
  //        doCompile(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
@@ -84,5 +79,9 @@ hose {
 	// doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	// //doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
 	// doDocker(conf: config, credentialsMap: [[credentials: "ATHENS_SSH_KEY", credentialsType: "sshagent"]], dockerfile: 'Dockerfile.test2')
+    }
+
+    DOC = { config -> 
+        doStratioDocsChecks(conf: config)
     }
 }
