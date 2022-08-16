@@ -6,7 +6,7 @@ hose {
     DEPLOYONPRS = true
     GENERATE_QA_ISSUE = true
     BUILDTOOL = 'maven'
-    SHOW_RAW_YAML = true
+    //SHOW_RAW_YAML = true
     ANCHORE_TEST = true
     JIRAPROJECT = 'TEST1'
     //STORAGE_CLASS_NAME = 'px-sharedv4-sc'
