@@ -275,3 +275,6 @@ Los secretos (usuario/contraseña) se pueden almacenar en Vault de forma segura.
 * _Stratio Spark_ solo permite almacenar un único secreto para S3. Esto significa que el mismo _job_ de Spark no puede conectarse de forma segura a dos cuentas de AWS S3 al mismo tiempo.
 * Soporta los formatos de archivo Parquet, CSV JSON y ORC. Los formatos XML y Avro son compatibles con Spark, pero es necesario añadir algunas dependencias que no están incluidas en _Stratio Spark_. También se ha probado a crear particiones con archivos Parquet.
 * El descriptor de _Stratio Command Center_ incluye soporte para este almacén de datos desde la versión 2.22.0. Para versiones anteriores, debes desplegar un _Stratio Virtualizer_ y después cambiar algunas variables de entorno.
+
+
+See the xref:attachment$bigquery-discover-metadata.zip[flight pattern schedule] for more details.
