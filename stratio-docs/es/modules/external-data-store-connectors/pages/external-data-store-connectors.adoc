@@ -20,6 +20,7 @@ La siguiente lista te permite acceder a una sección de cada conector donde pued
 * Bases de datos:
 ** xref:external-data-store-connectors:oracle.adoc[Oracle]
 ** xref:external-data-store-connectors:sql-server.adoc[SQL Server]
+** xref:external-data-store-connectors:sql-server333.adoc[SQL Server]
 ** xref:external-data-store-connectors:sap-hana.adoc[SAP HANA]
 ** xref:external-data-store-connectors:salesforce.adoc[Salesforce]
 ** xref:external-data-store-connectors:db2-connector.adoc[DB2]
