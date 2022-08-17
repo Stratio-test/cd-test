@@ -1,0 +1,177 @@
+= Changelog Crossdata Drivers
+
+== 2.22.4 (June 14, 2022)
+
+* [CROSSDATA-3631] Bind to a random port of akka, to fix error detected in PowerBI connections
+
+== 2.22.3 (February 28, 2022)
+
+* [CROSSDATA-3403] bump log4j to 2.17.1 (fix vulnerability)
+* Avoid reduced poms for fat jars
+
+== 2.22.2 (December 27, 2021)
+
+* [CROSSDATA-3403] bump log4j to 2.17.0 (fix vulnerability)
+
+== 2.22.1 (November 16, 2021)
+
+* [CROSSDATA-3120] Restart connection properly when session expires
+* [CROSSDATA-3137] Fix vulnerability: slf4j upgrade to version 1.7.32
+
+== 2.22.0 (March 17, 2021)
+
+* Configurable prefix to access server api, allows servicename-port forwarding in k8s using path segments
+* Downgrade akka version to 2.5.31
+
+== 2.21.0 (February 19, 2021)
+
+* Upgrade akka version to 2.6.12
+* Bump to common-xs 0.7.0-414f63d
+* Removed unused cluster state objects and configuration
+
+== 2.20.0 (January 15, 2021)
+
+* [CROSSDATA-2752] Upgrade to scala 2.12
+* [CROSSDATA-2841] Fixes bug on retrieve Database parameter when not provided
+* Bump jackson-databind version to 2.11.0
+* Bump commons-xs 0.6.0-e750673
+
+== 2.19.1 (January 13, 2021)
+
+* Bump jackson-databind to 2.11.0
+
+== 2.19.0 (October 06, 2020)
+
+* [CROSSDATA-2769] XD Driver JDBC DatabaseMetaData getTables MicroStrategy compliant (empty string)
+* Optional usage of spray deserializer for rows
+* [CROSSDATA-2554] Crossdata library without magics. Upgrade commonxs 0.5.0
+
+== 2.18.0-0625978 (Built: June 04, 2020 | Released: October 05, 2020)
+
+* Included Database parameter in connection string
+* Updated connection string format to match Postgres style
+* Included metadata-filtering-mode parameter to filter metadata according to tools behaviour
+* Upgrade crossdata-commonxs to version 0.3.0-014d910
+
+== 2.17.0-07b9b70 (Built: February 17, 2020 | Released: February 17, 2020)
+
+* [CROSSDATA-2387] Fix: Aligned types Database Metadata (getColumn) & Row Metadata (ResultSet Metadata)
+* SqlSyntaxFixer: Remove identifier doublequotes and backticks, and column prefixes (database and table) (enable by conf)
+* [CROSSDATA-2327] Fix: Crossdata API database/schemas reading: Allow % wildcard for getSchemas, getTables, getColumns
+* Init connection timeout configurable (crossdata-driver.config.init-connection-timeout-sec, default 10s)
+* [CROSSDATA-2214] Fix: Shell argument --password not recognized
+* [CROSSDATA-2188] Simba does not support NULL type. Using VARCHAR instead
+* Add retry when unable to recover session
+* Dynamic Metadriver
+
+== 2.16.1 (September 26, 2019)
+
+* [CROSSDATA-2214] Fix: Shell argument --password not recognized
+
+== 2.16.0 (September 10, 2019)
+
+* Pagination support
+* [CROSSDATA-2178] Fix shell command line double-quoted args management
+* Bump commonxs version to 0.2.0-8b17a10
+* Fix classloader issues loading resources (akka reference.conf + driver-reference.conf)
+* Remove share connection logs feature
+* Stop heartbeats when unsuccessful heartbeat response is received
+* Fix logging management: non-xdbc/simba log
+* [CROSSDATA-2119] Enabled pagination support
+* [CROSSDATA-2140] Included headers for request details
+* [CROSSDATA-2142] Relaxed hearbeats to allow multiple consecutive fails
+* [CROSSDATA-2163] Next page requested asynchronously, improves pagination experience
+
+== 2.15.0-ea496a6 (Built: July 05, 2019 | Pre-release)
+
+* Mutual TLS enabled/disabled by configuration
+* User Password Authorization
+* Enhanced logs management
+* Stop heartbeats if session not exist or server error
+* [CROSSDATA-2012] Include SCHEDULER_POOL parameter
+* Bump commonxs version to 0.1.5-db57ca1
+* Webshell added
+* Docker containing shell
+* Initial version: driverxs + drivers-noakka + xdbc + jdbc + odbc + shell
+
+== 2.14.4 (April 04, 2019)
+
+* Bump to xdbc-common 1.1.4-1935578
+
+== 2.14.3 (March 07, 2019)
+
+* Bump to xdbc-common 1.1.3-e9faba8
+
+== 2.14.2 (February 19, 2019)
+
+* Bump to xdbc-common 1.1.2-add6cbe / 0.2.2-fabbfa7 / commonxs 0.1.3-aad68cf
+
+== 2.14.1 (January 14, 2019)
+
+* Fixed bug, connection leak, added parameters for connection timeout (for Query and Heartbeat)
+* Bump to xdbc-common 1.1.1-cbaad02 / driverxs 0.2.1-072b4b7 / commonxs 0.1.3-aad68cf
+
+== 2.14.0 (December 21, 2018)
+
+* [CROSSDATA-1793] New crossdata-jdbc-common artifact added, without LOG4J dependencies
+* Bump crossdata-commonxs to 0.1.2-7c00234
+* Bump xdbc.common to 1.1.0
+
+== 2.13.0-5000715 (Built: June 27, 2018 | Released: June 27, 2018)
+
+* Bump xdbc.common to 1.0.0: commonxs and driverxs
+* ITs: add hdfs protocol prefix
+
+== 2.12.0 (March 01, 2018)
+
+* Bump xbdc.common to 0.8.0
+* [CROSSDATA-1461] Bump to latest version (0.14.0) of Gosec-Dyplon
+* [CROSSDATA-1430] Tests for special characters
+
+== 2.11.0 (January 10, 2018)
+
+* Bump xbdc.common to 0.6.0
+
+== 2.10.0 (December 22, 2017)
+
+* Bump xbdc.common to 0.5.0
+
+== 2.9.0 (November 08, 2017)
+
+* Bump xbdc.common to 0.4.0
+
+== 2.8.0 (October 27, 2017)
+
+* Bump xdbc.common to 0.3.0
+
+== 2.7.0 (October 17, 2017)
+
+* Update Crossdata to 2.7.0
+
+== 2.6.0 (September 20, 2017)
+
+* [CROSSDATA-943] Unify common code in library xdbc-commons
+* [CROSSDATA-1104] Integration in CI
+* [CROSSDATA-1200] Bump to Crossdata 2.6.0
+
+== 2.3.0 (July 19, 2017)
+
+* Update crossdata to 2.5.0
+
+== 2.2.0 (July 11, 2017)
+
+* Update crossdata to 2.4.0
+
+== 2.1.0 (June 27, 2017)
+
+* Add TIMEOUT parameter to Connection String
+* Update crossdata to 2.3.0
+
+== 2.0.0 (June 08, 2017)
+
+* Bump Crossdata to 2.2.0
+* Basic JDBC for Crossdata. Main features:
+ ** Metadata discovery
+ ** Support basic types
+ ** SSL
+* Add timeout support in statements

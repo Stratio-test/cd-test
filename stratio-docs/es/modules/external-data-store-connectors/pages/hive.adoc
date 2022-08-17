@@ -1,0 +1,445 @@
+= Hive
+
+Apache Hive es un _software_ de tipo _Data Warehourse_ que facilita la lectura, escritura y gestión de grandes volúmenes de datos en almacenamiento distribuido mediante SQL. Las estructuras creadas con Apache Hive pueden proyectarse sobre datos ya existentes. Permite explotar los datos mediante su interfaz de línea de comandos o JDBC.
+
+== Matriz de soporte
+
+|===
+| Módulo | Versión | Hive 2.1.0 | Hive 3.1.2
+
+| _Stratio Spark_
+| &#8805; 3.1.1-1.4.0
+| OK
+| OK
+
+| _Stratio Virtualizer_
+| &#8805; 0.3.0
+| OK
+| OK
+
+| _Stratio Crossdata_
+| &#8805; 3.4.0
+| OK
+| OK
+
+| _Stratio Data Governance_
+| &#8805; 1.10.0
+| OK
+| OK
+
+| _Stratio Rocket_
+| &#8805; 2.2.2
+| OK
+| OK
+
+| _Stratio Sparta_
+| &#8805; -
+| -
+| -
+
+| _Stratio Intelligence_
+| &#8805; -
+| -
+| -
+
+| _Stratio BDL_
+| &#8805; 1.0.0
+| OK
+| OK
+
+|===
+
+Compatibilidad _driver_ JDBC:
+
+|===
+| Rama | Hive | Clase del _driver_
+
+| branch-1.1.1-x.x
+| 1.x.x
+| org.apache.hive1.jdbc.HiveDriver
+
+| branch-2.1.1-x.x
+| 2.x.x
+| org.apache.hive2.jdbc.HiveDriver
+
+| branch-2.2.0-x.x
+| 2.x.x
+| org.apache.hive2.jdbc.HiveDriver
+
+| branch-2.3.9-x.x
+| 2.x.x
+| org.apache.hive2.jdbc.HiveDriver
+
+| branch-3.1.2-x.x
+| 3.x.x
+| org.apache.hive3.jdbc.HiveDriver
+
+|===
+
+== Prerrequisitos
+
+Si deseas utilizar la autenticación con Kerberos, debes configurar el Realm contra el que se autenticará el agente en la plataforma.
+
+Para ello, debes modificar el fichero _krb5.conf_ de la plataforma y añadir tus Realms de la siguiente manera:
+
+. Acceder al contenedor _bootstrap_:
++
+[source,bash]
+----
+ssh -i <ruta_del_certificado> <usuario>@<url_maquina_bootstrap>
+
+sudo docker exec -ti paas-bootstrap bash
+----
+
+. Crear una copia de seguridad del fichero _/etc/krb5.conf_:
++
+[source,bash]
+----
+cp /etc/krb5.conf /etc/krb5.conf.bk
+----
+
+. Copiar el fichero _krb5.conf_ a la raíz del sistema de ficheros:
++
+[source,bash]
+----
+cp /etc/krb5.conf /
+----
+
+. Añadir el _realm_ y el _domain_realm_ de tu fuente de datos Hive a las secciones correspondientes:
++
+[source,bash]
+----
+[realms]
+ ...
+ STRATIO.COM = {
+  kdc = hiveserver.labs.stratio.com
+  admin_server = hiveserver.labs.stratio.com
+ }
+
+[domain_realm]
+ ...
+ .stratio.com = STRATIO.COM
+ stratio.com = STRATIO.COM
+----
+
+. Crear el fichero _yml_ para copiar el fichero _krb5.conf_ configurado a todos los agentes mediante Ansible:
++
+[source,bash]
+----
+cat <<EOT >> /krb5-conf.yml
+---
+- name: Update krb5.conf
+  hosts: agent
+  remote_user: root
+
+  tasks:
+  - name: Copy file
+    become: true
+    copy:
+      src: /krb5.conf
+      dest: /etc/krb5.conf
+EOT
+----
+
+. Ejecutar el fichero con _ansible-playbook_:
++
+[source,bash]
+----
+ansible-playbook /krb5-conf.yml
+----
+
+== _Stratio Spark_
+
+=== [[stratio-spark-acceso-al-dato]]Acceso al dato
+
+_Stratio Spark_ soporta oficialmente Hive de forma nativa (debes proveer las clases para el soporte del dialecto).
+
+También soporta el acceso al dato mediante JDBC.
+
+=== [[stratio-spark-secretos]]Autorización/gestión de secretos
+
+Hive soporta autenticación del cliente _Thrift_ mediante validación de Kerberos o validación de usuario/clave respaldada por LDAP.
+
+Las credenciales para el método de autorización que elijas se pueden almacenar de forma segura en Vault. _Stratio Spark_ se encargará de recuperarlas para establecer la conexión.
+
+_Stratio Spark_ permite configurar múltiples bases de datos JDBC en el mismo _job_, cada cual con sus propios secretos. Debes configurar una variable de entorno para cada base de datos:
+
+[source,bash]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_<NOMBRE_BD_EN_MAYÚSCULAS>_VAULT_PATH"
+----
+
+De esta manera, _Stratio Spark_ podrá descargarse los secretos necesarios de Vault y establecer para ti las siguientes propiedades:
+
+* Autenticación usuario/clave:
+
+[source,bash]
+----
+"spark.db.<nombre_db_en_minúsculas>.user",
+"spark.db.<nombre_db_en_minúsculas>.password",
+----
+
+* Autenticación Kerberos:
+
+[source,bash]
+----
+"spark.db.<nombre_db_en_minúsculas>.principal",
+"spark.db.<nombre_db_en_minúsculas>.keytab",
+----
+
+=== [[stratio-spark-guia-de-usuario]]Guía de usuario
+
+_Stratio Spark_ no incluye el _driver_ JDBC para Hive de forma nativa. Para poder utilizarlo, es necesario añadir el JAR del _driver_ al _classpath_ del _job_ en el que quieras utilizarlo.
+
+En primer lugar, debes crear los secretos en Vault. Puedes contactar con el administrador del sistema para que lo haga por ti.
+
+* Secretos para autenticación usuario/clave:
+
+[source,bash]
+----
+# Ruta de Vault
+/v1/userland/passwords/s000002-spark-fw/s000002-hive
+# Ejecutar en vCLI
+put s000002-hive {"user": "<nombre_usuario>", "pass": "<clave>"}
+----
+
+* Secretos para autenticación Kerberos:
+
+[source,bash]
+----
+# Ruta de Vault
+/v1/userland/passwords/s000002-spark-fw/
+# Ejecutar en vCLI
+put s000002-hive {"principal": "<principal_del_usuario>", "keytab": "<keytab_en_formato_base64>"}
+----
+
+:important-caption: IMPORTANTE
+
+IMPORTANT: El _keytab_ de Kerberos debe estar codificado en base64.
+
+:tip-caption: CONSEJO
+
+[TIP]
+====
+Puedes convertir un fichero .keytab a base64 mediante una consola unix:
+
+[source,bash]
+----
+base64 -w 0 /ruta/al/fichero.keytab
+----
+====
+
+Una vez establecidos los secretos, podrás acceder a Hive mediante _Stratio Spark_ de la siguiente manera:
+
+* Con autenticación usuario/clave:
+
+[source,scala]
+----
+val user = spark.sparkContext.getConf.getOption("spark.db.database1.user")
+val password = spark.sparkContext.getConf.getOption("spark.db.database1.pass")
+
+val df = spark.read.
+  format("jdbc").
+  option("driver", "org.apache.hive2.jdbc.HiveDriver").
+  option("url", "jdbc:hive2://hiveserver.labs.stratio.com:10000/default").
+  option("dbtable", "<tabla_hive>").
+  option("user", user).
+  option("password", password).
+  load()
+
+df.show()
+----
+
+* Con autenticación Kerberos:
+
+[source,scala]
+----
+val principal = spark.sparkContext.getConf.getOption("spark.db.database1.principal")
+val keytab = spark.sparkContext.getConf.getOption("spark.db.database1.keytab")
+
+val df = spark.read.
+  format("jdbc").
+  option("driver", "org.apache.hive2.jdbc.HiveDriver").
+  option("url", "jdbc:hive2://hiveserver.labs.stratio.com:10000/default;principal=<principal_del_servidor>;kerberosAuthType=fromSubject?hive.resultset.use.unique.column.names=false").
+  option("dbtable", "<tabla_hive>").
+  option("principal", principal).
+  option("keytab", keytab).
+  load()
+
+df.show()
+----
+
+== _Stratio Virtualizer_
+
+=== Acceso al dato
+
+El acceso al dato se hace mediante una fuente de datos de Spark. Revisa la sección xref:hive.adoc#stratio-spark-acceso-al-dato[_Stratio Spark_] para más información.
+
+=== Autorización/gestión de secretos
+
+_Stratio Virtualizer_ utiliza los métodos de autenticación soportados en xref:hive.adoc#stratio-spark-secretos[_Stratio Spark_]. Actualmente está implementada la autenticación mediante usuario/clave y mediante Kerberos. Los secretos se deben almacenar de forma segura en Vault.
+
+=== [[stratio-virtualizer-guia-de-usuario]]Guía de usuario
+
+Requisitos previos:
+
+* Una instancia activa de Hive Server.
+* Una instalación de _Stratio Virtualizer_.
+
+En primer lugar, debes asegurarte de que los secretos están almacenados de la misma manera que en xref:hive.adoc#stratio-spark-guia-de-usuario[_Stratio Spark_], teniendo en cuenta que la ruta de Vault debe corresponderse con el nombre de servicio de la instancia de _Stratio Virtualizer_:
+
+[source,bash]
+----
+# Ruta de Vault
+/v1/userland/passwords/s000002-crossdata/
+# Ejecutar en vCLI
+put s000002-hive {"principal": "<principal_del_usuario>", "keytab": "<keytab_en_formato_base64>"}
+----
+
+Una vez comprobado lo anterior, podrás crear referencias a tablas externas y realizar consultas sobre ellas. Por ejemplo, para una instancia Hive con autenticación usuario/clave:
+
+[source,sql]
+----
+CREATE TABLE tabla_prueba_hive USING jdbc OPTIONS (
+  'stratiosecurity'='true',
+  'stratiosecuritymode'='custom_sscc',
+  'stratiocredentials'='hive-secret',
+  'stratiossccdriver'='com.stratio.connectors.sscchive.HiveDriverMD5',
+  'url'='jdbc:hive2://hiveserver.labs.stratio.com:10000/default',
+  'dbtable'='base_datos_hive.tabla_hive')
+----
+
+Para una instancia Hive con autenticación Kerberos:
+
+[source,sql]
+----
+CREATE TABLE tabla_prueba_hive USING jdbc OPTIONS (
+  'stratiosecurity'='true',
+  'stratiosecuritymode'='custom_sscc',
+  'stratiocredentials'='hive-secret',
+  'stratiossccdriver'='com.stratio.connectors.sscchive.HiveDriverKRB',
+  'url'='jdbc:hive2://hiveserver.labs.stratio.com:10000/default;principal=hdfs/namenode.stratio.com@STRATIO.COM',
+  'dbtable'='base_datos_hive.tabla_hive')
+----
+
+== _Stratio Data Governance_
+
+=== Acceso al dato
+
+El acceso al dato se realiza mediante el _driver_ JDBC de Hive. El _driver_ JDBC utilizado es una extensión del _driver_ de código abierto en la que se añade funcionalidad no implementada y se corrigen _bugs_. Puede encontrarse en los repositorios oficiales de Stratio.
+
+El agente de descubrimiento se encargará de mostrar todos los metadatos y recursos que contiene la fuente de datos Hive.
+
+=== Autorización/gestión de secretos
+
+El agente de descubrimiento soporta autenticación mediante usuario/clave y mediante Kerberos. Los secretos se almacenarán de forma segura en Vault.
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario dedicado para el agente de descubrimiento con permisos limitados.
+
+=== Guía de usuario
+
+Requisitos previos:
+
+* Una instancia activa de Hive Server.
+* Una instalación de _Stratio Data Governance_.
+
+El primer paso será crear los secretos en Vault. Estos no se crean automáticamente por el instalador de _Stratio Command Center_.
+
+* Secretos para la autenticación usuario/clave:
+
+[source,bash]
+----
+# Ruta de Vault
+/v1/userland/passwords/s000002-dg-hive-agent/s000002-dg-hive-agent
+# Ejecutar en vCLI
+put s000002-hive {"user": "<nombre_usuario>", "pass": "<clave>"}
+----
+
+* Secretos para la autenticación Kerberos:
+
+[source,bash]
+----
+# Ruta de Vault
+/v1/userland/passwords/s000002-dg-hive-agent/s000002-dg-hive-agent
+# Ejecutar en vCLI
+put s000002-hive {"principal": "<principal_del_usuario>", "keytab": "<keytab_en_formato_base64>"}
+----
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario en Hive para _Stratio Data Governance_ con permisos limitados.
+
+Utiliza el descriptor de _Stratio Command Center_ para instalar el agente de descubrimiento para Hive: _agent-hive-default_.
+
+Los campos más importantes a rellenar en la instalación son:
+
+* *Almacén de metadatos*:
+** *Host*: instancia de PostgreSQL que almacena los metadatos de Hive. Ej: poolpostgresgov.
+* *Configuración del servicio a descubrir*:
+** *Service name*: nombre que identificará a esta fuente de datos en _Stratio_Data_Governance_ y se mostrará en la interfaz de usuario.
+** *Ruta raíz de descubrimiento*: lista de las bases de datos que se quieren descubrir dentro del almacén de datos. Puede ser una o más separadas por comas (y precedidas de /). Ejemplo: /db1,/db2.
+** *URL de servicio personalizado*: cadena de conexión JDBC del servidor Hive que se quiere explotar. Ej: jdbc:hive2://hiveserver.labs.stratio.com:10000/default. El conector JDBC de Hive trae, por defecto, todas las bases de datos relativas a la conexión, en lugar de traer exclusivamente la base de datos indicada en la URL de forma predeterminada. Mediante el punto anterior, puedes filtrar las bases de datos que necesites.
+** *Seguridad del servicio personalizado*: tipo de seguridad empleada para conectarnos al servicio. En este caso, se soporta MD5 (usuario/clave) y KRB (Kerberos).
+** *Credenciales de acceso*: nombre del secreto en Vault al que el agente irá a buscar los credenciales de acceso.
+** *Localización del _driver_ SSCC*: URL que apunta al JAR del _driver_ SSCC en su versión para Scala 2.11. Habitualmente, este artefacto se encuentra en el repositorio Nexus de _Stratio_. Ej: http://niquel.int.stratio.com/repository/new-releases/com/stratio/connectors/sscc-hive-0.3_2.11/1.0.0-1f4d2f3/sscc-hive-0.3_2.11-1.0.0-1f4d2f3.jar.
+** *Localización del _driver_ JDBC*: URL que apunta al JAR del _driver_ JDBC que quieras utilizar. El _driver_ debe estar alineado con la versión del servidor Hive al que quieres conectarte. Se debe utilizar el _driver_ JDBC extendido por _Stratio_, disponible en el repositorio Nexus de la compañía. Ej: http://niquel.int.stratio.com/repository/new-releases/com/stratio/hive/hive-jdbc-3.1.2/1.0.0-47b3295/hive-jdbc-3.1.2-1.0.0-47b3295.jar.
+* *Identidad del servicio*:
+** *Vault role*: es recomendable crear un nuevo rol para los agentes de descubrimiento. Ej: s000002-dg-agent.
+* *Red de Calico*:
+** *Network name*: nombre de la red de Calico a la que estará conectado el agente. Ej: s000002-core.
+* Adicionalmente, puedes realizar un *filtrado más granular* mediante los siguientes campos opcionales:
+** *Expresión regular para incluir nombres de recursos (tablas)*: permite establecer una expresión regular para filtrar los nombres de tabla que quieras incluir en el descubrimiento.
+** *Expresión regular para excluir nombres de recursos (tablas)*: permite establecer una expresión regular para filtrar los nombres de tabla que quieras excluir en el descubrimiento.
+** *Modo de expresión regular para rutas de bases de datos*: permite seleccionar si el filtrado mediante expresiones regulares de bases de datos se aplica a nivel de nombre, ruta o ambos.
+** *Expresión regular para incluir nombres de recursos (bases de datos)*: permite establecer una expresión regular para filtrar los nombres (o rutas) de bases de datos que quieras incluir en el descubrimiento.
+** *Expresión regular para excluir nombres de recursos (bases de datos)*: permite establecer una expresión regular para filtrar los nombres (o rutas) de bases de datos que quieras excluir en el descubrimiento.
+
+Una vez desplegado el agente mediante el descriptor, puedes comprobar su correcto funcionamiento localizando en las trazas algo parecido a:
+
+[source,bash]
+----
+Extract begins at: Fri Apr 08 09:56:05 CET 2022
+NewOrUpdate 14 DataAssets begins at: Fri Apr 08 09:56:06 CET 2022
+Delete 0 DataAssets begins at: Fri Apr 08 09:56:07 CET 2022
+Synchronizing 14 and 0 Federated DataAssets begins at: Fri Apr 08 09:56:07 CET 2022
+----
+
+Cuando el agente está arrancado, puedes ver qué datos han sido descubiertos desde la interfaz de usuario de _Stratio Data Governance_.
+
+== _Stratio Rocket/Stratio Sparta_
+
+=== Acceso al dato
+
+Existen varias formas de acceder a los datos de Hive mediante _Stratio Rocket_/_Stratio Sparta_, no obstante, es muy recomendable hacerlo mediante el catálogo de _Stratio Virtualizer_ para aprovechar los mecanismos de seguridad que implementa.
+
+No es necesario añadir ningún fichero .jar extra, siempre y cuando estos estén incluidos en el _classpath_ de _Stratio Rocket_.
+
+=== Autorización/gestión de secretos
+
+Consulta la sección de xref:hive.adoc#_autorización/gestión_de_secretos_[autorización/gestión de secretos] de _Stratio Virtualizer_ para ver cómo configurar y subir las credenciales de acceso a Vault.
+
+=== Guía de usuario
+
+Es importante tener en consideración que, para crear colecciones, se deben descubrir todos los datos con el agente de descubrimiento _Eureka_.
+
+Una vez cumplidos todos los prerrequisitos (se han subido adecuadamente los secretos a Vault, los metadatos se descubren adecuadamente, la versión desplegada de _Stratio Rocket_ es compatible...) podrás acceder al catálogo de un proyecto y crear colecciones de la misma manera que en xref:hive.adoc#stratio-virtualizer-guia-de-usuario[_Stratio Virtualizer_].
+
+== _Stratio GoSec_
+
+Las fuentes de datos externas no están integradas en _Stratio GoSec_.
+
+La autorización a las mismas debe configurarse directamente en la base de datos cuando se crea el usuario para _Stratio Virtualizer_/_Stratio Spark_/_Stratio Data Governance_.
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario específico para cada aplicación con permisos limitados.
+
+La mayoría de módulos acceden a los datos mediante _Stratio Virtualizer_, lo que te permite configurar diferentes políticas de autorización para cada usuario de _Stratio GoSec_.
+
+Los secretos se pueden almacenar de forma segura en Vault. _Stratio Virtualizer_/_Stratio Spark_/_Stratio Data Governance_ tienen mecanismos para descargar y utilizar los secretos cuando lo necesiten.
+
+== Problemas conocidos
+
+* El empaquetado actual del _driver_ JDBC utiliza el número _major_ de versión de Hive. Es posible disponer simultáneamente de conexiones para un Hive 1.X.X, un 2.X.X y un 3.X.X. No obstante, no se podría tener simultáneamente un Hive 2.1.X y un 2.2.X. Este problema se solucionará en próximas versiones.

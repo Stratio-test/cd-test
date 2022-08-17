@@ -1,0 +1,464 @@
+= BigQuery
+
+This document explains how to access the BigQuery data store (which is not included within the Stratio platform), from each module of the platform. Google BigQuery is an external storage included in the Google Cloud Platform.
+
+Compatibility table:
+
+|===
+| Universe Version | SSCC BigQuery Connector
+
+| ≥ 12.0
+| sscc-bigquery-0.2_2.11-1.3.3-8486269 +
+sscc-bigquery-0.2_2.12-1.3.3-8486269
+|===
+
+== Support matrix
+
+|===
+| Module | Versions | BigQuery
+
+| _Stratio Spark_
+| ≥ 2.4.4-3.5.0 +
+≥ 3.0.1-1.1.0
+| OK
+
+| _Stratio Virtualizer_
+| ≥ 0.2.2
+| OK
+
+| _Stratio Data Governance_
+| ≥ 1.9.0
+| OK
+
+| _Stratio Rocket_
+| ≥ 2.3.5
+| OK
+
+| _Stratio Sparta_
+| -
+| -
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| ≥ 1.9.0
+| OK
+|
+===
+
+== _Stratio Spark_
+
+=== Data access
+
+Spark data source connects to BigQuery using an optimized API. This API allows faster-distributed operations than JDBC. _Stratio Spark_ has not changed Spark for this connector.
+
+=== Authorization/secrets management
+
+BigQuery Spark data source allows two authentication methods:
+
+* Google Service Account.
+* Pre-generated access and refresh tokens.
+
+Currently, only user and password authorization is supported in _Stratio Spark_.
+
+These credentials can be safely stored in Vault and _Stratio Spark_ can retrieve and use them to establish the connection.
+
+_Stratio Spark_ allows configuring several BigQuery projects in the same job, each project with its own secrets. You must configure an environment variable for each project:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_<BIGQUERY_PROJECT_NAME_UPPER_CASE>_VAULT_PATH"
+----
+
+By doing this, Spark will be able to download the needed secrets from Vault and set the following Spark properties for you, where the user is the projectId and the pass is the key in base64 format:
+
+[source,json]
+----
+"spark.db.<bigquery_project_name_lower_case>.user",
+"spark.db.<bigquery_project_name_lower_case>.pass"
+----
+
+=== User guide
+
+The first step is to set up the credentials in Google Cloud and store the secrets in Vault.
+
+After this, you can add the following dependency in your Spark project. It's available for Scala 2.11 and 2.12 and works in Spark 2 and 3 versions.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.google.cloud.spark</groupId>
+    <artifactId>spark-bigquery-with-dependencies_2.11</artifactId>
+    <version>0.25.2</version>
+</dependency>
+----
+
+Example of reading:
+
+[source,scala]
+----
+def main(args: Array[String]): Unit = {
+    val programName = "example"
+    implicit val spark: SparkSession = SparkSession
+      	.builder()
+      	.appName(programName)
+     	 .config("spark.master", "local[1]")
+     	 .getOrCreate()
+
+    val dbOptions: Map[String, String] = Map(
+      	"credentials" -> spark.sparkContext.getConf.getOption("spark.db.<bigquery_project_name_lower_case>.pass"),
+     	 "parentProject"    -> spark.sparkContext.getConf.getOption("spark.db.<bigquery_project_name_lower_case>.user"),
+      	"table" -> "bigquerytest.userdata1-parquet"
+    )
+    val df = spark.read
+     	 .format("bigquery")
+     	 .options(dbOptions)
+      	.load()
+    val res = df.count()
+    res
+ }
+----
+
+=== Writing
+
+It is mandatory to create a Google Cloud Storage bucket and add the Google Cloud dependency in your Spark projects in order to perform writing operations.
+
+Example of writing:
+
+[source,scala]
+----
+def main(args : Array[String]) {
+ val spark: SparkSession = SparkSession.builder().master("local[1]")
+   .appName("BigQuerySparkDatasource")
+   .config("credentialsFile", "/home/user/stratio/resources/credentials.json")
+   .config("parentProject", "connectorstorage")
+   .config("spark.hadoop.fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
+   .config("spark.hadoop.fs.AbstractFileSystem.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS")
+   .config("spark.hadoop.fs.gs.project.id", "connectorstorage")
+   .config("spark.hadoop.fs.gs.auth.service.account.email", "connectors-service@connectorstorage.iam.gserviceaccount.com")
+   .config("spark.hadoop.fs.gs.auth.service.account.enable", "true")
+ .config("spark.hadoop.fs.gs.auth.service.account.private.key.id", "ID")
+   .config("spark.hadoop.fs.gs.auth.service.account.private.key", "-----BEGIN PRIVATE KEY-----BIGQUERY KEY=\n-----END PRIVATE KEY-----\n")
+   .getOrCreate()
+ val parquetDf =     spark.read.parquet("/home/user/stratio/resources/file.parquet").toDF()
+ parquetDf.show()
+ // Use the Cloud Storage bucket for temporary BigQuery export data used by the connector.
+ val bucket = "connectors-bucket"
+ // Saving the data to BigQuery.
+ parquetDf.write.format("bigquery")
+   .option("table","bigquerytest.parquetAllTypesExtra")
+   .option("temporaryGcsBucket", bucket)
+   .mode(SaveMode.Overwrite)
+   .save()
+}
+----
+
+== _Stratio Crossdata_
+
+=== Data access
+
+Access to data is done through Spark data source. See the Spark section for more information.
+
+=== Authorization/secrets management
+
+As explained in the _Stratio Spark_ authorization section, once the Google service account has been configured and the JSON has been downloaded, it is possible to upload it into Vault.
+
+The required permissions for reading are: *roles/bigquery.user*.
+
+As commented above, the credentials must be in base64 format and the secret must be within _Stratio Crossdata's_ path:
+
+[source,bash]
+----
+Vault path: `/v1/userland/passwords/s000001-crossdata/bigquery-credentials`
+Run in vCLI: `put s000001-crossdata/bigquery-credentials {"credentials": "<base64_json>", "parentProject": "<parent_project>"}`
+----
+
+NOTE: Since the sscc-bigquery-0.3.0-1.5.0 release, the base64-formatted secret is used for both virtualizations via the Spark data source and via JDBC.
+
+=== User guide
+
+_Stratio Crossdata_ supports three different credentials configuration methods:
+
+* *"`stratiocredentials`"* stores a different secret for each database in Vault. This is the recommended method since version 2.22.
+* *"`stratiosecurity`"* uses the _Stratio Crossdata_ credentials (user/password) to connect to all databases. You have to create the same credentials for each database.
+* Plain text in the "`create table`" sentence.
+
+Once the secrets are stored in Vault, the next step is to deploy _Stratio Crossdata_. Since version 3.1.0, the _Stratio Command Center_ descriptor includes all required parameters. The following variables should be properly set up:
+
+[source,json]
+----
+"CROSSDATA_SERVER_SPARK_DATABASE_ENABLE": "true",
+"CROSSDATA_EXTRA_JARS": "http://niquel.int.stratio.com/repository/new-releases/com/stratio/connectors/sscc-bigquery-0.3_2.12/1.5.1-6c22d2c/sscc-bigquery-0.3_2.12-1.5.1-6c22d2c.jar"
+----
+
+For previous versions, you have to deploy a regular _Stratio Crossdata_ and do the following changes in the DC/OS descriptor:
+
+* Add the fetch to download the BigQuery drivers and load them in the Classpath. _Stratio Crossdata_ automatically loads all JARs into the classpath and Spark jobs.
++
+[source,json]
+----
+"fetch": [
+  {"uri": "https://storage.googleapis.com/spark-lib/bigquery/spark-bigquery-with-dependencies_2.12-0.20.0.jar"}
+]
+----
+
+* Once deployed, it is possible to register the table in the catalog and execute queries. It is highly recommended to specify the project inside the query in order to save future problems caused when another Google Cloud Storage account is configured.
++
+[source,sql]
+----
+create table test_bigquery using bigquery OPTIONS (
+'stratiosecurity'='true',
+'stratiosecuritymode'='custom',
+'stratiocredentials'='bigquery-credentials',
+'table'='bigquerytest.userdata1-parquet',
+'project'='connectorstorage')
+----
+
+=== Writing
+
+In case you want to perform writing operations into BigQuery, it is necessary to set up the Google Cloud Storage account:
+
+Secrets:
+
+[source,bash]
+----
+Vault path: `/v1/userland/passwords/s000001-crossdata/googlecs`
+Run in vCLI: `put googlecs {"user": "<private_key_id>", "pass": "<private_key>"}`
+----
+
+Environment variables:
+
+[source,json]
+----
+"SPARK_SECURITY_GCS_ENABLE": "true",
+"SPARK_SECURITY_GCS_VAULT_PATH": "/v1/userland/passwords/s000001-crossdata/googlecs",
+"SPARK_SECURITY_GCS_SERVICE_ACCOUNT": "connectors-service",
+"SPARK_SECURITY_GCS_PROJECT_ID": "connectorstorage"
+----
+
+With everything set up, it is possible to perform a simple write operation in _Stratio Crossdata_ shell (*it is mandatory to specify the _temporatyGcsBucket_ property*):
+
+[source,sql]
+----
+create table test_bigquery using bigquery OPTIONS (
+  'stratiosecurity'='true',
+  'stratiosecuritymode'='custom',
+  'stratiocredentials'='bigquery',
+  'table'='bigquerytest.test-write',
+  'project'= 'connectorstorage',
+  'temporaryGcsBucket'= 'connectors-bucket') AS SELECT 1 AS id, 'Name 1' AS name UNION SELECT 2 AS id, 'Name 2' AS name;
+----
+
+If the catalog returns a 'None.get' error, please see the link:/BigQuery-connector.md#TROUBLESHOOTING[troubleshooting section].
+
+== _Stratio Data Governance_
+
+=== Data access
+
+BigQuery discovery agent has support for discovering _BigQuery_ metadata and it is possible to visualize it in _Stratio Data Governance_, _Stratio Crossdata_, and _Stratio Rocket_.
+
+There is a _Stratio Command Center_ descriptor to install the discovery agent (_agent-bigquery-default_).
+
+=== Authorization/secrets management
+
+BigQuery discovery agent only supports Google Service Account authentication method.
+
+The required permissions are for the discovery agent are: *roles/bigquery.metadataViewer*.
+
+As commented before, the credentials must be in base64 format and the secret must be within _Stratio Crossdata_`'s path:
+
+[source,bash]
+----
+Vault path: /userland/passwords/s000002-dg-bigquery-agent
+Run in vCLI: put bigquery-connectors {"credentials": "<base64_json>", "parentProject": "<parent_project>"}
+----
+
+=== User guide
+
+Prerequisites:
+
+* A Google Cloud Platform with BigQuery and a configured Google Service Account set up.
+* A _Stratio Data Governance_ installation. The agent writes the metadata directly into PostgreSQL, but it is recommended to have the "`dg-businessglossary-api`" and "`governance-ui`" services deployed in order to view the metadata.
+
+Compatibility table:
+
+|===
+| _Stratio Data Governance_ | SSCC BigQuery Connector
+| ≥ 1.8.1
+| sscc-bigquery-0.1_2.11-1.2.x
+| ≥ 1.9.0
+| sscc-bigquery-0.2_2.11-1.3.x
+
+| ≥ 1.10.0
+| sscc-bigquery-0.3_2.11-1.4.x
+| sscc-bigquery-0.3_2.11-1.5.x
+|===
+
+Once you assure you meet the required prerequisites, follow the next steps:
+
+1) Create the secrets in Vault. As in the <<Stratio_Crossdata,_Stratio Crossdata_>> and <<Stratio_Spark,_Stratio Spark_>> authorization sections, it is necessary to have the JSON downloaded with the key in base64 format. These secrets are not created automatically by the _Stratio Command Center_ installer (see the Authorization section above).
+
+[source,bash]
+----
+Vault path: /userland/passwords/s000002-dg-bigquery-agent/bigquery-credentials
+Run in vCLI: put bigquery-connectors {"credentials": "<base64_json>", "parentProject": "<parent_project>"}
+----
+
+2) Use the _Stratio Command Center_ descriptor to install the BigQuery discovery agent for Google BigQuery: agent-bigquery-default.
+
+The most important fields to fill in the installation are:
+
+* *General*
+ ** *Service name*: name displayed in DC/OS.
+* *Metadata Data store (PostgreSQL)*
+ ** *Host*: PostgreSQL instance to save _BigQuery_ metadata.
+* *Configuration of the service to be discovered*
+ ** *BigQuery to be discovered*
+  *** *BigQuery name*: name to be used to identify this data store in _Stratio Data Governance_. This name will be shown in the _Stratio Data Governance_ UI.
+  *** *Root discovery path*: the path from which you want to discover the metadata recursively. The available projects are inside the _BigQuery_ explorer section in the _Google Cloud Platform_. Eg: /connectorstorage.
+  *** *Google Cloud Storage temporary bucket*: required for _BigQuery_ write operations.
+ ** *Resource data store connection configuration*
+  *** *Custom data store service security*: only supports SERVICE_ACCOUNT.
+  *** *Access credentials*: Vault path with the authorization credentials. Eg: bigquery-connectors. The full path will be `userland/passwords/<vault_path>/<access_credentials>`. See the vault_path above.
+  *** *Data store driver location*: URL where the SSCC-BigQuery-Connector JAR is located.
+  *** *BigQuery connection attempts*: defines _BigQuery_ connection retries.
+  *** *Dataset page size*: used for _BigQuery_ pagination in large datasets. It defines the number of datasets returned by page.
+  *** *Table page size*: used for _BigQuery_ pagination in large datasets. It defines the number of tables returned by page.
+  *** *BigQuery concurrent connections*: increase discovery speed for large datasets with parallel tasks.
+* *Service identity*
+ ** *Vault role*: it's recommended to create a new role for discovery agents. Eg: s000001-dg-agent.
+* *Calico network*
+ ** *Network name*: it's necessary to use the stratio-shared network if the discovery agent is configured to save the metadata in Postgreseos.
+
+3) Check that the service deploys, that it's able to download the driver and secrets, and that the discovery process begins. The first time may take a while. If the service works correctly, you can see the discovered metadata in the traces:
+
+[source,bash]
+----
+  Extract begins at: Fri Mar 27 09:56:05 CET 2020
+  NewOrUpdate 14 DataAssets begins at: Fri Mar 27 09:56:06 CET 2020
+  Delete 0 DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+  Synchronizing 14 and 0 Federated DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+----
+
+4) Then, you can see that a new data store has been discovered in the _Stratio Data Governance_ UI, and you can browse the metadata.
+
+image::bigquery-discover-metadata.png[]
+
+==== Writing
+
+In order to make writing operations it is mandatory to add the variable `GCS_BUCKET` in the SSCC-bigquery agent descriptor to indicate the _Google Cloud Storage_ bucket.
+
+E.g: `“GCS_BUCKET”: “connectors-bucket”`.
+
+With this variable set up, the _SSCC BigQuery_ agent is capable of propagating it. Now, _the Eureka discovery_ agent can generate tables with the `temporaryGcsBucket` option set up in order to perform writing operations.
+
+==== Views
+
+_BigQuery_ views are supported but are displayed as tables in the _Stratio Governance_ UI. In order to perform queries to views, it's necessary to add the '`viewsEnabled`' Spark property to '`true`'. This attribute is automatically added to the catalog options.
+
+== _Stratio Rocket_
+
+=== Data access
+
+The recommended way to access BigQuery data from _Stratio Rocket/Stratio Sparta_ is to use the integration with the _Stratio Crossdata_ catalog, as it implements all the security mechanisms. It is not necessary to add an extra jar or BigQuery dependency since it is included in _Stratio Rocket_ 2.1.0.
+
+=== Authorization/secrets management
+
+Please check the _Stratio Crossdata_ authorization section in order to see how to properly configure and upload the access key into Vault.
+
+[box type="info"]It is mandatory to upload the credentials for the _Stratio Rocket_ service user and for each impersonation going to use it in every Vault path. [/box]
+
+=== User guide
+
+Please keep in mind that, in order to create collections, it is necessary to discover all the data with the Eureka discovery agent. Once all the prerequisites are configured (secrets properly uploaded in Vault, metadata discovery properly configured and working, _Stratio Rocket_ compatible version deployed... ) you can access the catalog of a project and create collections just like with the queries used in _Stratio Crossdata_.
+
+Once deployed, it is possible to register the table in the catalog and execute queries. It is highly recommended to specify the project inside the query in order to save future problems caused when another _Google Cloud Storage_ account is configured.
+
+[source,sql]
+----
+create table test_bq_alltypes using bigquery OPTIONS (
+  'stratiosecurity'='true',
+  'stratiosecuritymode'='custom',
+  'stratiocredentials'='bigquery',
+  'table'='bigquerytest.userdata1-parquet',
+  'project'='connectorstorage')
+----
+
+==== Writing
+
+[box type="info"] Since _Stratio Rocket_ 2.1.0, _BigQuery_ and _Google Cloud Storage_ dependencies are included.[/box]
+
+In order to perform writing operations in _BigQuery_ tables, it is necessary to have a connection with the _Google Cloud Storage_ bucket. To do this, you can simply upload the _Google Cloud Storage_ secrets into _Vault_ and add the environment variables into the _Stratio Rocket_ instance.
+
+Please consider uploading the secrets to the _Stratio Rocket_ service user path in order to perform queries inside the catalog project and in every impersonation used for workflow deployments.
+
+Secrets:
+
+[source,bash]
+----
+Vault path: `/v1/userland/passwords/s000001-rocket/googlecs`
+Run in vCLI: `put googlecs {"user": "<private_key_id>", "pass": "<private_key>"}`
+----
+
+Environment variables:
+
+[source,json]
+----
+"SPARK_SECURITY_GCS_ENABLE": "true",
+"SPARK_SECURITY_GCS_VAULT_PATH": "/v1/userland/passwords/s000001-rocket/googlecs",
+"SPARK_SECURITY_GCS_SERVICE_ACCOUNT": "connectors-service",
+"SPARK_SECURITY_GCS_PROJECT_ID": "connectorstorage"
+----
+
+Example of writing from the _Stratio Rocket_ catalog:
+
+[source,sql]
+----
+create table bigquery.test_bigquery using bigquery OPTIONS (
+  'stratiosecurity'='true',
+  'stratiosecuritymode'='custom',
+  'stratiocredentials'='bigquery',
+  'table'='bigquerytest.test-write',
+  'project'= 'connectorstorage',
+  'temporaryGcsBucket'= 'connectors-bucket') AS SELECT 1 AS id, 'Name 3' AS name UNION SELECT 2 AS id, 'Name 4' AS name;
+----
+
+If the catalog returns a 'None.get' error, please see the link:/BigQuery-connector.md#TROUBLESHOOTING[troubleshooting section].
+
+== _Stratio GoSec_
+
+External data stores are not integrated into _Stratio GoSec_.
+
+The authorization will be configured directly in the database when the user is created for _Stratio Crossdata_/_Stratio Spark_/_Stratio Data Governance_. It is recommended to create a specific user for each application with limited permissions.
+
+Most modules will access the data store through _Stratio Crossdata_. This allows configuring different authorization policies for each user in _Stratio GoSec_.
+
+Secrets can be stored in Vault safely. _Stratio Crossdata_/_Stratio Data Governance_ has mechanisms to download the secrets and use them when necessary.
+
+== Troubleshooting
+
+In this section, you will learn how to solve some possible errors or problems related to BigQuery metadata discovery that may occur.
+
+=== _Stratio Data Governance_ data dictionary appears empty
+
+When adding a project that doesn't have the Vault secrets properly configured in the `COMM_SERVICE_INIT_PATH` variable, the discovery agent does not show any error or warning traces.
+
+Please check the `COMM_SERVICE_INIT_PATH` variable value matches the _BigQuery_ project and the secrets for this project have been generated correctly.
+
+NOTE: For security reasons, BigQuery API doesn't show any log traces or it does silently. Also, BigQuery returns a 'Not found' error instead of 'Not authorize'.
+
+=== _Stratio Crossdata_ or _Stratio Rocket_ returns a 'None.get' error.
+
+Bear in mind that, if you create a table in the catalog that does not exist in BigQuery, the catalog shows a 'None.get' error and the table will not appear in _Stratio Crossdata_ catalog, but It will be created in BigQuery. This is a BigQuery library https://github.com/GoogleCloudDataproc/spark-bigquery-connector/issues/451[issue].
+
+In order to solve this error, it is only necessary to rerun the query and the table will be created in the _Stratio Crossdata_ catalog.
+
+== Known issues
+
+* There is currently no support for complex (RECORD) types such as lists or maps. They will be covered in the next release.
+* _Google BigQuery Java_ API has a silent mode that does not report errors when it cannot connect to a certain project. If an empty data store appears in _Stratio Data Governance_ (or it does not appear at all), it may be due to you don't have the required permissions in the Google Service Account configuration.
+* In order to make writing operations, it is mandatory to set up a Google Cloud Storage bucket.
+* If a table is created and it does not exist in BigQuery, _Stratio Crossdata_ catalog returns a '`None.get`' error. Please check the xref:bigquery.adoc#troubleshooting[troubleshooting section] for more information about this issue.
+* BigQuery views are supported but are displayed as tables in the _Stratio Data Governance_ UI.

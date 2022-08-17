@@ -1,0 +1,6 @@
+name: stratio-augmented-data-fabric
+title: Stratio Augmented Data Fabric
+version: '12.1'
+nav:
+- modules/ROOT/nav.adoc
+start_page: ROOT:welcome.adoc

@@ -1,0 +1,315 @@
+= Artefactos de _Stratio Augmented Data Fabric_
+
+En los Universos de Kubernetes, han cambiado los artefactos que se entregan en cada versión. Ha desaparecido el paquete de reglas y el Universo _offline_ que contenía todas las imágenes Docker del Universo, pero ahora hay un nuevo paquete que contiene los _charts_ para el despliegue de los operadores.
+
+* Paquete de _charts_ de operadores: https://repo.stratio.com/repository/universes/kubernetes-universe-operators-12.1.0.zip[12.1.0].
+* Paquete de descriptores: https://repo.stratio.com/repository/universes/kubernetes-universe-descriptors-12.1.0.zip[12.1.0].
+* Paquete con el listado de ficheros estáticos requeridos por el instalador: https://repo.stratio.com/repository/universes/files-0.5.tar.gz[0.5].
++
+:note-caption: AVISO
+
+NOTE: Este paquete sólo es necesario para *instalaciones _offline_*.
++
+
+Consulta el https://repo.stratio.com/repository/universes/kubernetes-universe-images-12.1.0.log[listado completo de imágenes Docker que componen la versión 12.1.0]. Estas imágenes están disponibles tanto en el _registry_ interno (niquel.stratio.com) como en el de clientes (repo.stratio.com).
+
+A continuación se detallan esos artefactos y sus versiones:
+
+== _Stratio KEOS_
+
+|===
+| Artefacto | Versión | Changelog
+
+| keos-installer
+| 0.5.2
+| xref:ROOT:latest-artifacts-versions/changelog-keos-installer.adoc[Changelog]
+|===
+
+== _Stratio Command Center_
+
+|===
+| Artefacto | Versión | Changelog
+
+| cct-applications-query
+| 0.5.2
+| xref:ROOT:latest-artifacts-versions/changelog-cct-applications-query.adoc[Changelog]
+
+| cct-central-configuration
+| 0.2.1
+| xref:ROOT:latest-artifacts-versions/changelog-cct-central-configuration.adoc[Changelog]
+
+| cct-orchestrator
+| 0.5.2
+| xref:ROOT:latest-artifacts-versions/changelog-cct-orchestrator.adoc[Changelog]
+
+| cct-paas-services
+| 0.5.1
+| xref:ROOT:latest-artifacts-versions/changelog-cct-paas-services.adoc[Changelog]
+
+| cct-universe
+| 1.8.1
+| xref:ROOT:latest-artifacts-versions/changelog-cct-universe.adoc[Changelog]
+
+| cct-ui
+| 2.0.5
+| xref:ROOT:latest-artifacts-versions/changelog-cct-ui.adoc[Changelog]
+|===
+
+== _Stratio GoSec_
+
+|===
+| Artefacto | Versión | Changelog
+
+| gosec-management-baas
+| 1.2.0
+| xref:ROOT:latest-artifacts-versions/changelog-gosec-management-baas.adoc[Changelog]
+
+| gosec-management-ui
+| 0.7.3
+| xref:ROOT:latest-artifacts-versions/changelog-gosec-management-ui.adoc[Changelog]
+
+| gosec-authz
+| 1.11.1
+| xref:ROOT:latest-artifacts-versions/changelog-gosec-authz.adoc[Changelog]
+
+| gosec-identities-daas
+| 0.11.1
+| xref:ROOT:latest-artifacts-versions/changelog-gosec-identities-daas.adoc[Changelog]
+
+| gosec-services-daas
+| 0.11.3
+| xref:ROOT:latest-artifacts-versions/changelog-gosec-services-daas.adoc[Changelog]
+
+| gosec-encryption-daas
+| 0.2.1
+| xref:ROOT:latest-artifacts-versions/changelog-gosec-encryption-daas.adoc[Changelog]
+|===
+
+== _Stratio Open Distro Operator_
+
+|===
+| Artefacto | Versión | Changelog
+
+| opendistro-operator
+| 0.3.1
+| xref:ROOT:latest-artifacts-versions/changelog-opendistro-operator.adoc[Changelog]
+
+| opendistro-task
+| 0.3.1
+| xref:ROOT:latest-artifacts-versions/changelog-opendistro-operator.adoc[Changelog]
+
+| elasticsearch-agent
+| 2.3.9
+| xref:ROOT:latest-artifacts-versions/changelog-dorus-agent.adoc[Changelog]
+
+| opendistro-kibana-task
+| 0.3.1
+| xref:ROOT:latest-artifacts-versions/changelog-opendistro-operator.adoc[Changelog]
+|===
+
+== _Stratio PostgreSQL Operator_
+
+|===
+| Artefacto | Versión | Changelog
+
+| postgres-operator
+| 0.4.4
+| xref:ROOT:latest-artifacts-versions/changelog-postgres-operator.adoc[Changelog]
+
+| postgresql-task
+| 0.4.4
+| xref:ROOT:latest-artifacts-versions/changelog-postgres-operator.adoc[Changelog]
+
+| pgbouncer-task
+| 0.4.4
+| xref:ROOT:latest-artifacts-versions/changelog-postgres-operator.adoc[Changelog]
+
+| postgres-backup
+| 1.9.2
+| xref:ROOT:latest-artifacts-versions/changelog-postgres-backup.adoc[Changelog]
+
+| postgres-agent
+| 2.3.9
+| xref:ROOT:latest-artifacts-versions/changelog-dorus-agent.adoc[Changelog]
+|===
+
+== _Stratio Kafka Operator_
+
+|===
+| Artefacto | Versión | Changelog
+
+| kafka-operator
+| 0.2.2
+| xref:ROOT:latest-artifacts-versions/changelog-kafka-operator.adoc[Changelog]
+
+| kafka-task-k
+| 0.2.2
+| xref:ROOT:latest-artifacts-versions/changelog-kafka-operator.adoc[Changelog]
+
+| zookeeper-task-k
+| 0.2.2
+| xref:ROOT:latest-artifacts-versions/changelog-kafka-operator.adoc[Changelog]
+|===
+
+== _Stratio Virtualizer_
+
+|===
+| Artefacto | Versión | Changelog | Notas
+
+| virtualizer
+| 0.3.0
+| xref:ROOT:latest-artifacts-versions/changelog-virtualizer.adoc[Changelog]
+|
+
+| Crossdata ODBC 32bits
+| 2.22.4
+| xref:ROOT:latest-artifacts-versions/changelog-crossdata-driver.adoc[Changelog]
+| Artefacto No-Docker: /releases/Crossdata/CrossdataODBCInstaller_x86-2.22.4.exe
+
+| Crossdata ODBC 64bits
+| 2.22.4
+| xref:ROOT:latest-artifacts-versions/changelog-crossdata-driver.adoc[Changelog]
+| Artefacto No-Docker: /releases/Crossdata/CrossdataODBCInstaller_x64-2.22.4.exe
+
+| Crossdata OLEDB 32bits
+| 2.22.4
+| xref:ROOT:latest-artifacts-versions/changelog-crossdata-driver.adoc[Changelog]
+| Artefacto No-Docker: /releases/Crossdata/CrossdataOLEDBInstaller_x86-2.22.4.exe
+
+| Crossdata OLEDB 64bits
+| 2.22.4
+| xref:ROOT:latest-artifacts-versions/changelog-crossdata-driver.adoc[Changelog]
+| Artefacto No-Docker: /releases/Crossdata/CrossdataOLEDBInstaller_x64-2.22.4.exe
+|===
+
+== _Stratio Spark_
+
+|===
+| Artefacto | Versión | Changelog
+
+| stratio-spark
+| 3.1.1-1.4.1
+| xref:ROOT:latest-artifacts-versions/changelog-stratio-spark.adoc[Changelog]
+|===
+
+== _Stratio Data Governance_
+
+|===
+| Artefacto | Versión | Changelog
+
+| governance-ui
+| 1.9.3
+| xref:ROOT:latest-artifacts-versions/changelog-governance-ui.adoc[Changelog]
+
+| dg-businessglossary-api
+| 1.9.3
+| xref:ROOT:latest-artifacts-versions/changelog-dg-businessglossary-api.adoc[Changelog]
+
+| governance-map
+| 0.5.2
+| xref:ROOT:latest-artifacts-versions/changelog-governance-map.adoc[Changelog]
+
+| dg-datamarket-api
+| 0.2.2
+| xref:ROOT:latest-artifacts-versions/changelog-dg-datamarket-api.adoc[Changelog]
+
+| stratio-governance-hdfs-agent
+| 1.9.2
+| xref:ROOT:latest-artifacts-versions/changelog-stratio-governance-hdfs-agent.adoc[Changelog]
+
+| dg-jdbc-agent
+| 1.9.1
+| xref:ROOT:latest-artifacts-versions/changelog-dg-jdbc-agent.adoc[Changelog]
+
+| dg-custom-agent
+| 0.3.0
+| xref:ROOT:latest-artifacts-versions/changelog-dg-custom-agent.adoc[Changelog]
+
+| eureka-bdl-agent_2.12
+| 0.7.5
+| xref:ROOT:latest-artifacts-versions/changelog-eureka-bdl-agent.adoc[Changelog]
+
+| dg-ontology-graph-api
+| 0.5.2
+| xref:ROOT:latest-artifacts-versions/changelog-dg-ontology-graph-api.adoc[Changelog]
+
+| dg-datarest
+| 0.3.0
+| xref:ROOT:latest-artifacts-versions/changelog-dg-datarest.adoc[Changelog]
+
+| bdl-mapping-agent
+| 0.4.2
+| xref:ROOT:latest-artifacts-versions/changelog-bdl-mapping-agent.adoc[Changelog]
+|===
+
+== _Stratio Discovery_
+
+|===
+| Artefacto | Versión | Changelog
+
+| discovery
+| 0.42.2-0.1.1
+| xref:ROOT:latest-artifacts-versions/changelog-discovery.adoc[Changelog]
+|===
+
+== _Stratio Intelligence_
+
+|===
+| Artefacto | Versión | Changelog
+
+| intelligence-environment
+| 2.3.0
+| xref:ROOT:latest-artifacts-versions/changelog-intelligence-environment.adoc[Changelog]
+
+| analytic-environment
+| 2.3.1
+| xref:ROOT:latest-artifacts-versions/changelog-analytic-environment.adoc[Changelog]
+
+| analytic-environment-light
+| 2.3.1
+| xref:ROOT:latest-artifacts-versions/changelog-analytic-environment.adoc[Changelog]
+|===
+
+== _Stratio Rocket_
+
+|===
+| Artefacto | Versión | Changelog
+
+| rocket-api
+| 2.4.1
+| xref:ROOT:latest-artifacts-versions/changelog-rocket-api.adoc[Changelog]
+
+| rocket-driver
+| 2.4.1
+| xref:ROOT:latest-artifacts-versions/changelog-rocket-driver.adoc[Changelog]
+
+| rocket-executor
+| 2.4.1
+| xref:ROOT:latest-artifacts-versions/changelog-rocket-driver.adoc[Changelog]
+
+| rocket-mlflow-microservice
+| 2.4.1
+| xref:ROOT:latest-artifacts-versions/changelog-rocket-driver.adoc[Changelog]
+
+| rocket-mleap-microservice
+| 2.4.1
+| xref:ROOT:latest-artifacts-versions/changelog-rocket-driver.adoc[Changelog]
+
+| rocket-r-mlflow-microservice
+| 2.4.1
+| xref:ROOT:latest-artifacts-versions/changelog-rocket-driver.adoc[Changelog]
+|===
+
+== _Stratio DLC_
+
+|===
+| Artefacto | Versión | Changelog
+
+| dlc-entity
+| 1.0.2
+| xref:ROOT:latest-artifacts-versions/changelog-dlc-entity.adoc[Changelog]
+
+| cdc-engine
+| 1.1.0
+| xref:ROOT:latest-artifacts-versions/changelog-cdc-engine.adoc[Changelog]
+|===

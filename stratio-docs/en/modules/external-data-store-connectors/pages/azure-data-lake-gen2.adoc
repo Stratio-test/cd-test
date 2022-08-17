@@ -1,0 +1,269 @@
+= _Azure Data Lake Gen2_
+
+Is an external storage included in the _Azure Cloud Platform_. It is based on HDFS with a set of additional functionalities, such as the hierarchical namespace, which allows profiling at the directory and file level.
+
+== Known issues
+
+* Supports PARQUET, CSV, JSON, and ORC file formats. The XML and AVRO formats are supported by Spark, but it is necessary to add some dependencies that are not included in _Stratio Spark_. Partitioning with PARQUET files has also been tested.
+* _Stratio Command Center_ descriptor includes support for this datastore since version 2.22.0. For previous versions, you have to deploy a regular _Stratio Crossdata_ and then change some environment variables.
+* _Stratio Command Center_ descriptor includes support for this data store using the OAuth2 authentication method. You have to deploy a regular _Stratio Rocket_ or _Stratio Sparta_ instance filling the section dedicated to this connector located below the ADLS2 section in the main view.
+
+== Support matrix
+
+|===
+| Module | Versions | _Azure Data Lake Gen2_
+
+| _Stratio Spark_
+| ≥ 2.4.4-3.1.0
+| OK
+
+| _Stratio Crossdata_
+| ≥ 2.21.0
+| OK
+
+| _Stratio Data Governance_
+| ≥ 1.5.0
+| OK
+
+| _Stratio Rocket_
+| ≥ 1.1.0
+| OK
+
+| _Stratio Sparta_
+| ≥ 2.15
+| OK
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| ≥ 1.6.0
+| OK
+|===
+
+[box type="info"]Modules without versions are not tested yet. They might be supported.[/box]
+
+== _Stratio Spark_
+
+=== Data access
+
+_Stratio Spark_ includes the Hadoop client dependencies to support _Azure Data Lake Gen2_.
+
+It supports PARQUET, CSV, JSON, and ORC file formats. The XML and AVRO formats are supported by Spark, but it is necessary to add some dependencies that are not included in _Stratio Spark_. Partitioning with PARQUET files has also been tested.
+
+Since _Stratio Spark_ 2.4.4-3.3.0, it is supported to connect securely to several _Azure Data Lake Gen2_ accounts at the same time.
+
+=== Authorization/Secrets management
+
+_Azure Data Lake Gen2_ supports several authorization methods:
+
+* *Client credentials (OAuth 2.0)*: this is the recommended way. The Spark team has made development in _Stratio Spark_ to store the secrets in Vault.
+* *Shared Key*: the Spark team has made development in _Stratio Spark_ to store the secrets in Vault.
+
+==== Client credentials (OAuth 2.0)
+
+To use this method, you need to store the secrets in Vault. Please ask the system administrator to do it for you. It is important to include the Azure account name at the end of the Vault path. It will be used to set internal properties.
+
+*Vault path*: `/v1/userland/passwords/<stratio_tenant>-<account_name>`
+*Run in vCLI*: `put <stratio_tenant>-<account_name> {"user": "<client_id>", "pass": "<client_secret>"}`
+
+[box type="info"]If you are using _Stratio Spark_ in DC/OS without multi-tenant support, you cannot set the account name in the Vault path. You have to set this Spark property instead: _"spark.mesos.dirverEnv.SPARK_SECURITY_ADLS2_ACCOUNT_NAME": "+++<account_name>+++"</i>[/box]+++</account_name>+++_
+
+Then, you can launch the Spark Job with the following properties:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_ADLS2_ENABLE": "true",
+"spark.mesos.dirverEnv.SPARK_SECURITY_ADLS2_VAULT_PATH": "/v1/userland/passwords/<stratio_tenant>-<account_name>",
+"spark.hadoop.fs.azure.account.oauth2.client.endpoint.<account_name>.dfs.core.windows.net": "https://login.microsoftonline.com/<directory_id>/oauth2/token",
+"spark.hadoop.fs.azure.skipUserGroupMetadataDuringInitialization": "true"
+----
+
+From _Stratio Spark_ version 3.3.0, there are some changes in the environment vars to support multiple accounts:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_ADLS2_ENABLE": "true",
+"spark.mesos.dirverEnv.SPARK_SECURITY_ADLS2_<account_name>_VAULT_PATH": "/v1/userland/passwords/<stratio_tenant>-azure",
+"spark.hadoop.fs.azure.account.oauth2.client.endpoint.<account_name>.dfs.core.windows.net": "https://login.microsoftonline.com/<directory_id>/oauth2/token",
+"spark.hadoop.fs.azure.skipUserGroupMetadataDuringInitialization": "true"
+----
+
+* account_name: storage account in Azure. Eg: stratiospk,
+* directory_id: tenant/directory identifier en Azure. You can find it in: Azure active directory \=> Tenant ID. Eg: 9c2f8eb6-5bf1-4597-8f4b-0357395935f5.
+
+The property `“spark.hadoop.fs.azure.skipUserGroupMetadataDuringInitialization”` is required to access Azure and Kerberized HDFS in the same job.
+
+==== Shared key
+
+The use of this method is not recommended for security reasons, since there is no access control beyond being in possession of the shared key. Since _Stratio Spark_ 2.4.4-3.3.0, it's possible to store the shared key in Vault.
+
+To use client shared key authorization, you need to store the secrets in Vault. Please ask the system administrator to do it for you.
+
+These are the properties to launch the Spark job:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_ADLS2_ENABLE": "true",
+"spark.mesos.dirverEnv.SPARK_SECURITY_ADLS2_<account_name>_ACCESSKEY_VAULT_PATH": "/v1/userland/passwords/<stratio_tenant>-azure",
+"spark.hadoop.fs.azure.skipUserGroupMetadataDuringInitialization": "true"
+----
+
+* account_name: Storage account in Azure. Eg: stratiospk
+
+The property `“spark.hadoop.fs.azure.skipUserGroupMetadataDuringInitialization”` is required to access Azure and Kerberized HDFS in the same job.
+
+=== User guide
+
+The first step is to choose one of the authorization methods, set up the credentials in Azure, and store the secrets in Vault. Then, you have to set the Spark properties to download the secrets and configure the data store access. Once the data store is configured, it will be accessed as if it were a normal file system (like HDFS). See the <<AuthorizationSecrets_management,Authorization/Secrets management section>> for instructions.
+
+The URI used by _Azure Data Lake Gen2_ to locate the different resources is as follows:
+
+[source,text]
+----
+abfss://<file_system>@<account_name>.dfs.core.windows.net/<path_to_file>
+----
+
+Example Spark code:
+
+[source,scala]
+----
+val df = spark.read.
+ parquet("abfss://filesystem01@stratiospk.dfs.core.windows.net/userdata1.parquet")
+
+df.show()
+----
+
+Launch the Spark job using _Spark Dispatcher_. You need to set these properties in the job to download the secrets. The Vault path will be provided by the system administrator.
+
+== _Stratio Crossdata_
+
+=== Data access
+
+Access to data is done through _Stratio Spark_. See the <<Stratio_Spark,_Stratio Spark_ section>> for more information.
+
+=== Authorization/Secrets management
+
+_Stratio Crossdata_ uses the same authorization methods supported in _Stratio Spark_.
+
+The recommended method is "`client credentials (OAuth 2.0)`" and the secrets can be safely stored in Vault. It is also possible to configure the credentials in plain text using environment variables but this method is not recommended for security reasons.
+
+=== User guide
+
+In order to carry out a test, it is necessary to have an Azure account, create a storage account (type Data Lake Gen2), and then a BLOB filesystem (in Containers).
+
+First of all, you need to save the credentials in Vault. You have to ask the system administrator to do it for you. See the <<Stratio_Spark,_Stratio Spark_>> secrets section for instructions.
+
+The next step is to deploy _Stratio Crossdata_ using _Stratio Command Center_. You can find them in *Environment → External data stores → _Azure Data Lake Gen2_ integration*.
+
+[box type="info"]The _Stratio Command Center_ descriptor is available since version 2.22.0. For previous versions, you have to talk with the system administrator.[/box]
+
+Once deployed, it is possible to register the table in the catalog and execute queries.
+
+[source,text]
+----
+-- Read an existing parquet file
+CREATE TABLE azure_1 USING parquet OPTIONS (path 'abfss://filesystem01@stratiospk.dfs.core.windows.net/userdata1.parquet');
+SELECT * from azure_1;
+
+-- Create a new parquet file in Azure with two columns and five rows.
+CREATE TABLE azure_2 USING parquet OPTIONS (path 'abfss://filesystem01@stratiospk.dfs.core.windows.net/myfile.parquet') AS SELECT 1 AS id, 'Roque' AS name UNION SELECT 2 AS id, 'Miguel Angel' AS name UNION SELECT 3 AS id, 'Ivan' AS name UNION SELECT 4 AS id, 'Alberto' AS name UNION SELECT 5 AS id, 'Juan Miguel' AS name;
+SELECT * from azure_2;
+----
+
+== _Stratio Data Governance_
+
+=== Data access
+
+The HDFS discovery agent has support for discovery Azure metadata using the Hadoop Azure client. Supported file formats are PARQUET and AVRO.
+
+=== Authorization/Secrets management
+
+The Discovery agent currently supports "`client credentials (OAuth 2.0)`" and "`shared key`" authorization methods. Secrets can be safely stored in Vault. See the <<Stratio_Spark,_Stratio Spark_ section>> for more information.
+
+It is highly recommended to create a dedicated user for the discovery agent with limited permissions.
+
+=== User guide
+
+Prerequisites:
+
+* An Azure storage account (type Data Lake Gen2) with access to a BLOB filesystem.
+* A _Stratio Data Governance_ installation.
+
+The first step is to create the secrets in Vault. These secrets are not created automatically by the _Stratio Command Center_ installer, so you have to ask the system administrator to do it for you. It's highly recommended to create a new user in Azure for _Stratio Data Governance_ with limited permissions.
+
+Use the _Stratio Command Center_ descriptor to install the HDFS discovery agent for Azure: _agent-cloud-default_.
+
+The most important fields to fill in the installation are:
+
+*General*
+
+* Backend _Stratio Data Governance_ (PostgreSQL)
+ ** Host: PostgreSQL instance to save the _Azure Data Lake Gen2_ metadata.
+* External configuration:
+ ** HDFS to discover
+  *** Data store type: ADLS2.
+  *** Default FS: default file system. Eg: abfss://filesystem01@stratiospk.dfs.core.windows.net.
+  *** Init path: the path from which you want to discover the metadata recursively. Set/if you are not sure.
+ ** _Azure Data Lake Gen2_ configuration
+  *** Authorization method: can be OAUTH (client credentials) or ACCESS KEY. In both cases, the secrets must be stored in Vault.
+  *** OAuth2 Tenant/Directory ID: only for OAuth authentication. Eg: 9c2f8eb6-5bf1-4597-8f4b-0357395935f5.
+ ** Service identity
+  *** Vault role: it's recommended to create a new role for discovery agents. Eg: s000001-dg-agent.
+ ** Calico network
+  *** Network name: it's necessary to use the stratio-shared network if the discovery agent is configured to save the metadata in Postgreseos.
+
+*Settings*
+
+* Secrets path
+ ** Vault path: Vault path with the authorization credentials. Eg: s000001-dg-azure-agent.
+ ** Instance name: Vault secret with the authorization credentials. Eg: s000001-dg-azure-agent.
+
+Check that the service deploys, is able to download the driver and secrets, and the discovery process begins. The first time may take a while.
+
+If the service works correctly, you can see the discovered metadata in the traces:
+
+[source,text]
+----
+Extract begins at: Fri Mar 27 09:56:05 CET 2020
+NewOrUpdate 14 DataAssets begins at: Fri Mar 27 09:56:06 CET 2020
+Delete 0 DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+Synchronizing 14 and 0 Federated DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+----
+
+In the _Stratio Data Governance_ UI, you can see that a new data store has been discovered, and you can browse the metadata. All files, columns, and data types have been detected correctly.
+
+image::../attachments/external-azuregen2-connector-governance.png[]
+
+The agent updates the metadata periodically. A test can be performed, for example, uploading a new file into Azure and waiting for the agent to detect the change. These changes are reflected in the _Stratio Data Governance_ UI.
+
+== _Stratio Rocket_/_Stratio Sparta_
+
+Access to data is done through _Stratio Spark_. See the <<Stratio_Spark,_Stratio Spark_ section>> for more information.
+
+_Stratio Command Center_ descriptor includes support for this data store using the "`client credentials (OAuth 2.0)`" authentication method. You can find _Azure Data Lake Gen2_ fields in the *General → External configuration → Adl2 configuration enabled* section.
+
+The most important fields to fill in the installation are:
+
+*General*
+
+* External configuration:
+ ** Configuration enabled: enable _Azure Data Lake Gen2_ support.
+  *** Credentials Vault path: Vault path with the secrets. This is provided by the system administrator.
+  *** Storage account in Azure: storage account name. Eg: stratiospk.
+  *** Tenant/directory identifier in Azure: directory ID. Eg: 9c2f8eb6-5bf1-4597-8f4b-0357395935f5.
+
+There is specific documentation for this connector in xref:../../Operations-manual/Stratio-Rocket/Installing-and-upgrading/Deployment/EOS-JSON.adoc[_Stratio Rocket_ deployment page].
+
+[box type="info"]_Stratio Spark 2.4.4-3.1.0_ reads the storage account name from the Vault path, so make sure the path ends with the following format: _"v1/userland/passwords/ ... /<stratio_tenant>-<account_name>"_. This limitation has been fixed in later versions of _Stratio Spark_.[/box]
+
+== _Stratio GoSec_
+
+External data stores are not integrated into _Stratio GoSec_.
+
+The authorization will be configured directly in the database when the user is created for _Stratio Crossdata_/_Stratio Spark_/_Stratio Data Governance_. It is recommended to create a specific user for each application with limited permissions.
+
+Most modules will access the data store through _Stratio Crossdata_. This allows you to configure different authorization policies for each user in _Stratio GoSec_.
+
+Secrets (user/password) can be stored in Vault safely. _Stratio Crossdata_/_Stratio Spark_/_Stratio Data Governance_ have mechanisms to download the secrets and use them when necessary.

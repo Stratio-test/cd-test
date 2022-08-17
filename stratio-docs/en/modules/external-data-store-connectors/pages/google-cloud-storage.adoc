@@ -1,0 +1,215 @@
+= _Google Cloud Storage (GCS)_
+
+Is an external storage included in the Google Cloud Platform. It can be employed to store any type of object which allows for uses like storage for Internet applications, backup and recovery, disaster recovery, data archives, data lakes for analytics, and hybrid cloud storage.
+
+== Known issues
+
+* Supports PARQUET, CSV, JSON, and ORC file formats. The XML and AVRO formats are supported by Spark, but it is necessary to add some dependencies that are not included in _Stratio Spark_. Partitioning with PARQUET files has also been tested.
+* There is only support for one service account. That service account must have all necessary permissions to read/write on the buckets.
+
+== Support matrix
+
+|===
+| Module | Versions | Google Cloud Storage
+
+| _Stratio Spark_
+| ≥ 2.4.4-3.5.0 +
+≥ 3.0.1-1.1.0
+| OK
+
+| _Stratio Crossdata_
+| ≥ 3.1.0
+| OK
+
+| _Stratio Data Governance_
+| ≥ 1.8.1
+| OK
+
+| _Stratio Rocket_
+| ≥ 2.1.0
+| OK
+
+| _Stratio Sparta_
+| -
+| -
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| ≥ 1.8.1
+| OK
+|===
+
+[box type="info"]Modules without versions are not tested yet. They might be supported.[/box]
+
+== _Stratio Spark_
+
+=== Data access
+
+_Stratio Spark_ includes the Hadoop client dependencies to support _Google Cloud Storage_.
+
+It supports PARQUET, CSV, JSON, and ORC file formats. The XML and AVRO formats are supported by Spark, but it is necessary to add some dependencies that are not included in _Stratio Spark_. Partitioning with PARQUET files has also been tested.
+
+[box type="info"]Only one Google account is supported in each Spark job. You can configure access to several buckets.[/box]
+
+=== Authorization/Secrets management
+
+_Google Cloud Storage_ only supports the *Google Service Account (OAuth 2.0)* authorization method. To use it, you need to store the secrets in Vault. The Spark team has made development in _Stratio Spark_ to store these secrets. Please, ask the system administrator to do it for you:
+
+*Vault path*: `/v1/userland/passwords/s000001-spark-fw/s000001-gcs`
+*Run in vCLI*: `put s000001-gcs {"user": "<private_key_id>", "pass": "<private_key>"}`
+
+[box type="info"]If you are using _Stratio Spark_ in DC/OS without multi-tenant support, you cannot set the account name in the Vault path. You have to set this Spark property instead: _"spark.mesos.dirverEnv.SPARK_SECURITY_ADLS2_ACCOUNT_NAME": "+++<account_name>+++"</i>[/box]+++</account_name>+++_
+
+Then, you can launch the Spark Job with the following properties:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_GCS_ENABLE": "true",
+"spark.mesos.driverEnv.SPARK_SECURITY_GCS_VAULT_PATH": "/v1/userland/passwords/s000001-spark-fw/s000001-gcs",
+"spark.mesos.driverEnv.SPARK_SECURITY_GCS_PROJECT_ID": "<project_id>",
+"spark.mesos.driverEnv.SPARK_SECURITY_GCS_SERVICE_ACCOUNT": "<service_account>"
+----
+
+* project_id: the project ID in Google Cloud. It can be set in SPARK_SECURITY_GCS_PROJECT_ID. Eg: ConnectorStorage.
+* service_account: service account created using Google Cloud IAM and with access to the bucket. Eg: connectors-service
+
+=== User guide
+
+The first step is to set up the credentials in Google Cloud and store the secrets in Vault. Then, you have to set the Spark properties to download the secrets and configure the data store access. Once the data store is configured, it will be accessed as if it were a normal file system (like HDFS). See the <<AuthorizationSecrets_management,Authorization/Secrets management section>> for instructions.
+
+The URI used by _Google Cloud Storage_ to locate the different resources is as follows:
+
+[source,text]
+----
+gs://<bucket_name>/<path_to_file>
+----
+
+Example Spark code:
+
+[source,scala]
+----
+val df = spark.read.
+ parquet("gs://connectors-bucket/userdata1.parquet")
+
+df.show()
+----
+
+Launch the Spark job using _Spark Dispatcher_. You need to set these properties in the job to download the secrets. The Vault path will be provided by the system administrator.
+
+== _Stratio Crossdata_
+
+=== Data access
+
+Access to data is done through _Stratio Spark_. See the <<Stratio_Spark,_Stratio Spark_ section>> for more information.
+
+=== Authorization/Secrets management
+
+_Stratio Crossdata_ uses the same authorization methods supported in _Stratio Spark_ (only *Google Service Account (OAuth 2.0)*), and the secrets can be safely stored in Vault. It is also possible to configure the credentials in plain text using environment variables but this method is not recommended for security reasons.
+
+=== User guide
+
+In order to carry out a test, it is necessary to have a Google project, create a storage account, and give access to a service account.
+
+First of all, you need to save the credentials in Vault. See the <<Stratio_Spark,_Stratio Spark_ section>> for more information.
+
+The next step is to deploy _Stratio Crossdata_ using _Stratio Command Center_. You can find them in *Environment → External data stores → GCS integration*.
+
+Once deployed, it is possible to register the table in the catalog and execute queries.
+
+[source,text]
+----
+-- Read an existing parquet file
+CREATE TABLE gcs_1 USING parquet OPTIONS (path 'gs://connectors-bucket/userdata1.parquet');
+SELECT * from gcs_1;
+
+-- Create a new parquet file in GCS with two columns and five rows
+CREATE TABLE gcs_2 USING parquet OPTIONS (path 'gs://connectors-bucket/myfile.parquet') AS SELECT 1 AS id, 'Roque' AS name UNION SELECT 2 AS id, 'Miguel Angel' AS name UNION SELECT 3 AS id, 'Ivan' AS name UNION SELECT 4 AS id, 'Alberto' AS name UNION SELECT 5 AS id, 'Juan Miguel' AS name;
+SELECT * from gcs_2;
+----
+
+== _Stratio Data Governance_
+
+=== Data access
+
+The HDFS discovery agent has support for the discovery of _Google Cloud Storage_ metadata using the Hadoop client. Supported file formats are PARQUET, AVRO, ORC, and CSV.
+
+=== Authorization/Secrets management
+
+The discovery agent currently supports the *Google Service Account (OAuth 2.0)* authorization method. Secrets can be safely stored in Vault. See the <<Stratio_Spark,_Stratio Spark_ section>> for more information.
+
+It is highly recommended to create a dedicated user for the discovery agent with limited permissions.
+
+=== User guide
+
+Prerequisites:
+
+* A Storage account within a Google project.
+* A Service account with access to that storage account.
+* A _Stratio Data Governance_ installation.
+
+The first step is to create the secrets in Vault. These secrets are not created automatically by the _Stratio Command Center_ installer, so you have to ask the system administrator to do it for you. It's highly recommended to create a new Google account for _Stratio Data Governance_ with limited permissions.
+
+Use the _Stratio Command Center_ descriptor to install the HDFS discovery agent for _Google Cloud Storage_: *agent-cloud-default*.
+
+The most important fields to fill in the installation are:
+
+*General*
+
+* Backend _Stratio Data Governance_ (PostgreSQL).
+ ** Host: PostgreSQL instance to save the _Google Cloud Storage_ metadata.
+* External configuration
+ ** HDFS to discover
+  *** Data store type: _Google Cloud Storage_.
+  *** Default FS: default file system. Eg: gs://connectors-bucket.
+  *** Init path: the path from which you want to discover the metadata recursively. Set/if you are not sure.
+ ** _Google Cloud Storage_ configuration
+  *** Authorization method: must be OAUTH (service account). The secrets must be stored in Vault.
+  *** Google project ID: name of the Google project the service account belongs to. Eg: connectorstorage.
+  *** Google service account: name of the service account. Eg: connectors-service.
+ ** Service identity
+  *** Vault role: it's recommended to create a new role for discovery agents. Eg: s000001-dg-agent.
+ ** Calico network
+  *** Network name: it's necessary to use the stratio-shared network if the discovery agent is configured to save the metadata in Postgreseos.
+
+*Settings*
+
+* Secrets path
+ ** Vault path: Vault path with the authorization credentials. Eg: s000001-dg-gcs-agent.
+ ** Instance name: Vault secret with the authorization credentials. Eg: s000001-dg-gcs-agent.
+
+Check that the service deploys, is able to download the driver and secrets, and the discovery process begins. The first time may take a while.
+
+If the service works correctly, you can see the discovered metadata in the traces:
+
+[source,text]
+----
+Extract begins at: Fri Mar 27 09:56:05 CET 2020
+NewOrUpdate 14 DataAssets begins at: Fri Mar 27 09:56:06 CET 2020
+Delete 0 DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+Synchronizing 14 and 0 Federated DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+----
+
+In the _Stratio Data Governance_ UI, you can see that a new data store has been discovered, and you can browse the metadata. All files, columns, and data types have been detected correctly.
+
+image::../attachments/external-gcs-connector-governance.png[]
+
+The agent updates the metadata periodically. A test can be performed, for example, uploading a new file into _Google Cloud Storage_ and waiting for the agent to detect the change. These changes are reflected in the _Stratio Data Governance_ UI.
+
+== _Stratio Rocket_
+
+Access to data is done through _Stratio Spark_. See the <<Stratio_Spark,_Stratio Spark_ section>> for more information.
+
+You need to store the secrets in Vault and set the environment variables. Then, you can use all filesystem inputs and outputs to read and write data into _Google Cloud Storage_. It works the same way as HDFS.
+
+== _Stratio GoSec_
+
+External data stores are not integrated into _Stratio GoSec_.
+
+The authorization will be configured directly in the database when the user is created for _Stratio Crossdata_/_Stratio Spark_/_Stratio Data Governance_. It is recommended to create a specific user for each application with limited permissions.
+
+Most modules will access the data store through _Stratio Crossdata_. This allows you to configure different authorization policies for each user in _Stratio GoSec_.
+
+Secrets (user/password) can be stored in Vault safely. _Stratio Crossdata_/_Stratio Spark_/_Stratio Data Governance_ have mechanisms to download the secrets and use them when necessary.

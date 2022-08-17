@@ -1,0 +1,110 @@
+= Changelog Intelligence Analytic Environment
+
+== 2.3.1 (June 07, 2022)
+
+* [ROCK-7186] Allow https protocol in libraries repository configuration
+
+== 2.3.0 (May 25, 2022)
+
+* [ROCK-5930] Update Stratio Spark to v.3.1.1-1.4.1
+* [ROCK-5930] Update Stratio Rocket to v.2.4.0
+* [ROCK-5952][ROCK-5930] Upgrade Stratio Crossdata to v.3.4.1 and Crossdata-drivers to 2.22.3
+* [INTELL-2701] Add JPY_SESSION_DEBUG var to enable logging Session debug messages
+* [ROCK-6008] Enable GPU support in KEOS deployments
+* [ROCK-5898][ROCK-5899] Security fix: use TLS >= v1.2 encryption for internal communications
+* [ROCK-6001][ROCK-6001] Security fix: Upgrade log4j to 2.17.1 and postgre jdbc library to 42.2.25
+* [ROCK-5952] Fix: install python 3.6 from source
+* [ROCK-NN] Fix: python lzma compression library
+* [ROCK-5236] Fix - remove variable inspector and update notebook and jupyterLab packages to address vulnerabilities issues
+* [ROCK-5905] Fix: Create workspace folder with root and chown to JPY_USER
+* [ROCK-5887] Hide Vault token from user
+* [ROCK-6079] Do not count local kernels to the limit of open kernels allowed
+* [ROCK-6421] Fix: Nginx configuration with internal TLS enabled
+* [ROCK-6449] Fix vulnerabilites: update notebook to 6.4.10 and Send2Trash to 1.8.0
+* [ROCK-NN] Fix: create fernet.key in light image
+
+== 2.2.3 (May 19, 2022)
+
+* [ROCK-6560] Upgrade Crossdata 3.3.4-bed595a and drivers to 2.22.3-d467a54
+* [ROCK-6560] Upgrade Stratio Spark 1.3.0-5fe4d0b
+
+== 2.2.2 (March 29, 2022)
+
+* [ROCK-6421] FIx: Nginx configuration with internal TLS enabled
+* [ROCK-7094] Fix: python lzma compression library
+
+== 2.2.1 (February 25, 2022)
+
+* [ROCK-5952] Upgrade Stratio Crossdata to v.3.3.1 and Crossdata-drivers to 2.22.2
+* [ROCK-5898][ROCK-5899] Security fix: use TLS >= v1.2 encryption for internal communications
+* [ROCK-5952] Fix: install python 3.6 from source
+* [ROCK-6001][ROCK-6001] Upgrade log4j to 2.17.1 and postgre jdbc library to 42.2.25
+* [ROCK-6036] Upgrade Stratio Crossdata to 3.3.1-7110632 and Stratio Rocket to 2.3.2
+* [ROCK-5905] Fix: Create workspace folder with root and chown to JPY_USER
+
+== 2.2.0 (December 23, 2021)
+
+* [ROCK-5522] Upgrade Stratio Crossdata to v.3.3.0
+* [ROCK-5510] Update Stratio Rocket to v.2.3.1
+* [ROCK-5333] Fix - SparkUI executors page in Spark 3.1.1 appear in blank
+* [ROCK-5625] Fix vulnerabilities: update python packages
+* [ROCK-5625] Fix vulnerabilities: removed tensorflow
+* [ROCK-5625] Fix vulnerabilities: update hdfs-client
+* [ROCK-5625] Fix vulnerabilities: update miniconda to 4.10.3
+* [ROCK-5236] Fix - remove variable inspector and update notebook and jupyterLab packages to address vulnerabilities issues
+* [INTELL-2701] Add JPY_SESSION_DEBUG var to enable logging Session debug messages
+
+== 2.2.1 (November 11, 2021)
+
+* [ROCK-4513] Fix spark-ui button in light image
+* [FIX] Install Gosu from Ubuntu packages repository
+* [ROCK-5012] Fix Spark configurable log level
+* [ROCK-2070] Prometheus' metrics for Spark Executors
+* [ROCK-5052] K8s persistent volumes integration
+* [ROCK-3695] Upgrade Kms-utils to 0.6.0-1d9c1dd
+* [ROCK-5146] Upgrade Rocket ML client to 2.2.0
+* [ROCK-4563] Update to Stratio Spark v. 3.1.1-1.2.0
+* [ROCK-4563] Update to Stratio-MLeap v. 0.17.0-0.2.0
+* [ROCK-4563] Update to Stratio-Crossdata v. 3.2.0 and Crossdata-drivers to 2.22.1
+* [ROCK-4563] Update to Stratio-Rocket v. 2.2.0
+* [ROCK-4563] Update to Pyarrow v. 5.0.0
+* [ROCK-4563] Update to P4j v. 0.10.9
+* [ROCK-5151] Remove preinstalled TensorFlow
+* [FIX] Fix Spark config creation script
+* [FIX] Remove collapsable heading extension
+* [ROCK-5338] Remove legacy packages installation interface
+
+== 2.2.0 (June 04, 2021)
+
+* [ROCK-3515] RocketMlClient as external artifact generated in Rocket repositories
+* [ROCK-3687] Fix Spark-UI service
+* [ROCK-XXXX] Remove R devtools library and add R stringr library
+* [INTELL-2557] Add jupyterwidgets for matplotlib
+* [ROCK-XXXX] Fix notebook library manager
+* [ROCK-XXXX] Enable spark-ui and analyticheartbeat in Light image
+* [ROCK-XXXX] Update packages to fix autocomplete
+* [ROCK-3838] Update to Scala 2.12.10
+* [ROCK-3838] Update to Spark 3.0.1-1.0.0-ec8cb5a
+* [ROCK-3838] Update to Crossdata 3.0.1-e8c78f2
+* [ROCK-3695] Upgrade Kms-utils to 0.5.0-1b60681
+* [ROCK-XXXX] Update stratio parent to 0.12
+* [ROCK-1317] Update toree to 0.6.0-incubating-0.4.0
+* [ROCK-2589] Support Netapp added, propagate multiples volumes to analytic
+* [ROCK-XXXX] fix: create fernet.key file in light image
+* [ROCK-4144] Fix security vulnerability: Clean cryptography package
+* [ROCK-4144] Fix security vulnerability: Upgrade cryptography package to 3.3.2 and tensorflow package to 1.15.5
+* [ROCK-4165] Add hive Crossdata catalog configuration
+* [ROCK-3838] Use Stratio Mleap 0.17.0-0.1.0-f0f5d26
+* [ROCK-XXXX] Remove integration with legacy ML Model Repository
+* [ROCK-XXXX] Remove jupyter user from sudoers
+* [FIX] Propagate packages volumes to spark executors
+* [ROCK-XXXX] Remove jupyter user from sudoers list
+* [ROCK-3956] Spark settings and default values dependent from orchestrator (marathon, kubernates)
+* [ROCK-XXXX] Remove legacy Rocket Client notebooks
+* [ROCK-XXXX] Fix install pyspark in light image
+* [ROCK-4425] Update hdfs-client to solve vulnerabilities
+* [ROCK-XXXX] Update mlFlow to 1.15.0
+* [ROCK-XXXX] Update jupyter-matplotlib extension to 0.9.0
+* [ROCK-4540] Force case sensitive option to false with Hive catalog
+* [ROCK-4625] Add Elasticsearch library for Scala 2.12 and Spark 3
+* [ROCK-4513] Install jupyter-widgets/jupyterlab-manager and fix spark-ui button in light image

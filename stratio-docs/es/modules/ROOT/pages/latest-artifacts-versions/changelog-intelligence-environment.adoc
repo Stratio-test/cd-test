@@ -1,0 +1,67 @@
+= Changelog Intelligence Environment
+
+== 2.3.0 (May 25, 2022)
+
+* [ROCK-5898][ROCK-5899] Security fix: use TLS >= v1.2 encryption for internal communications
+* [ROCK-5908] JWT validation in config-api using RSA public key
+* [ROCK-6008] Enable GPU support in KEOS deployments
+* [ROCK-5887] Control error code for analyic kernel manager configuration (wrap/unwrap vault token)
+* [ROCK-NN] Set application-level profiling in KEOS
+* [ROCK-6540][CYB-9591] Improve vault profiling about JWT keys
+* [ROCK-6002] Fix vulnerabilities: Update postgres to 42.2.25
+* [ROCK-5905] Fix k8s descriptor: set volumes related settings to application=false
+
+== 2.2.1 (February 25, 2022)
+
+* [ROCK-5898][ROCK-5899] Security fix: use TLS >= v1.2 encryption for internal communications
+* [ROCK-5908] JWT validation in config-api using RSA public key
+* [ROCK-NN] Set application-level profiling in KEOS
+* [ROCK-6002] Fix vulnerabilities: Update postgres to 42.2.25
+* [ROCK-5905] Fix k8s descriptor: set volumes related settings to application=false
+
+== 2.2.0 (December 27, 2021)
+
+* [ROCK-5438] Make healthcheck protocol configurable
+* [ROCK-5449] Spawner.poll_interval configurable via CCT
+* [ROCK-5472] Adaptations for KEOS CCT 0.5
+* [ROCK-5512] Add Stratio Crossdata 3.3.0 delegated writes configuration to descriptors
+* [ROCK-5561] Fix missing sparkMetricsEnabled in User's parameter
+* [ROCK-5582] Fix unused CONFIG_WAIT_TIME_RETRIES environment variable
+* [ROCK-5625] Fix vulnerabilities: Update to Java 11
+* [ROCK-5625] Fix vulnerabilities: Update Jetty to 9.4.44 and Jackson Databind to 2.10.5.1
+* [ROCK-5625] Fix vulnerabilities: Update configurable-http-proxy to 4.5.0
+* [ROCK-5625] Fix vulnerabilities: remove custom configurable-http-proxy
+* [ROCK-5625] Fix vulnerabilities: remove df_filter configuration
+
+== 2.1.0 (October 29, 2021)
+
+* [ROCK-4723] Prometheus' metrics for analytics in kubernetes
+* [ROCK-5012] Fix Spark configurable log level
+* [ROCK-2070] Prometheus' metrics for Spark Executors
+* [ROCK-5052] K8s persistent volumes integration
+* [ROCK-3695] Upgrade Kms-utils to 0.6.0-1d9c1dd
+* [CROSSDATA-3317] Fix scratchdir in hive properties
+* [ROCK-5394] Provide default setting for spark.sql.warehouse.dir in zookeeper catalog configuration
+
+== 2.0.0 (June 22, 2021)
+
+* [ROCK-4158] K8s CCT integration - First version of K8s deployment descriptor
+* [ROCK-4195] ConfigAPI Authorization in K8s
+* [ROCK-4168] Add hdfs configuration in kubernetes
+* [ROCK-2424] Deploy Analytic in K8s
+* [ROCK-2424] Deploy Multiuser in K8s
+* [FIX] OpenSSL vulnerability
+* [ROCK-2706] NetApp support added
+* [ROCK-XXXX] Update stratio parent to 0.12
+* [ROCK-3695] Upgrade Kms-utils to 0.5.0-1b60681
+* [ROCK-3818] Parametrize healthchecks in multiuser and analytic
+* [ROCK-XXXX] Vulnerability: update cryptography to 3.3.2
+* [ROCK-4165] Add hive Crossdata catalog configuration
+* [ROCK-XXXX] Remove integration with legacy ML Model Repository
+* [FIX] Mount correct volume for packages when running in Spark local mode
+* [ROCK-3956] Spark settings and default values dependent from orchestrator (marathon, kubernates)
+* [ROCK-XXXX] Disable kubernates labels in scala kernels
+* [FIX] [JHUB-MOD] Do not respawn on user/{usernam}/metrics requests
+* [ROCK-4536] Add multiuser deployment as ownerReference in analytics pods
+* [FIX] [ROCK-4712] Start nginx service for metric access from Prometheus
+* [FIX] use legacy escaped usernames for K8s labels and install vim package

@@ -1,0 +1,166 @@
+= Changelog Open Distro Operator
+
+== 0.3.0 (March 10, 2022)
+
+* [FRAM-7269] Feature: OpenID SSO Integration
+* [FRAM-7870] Feature: Added identities whitelist parameter for Dorus
+* [FRAM-7795] Feature: Expose Opendistro using Load Balacer service type
+* [FRAM-8005] Feature: Custom config in Open Distro
+* [FRAM-8036] Feature: Build and upload to helm repository
+* [FRAM-8069] Feature: Integrate Ingress object
+* [FRAM-8004] Feature: Opendistro Stability Tests
+* [FRAM-8129] Feature: Migrate operator project to Kubebuilder v3
+* [FRAM-8562] Feature: Expose kibana path
+* [FRAM-7802] Improvement: Don't check Storage Size in ValidateUpdate Webhook
+* [FRAM-7791] Improvement: Integrate Stratio Open Distro GoSec Agent 2.3.2
+* [FRAM-7846] Improvement: Change Governance default URL in GoSec agent config
+* [FRAM-7853] Improvement: Bump default odAgent version to 2.3.3
+* [FRAM-7864] Improvement: Improve Open Distro status
+* [FRAM-7866] Improvement: Improve readiness health check
+* [FRAM-7912] Improvement: Enable GC configuration
+* [FRAM-8021] Improvement: Change default governance URL
+* [FRAM-8023] Improvement: Repository migration to new CI/CD
+* [FRAM-8032] Improvement: Dynamic Kibana Ingress Class Name
+* [FRAM-8135] Improvement: Use IngressSpec instead Ingress Object
+* [FRAM-8561] Improvement: Rename OIDC secret from sso_oid to sso
+* [FRAM-8590] Improvement: Do not add / on kibana path if already has it
+* [FRAM-7808] Fix: Send VAULT_ROLE to containers with <saNamespace>-<saName>
+* [FRAM-7855] Fix: Extra updates to OdCluster status
+* [FRAM-7869] Fix: Error deploying Kibana where odCluster doesn't exist
+* [FRAM-7906] Fix: Kibana has hardcoded in AltName Subject "kibana"
+* [FRAM-7909] Fix: Label propagation in "agent" service doesn't work
+* [FRAM-7940] Fix: Agent Recreate Upgrade Strategy
+* [FRAM-8018] Fix: Opendistro pods don't restart after changing config
+* [FRAM-8038] Fix: Wrong resources validation in ValidatingWebhook
+* [FRAM-8048] Fix: new permission kibana
+* [FRAM-8077] Fix: Unified comments
+* [FRAM-8079] Fix: Typo with pgAgent and take in consideration agent on status when stopping
+* [FRAM-8113] Fix: Broken authentication on odtroni
+* [FRAM-8127] Fix: Validating CA doesn't work in odtroni
+* [FRAM-8132] Fix: odKibana doesn't scale to 0
+* [FRAM-8133] Fix: Templates incorrectly use OPENDISTRO_SECURITY_TYPE instead of OPENDISTRO_AUTHORIZATION_TYPE
+* [FRAM-8559] Fix: Revert Kibana exposition with embebed Ingress because CCT always sends the object
+* [FRAM-8012] Vulnerabilities: Remove JndiLookup.class from log4j-core.jar to avoid CVE-2021-44228
+
+* Go Version: 1.16.14
+* Kubernetes Kubebuilder Version: 3.2.0
+* Stratio Datastores Base Version: 1.0.2-d0db81e
+* Stratio Secrets Operator Version: v0.4.0-685cfc6
+* Open Distro Version: 1.13.1.0
+* Open Distro Elasticsearch Version: 7.10.2
+* Open Distro Elasticsearch Prometheus Exporter: 1.1.0
+* Open Distro Kibana Prometheus Exporter Version: 7.10.x.1
+* ESRally Version: 2.2.1
+
+== 0.2.0 (December 17, 2021)
+
+  * [FRAM-7940] Fix: Agent Recreate Upgrade Strategy
+  * [FRAM-7428] Feature: Adapt admin CN pattern to Secret operator
+  * [FRAM-7446] Feature: Helm Chart compatibility with Kubernetes 1.20
+  * [FRAM-7340] Feature: Migrate to Opensearch and Opendashboards
+  * [FRAM-7466] Feature: Configure audit in Opensearch
+  * [FRAM-7469] Feature: Add defaults in storage
+  * [FRAM-7471] Feature: Add defaults in nodeGroups
+  * [FRAM-7476] Feature: Auto generation of CCT's descriptors in make manifests
+  * [FRAM-7455] Feature: Add support to ingress v1
+  * [FRAM-7795] Feature: Expose Opendistro using Load Balacer service type
+  * [FRAM-7454] Improvement: Improve secure process
+  * [FRAM-7483] Improvement: Default values in CRDs and Webhooks
+  * [FRAM-7611] Improvement: Review defaults in GoSec agent configuration
+  * [FRAM-7688] Improvement: Defaults in Kibana CRD
+  * [FRAM-7802] Improvement: Don't check Storage Size in ValidateUpdate Webhook
+  * [FRAM-7791] Improvement: Integrate Stratio Open Distro GoSec Agent 2.3.2
+  * [FRAM-7846] Improvement: Change Governance default URL in GoSec agent config
+  * [FRAM-7853] Improvement: Bump default odAgent version to 2.3.3
+  * [FRAM-7864] Improvement: Improve Open Distro status
+  * [FRAM-7866] Improvement: Improve readiness health check
+  * [FRAM-7459] Fix: Error deploying OdCluster
+  * [FRAM-7467] Fix: Agent doesn't deploy
+  * [FRAM-7479] Fix: Shutdown annotation doesn't work
+  * [FRAM-7542] Fix: When odKibana CR doesn't have annotations, Create ingress fails
+  * [FRAM-7612] Fix: Error scaling cluster
+  * [FRAM-7662] Fix: OdKibanaTenant Webhooks don't work with Helm installation
+  * [FRAM-7708] Fix: Annotations are not propagated to PVCs
+  * [FRAM-7713] Fix: Use PodMonitor instead ServiceMonitor
+  * [FRAM-7737] Fix: Status change from ERROR to WARNING in the deployment
+  * [FRAM-7789] Fix: Agent doesn't deploy
+  * [FRAM-7808] Fix: Send VAULT_ROLE to containers with <saNamespace>-<saName>
+  * [FRAM-7855] Fix: Extra updates to OdCluster status
+  * [FRAM-7869] Fix: Error deploying Kibana where odCluster doesn't exist
+  * [FRAM-7870] Fix: Added identities whitelist parameter for Dorus
+  * [FRAM-7906] Fix: Kibana has hardcoded in AltName Subject "kibana"
+  * [FRAM-7909] Fix: Label propagation in "agent" service doesn't work
+  * [FRAM-7548] Task: Upgrade crd-parser to 0.1.0
+
+  * Kubernetes Kubebuilder Version: 2.3.1
+  * Stratio Datastores Base Version: 1.0.2-d0db81e
+  * Stratio Secrets Operator Version: v0.4.0-685cfc6
+  * Open Distro Version: 1.13.1.0
+  * Open Distro Elasticsearch Version: 7.10.2
+  * Open Distro Elasticseach Prometheus Exporter: 1.1.0
+  * Open Distro Kibana Prometheus Exporter Version: 7.10.x.1
+  * ESRally Version: 1.4.1
+
+== 0.1.0 (July 26, 2021)
+
+  * [FRAM-7134] Feature: Create opendistro operator
+  * [FRAM-7118] Feature: Create opendistro CRD
+  * [FRAM-7148] Feature: Migrate elasticsearch-task to k8s-datastores (opendistro-task)
+  * [FRAM-7177] Feature: Create Kubernetes Objects to opendistro
+  * [FRAM-7156] Feature: Create OdCluster
+  * [FRAM-7157] Feature: Update OdCluster
+  * [FRAM-7158] Feature: Delete OdCluster
+  * [FRAM-7169] Feature: OdCluster Metrics
+  * [FRAM-7186] Feature: Opendistro HTTP client
+  * [FRAM-7105] Feature: Add securityContext with fsGroup to statefulset
+  * [FRAM-7179] Feature: Coordinator and Data Service
+  * [FRAM-7183] Feature: Dynamic plugins support
+  * [FRAM-7175] Feature: Create odtroni server inside opendistro-task
+  * [FRAM-7178] Feature: Implement readiness and liveness probes
+  * [FRAM-7188] Feature: Secure and resecure from operator
+  * [FRAM-7159] Feature: ODCluster status
+  * [FRAM-7260] Feature: Integrate elasticsearch-agent inside operator
+  * [FRAM-7285] Feature: Elasticsearch agent status
+  * [FRAM-7272] Feature: Migrate kibana-opendistro-task to k8s-datastores (opendistro-kibana-task)
+  * [FRAM-7270] Feature: Create OdKibana
+  * [FRAM-7268] Feature: Update OdKibana
+  * [FRAM-7282] Feature: Create an ingest service when there are ingests nodes
+  * [FRAM-7328] Feature: Create Kitroni for status and healthchecks
+  * [FRAM-7322] Feature: Kibana. Prometheus exporter
+  * [FRAM-7182] Feature: Create KibanaTenant CRD
+  * [FRAM-7329] Feature: Create Kibana health checks
+  * [FRAM-7343] Feature: ESRally benchmark
+  * [FRAM-7327] Feature: Kibana status
+  * [FRAM-7321] Feature: Expose Kibana through Ingress
+  * [FRAM-7391] Feature: Specific config for dorus
+  * [FRAM-7362] Feature: Create KibanaTenant
+  * [FRAM-7363] Feature: Update KibanaTenant
+  * [FRAM-7364] Feature: Delete KibanaTenant
+  * [FRAM-7330] Feature: Defaulter and create/update validating
+  * [FRAM-7377] Feature: Add CCT annotations to opendistro CRD
+  * [FRAM-7372] Feature: Add default images opendistro
+  * [FRAM-7428] Feature: Adapt admin CN pattern to Secret operator
+  * [FRAM-7144] Improvement: Same operator structure in postgres-operator and opendistro-operator
+  * [FRAM-7256] Improvement: Calculate JVM_MAX_HEAP and JVM_MIN_HEAP for each statefulset
+  * [FRAM-7349] Improvement: Open 0.0.0.0 for network.host
+  * [FRAM-7338] Improvement: Exclude master nodes from voting when scale down
+  * [FRAM-7454] Improvement: Improve secure process
+  * [FRAM-7275] Fix: Update N Statefulset
+  * [FRAM-7351] Fix: Update Kibana user in agent whitelist
+  * [FRAM-7359] Fix: Monitoring can't be disabled
+  * [FRAM-7387] Fix: Custom annotations don't spread to other objects
+  * [FRAM-7459] Fix: Error deploying OdCluster
+  * [FRAM-7467] Fix: Agent doesn't deploy
+  * [FRAM-7479] Fix: Shutdown annotation doesn't work
+  * [FRAM-7542] Fix: When odKibana CR doesn't have annotations, Create ingress fails
+  * [FRAM-7401] Task: Upgrade secrets-operator to v0.2.0-c3ca749
+  * [FRAM-7400] Task: Move opensearch-operator to single repository
+
+  * Kubernetes Kubebuilder Version: 2.3.1
+  * Stratio Datastores Base Version: 1.0.1-138e299
+  * Stratio Secrets Operator Version: v0.2.0-c3ca749
+  * Open Distro Version: 1.13.1.0
+  * Open Distro Elasticsearch Version: 7.10.2
+  * Open Distro Elasticseach Prometheus Exporter: 1.1.0
+  * Open Distro Kibana Prometheus Exporter Version: 7.10.x.1
+  * ESRally Version: 1.4.1

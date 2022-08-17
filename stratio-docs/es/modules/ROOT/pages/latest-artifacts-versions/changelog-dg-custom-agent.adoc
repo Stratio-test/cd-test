@@ -1,0 +1,24 @@
+= Changelog Governance Custom Agent
+
+== 0.3.0 (February 04, 2022)
+
+* Bump dg-agent-commons dependency to 1.9.2-4a9d593
+* [DGPB-8252] Wrong module in metrics
+* [DGPB-8326] Add environment variables to skip resources discovery based on path
+* [DGPB-8428] Remove size limit for Java Metaspace
+* Fix GHSA-v7wg-cpwc-24m4 vulnerability
+
+== 0.2.0 (September 22, 2021)
+
+* Move SSCC interface to independent repository
+* Move Vault downloader to dg-commons
+* [DGPB-7052] Fix health-check behaviour
+* [DGPB-7122] Notify data store type based on SSCC driver definition
+* [DGPB-7375] Initialize tenant during boot
+* [DGPB-7457] Internal fetch mechanism
+
+== 0.1.0 (June 21, 2021)
+
+* [DGPB-6824] New Stratio Scala Custom Connector (SSCC) interface to develop custom connectors.
+* [DGPB-6825] New custom agent for non-JDBC, non-FS data stores, with pluggable connectors.
+* [DGPB-6960] Include Stratio Vault downloader to manage secrets.

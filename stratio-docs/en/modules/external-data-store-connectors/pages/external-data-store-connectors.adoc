@@ -1,0 +1,33 @@
+= External data store connectors
+
+Even though _Stratio Augmented Data Fabric_ supports many data stores that can be deployed within the platform with _Stratio Command Center_, you may need to connect with external data stores to fulfill your project requirements.
+
+Some common situations where you may need support for external data store integration are:
+
+* You have some information stored in an external data store and need to import or process it with _Stratio Augmented Data Fabric_.
+* Your information is stored in _Stratio Augmented Data Fabric_ but you want to save the results (or a backup) in an external data store.
+* You want to discover, use, and govern some information that cannot be migrated to _Stratio Augmented Data Fabric_.
+* You want to use a data store that cannot be deployed within _Stratio Augmented Data Fabric_. For example AWS S3, Azure Data Lake, AS400, etc.
+
+The development of external data store connectors guarantees the integration and correct operation of the data stores with the _Stratio Augmented Data Fabric_ modules.
+
+The next list lets you access a section of each connector where you can find the compatibility status with the modules, user manual, information about security and data types, example code, etc.:
+
+* File storage:
+** xref:xref:external-data-store-connectors/aws-s3.adoc[AWS S3]
+** xref:external-data-store-connectors/google-cloud-storage.adoc[Google Cloud Storage]
+** xref:external-data-store-connectors/azure-data-lake-gen2.adoc[Azure Data Lake Gen2]
+* Database:
+** xref:external-data-store-connectors/oracle.adoc[Oracle]
+** xref:external-data-store-connectors/sql-server.adoc[SQL Server]
+** xref:external-data-store-connectors/sap-hana.adoc[SAP HANA]
+** xref:external-data-store-connectors/salesforce.adoc[Salesforce]
+** xref:external-data-store-connectors/db2.adoc[DB2]
+** xref:external-data-store-connectors/asS400.adoc[AS/400]
+** xref:external-data-store-connectors/bigquery.adoc[BigQuery]
+** xref:external-data-store-connectors/teradata.adoc[Teradata]
+* Events:
+** xref:external-data-store-connectors/azure-event-hubs.adoc[Azure Event Hubs]
+** xref:external-data-store-connectors/ibm-mq.adoc[IBM MQ]
+
+More connectors will be included in the following releases.

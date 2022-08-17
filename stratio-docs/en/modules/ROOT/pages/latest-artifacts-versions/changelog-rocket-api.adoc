@@ -1,0 +1,148 @@
+= Changelog Rocket API
+
+== 2.3.5 (May 17, 2022)
+
+* [ROCK-6560] Upgrade Crossdata 3.3.4-28976d0
+* [ROCK-6560] Upgrade Stratio Spark 1.3.0-5fe4d0b
+* [ROCK-7067] Fix: Random errors in DC/OS Spark UI redirection
+
+== 2.3.4 (April 11, 2022)
+
+* [ROCK-6417] Auto archiving of executions
+* [ROCK-6400] Fix: JWT spark UI duration in seconds and add nbf claim to JWT
+
+== 2.3.3 (February 17, 2022)
+
+* [ROCK-5515] Descriptor KEOS: Add defatult execution identity to gosec policies
+* [ROCK-6001][ROCK-6001] Upgrade log4j to 2.17.1 and postgre jdbc library to 42.2.25
+* [ROCK-6071] Fix: Increase default SPARTA_API_IDLE_TIMEOUT
+
+== 2.3.2 (January 28, 2022)
+
+* [SS-31093] [TASK FORCE] Add Big Query JDBC to classpath
+* [ROCK-5479] Fix: Upload Jenkins credentials when deploying Rocket with CCT in KEOS
+* [ROCK-5770][ROCK-5784] Fix: XSS in Exception rendering component, added cors parameters in backend and frontend mitigation
+* [ROCK-5809] Fix: Disallow select rocket server identity if the user is not superuser
+* [ROCK-2290] Updated Fix: forbid double dots in filenames and save canonicalPath
+* [ROCK-5883] Fix: Authorize rocket identities creation with gosec service
+
+== 2.3.1 (December 21, 2021)
+
+* [ROCK-5472] Compatible with Command Center 0.5
+* [ROCK-5529] Delta IO steps with QRs and Lineage
+* [ROCK-5511] Fix: Governance QR execution url in kubernetes environment
+* [ROCK-5570] Fix: Oauth2 cookies management
+* [ROCK-5398] Fix: Allow files with spaces in mlprojects
+* [ROCK-5431] Fix: Allow files with short names in mlprojects
+* [ROCK-5464] Fix: build new attempts in mlmodel
+* [ROCK-5408] Fix: R mlproject example
+* [ROCK-NN] Fix: blocking debug worker actor
+* [ROCK-5659] Fix security vulnerability: Log4Shell (CVE-2021-44228)
+* [ROCK-XXXX] Fix security vulnerability: upgrading python 3.7.6 --> 3.7.11
+
+== 2.3.0 (November 18, 2021)
+
+* [ROCK-4563] Upgrade to Crossdata 3.3.0, dyplon-crossdata 1.10.0-00e1c4c
+* [ROCK-5527] Update Rocket 2.2 saas universe 10.1 descriptor
+* [ROCK-5523] Update descriptor k8s (0.1.0 kubernetes-universe)
+* [ROCK-5515] Fix: Descriptor KEOS: use correct vault paths for execution identity secrets
+
+== 2.2.0 (November 06, 2021)
+
+* [ROCK-4591] Spark UI security via JWT cookie
+* [ROCK-4559] Parameter list contexts profiling by users
+* [ROCK-4678] User defined parameters in asset settings
+* [ROCK-4068] Do not allow to run models via API if their execution is disabled
+* [ROCK-4595] Execution report logs
+* [ROCK-4594] Streaming Policies in Workflow Settings
+* [ROCK-4721] Spark metrics
+* [ROCK-4875] Change default Nginx port from 4040 to port 8081
+* [ROCK-4722] Enable monitorization of workers in KEOS environment
+* [ROCK-4886] Rocket 2.1 descriptor compatible with EOS 0.25 and Gosec 1.x
+* [ROCK-4650] New endpoint to search executions with query params and more filters
+* [ROCK-4859] Copy and move several assets in a single operation
+* [ROCK-5025] Rocket extensions improvements: isolate extensions by project, refresh extensions at runtime and performance improvements
+* [ROCK-5017] Security configurable in MlModels micro-service deployment
+* [ROCK-5034] Allow specify --no-conda in MlProject execution
+* [ROCK-5018] Allow specify --no-conda in MlModel micro-service from a MlProject
+* [ROCK-5082] Refactor k8s descriptor
+* [ROCK-5071] Support uploading new files to existing extensions.
+* [ROCK-3962] Promotions Rollback
+* [ROCK-4857][ROCK-4905] Project backups
+* [ROCK-4974] Extract error messages with more granularity
+* [ROCK-4563] Update to Spark 3.1.1-1.2.0
+* [ROCK-4853] Fix metrics: execution status concurrency issues
+* [ROCK-4947] Fix AutoMl: allow manual forcing as numeric variable for Binary/Categorical analyzed columns
+* [ROCK-5114] Fix: Status code in debug errors
+* [ROCK-4900] Fix: Validate workflow with correct userId
+* [ROCK-5201] Fix: load akka configuration from Rocket config
+* [ROCK-5238] Make finished jobs clean up TTL & delete k8s executor pod on termination configurable
+
+== 2.1.0 (July 09, 2021)
+
+* [ROCK-4635] Google cloud storage integration
+* [ROCK-4647] Warm-up Crossdata Sessions in workers
+* [ROCK-4741] Use previous debug data on new debugs
+* [ROCK-4732] Limit max size for files in FileBrowser
+* [ROCK-4677] Fix duplicate executions with unique periodical scheduled tasks
+* [ROCK-4678] Fix: zips of exported notebooks are empty
+* [ROCK-4711] Fix: delete project query
+* [ROCK-4730] Fix: send Quality Rules results from workflows to governance
+* [ROCK-4728] Fix: delete enableRunWithParamters option in Assets profiling
+* [ROCK-830] Fix: create workflow 0 version in backend
+* [ROCK-4744] Fix: discrepancy checker with Queued status
+* [ROCK-4798] Fix: debug job duplicates detection
+* [ROCK-4733] Fix: limit File browser permissions
+* [ROCK-4803] Fix: Akka cluster members lifecycle
+
+== 2.0.0 (May 27, 2021)
+
+* [ROCK-3891] Fix Azure Data Lake and support multiple accounts
+* [ROCK-3807] XD storage updated with project HDFS path
+* [ROCK-3807] Online XD catalog configuration updates in workers
+* [ROCK-3427] Add constraints for MlFlow sessions & MlModels
+* [ROCK-3007] Execute with parameters in ML Models
+* [ROCK-3757] Fix Dyplon Crossdata plugin registration with old Gosec versions
+* [ROCK-3778] Fix security vulnerability: Improve HDFS base Path (/user/principal) in the Prerequesites installation
+* [ROCK-4141] Fix security vulnerability: Not allowed insecure catalog queries
+* [ROCK-3741] Include limit of notifications into frontend configuration
+* [ROCK-3875] Allow Nginx.conf file to be configured through an env var
+* [ROCK-3344] K8s healthchecks for Rocket components
+* [ROCK-4015] Quality Rules transformation
+* [ROCK-4016] Fix Streaming debug with configurable HDFS path and complex workflows
+* [ROCK-3800] Upgrade to Scala 2.12
+* [ROCK-3800] Upgrade to Spark 3.0.1-1.1.0
+* [ROCK-3800] Upgrade to Stratio Crossdata 3.0.0 and Crossdata-Dyplon 1.7.0
+* [ROCK-3800] Upgrade to dyplon-facade: 0.8.3-e161997
+* [ROCK-3800] Upgrade to Stratio transmogrifAI 0.7.0-0.2.0
+* [ROCK-3800] Upgrade to Stratio-MLeap 0.17.0-0.1.0
+* [ROCK-3800] Upgrade to Kafka client 2.4.1
+* [ROCK-3800] Remove SFTP, Elasticsearch and MongoDB steps
+* [ROCK-3800] Remove custom SFTP FileSytems based on HadoopFileSystem
+* [ROCK-3800] Remove gosec-dyplon legacy plugins
+* [ROCK-3800] Add new AIPipeline steps: FMRegressor and FMClassifier
+* [ROCK-3948] Stratio labels and annotations for Kubernetes
+* [ROCK-3512] Only send oauth redirect when requesting /
+* [ROCK-4081] Refactor SparkSubmitService
+* [ROCK-3959] Promotion with parameters
+* [ROCK-4179] Allow promotion of multiple asset versions
+* [ROCK-4160] Configurable calico network per project
+* [ROCK-4171] Compress and extract functions in HDFS UI
+* [ROCK-4139] Allow secrets isolation between server and executions users
+* [ROCK-4181] Allow export multiple asset versions in a project
+* [ROCK-3931] Hive catalog integration
+* [ROCK-4183] Add default values in project creation
+* [ROCK-4321] Add limit and timeout options to catalog worker and queries execution
+* [ROCK-4322] Allow script sql execution in catalog
+* [ROCK-4323] Allow queries execution via Crossdata JDBC in catalog
+* [ROCK-4038] Use project default impersonation when accessing to HDFS from workers
+* [ROCK-4359] Support Mutual TLS authentication/authorization in K8s
+* [ROCK-4360][ROCK-4361] Include app role and service account variables
+* [ROCK-4167] Mount volumes of krb5.conf and hadoop files on k8s environment
+* [ROCK-4353] Do not allow to delete default impersonations
+* [ROCK-4130] Fix inconsistent executions already deleted from database
+* [ROCK-3758][ROCK-4458] Rocket 2.0 migration system (stored and searchable logs into Postgres)
+* [ROCK-4401] Auto-delete executions older than a configurable interval
+* [ROCK-XXXX] Update mlFlow to 1.15.0
+* [ROCK-4292] Notificating errors to Governance API
+* [ROCK-4454] Configurable Rocket driver memory in MlProject execution through settings & project parameter list

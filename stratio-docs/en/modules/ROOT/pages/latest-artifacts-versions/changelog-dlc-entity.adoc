@@ -1,0 +1,49 @@
+= Changelog DLC
+
+== 1.0.2 (July 21, 2022)
+
+* Supported CDC sources: PostgreSQL, Oracle and SQL Server. CDC sinks: PostgreSQL
+* Integration with Governance 1.8.x - 1.9.x
+* Integration with CDC-Engine 1.0.x - 1.1.x
+* Integration with Rocket 1.3.x - 2.4.x
+* Normalize database.server.name in CDC-Engine PostgreSQL source
+* [DLC-429] Fix TLS connections with multiple CAs
+* Fix DLC state machine when rocket workflow is stopped by the user
+* Fix retries in DLC waiting state
+* [DLC-425] Update Spring version to fix jackson-databind and jetty vulnerability
+
+== 1.0.1 (May 23, 2022)
+
+* Supported CDC sources: PostgreSQL, Oracle and SQL Server. CDC sinks: PostgreSQL
+* Integration with Governance 1.8.x and 1.9.x
+* Integration with CDC-Engine 1.0.x
+* Integration with Rocket 1.3.x, 1.4.x, 2.1.x, 2.2.x, 2.3.x
+* Compatibility with Kubernetes (k8s) and Mesos
+* [DLC-405] Fix multiple issues related to workflow import
+
+== 1.0.0 (September 30, 2021)
+
+* This is the first release compatible with CDC-Engine.
+* Supported CDC sources: PostgreSQL, Oracle and SQL Server. CDC sinks: PostgreSQL
+* Integration with Governance 1.8.x and 1.9.x
+* Integration with CDC-Engine 0.3.x
+* Integration with Rocket 1.3.x, 1.4.x and 2.1.x
+* [DLC-164] New entity model (v2) with support for CDC-Engine configuration
+* [DLC-164] New endpoints to manage entities v2
+* [DLC-165] New endpoints to execute (start/stop) entities v2
+* [DLC-186] New state machine for entities v2
+* [DLC-238] Publish SEE events and Prometheus metrics for entities v2
+* [DLC-208] Integration with Vault service to download stratio credentials
+* [DLC-163] Register DLC attributes in Governance on startup
+* [DLC-164] Discover/generate DLC entity from Governance attributes
+* [DLC-165] Integration with CDC-Engine service
+* [DLC-164] Add CDC-Engine source for PostgreSQL
+* [DLC-166] Add CDC-Engine source for SQL server
+* [DLC-267] Add CDC-Engine source for Oracle
+* [DLC-171] Add CDC-Engine sink for PostgreSQL
+* [DLC-162] Make Rocket and CDC-Engine dependencies optional
+* [DLC-162] Update Command Center descriptors and Drools rules
+* Improve Grafana dashboards
+* Update Swagger UI version and improve documentation
+* Increase UT/AT/AT test coverage
+* Fix Anchore vulnerabilities

@@ -1,0 +1,48 @@
+= Conectores de almacenamiento de datos externos
+
+Aunque _Stratio Augmented Data Fabric_ admite muchos almacenes de datos que se pueden desplegar dentro de la plataforma con _Stratio Command Center_, es posible que debas conectarte con almacenes de datos externos para cumplir con los requisitos de tu proyecto.
+
+Algunas de las situaciones comunes en las que puedes necesitar soporte para la integración del almacenamiento externo de datos son:
+
+* Tienes cierta información almacenada en un almacén de datos externo y necesitas importarla o procesarla con _Stratio Augmented Data Fabric_.
+* Tu información se almacena en _Stratio Augmented Data Fabric_ pero quieres guardar los resultados (o un _backup_) en un almacén de datos externo.
+* Quieres descubrir, usar y gobernar cierta información que no se puede migrar a _Stratio Augmented Data Fabric_.
+* Quieres utilizar un almacén de datos que no se puede desplegar dentro de _Stratio Augmented Data Fabric_. Por ejemplo, AWS S3, Azure Data Lake, AS/400, etc.
+
+El desarrollo de conectores de almacenamiento de datos externos garantiza la integración y el correcto funcionamiento de los almacenes de datos con los componentes de _Stratio Augmented Data Fabric_.
+
+La siguiente lista te permite acceder a una sección de cada conector donde puedes encontrar el estado de compatibilidad con los componentes, el manual del usuario, la información sobre seguridad y tipos de datos, códigos de ejemplo, etc.:
+
+* Almacenamiento de archivos:
+** xref:external-data-store-connectors:aws-s3.adoc[AWS S3]
+** xref:external-data-store-connectors:google-cloud-storage.adoc[Google Cloud Storage]
+** xref:external-data-store-connectors:azure-data-lake-gen2.adoc[Azure Data Lake Gen2]
+* Bases de datos:
+** xref:external-data-store-connectors:oracle.adoc[Oracle]
+** xref:external-data-store-connectors:sql-server.adoc[SQL Server]
+** xref:external-data-store-connectors:sap-hana.adoc[SAP HANA]
+** xref:external-data-store-connectors:salesforce.adoc[Salesforce]
+** xref:external-data-store-connectors:db2-connector.adoc[DB2]
+** xref:external-data-store-connectors:as400.adoc[AS/400]
+** xref:external-data-store-connectors:bigquery.adoc[BigQuery]
+** xref:external-data-store-connectors:teradata.adoc[Teradata]
+* Eventos:
+** xref:external-data-store-connectors:azure-event-hubs.adoc[Azure Event Hubs]
+** xref:external-data-store-connectors:ibm-mq.adoc[IBM MQ]
+
+:note-caption: AVISO
+
+NOTE: En las siguientes versiones se incluirán más conectores.
+
+= Variables comunes para agentes de descubrimiento
+
+Los agentes de descubrimiento basados en el agente JDBC, así como los que usan la librería SSCC de Stratio, comparten variables de entorno que se pueden aplicar para el descubrimiento de metadatos sin importar la fuente de origen.
+
+* ``CUSTOM_SERVICE_PATHS_REGEX``: expresión regular con la lista de rutas/conjunto de datos que no se deben ignorar en el descubrimiento.
+* ``CUSTOM_SERVICE_RESOURCES_REGEX``: expresión regular con la lista de recursos/tablas que no se deben ser ignorar en el descubrimiento.
+* ``CUSTOM_SERVICE_SKIP_PATHS_REGEX``: expresión regular con la lista de rutas/conjunto de datos que no se deben ignorar en el descubrimiento.
+* ``CUSTOM_SERVICE_SKIP_RESOURCES_REGEX``: expresión regular con la lista de recursos/tablas que se deben ignorar en el descubrimiento.
+* ``CUSTOM_SERVICE_PATHS_REGEX_BEHAVIOUR``: comportamiento a la hora de filtrar la ruta. Tiene dos valores posibles ``FULL_PATH`` y ``NAME``.
+ ** NAME: comprueba cada nombre de ruta o carpeta de manera independiente. Solo descubrirá aquellos elementos en los que al menos un nombre de ruta o tabla cumpla la expresión regular introducida en ``CUSTOM_SERVICE_PATHS_REGEX`` o ``CUSTOM_SERVICE_RESOURCES_REGEX`` y ninguno cumpla las introducidas en ``CUSTOM_SERVICE_SKIP_PATHS_REGEX`` o ``CUSTOM_SERVICE_SKIP_RESOURCES_REGEX``.
+ ** FULL_PATH: se genera la ruta completa (separada con '/'), esto es lo que se contrasta con las variables "***_REGEX y "***_SKIP_REGEX". Ej. Si se hace uso de "^/path/path2/.*$" en la variable ``CUSTOM_SERVICE_SKIP_PATHS_REGEX``, el agente no descubrirá nada que esté dentro de "path2".
+ 

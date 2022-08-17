@@ -1,0 +1,35 @@
+= Changelog DataRest
+
+== 0.3.0 (March 07, 2022)
+
+* [DGPB-7305] Manage complex data types (BLOB, CLOB, BINARY...)
+* [DGPB-7677] Include fetch functionality
+* [DGPB-8423] Remove size limit for Java Metaspace
+* Fix GHSA-wrvw-hg22-4m67 and GHSA-v7wg-cpwc-24m4 vulnerabilities
+* [DGPB-8489] Fix endpoint logging
+* [DGPB-8489] Add total elements count for 'count=exact' Prefer header
+* [DGPB-8489] Extend columns definition to include data type as String and data type vendor
+* [DGPB-8489] Add support for other wildcard character at like & ilike (configurable)
+* [DGPB-8489] Fix negative numbers parsing
+* [DGPB-8489] Fix scientific notation parsing on numbers
+* [DGPB-8748][DGPB-8757] Fix vulnerability. Bump Log4j to 2.17.2 version and Slf4j to 1.7.36 version
+* [DGPB-8802] Fix redirection to Swagger
+
+== 0.2.0 (July 19, 2021)
+
+* [DGPB-6657] Upgrade to kms_utils 0.5.1
+* [DGPB-6989] Configurable usage of database as catalog to infer schemas
+* [DGPB-6989] Improve constraints inference to avoid failures
+* [DGPB-7166] Configurable select statement
+
+== 0.1.0 (March 20, 2021)
+
+* [DGPB-5293] Generic REST access to JDBC datastores
+* [DGPB-5408] Add support for Crossdata server
+* [DGPB-5432] User authentication using JWT, request headers and TLS certificate
+* [DGPB-5709] Add configurable connection pool usage
+* [DGPB-5718] Incremental tables discovery and exposure
+* [DGPB-5338] Add support for ilike operator
+* [DGPB-5928] Add support for partial insertions
+* [DGPB-5335] Limit and offset in headers supported
+* [DGPB-6172] Fix CVE-2020-9492

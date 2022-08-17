@@ -1,0 +1,25 @@
+= Changelog CDC Engine
+
+== 1.1.0 (July 21, 2022)
+
+* Based on Debezium 1.9.5.Final
+* Supported CDC sources: PostgreSQL, Oracle and SQL Server
+* Supported CDC sinks: PostgreSQL
+* [DLC-413] New PostgreSQL source Initial Stratio Snapshotter for failover
+* Implement support for boolean types in PostgreSQL sink
+* Improve Docker image build speed and layer reuse
+* [DLC-442] A02:2021 - Cryptographic Failures - CBC ciphers support
+* Fix Anchore vulnerabilities
+
+== 1.0.0 (May 23, 2022)
+
+* Based on Debezium 1.7.1.Final
+* Supported CDC sources: PostgreSQL, Oracle and SQL Server
+* Supported CDC sinks: PostgreSQL
+* Support for Kubernetes (k8s) and Mesos/DCOS
+* Implement deduplication for UPDATE/UPSERT operations
+* Support all complex Debezium data types in JDBC sink. It allows writing complex data types in PostgreSQL
+* Improve test scripts for complex data types
+* Configure TLSv10 and TLSv11
+* Include nano and vi text editors in Docker image
+* Fix Anchore vulnerabilities

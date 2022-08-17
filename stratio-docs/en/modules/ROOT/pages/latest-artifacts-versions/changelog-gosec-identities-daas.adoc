@@ -1,0 +1,98 @@
+= Changelog GoSec Identities Daas
+
+== 0.10.8 (February 22, 2022)
+
+* [GS-4603] LDAP Sync - group retrieval of minimal information
+* [GS] Fix jetty, postgres and log4j vulnerabilities
+
+== 0.10.7 (January 12, 2022)
+
+* [GS-4230] Apply realm filters on get users/groups
+
+== 0.10.6 (December 21, 2021)
+
+* [GS-4202] Log4Shell Vuln
+
+== 0.10.5 (December 09, 2021)
+
+* [GS-4189] Race condition on identities startup
+
+== 0.10.4 (November 25, 2021)
+
+* [GS-2602][Vulnerability] Adding users to groups of different tenants
+
+== 0.10.3 (October 19, 2021)
+
+* [GS-3902][KEOS] Configurable database initialization
+
+== 0.9.0 (June 25, 2021)
+
+* Upgrade KMS_UTILS to version 0.5.1
+* [GS-3627] Add realms
+
+== 0.8.0 (April 16, 2021)
+
+* [GS-3252] Upgrade process
+* Updated dyplon.version to version 1.9.0-77b26ce
+
+== 0.7.1 (March 05, 2021)
+
+* [K8S] Service entrypoint
+* [GS-2918] Added LDAP Synchronizer and removed LDAP as backend
+
+== 0.6.0 (October 30, 2020)
+
+* [GS-2303] Added LDAP exceptions
+* [GS-2259] Integration with gosec dyplon
+* [GS-2552] Add java memory size config
+* [GS-2537] Updated snakeyaml version to 1.26 in order solve vulnerability
+* [GS-2679] Performance improvements with high load
+
+== 0.5.0 (June 12, 2020)
+
+* [GS-2032] Add gosec-management-baas to daas services allowed lists
+* [GS-1927] Add tenant filters to get users and groups
+* [GS-1969] Add tenant filter to patch users
+* [GS-1968] Bug-fix validation users parameters
+* [GS-1974] Add total users and groups to getAll filtered request
+* [GS-1984] Log forging - Log4j encoding
+* [GS-2134] Add parameter in groups to get recursive inner groups
+* [GS-2145] Add tenant parameter in identities update actions to check changes in the own tenant
+* Updated dyplon.version to version 1.6.2-74f6488
+
+== 0.4.0 (March 04, 2020)
+
+* [GS-1679] Resolve critical vulnerabilities
+* [GS-1710] No se puede borrar usuario si su nombre contiene algún punto
+* [GS-1787] Update users & groups api with new data model dyplon (sourcetype, creation and update dates)
+* [GS-1740] Audit identities endpoints
+* [GS-1788] Secure update actions api for identities
+* [GS-1813] Fix group details
+* [GS-1802] Fix updating users and groups
+* [GS-1824] Filter identities by source type
+* [GS-1785] Add permitted role profile when a tenant is created
+* [GS-1839] Realm and vault paths are configurable when creating keytabs and certificates
+* [GS-1837] Deploy-api endpoints configurable
+* [GS-1861] Endpoints profiling
+* Updated dyplon.version to version 1.5.0-93def7f
+* [GS-1855] Add password generation to custom users creation
+
+== 0.3.0 (November 26, 2019)
+
+* [GS-1656] Returned 'tids' value in GET USER request is always 'null'
+* [SECTY-1536] Identities Daas exporters integration
+* [SECTY-1580] Include tenants parameter in user response
+* [SECTY-1591] Generate keytabs and certificates in user creation
+* [SECTY-1556] Added detailed endpoints for Groups and Users
+* Updated dyplon.version to version 1.3.0-86f52c8
+
+== 0.2.0 (October 08, 2019)
+
+* [SECTY-1155] CRUD profiles endpoints
+* Updated dyplon.version to version 1.2.0-9039093
+
+== 0.1.0 (July 26, 2019)
+
+* Initial version
+* New endpoint to create customs users
+* Add gosecX509AuthenticationFilter: This filter valid that the certificate name matches the cnList configured for a defined "method URL"

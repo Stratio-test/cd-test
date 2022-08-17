@@ -1,0 +1,117 @@
+= Changelog CCT Orchestrator
+
+== 0.5.2 (April 26, 2022)
+
+* [SAAS-5548] NON_EMPTY serialization issues for empty parameters
+* [CVE-2022-22965] Solved Spring security issues
+
+== 0.5.1 (March 29, 2022)
+
+* [SAAS-4681] Stratio authorization system
+* [SAAS-4491] Support for asymmetric key validation in JWT
+* [SAAS-4482] Support for K8sBasedPermissions
+* [SAAS-5048] Upgraded PostgreSQL driver version
+* [SAAS-5079] Authorization for caches endpoints
+* [SAAS-5078] Not found response on get job by id
+* [SAAS-5098] ServiceId compatibility with environment parameter
+* [SAAS-5305] NPE on destroy application
+* [SAAS-5282] Fix plural for operators
+
+== 0.5.0 (December 29, 2021)
+
+* [SAAS-4130] The namespace has to be removed from k8s objects names
+* [SAAS-4077] LifeCycle Stop for applications
+* [SAAS-4115] Support for storage types
+* [SAAS-4218] Support for application permissions
+* [SAAS-4257] Endpoint for applications v1/destroy
+* [SAAS-4249] Default labeling for tasks
+* [SAAS-4328] NPE on new installation with generic jobs
+* [SAAS-4330] Tenant request for secrets controller
+* [SAAS-4344] House keeping for Jobs and Tasks after Destroy action
+* [SAAS-4427] Return bad request on started job
+* [CVE-2020-2025] Vulnerability found in aspectjrt-1.9.6
+* [SAAS-4461] Extract tenant from security context for destroy controller
+* [SAAS-4428] Return bad request on running stopped lifecycle
+* [SAAS-4440] Allow to execute Destroy Lifecycle for failed installations and uninstalled apps.
+* [SAAS-4444] Context removal for destroyed application housekeeping
+* [SAAS-4445] Stratio log format
+* [SAAS-4545] Lifecycles with inheritance failed due to bad request
+
+== 0.4.0 (August 23, 2021)
+
+* [SAAS-3850] Rollback for updated applications
+* [SAAS-3936] Modify Jenkinsfile jiraproject variable
+* [SAAS-3929] Forward forbidden response from Vault operations
+* [SAAS-3930] Validate required parameters for secrets controller
+* [SAAS-3932] Validate required principal for keytab generation
+* [SAAS-3773] Implemented rollback for gosec tasks (users, groups and policies)
+* [SAAS-3832] Tenant based pki endpoint for certificates
+* [SAAS-3965] Improved parser and tracing for GoSec API
+* [SAAS-3989] JWT-based tenant resolver adapter
+* [SAAS-3995] Customizable port name inclusion for ingress path
+* [SAAS-4070] H2 pact database moved to current directory
+* [SAAS-4074] Restart lifecycle unsupported
+* [SAAS-4101] Default configuration for production profile
+* [SAAS-4109] Upgrade docker-compose images
+* [SAAS-4013] Return Bad Request creating a keytab with required field realm empty
+* [SAAS-4078] LifeCycle Start for applications
+* [SAAS-4111] Convert error trying to execute rollback rest/expect
+* [SAAS-4117] Fix bug interpolate raw parameters names (without sections)
+* [SAAS-4127] Lifecycles from descriptor aren't added to pipeline in frameworks
+* [SAAS-4128] Core tasks "initial-interpolation" and "dependencies-injection" must be executed before lifecycles in phase "start"
+* [CVE-2021-36090] Vulnerability in commons-compress
+
+== 0.3.0 (June 22, 2021)
+
+* [SAAS-3662] Added kubernetes deployment resource limits
+* [SAAS-3813] Fix pipeline generation ignoring failed tasks
+* [SAAS-3812] Fixed bug wrong application name and domain after restart application
+* [SAAS-3846] Forced uninstall with continueOnFail
+* [SAAS-3921] Fixed missing end time for stopped jobs
+* [SAAS-3880] Bad request on malformed job execution
+* [SAAS-3917] Optional service dependencies should not prevent deployment
+* [CVE-2021-22118] Updated critical dependency
+
+== 0.2.0 (May 14, 2021)
+
+* [SAAS-3532] Descriptor-less uninstall lifecycle
+* [SAAS-3528] Bad response parsing for SSO unregister
+* [SAAS-3545] Subtasks are not being evaluated with tenant
+* [SAAS-3539] Default namespace is configurable
+* [SAAS-3554] Fix gosec user update url
+* [SAAS-3556] Bad request on negative page number for jobs
+* [SAAS-3564] Enabled/disabled ports in network exposition
+* [SAAS-3572] Application extensions for annotations
+* [SAAS-3371] Include upgrade lifecycle
+* [SAAS-3577] Default enabled flag for prerequisites execution
+* [SAAS-3579] Application extensions for labels
+* [SAAS-3467] Control for disabling tagged tasks
+* [SAAS-3584] Include support for array parameters
+* [SAAS-3169] Taskhandler plugin system
+* [SAAS-3617] Retrieve standard job execution logic in Piper
+* [SAAS-3202] Postgres and CustomResource TaskHandlers
+* [SAAS-3625] Fix upgrade label
+* [SAAS-3607] TenantResolverPort for tenant resolution
+* [SAAS-3610] Fix delete with force
+* [SAAS-3568] TaskDispatcherResolvers included in coordinator validations
+* [SAAS-3635] Uninstall should ignore invalid tasks
+* [SAAS-3660] Rollback for upgrade pipelines
+* [SAAS-3555] Lucene queries support for jobs endpoint
+* [SAAS-3650] Fix empty list for actionsAllow or actionsDeny in policy's acls
+* [SAAS-3587] Added application domain
+* [SAAS-3659] Application id with domain instead of tenant
+* [SAAS-3677] JobsService and controller refactor
+* [SAAS-3674] New endpoint for TaskExecution queries
+* [SAAS-3638] Updated readme
+* [SAAS-3690] Included enabled property for every task except "core/disable"
+* [SAAS-3700] Included autoscaling configuration
+* [SAAS-3707] Dependency resolution for service discovery
+* [SAAS-3781] Fix missing parameters error reverting last changes to api universe adapter
+
+== 0.1.0 (March 05, 2021)
+
+* [SAAS-3434] Updated k8s yamls
+* [SAAS-3453] Fixed uninstall job label
+* [SAAS-3431] Allow control continue rollbacking on rollback task fail
+* [SAAS-3499] Vault auth with Kubernetes Service Account Token by default
+* [SAAS-3504] Upgraded stratio-microservices version

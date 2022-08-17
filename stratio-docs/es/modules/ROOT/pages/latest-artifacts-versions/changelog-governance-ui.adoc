@@ -1,0 +1,497 @@
+= Changelog Governance UI
+
+== 1.9.3 (March 31, 2022)
+
+**Fixed bugs:**
+
+* [DGPB-8321] Glossary Detail: Fix glossary detail search.
+* [DGPB-8289] Gosec Service: Switch to governance proxy for gosec users and groups.
+* [DGPB-8330] Dataset Card: Fix publisher name overflow.
+* [DGPB-8337] Panel Layout: Refactor panels layout and fix scrollbar handler.
+* [DGPB-8343] Approval Workflow: table display with long names
+* [DGPB-8374] Quality Rules Editor: Fix mappingTypes endpoint call.
+* [DGPB-8459] Tasks: Bug with pagination and search box
+* [N/A] Panels Layout Styles: Fix panels layout styles.
+* [DGPB-8735] Glossary: Fix sidebar refresh when navigating by related assets.
+* [DGPB-8774] Glossary: Business asset description displayed bad in firefox.
+* [DGPB-8910] Panel Sidebar: Recursivity at on load requests
+* [DGPB-9064] Alerts: Request only one time at load
+* [DGPB-9113] Glossary: Fix terms pagination
+* [DGPB-9121] Glossary: Fix hidden search when no results
+
+**Others:**
+
+* Update egeo to version 27.3.4 to fix a pagination bug
+
+== 1.9.2 (January 17, 2022)
+
+**Fixed bugs:**
+
+* [DGPB-8052] Dictionary, Ontologies - Hide constraints action menu when autodiscovered keys exists
+* [DGPB-8208]: Quality Rules: Fix wrong QR asset type when copy.
+* [DGPB-8212]: Quality Rules Details: Fix custom attributes.
+* [DGPB-8203] Dataset Detail: Fix expiration date check.
+* [DGPB-8250, DGPB-8295] Data Martket: Bug on view more dataset description and error displaying after create
+
+**Others:**
+
+* Update egeo to version 27.3.3 to fix a datepicker bug
+
+== 1.9.1 (December 02, 2021)
+
+**Fixed bugs:**
+
+* [DGPB-7890] Quality Rules - Fix quality rule list zero page.
+* [DGPB-7979] Dictionary - Constraints update after save change
+* [DGPB-7990] Dictionary - Bug with menu constraints actions
+* [DGPB-8020] Quality Rules - Advanced query suggestions bug
+* [DGPB-7989] Export - Dictionary selection only export first item
+* [DGPB-8007] Access Control - Error when save failed
+* [DGPB-8044] Timezones - Fix timezones modal in quality rules editor.
+* [DGPB-8063] Tasks - Inbox type filter
+
+== 1.9.0 (October 20, 2021)
+
+**New features:**
+
+* [DGPB-7554] Import - New Verify file step when import.
+* [DGPB-6776] New bottom panel with asset related information.
+* [DGPB-6327] Glossary - New glossary layout.
+* [DGPB-6406] Added navigation to business asset selection modal
+
+== 1.8.0 (April 22, 2021)
+
+**New features:**
+
+* [DGPB-5724] Allow external cookie name.
+* [DGPB-5787] Alerts - Rocket alerts integration.
+* [DGPB-5855] Data market - Allow user to request different types of datasets from several sources.
+* [DGPB-5897] Collections - Allow user to create and edit connections on your own from an SQL Editor.
+* [DGPB-5983] UX taxonomies navigation - Redesign of user interface for governance application.
+* [DGPB-7627] Allow export of related assets in dictionary and glossary sections.
+
+**Others:**
+
+* [DGPB-5897] Monaco - Integrate monaco library.
+* [DGPB-6123] Egeo - Upgrade version to 25.0.0
+* [NA] sds-fonts - Upgrade version to 1.5.0
+* [NA] sds-themes - Integrate sds-themes library.
+* [NA] sds-spinner - Integrate sds-spinner library.
+
+**Fixed bugs:**
+
+* [DGPB-6191] Glossary - Tag description called incorrectly
+
+== 1.7.0 (December 17, 2020)
+
+**New features:**
+
+* [DGPB-3747] Import - Allow user to import any asset.
+* [DGPB-3828] Roles - Allow user to manage role configuration.
+* [DGPB-3849] Alerts - Allow user to manage an alert service.
+* [DGPB-3863] Export - Allow user to export any asset.
+* [DGPB-4046] Inter layer consistency - Add use cases to control layer inconsistencies
+* [DGPB-4314] Home - Home and configuration pages redesign.
+* [DGPB-4374] Cypress - Integrate cypress with governance-ui
+* [DGPB-4507] Dictionary - Page to show when path is empty
+* [DGPB-4552] Business assets - Allow user to create business asset types.
+* [DGPB-4842] Dictionary - Allow user to create foreign keys to the same table.
+* [DGPB-3776] BDL - Add info about tables and columns in sidebar
+* [DGPB-2868] Dictionary - Don't display XD and SEMANTIC assets
+* [DGPB-4160] Quality rules - Limit embedded qr over a semantic view
+* [DGPB-4217, DGPB-4218] Quality rules, Attributes - Added consistency modal when edit or remove
+* [DGPB-4339, DGPB-3941] Quality rules - Add audit field
+* [DGPB-4640] Dictionary - Change dictionary edition to modals
+* [DGPB-4677] Domains - Change domains edition to modals
+* [DGPB-4561] Added related assets to all sections
+* [DGPB-4560] Attributes - Add new relation type
+* [DGPB-4558, DGPB-4559] Glossary - Add dynamic asset types
+* [DGPB-4993] Glossary - Disable name, community and domain inputs when edit
+* [DGPB-5002] Glossary - Navigate to community, domain and asset
+* [DGPB-4557] Configuration - Business types management
+* [DGPB-5096] Remove business term asignation from dictionary, domains, ontologies and their export
+* [DGPB-4835, DGPB-4836] Dictionary, Domain, Glossary - Added link to knowledge graph
+* [DGPB-5130, DGPB-5131] Searcher - Change filters design and added new filters
+
+**Fixed bugs:**
+
+* [DGPB-3837] Quality Rules - Fix XSS gap when edit quality rule advanced querys
+* [DGPB-4257] Dictionary - Fix in breadcrumb when metadatapath contains special characters.
+* [DGPB-4367] Domains - Do not allow user to create domains with special characters
+* [DGPB-4337] Lineage - Fix table names with special characters.
+* [DGPB-4394] Quality Rules - Fix zoombie quality rules
+* [DGPB-4596] Quality Rules - Fix displaying XD and Semantic assets in SQL query
+* [DGPB-4683] Domains - Fix number of assigned quality rules
+* [DGPB-4684] Lineage - Fix lineage link
+* [DGPB-4753] User endpoints - Profiling endpoint tuning
+
+**Others:**
+
+* [DGPB-4075] Angular version to 10.0.1
+* [NA] Egeo - Upgrade version to 22.0.2
+
+== 1.6.0 (September 22, 2020)
+
+**New features:**
+
+* [DGPB-3831] Ontologies - Allow user to navigate between ontologies.
+* [DGPB-4339] Quality rules - Add audit field
+* [DGPB-4595] Quality rules - Hide audit check in scheduled type
+* [DGPB-4596] Quality rules - Hide tables from ontology source type
+
+**Fixed bugs:**
+
+* [DGPB-4706] Modals: wrong visualization of long titles
+
+== 1.5.0 (June 29, 2020)
+
+**New features:**
+
+* [DGPB-3583] BDL - Allow user to edit and see the incoming and outcoming foreign keys of tables helping him to build a valid tree structure
+* [DGPB-3734] Fix log vulnerabilities
+* [DGPB-3739] Mapping - Abac rework and new option in toolbar to encrypt relation data
+* [DGPB-3740] Mapping - New constraints for operational and master view
+* [DGPB-3722] Domains - Allow to add N times the same table
+* [DGPB-3675] Mapping - Allow user to see the table deep in the foreign key tree when he is displaying the table connections
+* [DGPB-3674] Mapping - Sort tables by foreign key tree structure
+* [DGPB-3636] Mapping - Change BoxTable model as BusinessLayerTable extension and added option to add N tables
+* [DGPB-3583] Mapping - Allow user to edit and see the incoming and outcoming foreign keys of tables helping him to build a valid tree structure
+* [DGPB-3596] Domains - Added zero page to field assets
+* [DGPB-3594, DGPB-3595] Domains - Added navigation in tabs, dynamic detail and quality rules
+* [DGPB-3802] Domains - Show bubble with path at Source in sidebar
+* [DGPB-3810] Dictionary - Add page to show when column has no description or alias
+* [DGPB-3799, DGPB-3812, DGPB-3813, DGPB-3846] Domains - Add pages to show when there are no assets
+* [DGPB-3859] Glossary - New dates format
+* [DGPB-3821] Attributes - New attribute tag style
+* [DGPB-4060] BDL - Allow user to check only informational or operational mode
+* [DGPB-4160] Quality rules - Do not allow user to create an embedded quality rule over a semantic view
+* [DGPB-4175] BDL - Update function based on text area position
+
+**Fixed bugs:**
+
+* [DGPB-3681] Variables - Fix wrong visualization of button "save"
+* [DGPB-3682] Dictionary - Fix wrong visualization of long alias and descriptions in asset details page
+* [DGPB-3695] Mapping - Error when user trying to create a relation with table has parent table
+* [DGPB-3696] Mapping - Error creating tree depth if there are several trees.
+* [DGPB-3697] Mapping - Error creating tree depth levels
+* [DGPB-3705] Mapping - Replace message when deleting a table
+* [DGPB-3742] Dictionary - Error displaying title on constraints dropdown
+* [DGPB-3743] Collections - Reset search before request data
+* [DGPB-3753] Quality Rules - Detail does not update after editing
+* [DGPB-3760] Glossary - Allow to delete business asset when is rejected
+* [DGPB-3774] Quality Rules - Added support to planned dates before year 1000
+* [DGPB-3591] Quality Rules - Bad layout with long formats in date format modal
+* [DGPB-3716] Domains - Transition between vertical tabs
+* [DGPB-3800] Collections - Error displaying children data
+* [DGPB-3802] Domains - Display completed path in the tables
+* [DGPB-3803] Dictionary - Fix domains navigation
+* [DGPB-3808] Dictionary - Usability fix in constraint dropdown
+* [DGPB-3810] Dictionary - Added zero page to column overview
+* [DGPB-3816] Tasks - Fix updating owner and steward simultaneously
+* [DGPB-3817] Glosary - Error filter comunities and domains
+* [DGPB-3818] Glosary - Hide owner and steward dropdown when there is at least one of them selected
+* [DGPB-3819] Tasks - Fix filter alignment
+* [DGPB-3823] Header - Hide bubble when there is no task
+* [DGPB-3864] Quality rules - Fix quality types
+* [DGPB-3895] Domains - Long path is not displayed correctly in add concept modal
+* [DGPB-3916] Domains - List does not refreshed after close business layer
+* [DGPB-3917] Dictionary - Fix generic quality rule navigation
+* [DGPB-3926] Domains - Fix creating a new relation with de same name than another with different tables
+
+**Others:**
+
+* [NA] chore(dockerfile): Change docker base image and update kms utils version
+
+== 1.4.0 (April 14, 2020)
+
+**New features:**
+
+* [DGPB-3186] Quality Rules - Remove quality rule icon from home and move it to configuration page
+* [DGPB-3242] Global - Integrate new color palette
+* [DGPB-3198, DGPB-3199, DGPB-3182, DGPB-3184, DGPB-3195] Apply new layout
+* [DGPB-3351] Dictionary - Move add/remove constraints to table rows and manage unique keys
+* [DGPB-3296] BDL - Improve form to edit concept information
+* [DGPB-3378] BDL - Allow user to mark a table as root
+* [DGPB-3022] BDL - Allow user to edit the foreign key connections of a table
+* [DGPB-3428] BDL - Allow user to see the foreign key connections of a table
+* [DGPB-3416] BDL: Display sorted properties of concept and tables
+* [DGPB-3381] BDL - Display associated tables sorted by type (root tables are displayed first)
+* [DGPB-3478] BDL - Allow to edit pending relations
+* [DGPB-2874] BDL - Manage relation functions on sidebar with grammar validations
+* [DGPB-3011] Ontologies - Display ontologies section
+* [DGPB-3473] Collections - Do not allow user to remove a concept when it is published
+* [DGPB-3482] Collections - Do not allow user to remove a collection with published concepts
+
+**Fixed bugs:**
+
+* [DGPB-3191] Quality Rules - Sort columns shown in conditions combo in Easy Mode Rule Condition
+* [DGPB-3299] Quality Rules - When user tries to add a second precondition, form fails when date format and time zone are reset
+* [DGPB-3300] Quality Rules - When user tries to reset the time zone or date format of precondition, it fails
+* [DGPB-3256] Quality Rules - Display quality as 0.00 when query rows or count rows are zero or undefined
+* [DGPB-3041] Quality Rules - Fix visualization of conditions when there are long words
+* [DGPB-3315] Glossary - Edit button is not displayed correctly when business asset name is so long
+* [DGPB-3522] BDL - When user tries to change mapping status to "Under Review" or "Published", do not display disconnected tables error when user removes all but one disconnected table
+* [DGPB-3586] Quality Rules - When user tries to edit a quality rule and it has some conditions with a column as param, they are not displayed correctly
+* [DGPB-3598] Collections - Display a specific error when user tries to add tables with the same name to a collection
+* [DGPB-3600] Quality Rules - Repetition field allows to enter a negative integer (or floating point number)
+* [DGPB-3604] Quality Rules - It is not possible to remove attributes of a QR
+* [DGPB-3409] Variables - Fix wrong visualization when there are variables with name or value too long
+* [DGPB-3567] BDL - Fix wrong visualization of long concept names on table box and sidebar
+* [DGPB-3557] Glossary - Asset types in logical representation table are not the same than displayed at dictionary
+* [DGPB-3570] BDL - Do not activate connect button of table connection modal if user leaves connections without changes
+* [DGPB-3588] Dictionary - Fix visualization of long names and alias on tables
+* [DGPB-3589] Collections - Fix visualization of long names and descriptions on tables
+* [DGPB-3611] Quality Rules - Do not allow user to create an embedded quality rule over a logical table when he uses "create from" option
+* [DGPB-3590] Collections - Fix wrong visualization of alias and description in collection detail view
+* [DGPB-3613] Quality Rules - Fix wrong request when user wants to create a quality rule from another one and he searches something on search box. Resource type is lost and the loaded quality rules are not the expected.
+* [DGPB-3624] Quality Rules - If an Attribute name is too long the cross mark for removing does not appear
+* [DGPB-3600] Quality Rules - Fix wrong visualization of repetition field when it does not match with an entire time unit
+* [DGPB-3628] Dictionary - When user is editing the attributes of an asset, disabled attributes should not be displayed
+* [DGPB-3600] Quality Rules - Fix wrong visualization of repetition field when it does not match with an entire time unit
+* [DGPB-3631] Attributes - Status label is not displayed correctly
+* [DGPB-3628] Quality Rules - When user is editing the attributes of a quality rule, disabled attributes should not be displayed
+* [DGPB-3628] Glossary - When user is editing the attributes of a business asset, disabled attributes should not be displayed
+* [DGPB-3640] BDL - When user is connecting tables using foreign keys, modal is not updated with the number of connected tables
+* [DGPB-3587] Quality Rules - Redirect user to the page where he opened the editor after saving a quality rule
+* [DGPB-3681] Variables - Fix wrong visualization of button "save"
+* [DGPB-3682] Dictionary - Fix wrong visualization of long alias and descriptions in asset details page
+
+== 1.3.0 (Febryary 07, 2020)
+
+**New features:**
+
+* [DGPB-2737] Collections - Show a collection list
+* [DGPB-2744] Collections - Allow user to see collection's details
+* [DGPB-2758] Collections - Allow user to edit a Collection
+* [DGPB-2622] BDL - Allow user to manage relations using a graph
+* [DGPB-3075] Dictionary - Allow user to see all quality rule's executions of an asset
+* [DGPB-3059, DGPB-3063] Dictionary & Quality Rules - Display links to access to discovery reports and sparta workflow details
+* [DGPB-3095] Quality Rules - Allow user to add preconditions in easy mode
+* [DGPB-3096, DGPB-3097] Quality Rules - Allow user to define a date formant and time zone in preconditions
+* [DGPB-3174] Quality Rules - Allow any type of queries in advanced quality rules
+* Upgrade egeo to 18.0.1
+
+**Fixed bugs:**
+
+* [DGPB-2936] Quality Rules - Remove unavailable options when create
+* [DGPB-2953, DGPB-2978, DGPB-2979] Dictionary - Change scroll pagination to classic pagination
+* [DGPB-3018] Quality Rules - prevent overflow on qr long names
+* [DGPB-3085] Attributes - Display attributes as a paginated and scrollable list with a searcher
+* [DGPB-3205] Quality Rules - assets list action menu is not displayed correctly
+* [DGPB-3206] Quality Rules - hide execution tab when quality rule is generic
+* [DGPB-3207] Quality rules - When user creates a quality rule from a generic one, preconditions are not saved with the selected asset
+* [DGPB-3204] Time Zone Modal - Time Zone selector failing after filtering
+* [DGPB-3234] Quality Rules - Incompatibility with quality rules assigned to asset of type SCHEMA_REGISTRY
+* [DGPB-3226] Quality Rules - Do not allow user to select a column as param when he is creating a quality rule for a column
+* [DGPB-3248] Quality Rules - Reset time zone and date format when user changes the attribute of a condition
+* [DGPB-3246] Quality Rules - Allow user to change a batch table quality rule to planned when he is editing it
+* [DGPB-3256] Quality Rules - Wrong visualization of a execution's quality when query rows are zero
+* [DGPB-3259] Variables - Fix wrong behaviour in selection variable modal when user tries to filter variable list
+* [DGPB-3272] Quality Rules - Size in detail is not displayed correctly
+* [DGPB-3277] Quality Rules - Replace 'created at' date with 'executed at' in execution list
+* [DGPB-3285] Quality Rules - Do not enable radio button 'Let me decide a Scheduled check' when user is creating a generic quality rule
+* [DGPB-3285] Quality Rules - Do not allow to move failed to path when quality rule is created or assigned to assets with type XD
+* [NA] Quality Rules - Prevent error when properties are not consistent with asset type
+* [DGPB-3291] Quality Rules - Reset selected quality rule when user cancels the selection of a quality rule
+
+== 1.2.0 (November 21, 2019)
+
+**New features:**
+
+* [DGPB-2229] Glossary - Allow user to display the history of changes and comments of a business asset
+* [DGPB-2262] Configuration - New Approval process section
+* [DGPB-2245] Task manager - new section with tasks list
+* [DGPB-2254] Task manager - added task detail
+* [DGPB-2226] Glossary - Display new statuses in list with a specific color
+* [DGPB-2254] Task manager - added task detail
+* [DGPB-2233] Glossary - Allow user to change the business asset status
+* [DGPB-2269] Glossary - Allow user to modify the asset´s owner, steward and attributes
+* [DGPB-2308] Glossary - Adapt list page to business rules
+* [DGPB-2156] Glossary - Terms and rules can use attributes
+* [DGPB-2155] Glossary - Allow user to associate quality rules to a business rule
+* [DGPB-2350] Glossary - Do not allow user to remove or edit a business asset from the glossary list
+* [DGPB-2364] Glossary - Do not allow user without role to create a business term
+* [DGPB-2358] Dictionary - Add reserved words to Collections creation name input
+* [DGPB-2369] Quality Rules - Separate quality rule detail view from editor
+* [DGPB-2371] Quality Rules - Apply new design to quality rule detail view
+* [DGPB-2370] Quality Rules - Allow user to add attributes
+* [DGPB-2384] Glossary - Adapt business assets modal for different asset types
+* [DGPB-2385] Quality Rules - Add functionality to quality rule detail view to can associate a business rule
+* [DGPB-2391] Task Manager - Display all box filters with it's process color
+* [DGPB-2378] Glossary - Allow user to navigate to a quality rule from a business rule
+* [DGPB-2406] Searcher - Adapt new key value format
+* [DGPB-2408] Quality Rules - Display generic quality rules
+* [DGPB-2421] Quality Rules - Create and show detail of generic quality rules
+* [DGPB-2418] Quality Rules - Allow user to assign a generic quality rule
+* [DGPB-2394] Searcher - Management of business rules as a filter with modal
+* [NA] Dictionary - Change property schema value 'na' to '-'
+* [DGPB-2436] Quality Rules - Allow user create, edit and view planned Quality Rules
+* [DGPB-2440] Planned Quality Rules - Enable advanced mode to configure conditions
+* [DGPB-2576] Dictionary - Activate Quality rules tab to Collections
+* [DGPB-2580] Dictionary - Modal that allow dictionary navigation to select an asset
+* [DGPB-2580] Quality Rules - Advanced Mode: Allow user to navigate through dictionary to select a table
+* [DGPB-2466] Configuration - New section to import and export business glossary assets
+* [DGPB-2611] Dictionary - Allow user to add constrains to a data asset
+
+**Fixed bugs:**
+
+* [DGPB-2260] Glossary - When user tries to cancel a creation of a domain after creating another previously, table is displayed with an empty row
+* [DGPB-2276] Quality Rules - Do not split into an array params which are not a list
+* [DGPB-2280] Quality Rules - Wrong behaviour after canceling the edition of a quality rule
+* [DGPB-2333] Dictionary - Does not show assigned attributes
+* [DGPB-2401] Variables - Wrong display when only is available tenant variables
+* [DGPB-2401] Dictionary - not show variables button when add attributes if there are not global variables
+* [DGPB-2426] Searcher - Key values are removed when user adds another filter
+* [DGPB-2359] Dictionary - Do not capitalize the asset names
+* [DGPB-2471] Glossary - Error when user tries to remove an attribute form a business term
+* [DGPB-2449] Glossary - When user adds an environment var as attribute, it is not displayed correctly
+* [DGPB-2481] Dictionary - Fix style to collection assignation modal
+* [DGPB-2482] Dictionary - Search in collection assignation modal does not work correctly when there are not results
+* [DGPB-2512] Dictionary - Scroll pagination does not work when browser is zoomed
+* [DGPB-2515] Attributes - Does not allow to save when remove a predefined value
+* [DGPB-2529] Dictionary - Empty results when search after paginate
+* [DGPB-2532] Quality Rules - Edit button on the list item does not go to edition
+* [DGPB-2679] Attributes - Reset attributes list view when go out
+* [DGPB-2675] Quality Rules - Planned QR: Asset selection modal does not display items by hierarchy
+* [DGPB-2698] Quality Rules - Advanced Mode: Avoid to send resource's id as string
+* [DGPB-2706, DGPB-2707] Quality Rules - Allow alias and uppercase in advanced conditions
+* [DGPB-2701] Quality Rules - Rules condition detail is not shown
+* [DGPB-2709] Glossary - Not show generic children qrs when assign quality rule
+* [DGPB-2712] Variables - Reset search when leave page
+* [DGPB-2713] Approval Process - Reset search when leave page
+* [DGPB-2714] Dictionary - Reset search when click on breadcrumb
+* [DGPB-2719] Quality Rules - Planned Quality Rules: Fix wrong behaviour when user inserts line breaks in textarea and fix caret position when a table is added
+* [DGPB-2690] Quality Rules - Advanced mode: When user clicks on textarea, cursor is not placed on it
+* [NA] Dictionary - Foreign key does not allow to select origin column
+* [DGPB-2711] Dictionary - Modal breadcrumb nav error
+* [DGPB-2730] Lineage - Fix inputs and outputs properties displayed in sidebar
+* [DGPB-2703] Quality Rules - Hide dashboard tab when is generic quality rule
+* [DGPB-2669] Header - Don't show notifications to roles without role
+* [DGPB-2760] Dictionary - Specific error message when add a collection and it already exists
+* [DGPB-2703] Quality Rules - Hide dashboards tab at generic creation
+* [DGPB-2726] Quality Rules - Change literal at rule condition
+* [DGPB-2774] Quality Rules - Remove option to delete a quality rule
+* [DGPB-2783] Dictionary - Do not allow to select more than one column when user is creating a foreign key
+* [DGPB-2789] Quality Rules - Quality percentage is rounded for Planned Quality Rules, but info provided by Sparta is not rounded
+* [NA] Quality Rules - When create from or assign set type to current asset type
+* [DGPB-2812] Dictionary - Replace all non alphanumeric characters to underscore character
+
+**Others:**
+
+* [DGPB-2525] Governance - Endpoints refactor
+
+== 1.1.0 (July 26, 2019)
+
+**New features:**
+
+* [DGPB-2040] Multitenant - Send user and tenant ids as request headers
+* [DGPB-2043] Home - Added Filter search button under search input
+* [DGPB-2047] Multitenant - Use dictionary api to get the user profile
+* [DGPB-2062] Dictionary - Only the assets with type 'na' and belong to HDFS have to be displayed as FILE
+* [DGPB-2056] Settings - Apply UX improvements
+* [DGPB-2064] Business glossary & Settings - Differentiate between no results and zero page when there are not items
+* [DGPB-2072] Quality rules - Apply UX improvements
+* [DGPB-2077] Quality rules - Added zero page to Dashboards list
+* [DGPB-2074] Searcher - Add tenant as query filter
+* [DGPB-2083] Dictionary - Improved design to asset detail page
+* [DGPB-2081] Dictionary - Show modal to associate a collection to an asset
+* [DGPB-2080, DGPB-2082] Dictionary - Added Collections functionality
+* [DGPB-2101] Settings - Display home page to select attributes or variables
+* [DGPB-2123] Searcher - Added icons to results table
+* [DGPB-2106] Settings - Added new section to manage environment variables
+* [DGPB-2130] Quality Rules - New component action input to select variables
+* [DGPB-2108] Variables - Create functionality to get variables filtered by tenant or global
+* [DGPB-2110] Variables - Allow user to search variables
+* [DGPB-2132] Quality rules - Added modal in creation to select a variable
+* [DGPB-2126] Quality rules - Adapt new model to be integrated with variables
+* [DGPB-2131] Quality rules - Integrate action input to select a variable
+* [DGPB-2139] Settings - Rename module to 'Configuration' and add some UX improvements
+* [DGPB-2143] Searcher - Display filters sorted by alphabetical order
+* [DGPB-2144] User - Remove redirection to login path when SSO is enabled and load a default profile when SSO is disabled
+* [DGPB-2149] Attributes - Apply changes to allow variables as value
+* [DGPB-2146] Glossary - Apply new design to glossary list
+* [DGPB-2145] Glossary - Change edition of communities and domains
+* [DGPB-2171] Header - Update header icon
+* [DGPB-2197] Dictionary - Added navigation to business terms and collections
+* [DGPB-2203] Quality Rules - Add ids to html components
+* [DGPB-2211] Quality Rules - Display status at quality rule list
+* [DGPB-2216] Dictionary - Display page zero when there are not datastores
+* [DGPB-2209] Quality Rules - Allow user to see the quality rule's executions
+* [DGPB-2223] Dictionary - Display Crossdata tables in lineage
+* [DGPB-2302] Searcher - Remove tenant filter
+* [DGPB-2304] Quality Rules - Remove table option
+
+**Fixed bugs:**
+
+* [DGPB-2051] Searcher - When user adds an attribute, filter has to be cleaned
+* [DGPB-2055] Quality Rules - When user creates a quality rule, he is redirected to the quality rule details but these are displayed wrong
+* [DGPB-2063] Settings - Do not close modal when the attribute creation/edition fails
+* [DGPB-2065] Dictionary - Scroll does not work fine when using the search
+* [DGPB-2063] Quality Rules - When edit dashboards, save button kept disabled. Also data was displayed bad in detail when cancel the edition
+* [DGPB-2058] Dictionary - Attributes assignment add button sometimes not enabled
+* [DGPB-2059] Dictionary - When scrollbar is inactive shouldn't be displayed
+* [DGPB-2070] Quality Rules - "Create Quality rule from..." is empty
+* [DGPB-2071] Quality Rules - Metadatapath is not displayed correctly
+* [DGPB-2065] Dictionary - After user searches something and he cleans the search box, assets are displayed with random order
+* [DGPB-2085] Searcher - Searcher doesn't show attributes facet
+* [DGPB-2069] Quality Rules - bug displaying total on tab and bug when edit
+* [DGPB-2098] Dictionary - bug when add or remove business term for the second time
+* [DGPB-2105] Glossary - When user navigates to glossary list from the asset detail view, community must not be changed
+* [DGPB-2119] Quality Rules - some elements were not shown in detail
+* [DGPB-2127] Dictionary - block the possibility to add the same attibute multiple times
+* [DGPB-2128] Glossary - solved bug in pagination after create business term
+* [DGPB-2136] Home - filter search button doesn't reset the search state
+* [DGPB-2137] Improve styles in table cells with icon + text
+* [DGPB-2140] Dictionary - Total quality rules doesn't update when remove one
+* [DGPB-2167] Dictionary - Solved bug with pagination in business assets modal
+* [DGPB-2168] Quality Rules - If user tries to remove a quality rule recently created, it is not removed
+* [DGPB-2180] Quality Rules - When user is cloning a QR with unary conditions, save button is always disabled
+* [DGPB-2260] Glossary - When user tries to cancel a creation of a domain after creating another previously, table is displayed with an empty row
+* [DGPB-2273] Attributes - Do not allow user to edit nor remove a security attribute
+* [DGPB-2276] Quality Rules - Do not split into an array params which are not a list
+* [DGPB-2280] Quality Rules - Wrong behaviour after canceling the edition of a quality rule
+* [DGPB-2279] Variables - variable selection is only available when there are variables
+* [DGPB-2281] Attributes - When user enters to see an attribute with enabled security, some fields are not displayed disabled
+* [DGPB-2294] Attributes - When user enters to see an attribute with enabled security, button "save" should not be displayed
+* [DGPB-2301] Quality Rules - Error trying to open modal when user is navigating through quality rule editor
+* [DGPB-2302] Searcher - Remove tenant filter
+* [DGPB-2306] Searcher - Filter modals not open
+* [DGPB-2318] Variables - When user cancels the edition of an asset, changes are not reverted
+* [DGPB-2317] Dictionary - When user adds a variable as attribute to an asset, variable's name and value have to be displayed on the tag list
+* [DGPB-2260] Glossary - Business term can not be deleted from the details view
+* [DGPB-2328] Glossary - When user is editing or creating a business asset and he clicks on the community selector selecting the current option text, domain selector disappears
+* [DGPB-2315] Glossary - When user edits a community without doing any change in its domains, he is not redirected to the glossary list
+* [DGPB-2319] Quality Rules - Can not create dashboards with uppercase url
+* [DGPB-2320] Quality Rules - Duplicated dashboards after editing two times
+* [DGPB-2340] Header - Show tenant when is none too
+* Dictionary - First time table order
+* [DGPB-2356] Glossary - Does not show domains in selects
+* [DGPB-2374] Glossary - Page zero button does not work
+* Glossary - Business term edition does not show domain selector
+* [DGPB-2380] Glossary - Problems with modals after creating a community
+* [DGPB-2381] Glossary - All domains are displayed when user enters to edit a business asset
+
+== 1.0.0 (May 09, 2019)
+
+**New features:**
+
+* [DGPB-2031] Searcher - Do not lose last search when user comes back to searcher
+* [DGPB-1846] Glossary - Change behaviour for dropdown to create and edit business glossary entities
+* [DGPB-2062] Dictionary - Only the assets with type 'na' and belong to HDFS have to be displayed as FILE
+
+**Fixed bugs:**
+
+* [DGPB-1905] Glossary - When user edits the selected domain or community, when he is redirected to the glossary list, it
+ is not displayed updated.
+* [DGPB-2055] Quality Rules - When user creates a quality rule, he is redirected to the quality rule details but these are displayed wrong
+* [DGPB-2063] Settings - Do not close modal when the attribute creation/edition fails
+* [DGPB-2065] Dictionary - Scroll does not work fine when using the search
+* [DGPB-2063] Quality Rules - When edit dashboards, save button kept disabled. Also data was displayed bad in detail when cancel the edition
+* [DGPB-2058] Dictionary - Attributes assignment add button sometimes not enabled
+* [DGPB-2059] Dictionary - When scrollbar is inactive shouldn't be displayed
+* [DGPB-2070] Quality Rules - "Create Quality rule from..." is empty
+* [DGPB-2071] Quality Rules - Metadatapath is not displayed correctly
+* [DGPB-2065] Dictionary - After user searches something and he cleans the search box, assets are displayed with random order
+* [DGPB-2069] Quality Rules -  Fix Bugs displaying total on tab and when edit
+* [DGPB-2102] Quality Rules - Disable TABLE type
+* [DGPB-2119] Quality Rules - some elements were not shown in detail

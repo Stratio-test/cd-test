@@ -1,0 +1,78 @@
+= Changelog Virtualizer
+
+== 0.3.0 (June 09, 2022)
+
+* [CROSSDATA-3358] Add support for built in UDFs
+* [CROSSDATA-3405] Hive catalog: Special characters & Case sensitive support
+* [CROSSDATA-3431] Health Checks: Change of behavior when we consider that the cluster is executing work.
+* Bump Virtualizer to Crossdata 3.4.2-f95e7c2
+* Bump Dyplon-crossdata to 1.11.0-2d73c8a
+* Bump Stratio-Spark to 3.1.1-1.4.1-8551ea7
+* Bump Postgres driver to 42.3.2 (fix vulnerability)
+* [CROSSDATA-3503] [FIX] Datastore permissions in create table
+* Hive native connector migration to connector SSCC
+* Native connectors decoupling feature
+* [CROSSDATA-3480] Close session after exceptions in native queries
+* Add bigquery native functions
+* Change default value of spark.sql.caseSensitive to true
+* Set Spark driver cores and memory by default
+* Set spark.sql.metadataCacheTTLSeconds value by default
+* Bump crossdata-drivers to 2.22.3-d467a54
+* [CROSSDATA-3520] LDAP connection with TLS
+* [CROSSDATA-3636] fix virtualizer metrics
+
+== 0.2.3 (May 25, 2022)
+
+* Bump crossdata server to 3.2.5-5b46028
+
+== 0.2.2 (May 12, 2022)
+
+* Set Spark driver cores and memory by default
+* [FIX] Custom udfs with slim jars
+* Bump crossdata server to 3.2.4-1e5b0b4
+
+== 0.2.1 (March 16, 2022)
+
+* Bump crossdata server to 3.2.3-6747e51
+
+== 0.2.0 (October 20, 2021)
+
+* Change default value of spark.sql.caseSensitive to false
+* Fix Dyplon cache configuration
+* Fix Spark Pod executors name
+* Fix Spark UI not accessible with port forwarding
+* Prometheus metrics Spark configuration
+* Separate Tenantid and namespace concepts
+* [CROSSDATA-3076] Include avro dependencies that are not included in spark docker
+* [CROSSDATA-3071] Load postgresql driver
+* [CROSSDATA-3078] Configure buffer directory for S3 client
+* [CROSSDATA-3070] add session.tracker and performance.log feature
+* [CROSSDATA-3073] Using HzCommon from Server for HzUtils
+* [CROSSDATA-3072] [HiveCatalog] Empty listPartitions in tables without partitions
+* [CROSSDATA-3088] Add XDMetrics to prometheus
+* [CROSSDATA-3103] Bump to Dyplon-crossdata 1.10.1-10aded8
+* Change environment default names according Kubernetes standardization
+* [CROSSDATA-3219] Bump Virtualizer to Crossdata 3.2.0
+* Make datanucleus pool setting configurable
+
+== 0.1.0 (April 29, 2021)
+
+* Bump Scala 2.12
+* Bump Crossdata server 3.0.0
+* Bump Crossdata shell 2.22.0
+* Bump Crossdata JDBC 2.22.0
+* Bump Stratio Spark 3.0.1-1.1.0-882e3e2
+* Hive metastore dependencies included in Stratio Spark docker
+* Initial virtualizer kubernetes version
+* Change default value of spark.sql.caseSensitive to false
+* Fix Dyplon cache configuration
+* Fix Spark Pod executors name
+* Fix Spark UI not accessible with port forwarding
+* Prometheus metrics Spark configuration
+* Separate Tenantid and namespace concepts
+* [CROSSDATA-3076] Include avro dependencies that are not included in spark docker
+* [CROSSDATA-3071] Load postgresql driver
+* [CROSSDATA-3078] Configure buffer directory for S3 client
+* [CROSSDATA-3070] add session.tracker and performance.log feature
+* [CROSSDATA-3073] Using HzCommon from Server for HzUtils
+* [CROSSDATA-3072] [HiveCatalog] Empty listPartitions in tables without partitions

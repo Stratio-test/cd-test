@@ -1,0 +1,193 @@
+= _Azure Event Hubs_
+
+Is an external storage included in the _Azure Cloud Platform_. Event Hubs is a fully managed, real-time data ingestion service that's simple, trusted, and scalable.
+
+_Stratio Spark_ has a native Kafka connector compatible with _Azure Event Hubs_. Existing Apache Kafka clients and applications can talk to Event Hubs without any code changes. You get a managed Kafka experience without having to manage your own clusters.
+
+== Known issues
+
+* _Azure Event Hubs_ does not support Schema Registry.
+* OAuth2 authentication method is added in Rocket 1.4.
+
+== Support matrix
+
+|===
+| Module | Versions | _Azure Event Hubs_
+
+| _Stratio Spark_
+| ≥ 2.4.4-3.2.0
+| OK
+
+| _Stratio Crossdata_
+| -
+| -
+
+| _Stratio Data Governance_
+| -
+| -
+
+| _Stratio Rocket_
+| ≥ 1.2.0
+| OK
+
+| _Stratio Sparta_
+| ≥ 2.16
+| OK
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| -
+| -
+|===
+
+[box type="info"]Modules without versions are not tested yet. They might be supported.[/box]
+
+== _Stratio Spark_
+
+=== Data access
+
+_Stratio Spark_ has support for Kafka 0.10 and higher. The library "`spark-streaming-kafka`" is already included in the _Stratio Spark_ release and used by other Stratio modules.
+
+_Azure Event Hubs_ is binary compatible with Kafka versions 1.0 and later.
+
+=== Authorization/Secrets management
+
+_Azure Event Hubs_ support several authorization methods:
+
+* *Shared Key/Shared Access Signature (SAS)*: providing the Shared Access Signatures (SAS) for delegated access to Event Hubs for Kafka resources.
+* *Client credentials (OAuth 2.0)*: also integrates with Azure Active Directory (Azure AD), which provides an OAuth 2.0 compliant centralized authorization server. It allows you to grant fine-grained permissions to your client identities. Authorizing access using OAuth 2.0 token-based mechanism provides superior security and ease of use over SAS.
+
+[box type="info"]Authorization secrets can't be stored in Vault yet. It will be added in the following releases if it's requested.[/box]
+
+=== User guide
+
+The first step is to create a new Event Hubs namespace (Event Hubs instance). Fill the following fields, some example values are provided:
+
+* Subscription: Seguridad.
+* Resource group: spark-event-hub.
+* Namespace: sparkeventhub.
+* Location: France Central.
+* Pricing tier: Standard.
+
+[box type="info"]It is important to select Pricing tier: Standard. The Basic type does not support Kafka clients.[/box]
+
+Add a new Event Hub (Kafka topic) and set the following fields:
+
+* Name: sparkeh1.
+* Partition Count: 1.
+* Message Retention: 1.
+
+The setup is ready. In the following sections, you will find Spark examples with each authorization method.
+
+==== Shared Key/Shared Access Signature (SAS)
+
+You need the Shared Access Signature (SAS). By default, when you create an _Azure Event Hubs_ namespace, the shared key RootManageSharedAccessKey is created. This key grants all permissions in all topics.
+
+Go to the Namespace → Settings → Shared access policies. Click in RootManageSharedAccessKey and copy Connection string--primary key.
+
+[box type="info"]It is possible to configure more shared keys with fine-grained permissions in each topic (Manage, Send, Listen).[/box]
+
+The following Spark code produces 4 words (messages) in the Kafka topic, consumes all the messages, and prints them in the string and raw formats.
+
+Before launching the job, you have to configure these constants:
+
+* BOOTSTRAP_SERVERS: +++<namespace>+++.servicebus.windows.net:9093.+++</namespace>+++
+* CONNECTION_STRING: The connection string which contains the shared key.
+* TOPIC: The name of the Kafka topic (Event Hub).
+* EH_SASL: You do not need to change this.
+
+[source,scala]
+----
+val BOOTSTRAP_SERVERS = "sparkeventhub.servicebus.windows.net:9093"
+val CONNECTION_STRING = "Endpoint=sb://sparkeventhub.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=XXXXXXXXX"
+val TOPIC = "sparkeh1"
+val EH_SASL = s"""org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="$CONNECTION_STRING";"""
+
+val result = spark.sparkContext.parallelize(Seq("Demo", "Spark", "Team", "2017")).toDF()
+
+result
+  .write
+  .format("kafka")
+  .option("topic", TOPIC)
+  .option("kafka.bootstrap.servers", BOOTSTRAP_SERVERS)
+  .option("kafka.sasl.mechanism", "PLAIN")
+  .option("kafka.security.protocol", "SASL_SSL")
+  .option("kafka.sasl.jaas.config", EH_SASL)
+  .option("checkpointLocation", "./checkpoint")
+  .save()
+
+val ds1 = spark
+  .read
+  .format("kafka")
+  .option("subscribe", TOPIC)
+  .option("kafka.bootstrap.servers", BOOTSTRAP_SERVERS)
+  .option("kafka.sasl.mechanism", "PLAIN")
+  .option("kafka.security.protocol", "SASL_SSL")
+  .option("kafka.sasl.jaas.config", EH_SASL)
+  .option("kafka.request.timeout.ms", "60000")
+  .option("kafka.session.timeout.ms", "60000")
+  .option("failOnDataLoss", "false")
+  .load()
+
+val data = ds1.selectExpr("CAST(value AS STRING)")
+  .as[String].collect()
+println("DATA READ")
+data.foreach(println)
+ds1.show()
+----
+
+==== Client credentials (OAuth 2.0)
+
+All the information required to configure the authorization using Active Directory (OAuth 2.0) can be found in the https://docs.microsoft.com/en-us/azure/event-hubs/authorize-access-azure-active-directory[official documentation].
+
+After configuring the permissions, the code is similar to the shared key example. In https://github.com/Azure/azure-event-hubs-for-kafka/tree/master/tutorials/oauth/java/managedidentity[this GitHub project] you can find the official example code for OAuth integration.
+
+== _Stratio Rocket_/_Stratio Sparta_
+
+The first versions supporting an Event Hubs consumer (input) are _Stratio Sparta_ 2.16 and _Stratio Rocket_ 1.2.0. However, _Stratio Sparta_ 2.15 and _Stratio Rocket_ 1.1.0 already integrate an Event Hub producer as an output.
+
+Access to data is done through the _Stratio Spark_ Kafka connector. Supported authorization methods are:
+
+* Shared Key/Shared Access Signature (SAS).
+* OAuth2: included in _Stratio Rocket_ 1.4.0.
+
+First, you have to store the credentials in Vault following the section "Credential retrieval" in the xref:../../Operations-manual/Stratio-Rocket/Installing-and-upgrading/Deployment.adoc[_Stratio Rocket_ deployment page].
+
+*Vault path*: `/v1/userland/passwords/s000001-rocket/s000001-<secret_name_1>`
+*Run in vCLI*: `put <event_hub_secrets> {"user": "$ConnectionString", "pass": "Endpoint=sb://eventhubdevel.servicebus.windows.net/;SharedAccessKeyName=shared;SharedAccessKey=<shared_access_key>"}`
+
+Then, configure the secret in _Stratio Rocket_ using _Stratio Command Center_. You can find configuration fields in the *General → External configuration → Datastore credential retrieval from Vault* section.
+
+After those steps, you can use the credentials in the _Azure Event Hubs_ input/output.
+
+=== Troubleshooting
+
+If the _Azure Event Hubs_ input/output returns this error:
+
+[source,text]
+----
+An error: (java.security.PrivilegedActionException: javax.security.sasl.SaslException: No OAuth Bearer tokens in Subject's private credentials
+[Caused by java.io.IOException: No OAuth Bearer tokens in Subject's private credentials]) occurred when evaluating the SASL token received from the Kafka Broker.
+Kafka Client will go to AUTHENTICATION_FAILED state.
+----
+
+It can be caused for several reasons, some of them not related to credentials/authentication. You have to take a look at the logs in Spark driver and Spark executors. The info traces before the error give detailed information.
+
+Common causes are:
+
+* Authorization: bad credentials, _Azure Event Hubs_ cluster is not authorized, a consumer group is not authorized, or the topic is not authorized.
+* Network: you need connectivity with:
+ ** https://login.microsoftonline.com to obtain the token.
+ ** _Azure Event Hubs_ brokers. Eg connectors.servicebus.windows.net
+* Proxy: you have to configure the proxy in the Java options of the Spark driver and Spark executor. Eg -Dhttps.proxyHost=proxy.net -Dhttps.proxyPort=8080
+
+== _Stratio GoSec_
+
+External data stores are not integrated into _Stratio GoSec_.
+
+The authorization will be configured directly in _Azure Event Hubs_ when the user is created for _Stratio Rocket_. It is recommended to create a specific user for each application with limited permissions.
+
+Secrets (user/password) can be stored in Vault safely. _Stratio Rocket_ has mechanisms to download the secrets and use them when necessary.

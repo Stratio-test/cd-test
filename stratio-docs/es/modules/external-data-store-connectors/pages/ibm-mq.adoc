@@ -1,0 +1,93 @@
+= IBM MQ
+
+Se trata de una familia de productos _middleware_ orientados a mensajes desarrollado por IBM.
+
+== Matriz de soporte
+
+|===
+| Módulo | Versiones | IBM MQ 9.2.1.0
+
+| _Stratio Spark_
+| -
+| -
+
+| _Stratio Virtualizer_
+| -
+| -
+
+| _Stratio Data Governance_
+| -
+| -
+
+| _Stratio Rocket_
+| ≥ 1.4.0
+| OK
+
+| _Stratio Sparta_
+| -
+| -
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| -
+| -
+|===
+
+:note-caption: AVISO
+
+NOTE: Los módulos sin versiones no han sido probados aún. Podrían estar soportados.
+
+== _Stratio Rocket_/_Stratio Sparta_
+
+La primera versión que soporta IBM MQ _consumer_ (entrada) es _Stratio Rocket_ 1.4.0. El _producer_ (salida) todavía no es compatible.
+
+La implementación tiene algunas limitaciones:
+
+* Solo se implementa la autorización de usuario/contraseña. Los secretos se almacenan en Vault.
+* Solo se soportan _queues_. El soporte para _topics_ aún no se ha implementado.
+
+=== Acceso a los datos
+
+El acceso a los datos se realiza a través del cliente oficial de IBM MQ.
+
+El usuario tiene que almacenar los secretos en Vault y configurar las descargas de secretos en el despliegue. Después de eso, el usuario solo tendrá que rellenar los campos relacionados con la cadena de conexión en la entrada del IBM MQ.
+
+=== Guía de usuario
+
+Primero, debes almacenar las credenciales en Vault siguiendo la sección "Credential retrieval" en la xref:stratio-rocket:operations-guide/installing-and-upgrading/deployment.adoc[página de despliegue de _Stratio Rocket_].
+
+* *Ruta de Vault*: `/v1/userland/passwords/s000001-rocket/s000001-<secret_name_1>`.
+* *Ejecutar en vCLI*: `put <ibmmq-secret> {"user": "<user>", "pass": "<password>"}`.
+
+Después, configura el secreto en _Stratio Rocket_ utilizando _Stratio Command Center_. Puedes encontrar los campos de configuración en la sección *_General_ → _External configuration_ → _Datastore credential retrieval from Vault_*.
+
+Los _workflows_ de _Stratio Rocket_ y _Stratio Sparta_ usarán los siguientes valores de Spark para recuperar los secretos antes mencionados:
+
+[source,json]
+----
+"SPARK_SECURITY_DB_ENABLE": "true",
+"SPARK_SECURITY_DB_<vault_db_name_1>_VAULT_PATH": "/v1/userland/passwords/s000001-rocket/s000001-<secret_name_1>"
+----
+
+Después de esos pasos, puedes utilizar las credenciales en la entrada de IBM MQ.
+
+== _Stratio GoSec_
+
+Los almacenes de datos externos no están integrados en _Stratio GoSec_.
+
+La autorización se configurará directamente en IBM MQ cuando se cree el usuario para _Stratio Rocket_.
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario específico para cada aplicación con permisos limitados.
+
+Los secretos (usuario/contraseña) se pueden almacenar en Vault de forma segura. _Stratio Rocket_ tiene mecanismos para descargar los secretos y usarlos cuando sea necesario.
+
+== Problemas conocidos
+
+* Solo se implementa la autorización de usuario/contraseña. Los secretos se almacenan en Vault.
+* Solo están soportadas las _queues_. El apoyo para _topics_ aún no se implementa.
+* No hay IBM MQ _producer_ (salida).

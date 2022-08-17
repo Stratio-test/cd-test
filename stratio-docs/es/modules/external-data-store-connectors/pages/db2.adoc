@@ -1,0 +1,258 @@
+= DB2
+
+Este documento explica cómo acceder al almacén de datos (que no está incluido dentro de la plataforma de Stratio) desde cada módulo de la plataforma. Es posible desplegarlo en la plataforma con las imágenes oficiales de Docker, aunque no todas las versiones de _DB2_ tienen imágenes de Docker.
+
+El _software_ de IBM tiene licencia comercial. Es necesario registrar y aceptar los términos de la licencia.
+
+== Problemas conocidos
+
+* El descriptor de _Stratio Command Center_ incluye soporte para este almacén de datos desde la versión 2.22.0. Para versiones anteriores, tienes que desplegar un _Stratio Virtualizer_ y después cambiar algunas variables de entorno.
+
+== Matriz de soporte
+
+|===
+| Módulo | Versiones | _DB2_ 11.5.0.0
+
+| _Stratio Spark_
+| ≥ 2.4.4-3.2.0
+| OK
+
+| _Stratio Virtualizer_
+| ≥ 2.22.0
+| OK
+
+| _Stratio Data Governance_
+| ≥ 1.6.0
+| OK
+
+| _Stratio Rocket_
+| ≥ 1.0.0
+| OK
+
+| _Stratio Sparta_
+| ≥ 2.14
+| OK
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| ≥ 1.6.0
+| OK
+|===
+
+:note-caption: AVISO
+
+NOTE: Los módulos sin versiones no han sido probados aún. Podrían estar soportados.
+
+== _Stratio Spark_
+
+=== Acceso al dato
+
+Spark tiene soporte oficial para el conector de _DB2_ JDBC (incluye clases para soportar el _DB2_ _dialect_).
+
+Se hacen algunas conversiones de tipo al escribir a la fuente de datos, ya que algunos tipos son discordantes entre Spark y _DB2_:
+
+* _String_ → _CLOB_
+* _Boolean_ → _CHAR(1)_
+* _Short_ → _SMALLINT_
+
+Si experimentas problemas al escribir nuevos datos, convierte los _booleans_ a _int_ antes de guardar (_true_ = 1, _false_ = 0).
+
+_Stratio Spark_ no ha modificado Spark para este conector.
+
+=== Autorización/gestión de secretos
+
+_DB2_ soporta muchos métodos de autorización (usuario/contraseña, SSL, Kerberos... ). Actualmente, en _Stratio Spark_ solo se soporta la autorización usuario/contraseña.
+
+Estos credenciales pueden almacenarse de forma segura en Vault y _Stratio Spark_ puede recuperarlos y usarlos para establecer la conexión.
+
+_Stratio Spark_ permite configurar varias bases de datos de JDBC en el mismo _job_, cada base de datos con sus propios secretos. Debes configurar una variable de entorno para cada base de datos:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_<BD_NAME_UPPER_CASE>_VAULT_PATH"
+----
+
+Al hacer esto, Spark podrá descargar los secretos necesarios desde Vault y establecer las siguientes propiedades por ti:
+
+[source,json]
+----
+"spark.db.<db_name_lower_case>.user",
+"spark.db.<db_name_lower_case>.pass"
+----
+
+=== Guía de usuario
+
+El _driver_ de _DB2_ no está incluido en _Stratio Spark_ por motivo de licencias. Es necesario añadirlo al _JAR_ del _job_ que se quiere ejecutar. Estos _drivers_ están disponibles en el repositorio de Stratio.
+
+El primer paso es crear los secretos en Vault con el usuario/contraseña. Tendrás que pedirle al administrador de sistemas que lo haga por ti.
+
+* *Ruta de Vault*: `/v1/userland/passwords/s000001-spark-fw/s000001-db2`
+* *Ejecutar en vCLI*: `put s000001-db2 {"user": "<user>", "pass": "<password>"}`
+
+Después, puedes escribir código normal de Spark. _Stratio Spark_ rellenará las propiedades de los usuarios/contraseñas de Spark con los secretos.
+
+[source,scala]
+----
+val user = spark.sparkContext.getConf.getOption("spark.db.database1.user")
+val password = spark.sparkContext.getConf.getOption("spark.db.database1.pass")
+
+val df = spark.read.
+  format("jdbc").
+  option("driver", "com.ibm.db2.jcc.DB2Driver").
+  option("url", "jdbc:db2://s000001-db2.s000001.marathon.mesos:50000/SAMPLE").
+  option("dbtable", "table").
+  option("user", user).
+  option("password", password).
+  load()
+
+df.show()
+----
+
+Lanza el _job_ de Spark utilizando _Spark Dispatcher_. Necesitas establecer estas propiedades en el _job_ para descargar los secretos. El administrador de sistemas aportará la ruta de Vault.
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_ENABLE": "true",
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_DATABASE1_VAULT_PATH": "/v1/userland/passwords/s000001-spark-fw/s000001-db2",
+----
+
+== _Stratio Virtualizer_
+
+=== Acceso al dato
+
+El acceso a los datos se realiza a través de _Stratio Spark_ configurado con el _driver_ de _DB2_ JDBC. Mira en <<_stratio_spark, la sección de _Stratio Spark_>> para más información.
+
+=== Autorización/gestión de secretos
+
+_Stratio Virtualizer_ usa los métodos de autorización soportados en _Stratio Spark_. Actualmente, solo está implementada la autorización por usuario/contraseña.
+
+Los secretos pueden almacenarse de forma segura en Vault. También es posible indicar el usuario y contraseña en la sentencia de _"create table"_ de _Stratio Virtualizer_  en texto plano. Este método no está recomendado por razones de seguridad.
+
+=== Guía de usuario
+
+Con el fin de llevar a cabo un test, necesitas desplegar la base de datos de _DB2_ de antemano.
+
+_Stratio Virtualizer_ soporta tres métodos de configuración de credenciales diferentes:
+
+* "`stratiocredentials`" almacena un secreto diferente por cada base de datos en Vault. Este es el método recomendado desde la versión 2.22.
+* "`stratiosecurity`" usa los credenciales de _Stratio Virtualizer_ (usuario/contraseña) para conectar a todas las bases de datos. Tienes que crear los mismos credenciales para cada base de datos.
+* Texto plano en la sentencia de "``create table``".
+
+El primer paso es crear los secretos en Vault:
+
+* *Ruta de Vault*: `/v1/userland/passwords/s000001-crossdata/s000001-db2`
+* *Ejecutar en vCLI*: `put s000001-crossdata/s000001-db2 {"user": "<user>", "pass": "<pass>"}`
+
+El siguiente paso es desplegar _Stratio Virtualizer_ usando _Stratio Command Center_. Puedes encontrar la configuración para este conector en la sección _Environment_ → _External data stores_ → _JDBC integration_.
+
+Una vez desplegado, es posible registrar la tabla en el catálogo y ejecutar consultas.
+
+[source,text]
+----
+create table db2_table using jdbc options (
+  url 'jdbc:db2://s000001-db2.s000001.marathon.mesos:50000/SAMPLE',
+  dbtable 'DB2INST1.db2_table',
+  stratiosecurity 'true',
+  stratiosecuritymode 'user_pass',
+  stratiocredentials 's000001-db2'
+) AS SELECT 1 AS id, 'Name 1' AS name UNION SELECT 2 AS id, 'Name 2' AS name;
+
+select * from db2_table;
+----
+
+== _Stratio Data Governance_
+
+=== Acceso al dato
+
+El acceso a los datos se realiza a través del _driver_ de _DB2_ JDBC. El _driver_ no está incluido por motivo de licencias, pero se puede encontrar en el repositorio de Stratio.
+
+El agente de descubrimiento de JDBC (dg-jdbc-agent) tiene soporte para el descubrimiento de metadatos de _DB2_.
+
+=== Autorización/gestión de secretos
+
+El agente de descubrimiento actualmente solo soporta el método de autorización por usuario/contraseña. Los secretos pueden almacenarse de forma segura en Vault.
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario dedicado para el agente de descubrimiento con permisos limitados.
+
+=== Guía de usuario
+
+Requisitos previos:
+
+* Una instancia trabajando de _DB2_.
+* Una instalación de _Stratio Data Governance_.
+
+El primer paso es crear los secretos en Vault. Estos no se crean automáticamente por el instalador de _Stratio Command Center_, por lo que debes pedirle al administrador del sistema que lo haga por ti. Es *altamente recomendable* crear un nuevo usuario en _DB2_ para _Stratio Data Governance_ con permisos limitados.
+
+* *Ruta de Vault*: `/v1/userland/passwords/s000001-dg-db2-agent/s000001-dg-db2-agent`
+* *Ejecutar en vCLI*: `put s000001-dg-db2-agent {"user": "<user>", "pass": "<password>"}`
+
+Usa el descriptor de _Stratio Command Center_ para instalar el agente de descubrimiento de JDBC para _DB2_: _agent-db2-external-default_.
+
+Los campos más importantes a rellenar en la instalación son:
+
+*General*
+
+* _Backend_ de _Stratio Data Governance_ (PostgreSQL)
+ ** _Host_: la instancia de PostgreSQL para guardar metadatos de _DB2_.
+* Configuración del servicio a ser descubierto
+ ** Nombre del servicio: nombre que se utilizará para identificar este almacén de datos en _Stratio Data Governance_. Este nombre se mostrará en la interfaz de usuario de _Stratio Data Governance_.
+ ** Nombre del _Host_: nombre de dominio de la instancia de _DB2_. Puede ser interna o externa a la plataforma de Stratio. Por ejemplo: s000001-db2.s000001.marathon.mesos.
+ ** Puerto: puerto de _DB2_. Por defecto: 39041.
+ ** Propiedades: propiedades de JDBC URL. El marcador de posición -db- será reemplazado por el nombre de la base de datos del "`init path`". Por defecto: /-db-.
+ ** _Init path_: la ruta desde la cual quieres descubrir los metadatos de forma recursiva. Si no estás seguro, usa el nombre de la base de datos. El _domain_ por defecto para la imagen oficial de Docker de _DB2_ es: /SAMPLE.
+ ** Credenciales de Vault: solo MD5 (usuario/contraseña) está soportado.
+ ** Credenciales de acceso: la ruta de Vault con los credenciales de autorización. Por ejemplo: db2-dev. La ruta completa será "`userland/passwords/<vault_path>/<access_credentials>`". Mira el ``vault_path`` de abajo.
+* Identidad de servicio
+ ** Rol de Vault: se recomienda crear un nuevo rol para los agentes de descubrimiento. Por ejemplo: s000001-dg-agent.
+* Red de Calico
+ ** Nombre de red: es necesario utilizar la red compartida de stratio si el agente de descubrimiento está configurado para guardar los metadatos en Postgreseos.
+
+*Configuración*
+
+* Configuración de servicio descubierto
+ ** _Driver's JAR URL_: URL para descargar el _driver_ de _DB2_. Hay una copia del artefacto en el repositorio de Stratio.
+* Ruta de secretos
+ ** _Vault path_: la ruta de Vault con los credenciales de autorización. Por defecto, es <tenantId>-<serviceId>. Por ejemplo: s000001-dg-db2-agent.
+
+Comprueba que el servicio se despliega, es capaz de descargar el _driver_ y los secretos, y el proceso de descubrimiento comienza. La primera vez puede tardar un tiempo.
+
+Si el servicio funciona correctamente, puedes ver los metadatos descubiertos en las trazas:
+
+[source,text]
+----
+Extract begins at: Fri Mar 27 09:56:05 CET 2020
+NewOrUpdate 14 DataAssets begins at: Fri Mar 27 09:56:06 CET 2020
+Delete 0 DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+Synchronizing 14 and 0 Federated DataAssets begins at Fri Mar 27 09:56:07 CET 2020
+----
+
+En la interfaz de usuario de _Stratio Data Governance_ puedes ver que un nuevo almacén de datos se ha descubierto, y puedes navegar por los metadatos. Todas las tablas, columnas, tipos de datos, claves primarias, claves foráneas... han sido detectadas correctamente.
+
+image::external-db2-connector-governance.png[]
+
+El agente actualiza los metadatos periódicamente. Un _test_ puede realizarse, por ejemplo, lanzando un "ALTER TABLE" en _DB2_ y esperando a que el agente detecte el cambio. Estos cambios se reflejan en la interfaz de usuario de _Stratio Data Governance_.
+
+== _Stratio Rocket_/_Stratio Sparta_
+
+Hay diferentes posibilidades para acceder al almacén de datos de _DB2_ desde _Stratio Rocket_. La manera recomendada es utilizar la integración con _Stratio Virtualizer_ ya que implementa todos los mecanismos de seguridad. También es posible utilizar la entrada/salida de JDBC o incluso la fuente de datos de entrada y el almacén de datos de salida.
+
+Mira en la documentación de xref:stratio-rocket:user-guide:workflow-asset-user-guide.adoc[_Stratio Rocket_] para más información sobre configurar estos pasos.
+
+== _Stratio GoSec_
+
+Los almacenes de datos externos no se integran con _Stratio GoSec_.
+
+La autorización se configurará directamente en la base de datos cuando el usuario se cree para _Stratio Virtualizer_/_Stratio Spark_/_Stratio Data Governance_.
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario específico para cada aplicación con permisos limitados.
+
+La mayoría de los módulos accederán al almacén de datos a través de _Stratio Virtualizer_. Esto te permite configurar diferentes políticas de autorización para cada usuario en _Stratio GoSec_.
+
+Los secretos (usuario/contraseña) se pueden almacenar en Vault de forma segura. _Stratio Virtualizer_/_Stratio Spark_/_Stratio Data Governance_ tienen mecanismos para descargar los secretos y usarlos cuando sea necesario.

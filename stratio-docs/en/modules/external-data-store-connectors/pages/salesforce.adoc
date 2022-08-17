@@ -1,0 +1,274 @@
+= _Salesforce_
+
+Is a customer relationship management (CRM) service and also sells a complementary suite of enterprise applications focused on customer service, marketing automation, analytics, and application development. It is a cloud-based external service.
+
+== Known issues
+
+* Since _Salesforce_ does not support SQL language, the JDBC driver functionality is limited. It implements all required features for metadata discovery but not for data access.
+* Only user/password authorization is implemented. Secrets are stored in Vault.
+* The Spark data source for _Salesforce_ developed by Stratio is not included in _Stratio Spark_. You have to include the data source in your project. There are artifacts compatible with Spark 2.x and Spark 3.x available.
+
+== Support matrix
+
+|===
+| Module | Versions | Salesforce
+
+| _Stratio Spark_
+| 2.x and 3.x
+| OK
+
+| _Stratio Crossdata_
+| -
+| -
+
+| _Stratio Data Governance_
+| ≥ 1.8.0
+| OK
+
+| _Stratio Rocket_
+| ≥ 2.1.0
+| OK
+
+| _Stratio Sparta_
+| -
+| -
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| -
+| -
+|===
+
+[box type="info"]Modules without versions are not tested yet. They might be supported.[/box]
+
+== _Stratio Spark_
+
+=== Data access
+
+Data access is performed using a Spark data source developed by Stratio.
+
+The source code and detailed documentation about the artifacts and parameters/options can be found in the GitHub repository.
+
+Among other functions, the data source supports:
+
+* Reading tables using SOQL and SAQL queries with column and row filtering.
+* Writing in existing tables with "`append`" and "`upsert`" methods.
+* Salesforce/Spark types are converted automatically.
+* Optimized to perform a low number of requests using bulk APIs. Pagination is also configurable.
+* Custom Salesforce login URL.
+* Proxy support.
+
+The Spark data source for _Salesforce_ is not included in _Stratio Spark_. You have to include the data source in your project. There are artifacts compatible with Spark 2.x and Spark 3.x available.
+
+=== Authorization/Secrets management
+
+_Salesforce_ supports many authorization methods (user/password, OAuth2... ). Currently, in _Stratio Spark_ only user and password authorization is supported.
+
+These credentials can be safely stored in Vault and _Stratio Spark_ can retrieve and use them to establish the connection.
+
+_Stratio Spark_ allows configuring several data sources/databases in the same job, each database with its own secrets. You must configure an environment variable for each database:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_<BD_NAME_UPPER_CASE>_VAULT_PATH"
+----
+
+By doing this, Spark will be able to download the needed secrets from Vault and set the following Spark properties for you:
+
+[source,json]
+----
+"spark.db.<db_name_lower_case>.user",
+"spark.db.<db_name_lower_case>.pass"
+----
+
+[box type="info"]The _Salesforce_ password is not just the password, you need to concatenate the password and the security token. Eg: <password><security_token>[/box]
+
+=== User guide
+
+To use user/password authorization, you need to get a security token from _Salesforce_.
+
+The first step is to create the secrets in Vault with the user/password. The security token must be appended to the password. You have to ask the system administrator to do it for you.
+
+*Vault path*: `/v1/userland/passwords/s000001-spark-fw/s000001-salesforce`
+*Run in vCLI*: `put s000001-salesforce {"user": "<user>", "pass": "<password><security_token>"}`
+
+Include the data source as a dependency. If you are going to launch the Job in the cluster, remember to shade the dependency into the fat JAR.
+
+For Spark 3.x and Scala 2.12:
+
+[source,xml]
+----
+<dependency>
+  <groupId>com.stratio</groupId>
+  <artifactId>spark-salesforce_2.12</artifactId>
+  <version>2.0.0-1d542b2</version>
+</dependency>
+----
+
+For Spark 2.x and Scala 2.11:
+
+[source,xml]
+----
+<dependency>
+  <groupId>com.stratio</groupId>
+  <artifactId>spark-salesforce_2.11</artifactId>
+  <version>1.0.0-eb48d81</version>
+</dependency>
+----
+
+Then, you can write regular Spark code. _Stratio Spark_ will fill the user/pass Spark properties with the secrets.
+
+[source,scala]
+----
+val user = spark.sparkContext.getConf.getOption("spark.db.database1.user")
+val password = spark.sparkContext.getConf.getOption("spark.db.database1.pass")
+
+val soql = "SELECT id, name, amount FROM opportunity"
+val df = spark.read.
+  format("com.stratio.spark.salesforce").
+  option("username", user).
+  option("password", password).
+  option("soql", soql).
+  load()
+
+df.show()
+----
+
+Launch the Spark job using _Spark Dispatcher_. You need to set these properties in the job to download the secrets. The Vault path will be provided by the system administrator.
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_ENABLE": "true",
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_DATABASE1_VAULT_PATH": "/v1/userland/passwords/s000001-spark-fw/s000001-salesforce",
+----
+
+== _Stratio Data Governance_
+
+=== Data access
+
+Access to the data is done through a _Salesforce_ JDBC driver developed by Stratio.
+
+The source code and detailed documentation about the artifacts and parameters/options can be found in the GitHub repository.
+
+The JDBC discovery agent (dg-jdbc-agent) has support for discovery _Salesforce_ metadata.
+
+[box type="info"]Since _Salesforce_ does not support SQL language, the JDBC driver functionality is limited. It implements all required features for metadata discovery but not for data access.[/box]
+
+=== Authorization/Secrets management
+
+The discovery agent currently only supports the user/password authorization method. Secrets can be safely stored in Vault.
+
+*Vault path*: `/v1/userland/passwords/s000001-dg-salesforce-agent/s000001-dg-salesforce-agent`
+*Run in vCLI*: `put s000001-dg-salesforce-agent {"user": "<user>", "pass": "<password><security-token>"}`
+
+[box type="info"]The _Salesforce_ password is not just the password, you need to concatenate the password and the security token. Eg: <password><security_token>[/box]
+
+=== User guide
+
+Prerequisites:
+
+* A _Salesforce_ account.
+* A _Stratio Data Governance_ installation.
+
+The first step is to create the secrets in Vault. These secrets are not created automatically by the _Stratio Command Center_ installer. You have to ask the system administrator to do it for you.
+
+Use the _Stratio Command Center_ descriptor to install the JDBC discovery agent for _Salesforce_: _agent-salesforce-external-default_.
+
+The most important fields to fill in the installation are:
+
+*General*
+
+* Backend _Stratio Data Governance_ (PostgreSQL).
+ ** Host: PostgreSQL instance to save _Salesforce_ metadata.
+* Configuration of the service to be discovered.
+ ** Service name: name to be used to identify this data store in _Stratio Data Governance_. This name will be shown in the _Stratio Data Governance_ UI.
+ ** Init path: the path from which you want to discover the metadata recursively. If you are not sure, use the database name.
+ ** Driver's JAR URL: URL to download the _Salesforce_ JDBC driver. There is a copy of the artifact in the Stratio repository.
+ ** Properties: JDBC URL properties. -db- placeholder will be replaced with the database name form "`init path`".
+ ** Vault credentials: only MD5 (user/password) is supported.
+ ** Access credentials: Vault path with the authorization credentials. Eg: salesforce-dev. The full path will be "`userland/passwords/<vault_path>/<access_credentials>`". See the vault_path below.
+* Service identity.
+ ** Vault role: it's recommended to create a new role for discovery agents. Eg: s000001-dg-agent.
+* Calico network.
+ ** Network name: it's necessary to use the stratio-shared network if the discovery agent is configured to save the metadata in Postgreseos.
+
+Check that the service deploys, that is able to download the driver and secrets, and that the discovery process begins. The first time may take a while.
+
+If the service works correctly, you can see the discovered metadata in the traces:
+
+[source,text]
+----
+Extract begins at: Fri Mar 27 09:56:05 CET 2020
+NewOrUpdate 14 DataAssets begins at: Fri Mar 27 09:56:06 CET 2020
+Delete 0 DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+Synchronizing 14 and 0 Federated DataAssets begins at Fri Mar 27 09:56:07 CET 2020
+----
+
+In the _Stratio Data Governance_ UI, you can see that a new data store has been discovered and you can browse the metadata. All tables, columns, data types, primary keys, foreign keys... have been detected correctly.
+
+image::../attachments/external-salesforce-connector-governance.png[]
+
+The agent updates the metadata periodically.
+
+== _Stratio Rocket_
+
+_Stratio Rocket_ implements a xref:../../Stratio-Rocket/User-guide/Workflow-asset-user-guide/Data-inputs.adoc[_Salesforce_ input] and a xref:../../Stratio-Rocket/User-guide/Workflow-asset-user-guide/Data-outputs.adoc[_Salesforce_ output] for reading and writing in _Salesforce_.
+
+The implementation has some limitations:
+
+* Only user/password authorization is implemented. Secrets are stored in Vault.
+
+=== Data access
+
+Data access is performed using a Spark data source for _Salesforce_ developed by Stratio.
+
+This data source supports many features:
+
+* Read support with SOQL and SAQL queries. Column and row filters are supported too.
+* Write support with Append and Upsert modes. Creating new tables and Delete are not supported.
+* Automatic conversion between Spark - Salesforce types. The user can configure the schema in JSON or Spark format too.
+* Secrets are stored in Vault.
+* Proxy is supported and the secrets are stored in Vault.
+* Login URL is configurable.
+
+=== User guide
+
+First, you have to store the credentials in Vault following the section "Credential retrieval" in the xref:../../Operations-manual/Stratio-Rocket/Installing-and-upgrading/Deployment.adoc[_Stratio Rocket_ deployment page].
+
+*Vault path*: `/v1/userland/passwords/s000002-rocket.rocket.s000002.marathon.execution-identity/salesforce`
+*Run in vCLI*: `put salesforce {"user": "<user>", "pass": "<password><security-token>"}`
+
+[box type="info"]The _Salesforce_ password is not just the password, you need to concatenate the password and the security token. Eg: <password><security_token>[/box]
+
+You can save the Proxy secrets too:
+
+*Vault path*: `/v1/userland/passwords/s000002-rocket.rocket.s000002.marathon.execution-identity/salesforceproxy`
+*Run in vCLI*: `put salesforceproxy { "user": "<proxy-user>", "pass": "<proxy-password>" }`
+
+Then, configure the secret in _Stratio Rocket_ using _Stratio Command Center_. You can find the configuration fields in the *General → External configuration → Datastore credential retrieval from Vault* section.
+
+_Stratio Rocket_ workflows will make use of the following Spark values to retrieve the aforementioned secrets:
+
+[source,json]
+----
+"SPARK_SECURITY_DB_ENABLE": "true",
+"SPARK_SECURITY_DB_salesforce_VAULT_PATH": "/v1/userland/passwords/s000002-rocket.rocket.s000002.marathon.execution-identity/salesforce",
+"SPARK_SECURITY_DB_salesforceproxy_VAULT_PATH": "/v1/userland/passwords/s000002-rocket.rocket.s000002.marathon.execution-identity/salesforceproxy"
+----
+
+[box type="info"]The "stratio credential" is in the environment variable name: SPARK_SECURITY_DB_<stratio_credential>_VAULT_PATH.[/box]
+
+After those steps, you can use the credentials in the _Salesforce_ input and output.
+
+Example SOQL query: `SELECT Id, Name, Amount FROM Opportunity;`
+
+== _Stratio GoSec_
+
+External data stores are not integrated into _Stratio GoSec_.
+
+The authorization will be configured directly in the database when the user is created for _Stratio Rocket_/_Stratio Data Governance_. It is recommended to create a specific user for each application with limited permissions.
+
+Secrets (user/password) can be stored in Vault safely. _Stratio Rocket_ has mechanisms to download the secrets and use them when necessary.

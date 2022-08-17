@@ -1,0 +1,55 @@
+= Changelog BDL Mapping Agent
+
+== 0.4.2 (March 08, 2022)
+
+* [DGPB-8748] Fix PostgreSQL & Log4J vulnerabilities
+
+== 0.4.1 (December 23, 2021)
+
+* [DGPB-8197] Fix CVE-2021-44228 vulnerability. Bump Log4j to 2.17.0 version
+
+== 0.4.0 (September 22, 2021)
+
+* [DGPB-5870] Remove toLower for ontology elements
+* [DGPB-5875] Fix memory leak when generating graph
+* Including scenario video builder automation
+* [DGPB-6818] Fix logs
+* [DGPB-6817] Add Prometheus metrics
+* [DGPB-6815] Fix [CVE-2020-25649](https://nvd.nist.gov/vuln/detail/CVE-2020-25649) and [CVE-2018-8088](https://nvd.nist.gov/vuln/detail/CVE-2018-8088) vulnerabilities
+* [DGPB-7099] Fix healthchecks
+* [DGPB-6819] Make Crossdata timeouts configurable
+* [DGPB-7662] Crossdata 3.2 compatibility adaptation
+
+== 0.3.0 (December 03, 2020)
+
+* [DB Migration] Updated the migration script to 1.7 schema
+* [RCN] Adjust to the changes for 1.7
+* [RCN] Process additional patterns (with 99 prevalence)creation
+* [RCN] Add nlp_confidence_threshold Attribute creation
+* [RCN] Add Tokenization Type Attribute to RcnTerm
+* [RCN] Add Tokenization Type Class Attribute creation
+* [RCN] Add Security Class Attribute to RcnTerm
+* [RCN] Add Security Class Attribute creation
+* [Graph] Include Process Access Lineage
+* [DGPB-4180] [Log Forging] Include CRLF function to dg-ontology-graph-api log format
+* [DGPB-4553] Fix CVE-2017-18640 vulnerability: snakeyaml v1.26
+* [DGPB-4964] Manage Relation Attributes over ontologies
+* [RCN] Swagger Tags & description update
+* [RCN] Add "rcn.physical_field_name" attribute
+* [RCN] Add Description attributes for RCN Ontology
+* [DGPB-5355] [Import] Fix ontologies import deadlock with several concurrent imports
+
+== 0.2.0 (September 04, 2020)
+
+* Include RCN Datio Business Terms
+* [DGPB-4180] [Log Forging] Include CRLF function to dg-ontology-graph-api log format
+* [DGPB-4072] [DGPB-4223] Ontology protobuf definitions and adjustments
+* [DGPB-4553] Fix CVE-2017-18640 vulnerability: snakeyaml v1.26
+
+== 0.1.0 (June 30, 2020)
+
+* [DGPB-4180] [Log Forging] Include CRLF function to dg-ontology-graph-api log format
+* Fix ontology import
+* [DGPB-3873] Remove duplicated parameter for tenant
+* Fix [CVE-2020-5407](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-5407) and [CVE-2020-5408](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-5408) vulnerabilities
+* First version

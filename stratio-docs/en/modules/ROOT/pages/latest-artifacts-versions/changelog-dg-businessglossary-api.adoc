@@ -1,0 +1,314 @@
+= Changelog Governance API
+
+== 1.9.3 (April 06, 2022)
+
+* [DGPB-8022] Proxify gosec identities daas service
+* [DGPB-8060] [Api] Governance cookie doesn't comply session token standards
+* [DGPB-8340] Fix resources definition endpoint for operational authorization
+* [DGPB-8364] Endpoint for Embedded QRs must not retrieve logical deleted cases
+* [DGPB-8039] RSA signature validation
+* [DGPB-8421] Remove size limit for Java Metaspace
+* [DGPB-8390] Fix clean not printables characters when update any QR
+* [DGPB-8749] Fix PostgreSQL & Log4J vulnerabilities
+* [DGPB-8911] Including extra tomcat, percentile and histogram endpoint monitoring
+* [DGPB-8944] searchByMetadatapathLink endpoint optimization
+* [DGPB-8909] Fix businessLayer import export pagination
+
+== 1.9.2 (December 22, 2021)
+
+* [DGPB-8193] Fix CVE-2021-44228 vulnerability. Bump Log4j to 2.17.0 version
+
+== 1.9.1 (December 02, 2021)
+
+* [DGPB-7923] Filter businessAssetQuality and keyQuality when quality is soft-deleted
+* [DGPB-7997] Fix internal exception when user with no group
+* [DGPB-8016] Fix security-keys endpoint for HDFS paths
+* [DGPB-7989] Errors exporting more than one dictionary datastores (Dynamic types handling)
+* [DGPB-7992] Dictionary relations import issues
+* [DGPB-8016] Return empty response when not supported characters
+* [DGPB-8044] Authorization error in timezone endpoint
+* [DGPB-8064] The glossary-export status filter does not work
+
+== 1.9.0 (October 06, 2021)
+
+* [DGPB-6456] Auto-redirect to Swagger index
+* [DGPB-6521] Delete relations on cascade when data_asset or business_asset
+* [DGPB-5060] Backend profiling: Collections
+* [DGPB-6185] Backend profiling: Ontologies
+* [DGPB-6748] False Alerts in resource constraints verification case
+* [DGPB-6657] Upgrade to kms_utils 0.5.1
+* [DGPB-5177] New Glossary backend
+* [DGPB-6190] New Glossary backend import/export adapting
+* [DGPB-6710] Added endpoint for asset query by DataAssets keys
+* [DGPB-6569] API Update: Filters
+* [DGPB-6570] API Update: Audit features
+* [DGPB-6571] API Update: Swagger configuration
+* [DGPB-6548] Service role permissions
+* [DGPB-6578] Collections and resources definition endpoint for authorizing
+* [DGPB-6762] fixings when role-profiling activation
+* [DGPB-6766] Unified data asset search endpoint
+* [DGPB-6847] [Export Relations] No targets are filtered when exporting relations
+* [DGPB-6844] Allow CRUD custom user/groups and associate them to an existing role
+* [DGPB-6865] Manage custom data-assets
+* [DGPB-6971] Optional map when creating Business Asset type
+* [DGPB-6772] CRUD user/groups roles for assets
+* [DGPB-6952] Specific metadataPath management for glossary
+* [DGPB-6952] Simplify user/groups initialization. Initializing only core roles (SuperAdmin, Service, Bdl)
+* [DGPB-6997] [Upgrade] Upgrade fails due to duplicate records in entity_relation
+* Add enrichedOwned endpoint to Swagger. Remove deprecated enriched properties controller
+* [DGPB-6953] Apache calcite extension: Allow make queries inside jsonb columns
+* [DGPB-6809] Dynamic Governance Entity Subtype (Dictionary) management
+* [DGPB-6417] New glossary profiling authorization
+* [DGPB-7125] Generic Quality Rules profiling authorization
+* [DGPB-7019] Adding security tags in operational authentication
+* [DGPB-7114] Add database health-check
+* [DGPB-7068] New attributes definition for collection schemas definition
+* [DGPB-7191] Improve endpoint for GoSec integration with security tags
+* [DGPB-7167] Soft/logical QR deletion. New Generic QR TotalDeletion endpoint for removing generic and children as well
+* [DGPB-6773] Endpoint for specific or restricted asset permissions management
+* [DGPB-6418] Profiling in configuration
+* [DGPB-7221] [Export Glossary] Fix status filtering
+* [DGPB-7141] QR redirection to collections (new endpoint with type and subtype info)
+* [DGPB-7210] Asset modification date set on attribute CUD
+* [DGPB-7229] Adding cache to specific role management
+* [DGPB-7241] Security configuration unified
+* [DGPB-7178] Specific role security management
+* [DGPB-6876] Now BDL and Service roles are readonly
+* [DGPB-7401] Add check to ensure that the list of ids is not empty on deletion of KeyDataAssets per id
+* [DGPB-7427] Add Process asset as default business asset type
+* [DGPB-7396] Added Ontology QRs and Attributes when exporting
+* [DGPB-7356] Fixed Apache Calcite pagination
+* [DGPB-7422] Now BDL and Service roles have all permissions
+
+== 1.8.0 (April 20, 2021)
+
+* Cross-build for API client (Scala 2.11 and Scala 2.12 versions are now available)
+* [DGPB-5259] Error importing native QR. Fixing export/import escape system.
+* [DGPB-5261] Remove non-printable characters from quality rules
+* [DGPB-4999] New endpoints for entity relations management
+* [DGPB-4619] Quality Authorization
+* [DGPB-4619] Quality fine-grained profiling: create, read, update
+* [DGPB-5260] BulkManager errors in import process
+* [DGPB-5199] Quality fine-grained profiling: delete
+* [DGPB-5358] Control business assets metadatapath on import
+* [DGPB-4624] Consistency check endpoints for unique, primary keys, attributes and variables
+* [DGPB-5448] NullPointerException when loading Knowledge Graph
+* [DGPB-5486] Tenant attributes are not updatable or deletable
+* [DGPB-5439] Sync domain error alerts upgraded from WARNING to CRITICAL
+* [DGPB-5323] New relations view table with enriched properties
+* [DGPB-5722] Fix quality enriched view for different tenants
+* [DGPB-3138] Stored XSS in Governance-UI
+* [DGPB-5174] New endpoint: Delete data asset attributes by metadatapath
+* [DGPB-5724] Allow external cookie name
+* [DGPB-5889] [Client] Add attributes extended details
+* [DGPB-5860] Add BusinessAsset criteria filters
+* [DGPB-5887] Pre-load partitioning and filtering key attributes
+* [DGPB-5859] Add an endpoint to search for communities in the glossary
+* [DGPB-4416] Audit logs
+* [DGPB-5986] Fix import glossary file
+* [DGPB-5092] Glossary backend security profiling
+* [DGPB-6068] Add an endpoint to search for Business Asset Types in the glossary
+* [DGPB-6008] New attributes definition for BDL optimization
+* [DGPB-6096] Fix 'ontology.restriction_type' and 'ontology.relation_type' attribute definition
+* [DGPB-5896] BDL-SQL backend implementation
+* [DGPB-6131] Security fix: Bypass access control when managing profile roles
+* [DGPB-5974] Swagger support for Data Asset endpoints (JSON only)
+* [DGPB-4127] Import/Export zip for technical layer
+* [DGPB-5089] Dictionary backend security profiling
+* [DGPB-6335] Add 'bdl.limit' attribute
+* [DGPB-6308] Update BPM status colours palette
+* [DGPB-6344] Configurable knowledge graph refresh
+* [DGPB-6296] Import/Export incremental for technical layer
+* [DGPB-6349] Migration script from 1.7.0 to 1.8.0
+* [DGPB-6337] Quality Rule lifecycle alert endpoints for Rocket
+* [DGPB-6439] Modify dataAssets endpoint to get page for selectedItem
+* [DGPB-6464] Error at import/export QRs with regex
+* [DGPB-6295] Import/Export zip for business layer
+* [DGPB-6641] Error at import/export non-printable characters list
+* [DGPB-6748] False Alerts in resource constraints verification case
+
+== 1.7.0 (December 11, 2020)
+
+* [DGPB-3850] Create api & api-client modules
+* [DGPB-3863] [DGPB-3923] Ajust action endpoint with mandatory domains
+* [DGPB-3826] [DGPB-3939] Alerts system backend
+* [DGPB-3935] BDL Business View is not deleted from dictionary
+* [DGPB-3928] Add Stratio Credentials management
+* [DGPB-3968] New endpoint to export assets to a ZIP file
+* [DGPB-3863] [DGPB-3929] exclude ontologies from DataAsset export
+* [DGPB-3970] New endpoint to extract the data types and the list of datastores included in a ZIP file
+* [DGPB-3992] Fix response encoding at Stratio Governance API client
+* [DGPB-3978] Include S3 and ADLS2 types (in Quality Rule control)
+* [DGPB-3991] Conflict error when adding concept to collection
+* [DGPB-3969] [DGPB-4011] Import DataStore map optional
+* [DGPB-3970] New endpoint to import data assets included in a previously uploaded ZIP file
+* [DGPB-4039] DataAsset Type changed when editing GenericQR
+* [DGPB-4035] HDFS Partition inheritance in logical layer
+* [DGPB-3776] [DGPB-4030] Retrieve dates in BDL Tables
+* [DGPB-3849] [DGPB-4026] Subject Name management and text filtering
+* [DGPB-4033] [DGPB-4076] Add new endpoints for managing archived alerts
+* [DGPB-3891] [DGPB-3858] Add automation endpoints to API client
+* [DGPB-4050] Add a new endpoint to retrieve all alert sections
+* [DGPB-4258] Error while upgrading from 1.4 to 1.5
+* [DPGB-4255] Add new endpoints to search for alerts and alert groups
+* Fix CVE-2020-13935 vulnerability
+* [DGPB-4340] Change the alert priority description "Error" to "Blocked"
+* [DGPB-4341] Sort priorities of alerts by criticality
+* [DGPB-4326] Error in UTF-8 charset management in deprecated CSV
+* [DGBP-4272] Pre-load global and ontology key attributes
+* [DGPB-4375] [DGPB-4386] Add support for CSV properties
+* [DGPB-4410] Cloud Agents BDL integration
+* [DGPB-4342] Add sort query-param to Stratio Governance paginated requests
+* [DGPB-4415] Add default sort configuration to paged endpoints
+* [DPGB-4304] Remove layer distinction in alert groups
+* [DGPB-4498] HDFS discovery is not possibile when deploying HDFS with auth mode 'all'
+* [DGPB-4582] Refactor initialization service location
+* [DPGB-4199] Info about one FK is used by a published or not domain
+* [DGPB-4201] Info about one table is associated to a published or not mapping
+* [DGPB-4528] Error migrating BPM data for BDL when tenant initialization comes from versions previous to 1.3
+* [DGPB-4553] Fix CVE-2017-18640 vulnerability: snakeyaml v1.26
+* [DGPB-4594] Type SEMANTIC added to global TypeEnum
+* [DGPB-4526] Refactor in obtaining and managing BPM states
+* [DGPB-4598] Add primary-keys and unique-keys to API client's responses
+* [DGPB-4268] User profiling implementation (dictionary)
+* [DGPB-4555] Configurable Business Asset types with multitenancy
+* [DGPB-4556] New relation attribute type
+* [DGBP-4708] feature dictionary role permissions profiling
+* [DGPB-4709] Complete permission set for admin module
+* [DGPB-4710] Domain permissions profiling
+* [DGPB-4711] Ontologies permissions profiling
+* [DGBP-4724] Added dynamic filter criteria to quality rules searches
+* [DGPB-4271] Profile role administration
+* [DGPB-4716] Complete permission set for glossary module
+* [DGPB-4752] Endpoint adjustment
+* [DGPB-4802] Fix CVE-2020-5421 vulnerability
+* [DGPB-4561] [DGPB-4748] Relation attribute validation
+* [DGPB-4811] Remove duplicate cookies
+* [DGPB-4561] [DGPB-4572] Synchronization of entity relation with "relation" attributes
+* [DGPB-4856] [BV] [entity_relation glossary] Wrong order in metadata_path (Community and Domain)
+* [DGPB-4668] Migration script from 1.6 to 1.7
+* [DGPB-4961] Restrict community and domain name update
+* [DGPB-4845] [DGPB-4953] Manage indexes for metadata_path
+* [DGPB-4963] Manage relations for domains and communities deletions
+* [DGPB-4934] Prometheus metrics and Grafana dashboard integration
+* [DGPB-4678] Leakage of secrets in logs on DEBUG mode
+* [DGPB-5048] Searches by name in BusinessAssets are now case-insensitive
+* [DGPB-5126] Update API client
+* [DGPB-5083] Default business asset types 'TERM' and 'RULE' renamed to 'Business term' and 'Business rule'
+* [DGPB-5002] Enabling business asset management by unique triplet name
+* [DGPB-5176] Add endpoint to get keys by type
+* [DGPB-5130] New field metadata_path for Business assets
+* [DGPB-4598] Add default function retrieval to API client's responses
+* [DGPB-5131] Migration script for dg-searcher-agent
+* [DGPB-5259] Error importing native QR. Fixing export/import escape system.
+* [DGPB-5261] Remove non-printable characters from quality rules
+* [DGPB-5358] Control business assets metadatapath on import
+* [DGPB-5260] BulkManager errors in import process
+* [DGPB-5448] NullPointerException when loading Knowledge Graph
+* [DGPB-5518] Fix date format on responses when the timestamp had a millis value of zero
+* [DGPB-5401] Quality Rules audit field included in export/import
+* [DGPB-5663] Propagate CSV properties from physical to technical layer
+
+== 1.6.0 (September 23, 2020)
+
+* [DGPB-4231] Cloud Agents BDL integration
+* [DGPB-4338] Add audit field to quality table
+* [DGPB-4326] Error in UTF-8 charset management in deprecated CSV
+* [DGBP-4272] Pre-load global and ontology key attributes
+* [DGPB-3861] Governance doesn't validate right JWT
+* [DGPB-4246] Cookie-less navigation and security handling
+* [DGPB-4103] Dcos cookie signature validation
+* [DGPB-4165] Insecure governance cookie "stratio-governance-auth"
+* [DGPB-4498] HDFS discovery is not possibile when deploying HDFS with auth mode 'all'
+* [DGPB-4553] Fix CVE-2017-18640 vulnerability: snakeyaml v1.26
+* [DGPB-4581] Error synchronizing physical-logical tables when a field is modified
+* [DGPB-4528] Error migrating BPM data for BDL when tenant initialization comes from versions previous to 1.3
+* [DGPB-4594] Type SEMANTIC added to global TypeEnum
+* [DGPB-4529] Migration process 1.5 to 1.6
+* [DGPB-4615] Import/export error with \n, \t characters in advanced QR
+* [DGPB-4639] Missing mapping types for QR management
+
+== 1.5.0 (June 29, 2020)
+
+* [DGPB-3935] BDL Business View is not deleted from dictionary
+* [DGPB-3582] Federated incoming Fks retrieval
+* [DGPB-3663] general asset import/export
+* [DGPB-3415][DGPB-3724] New endpoint for Reduced Business Data Layer Concept
+* [DGPB-3735] Log vulnerability adjustment
+* [DGBP-3738] Encrypt param for business layer properties features
+* [DGBP-3694] Error when disconnecting a table
+* [DGPB-3978] Include S3 and ADLS2 types (in Quality Rule control)
+* [DGPB-3991] Conflict error when adding concept to collection
+* [DGPB-4039] DataAsset Type changed when editing GenericQR
+* [DGPB-4035] HDFS Partition inheritance in logical layer
+
+== 1.4.0 (April 20, 2020)
+
+* [DGPB-3613] [BUG] New quality rules endpoint
+* [DGPB-3022] [DGPB-3023] Root/Parametrics. Table type and fk relations in view
+* [DGPB-3022] [DGPB-3267] Unique Keys management
+* [DGPB-3319] [DGPB-3326] Collection Management: Semantic metadataPath management
+* [DGPB-3469] [DGPB-3468] Ontology initialization and QR operation
+* [DGPB-3473] If the concept is in Published, do not allow to delete it from the collection
+* [DGPB-3424] Fix drop data_asset
+* [DGPB-3425] Error synchronizing Fks when attaching hdfs tables to a collection
+* [DGPB-3602] Inconsistency in condition operators for certain data types
+* [DGPB-3663] general asset import/export
+
+== 1.3.0 (February 07, 2020)
+
+* Added semantic layer model & API
+* [DGPB-2718] Federated foreign keys management for Collections
+* [DGPB-2767] Logic layer fields dynaminc updating
+* [DGPB-2922] Quality Rules - Change operators literal 'like' and 'not like' to 'is like' and 'is not like'
+* [DGPB-2934] Bpm status column "Updatable" included
+* [DGPB-3042] MetadataPath-Execution aggregation in Metrics
+* [DGPB-3108] [DGPB-3095] Quality Rules - Json adjustment
+* [DGPB-3109] [DGPB-3095] Quality Rules - Conversion Type table
+* [DGPB-3115] [DGPB-3096] Quality Rules - DataFormat CRUD
+* [DGPB-3116] [DGPB-3097] Quality Rules - Timezone Catalog
+* [DGPB-3164] Add new QR execution sizes XS and XL
+* [DGPB-3175] Remove pattern validation from QR schema
+* [DGPB-3203] QR for schema registry
+* [DGPB-3238] Error when updating Generic Quality rules
+* [DGPB-3270] Change operators for QR Result Operation management
+* [DGPB-3247] Migration Script from GovAPI 1.2 to GovAPI 1.3
+
+== 1.2.0 (November 25, 2019)
+
+* [DGPB-2307] Transactional POST, PUT, DELETE for business Assets
+* [DGPB-2297] Error in quality rule json schema definition
+* [DGPB-2296] BPM implementation for Business Assets
+* [DGPB-2284] Generic Quality Rules
+* [DGPB-2447] Metrics endpoint for Prometheus
+* [DGPB-2455] Scheduled QR. Endpoints validation
+* [DGPB-2456] Scheduled QR. Json Schema upgrading
+* [DGPB-2461] add "is empty" and "is not empty" operation
+* [DGPB-2452] Schema Registry Agent
+* [DGPB-2460] Key-DataAssets metadatapath like endpoint
+* [DGPB-2524] Endpoints refactor for profiling purposes
+* [DGPB-2526] Attributtes activation filtering
+* [DGPB-2815] Monotenant Compatibility
+
+== 1.1.0 (July 05, 2019)
+
+* [DGPB-2297] Error in quality rule json schema definition
+* [DGPB-2277] Json Schema validation in Quality Rules
+* [DGPB-2217] Create endpoint to query metrics by quality rule identifier
+* [DGPB-2192] Create Swagger documentation
+* [DGPB-2169] Actualizar imagen base Alpine a Ubuntu
+* [DGPB-2142] Quality Resources missing Operation fields
+* [DGPB-2068] New endpoint: /quality/searchByMetadataPathAndActive
+* [DGPB-2026] QR "not like" operator must be not unary
+* [DGPB-2092] Variables Management
+* [DGPB-2021] Multitenancy integration
+
+== 1.0.0 (May 09, 2019)
+
+* [DGPB-2007] Create endpoint to filter by metadatapath and catalog's attribute type
+* [DGPB-1997] Added security tag checking endpoint for Crossdata catalogs.
+* [DGPB-1963] libnss3.so not found in dg-searcher-agent
+* [DGPB-1923] Add value type for keys management
+* [DGPB-1908] Refactor. Upgrade to the new commons
+* [DGPB-1906] Quality Rules Json schema integration
+* [DGPB-1833] Added endpoints for security tags management

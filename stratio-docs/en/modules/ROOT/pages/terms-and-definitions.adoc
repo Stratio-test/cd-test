@@ -1,0 +1,101 @@
+= Terms and definitions
+
+*BDL*: Business Data Layer.
+
+*Big Data*: a process that analyses and interprets large volumes of work. Data that is so large, fast, or complex that it is difficult or impossible to process using traditional methods. The act of accessing and storing large amounts of information for analytics has been around for a long time.
+
+*Business data view*: allows the user to visualize multiple databases in one view, this facilitates understanding and comprehension.
+
+*CaaS*: Container as a Service. Allows you to manage and deploy applications using containerized isolation and containerized application deployment features.
+
+*Use case*: description of an activity or action from the user's point of view. Practical application of theory. A solution to a problem.
+
+*Collections*: (inside Stratio) domain of the data to be exposed to the end-user.
+
+*Distributed computing*: a computer model that uses _software_ that allows for large calculations and works by distributing the information among the required nodes.
+
+*CRM*: Customer Relationship Management.
+
+*Datamart*: data warehouse version focused on a business area. Subsets of data that help the area to make better decisions.
+
+*ETL*: Extract, Transform, Load. Processes applied to the data consist of extraction, transformation, and loading phases.
+
+*GDPR*: General Data Protection Regulation.
+
+*HDFS*: Hadoop Distributed File System. Optimized for large amounts of data to ensure availability and fault tolerance.
+
+*IdP*: Identity provider. A service that stores and verifies the user's identity.
+
+*Ingress*: the way to access your pods from outside the cluster is through what is known as Ingress. This resource allows you to access services over HTTP(S) and traffic is controlled using a set of rules that are being defined.
+
+*Kafka*: a distributed data transmission platform for storing and processing data streams. It is available as a data warehouse in the _Stratio Command Center_.
+
+*KV*: generic key-value store used to store arbitrary secrets within the physical storage configured for Vault.
+
+*Data Lake*: repository where large raw data sets are stored in original format, allowing for an overview of the data.
+
+*Data Lineage*: the ability of organizations to make visible the provenance, transformation, use, and consumption of data. It provides visibility of the end-to-end data journey.
+
+*Mesos/Kubernetes*: open source platforms that are used for distributed computing and enable the lifecycle management of application containers.
+
+*Middleware*: software layer which masks the heterogeneity of an underlying network, hardware, operating system, and programming languages.
+
+*ML*: machine learning. Part of artificial intelligence in where algorithms are able to learn from the data samples they process.
+
+*MLOps*: practice and culture of developing and putting into production machine learning modules. Adoption of good practices that allow the automation and correct monitoring of applications with ML models.
+
+*Node*: network connection point that can receive, create, store or send data along network paths.
+
+*OKR*: Objective Key Results. It is a working methodology whose purpose is to facilitate the objectives set by a company and to be able to qualitatively and quantitatively measure the achievement of these objectives.
+
+*On-Premise*: refers to the use of the company's own servers and IT environment.
+
+*Ontology*: formal definition of types, properties, and relationships between entities that exist for a particular domain. It models the logic of the data. Collections relate the final entities to the different ontologies.
+
+*PaaS*: Platform as a Service. It is a complete development and deployment environment in the cloud.
+
+*Batch Processing*: Is the execution of batches of jobs, often simultaneously, in sequential order, and without direct user control or supervision.
+
+*Streaming Processing*: is based on the idea of processing data continuously and in real-time. Infinite data streams without time limits are used.
+
+*Quality Rules*: are defined in the _Stratio Data Governance_ module and, once created, can be associated with the technical catalog business terms and ontologies.
+
+*Silo*: storage containers where there is no transfer of knowledge.
+
+*Stratio Augmented Data Fabric Basics*: first online introductory training course on the Stratio platform. Its main objective is to serve as an introduction, with an overview of the product describing its main parts and providing a high-level understanding of the platform.
+
+It serves as an introduction to other Stratio capabilities such as Stratio Augmented Data Governance & Business Data Layer, Stratio Augmented Data Processing, and Stratio Augmented Artificial Intelligence.
+
+*Stratio Augmented Data Processing*: the objective of this online certification is to deepen the capabilities of _Stratio Rocket_ and Stratio's capabilities for the development of data-driven projects.
++
+In this specialization, we are focused on:
+** Project management and collaboration skills.
+** Working with batch and real-time data flows.
+** Data Quality, Data Virtualization.
+
+*Stratio Augmented Data Fabric & Business Data Layer*: The objective of this online course is to deepen the capabilities of Stratio Data Governance to carry out projects based on data governance:
++
+** Technical catalog.
+** Ontologies.
+** Data domains.
+** Business glossary.
+** Data quality.
+** Data marketplace.
+
+*Stratio Augmented Artificial Intelligence*: the objective of this online course is to deepen the lifecycle management capabilities of MLOps with _Stratio Rocket_. In this specialization, we are focused on Stratio's capabilities for:
++
+** Perform exploratory analysis.
+** Develop artificial intelligence models.
+** Packing, versioning, and training of models.
+** Model productivity.
+** Monitoring, observability, and re-training of models.
+
+*Spark*: fast distributed processing engine for big data analytics. It is specially designed for implementation in machine learning and big data.
+
+*SQL*: a specific programming language for data management, data processing, and relational databases.
+
+*TTM*: Time To Market. Time to launch from the time a product/service is conceived until it is available to its end-user.
+
+*Workflows*: assets built in _Stratio Rocket_ for the processing of data streams, either in batch or streaming.
+
+*XAI*: eXplainable AI. Set of techniques for understanding, interpreting, and relying on the emerging results of complex AI models.

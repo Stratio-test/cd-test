@@ -1,0 +1,54 @@
+= Changelog Governance Map
+
+== 0.5.2 (November 25, 2021)
+
+* Fix when click item
+
+== 0.5.1 (November 04, 2021)
+
+* Bump nginx-alpine version to 1.21.3
+* Remove all console.log
+
+== 0.5.0 (June 25, 2021)
+
+* Fixed API issue.
+* MVP Lineage goal.
+* HSBC MVP.
+* Update KPI counters and semantic.
+* Added horizontal scaled.
+* Fixed header user and disabled help icon.
+* Added lineage search.
+* Fixed path widget behavior in lineage graph.
+* Added business value control to lineage graph.
+* Fixed navigation bug.
+* Lineage MVP.
+* Fixed filter bugs.
+* Enabled filters in lineage mode.
+* Fixed position bug in Path Widget.
+
+== 0.4.0 (March 24, 2021)
+
+* Added Lineage module.
+* Lineage Evolution.
+
+== 0.3.0 (January 25, 2021)
+
+* Added local memory search on nodes.
+* Solved the bug with columns when is closed tables parent.
+* Solved bugs with assets facets.
+* Soled bugs on switch focus mode.
+
+== 0.2.0 (November 17, 2020)
+
+* Added new endPoint for assets graph.
+* Fixed links color when back from focus tracking.
+* Fixed info widget behavior.
+* Refactored focus intro.
+* Tracking and shortest path sidebar navigation.
+* Refactor layout styles.
+* Added new focus behavior for n relations.
+* Added BUSINESS new dimension.
+
+== 0.1.0 (September 10, 2020)
+
+* Added CHANGELOG.md file.

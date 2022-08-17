@@ -1,0 +1,27 @@
+= Changelog PostgreSQL Backup
+
+== 1.9.2 (February 08, 2022)
+
+* [FRAM-8023] Improvement: Repository migration to new CI/CD
+* [FRAM-8071] Vulnerabilities: Upgrade Stratio mesos framework backup core with simple-hdfs-client to avoid CVE-2021-44832
+* Stratio Backup Core Version: 0.4.2-55e4a24
+* Stratio Zookeeper Backup: 1.7.2-69fe037
+* PostgreSQL Client Versions: 9.6, 10, 11, 12 and 13
+* Postgres-XL Client Versions: 9.5
+
+== 1.9.1 (December 20, 2021)
+
+* [FRAM-7950] Vulnerabilities: Upgrade Stratio mesos framework backup core with simple-hdfs-client to avoid CVE-2021-44228
+* Stratio Backup Core Version: 0.4.1-cba090b
+* Stratio Zookeeper Backup: 1.7.1-7ac9954
+* PostgreSQL Client Versions: 9.6, 10, 11, 12 and 13
+* Postgres-XL Client Versions: 9.5
+
+== 1.9.0 (February 25, 2021)
+
+* [FRAM-6405] Feature: Logical Backup for Kubernetes
+* [FRAM-6406] Feature: Logical Restore for Kubernetes
+* Stratio Backup Core Version: 0.4.0-0f1d656
+* Stratio Zookeeper Backup: 1.8.0-1902d5c
+* PostgreSQL Client Versions: 9.6, 10, 11, 12 and 13
+* Postgres-XL Client Versions: 9.5

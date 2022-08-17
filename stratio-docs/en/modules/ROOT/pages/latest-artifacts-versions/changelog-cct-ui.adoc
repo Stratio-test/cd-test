@@ -1,0 +1,57 @@
+= Changelog CCT UI
+
+== 2.0.3 (April 28, 2022)
+
+**Fixed bugs:**
+
+* [SAAS-5332] Service Deployment: Deployment value is ignored on arrays of objects with a default value
+* [SAAS-5770] Service Deployment: When user is upgrading a service, removed deleted sections and fields are displayed yet.
+
+
+== 2.0.2 (April 13, 2022)
+
+**Fixed bugs:**
+
+* [NA] Authorization: Allow user to configure authentication groups by environment variable
+
+
+== 2.0.1 (March 11, 2022)
+
+**Fixed bugs:**
+
+* [SAAS-4615] Service Detail: Element tab is not displayed after reinstalling
+* [SAAS-4598] Service Deployment: When there are some invalid fields in an accordion section, user is not able to see where are these errors
+* [SAAS-4655] Authorization: Limit functionality according to user's role
+* [SAAS-4623] Security: Remove insecure TLS protocols
+* [SAAS-4922] Service Deployment: Wrong redirection when user tries to reinstall an application
+* [SAAS-5031] Deployed Services: Fix spinner tooltip when application is being updated
+* [SAAS-5031] Service Deployment: Do not cache requests after an expiration time for selects loaded from url
+* [SAAS-5076] Element List: Element list is not updated until user clicks on the screen
+
+== 2.0.0 (December 21, 2021)
+
+**Features:**
+
+* [SAAS-4369] Service Elements: Apply new design and navigation between graph and table
+* [SAAS-4383] Service Elements: Allow user to zoom in/out elements graph
+* [SAAS-4384] Service Elements: Allow user to pan elements graph
+* [SAAS-4394] Service Elements: Allow user to execute actions on an element from the table and graph
+* [SAAS-4415] Service Elements: Display element details in a fullscreen
+* [SAAS-4443] Service Elements: Paint relations of selected node (or hover) using the same color as node's one
+* [SAAS-4442] Service Detail: Convert elements tab to first tab and always visible
+* [SAAS-4421] Deployed Services: Display installing applications (installing queue)
+* [SAAS-4494] Element List: Integration with new endpoint for sending graph data
+
+**Fixed bugs:**
+
+* [SAAS-4447] Deployed Services: When user clicks on ellipses button, horizontal scrollbar appears and disappears quickly
+* [SAAS-4448] Element List: Fix graph relation refreshing when user is zooming in/out
+* [SAAS-4477] Element List: Data is not updated when user navigates to another service clicking on header logo (to access to Cluster)
+* [SAAS-4478] Element List: Status dot is misplaced on Firefox browser
+* [SAAS-4529] Element List: Fix zero page when error 406
+* [SAAS-4544] Dockerfile: Add environment variable "TLS_CERT_PATH" for TLS certificate path
+* [SAAS-4543] Element List: Display graph nodes sorted by type
+* [SAAS-4542] Element List: Improve graph visualization when user selects or puts mouse over a node
+* [SAAS-4551] Service Deployment: Default values of added properties are not being displayed in upgrade notifications
+* [SAAS-4567] Service Elements: Apply a default colour for nodes without a predefined type
+* [SAAS-4609] Service Deployment: Upgrade notification is displayed misplaced when default value is so long

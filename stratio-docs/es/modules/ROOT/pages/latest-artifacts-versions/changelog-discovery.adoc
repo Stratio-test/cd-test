@@ -1,0 +1,41 @@
+= Changelog Discovery
+
+== 0.42.2-0.1.1 (June 13, 2022)
+
+* [ROCK-7358] Add missing sync-scheduling options to our metabase drivers
+
+== 0.42.2-0.1.0 (March 22, 2022)
+
+* [ROCK-6000] Upgrade to metabase 0.42
+* [ROCK-6000] Add setting to add all needed ssl options with a simple click in stratiopostgres driver
+* [ROCK-6269] Fix prometheus metrics
+
+== 0.40.7-0.1.2 (March 17, 2022)
+
+* [ROCK-6269] Fix prometheus metrics
+
+== 0.40.7-0.1.1 (February 02, 2022)
+
+* [ROCK-5792] Fix: do not compare names with display_names while filtering fields
+* [ROCK-5951] Fix vulnerabilities: Embedded nginx offers insecure TLS protocols
+* [ROCK-5913] Fix vulnerabilities: Broken Auth when using gosec-sso authenticator
+
+== 0.40.7-0.1 (December 14, 2021)
+
+* [ROCK-5607] Discovery CICD: preserve dashboard and question IDs when importing
+* [ROCK-5578] Upgrade to metabase 0.40.7 (builder image 0.40.7-0.1.0)
+* [ROCK-5578] Fix vulnerabilities: Update to Java 11
+* [ROCK-5578] Fix vulnerabilities: Update prometheus java agent to 0.14.0
+* [ROCK-5578] Fix vulnerabilities: Update metabase-builder to 0.40.7-0.1.0
+
+== 0.40.5-0.1 (November 23, 2021)
+
+* [ROCK-5548] Update to metabase 0.40.5 (builder image 0.40.5-0.1.0)
+
+== 0.40.2-0.1 (September 16, 2021)
+
+* [ROCK-4531] Discovery in KEOS adaptations and descriptors
+* [ROCK-4939] Discovery CICD adaptations to metabase 0.40.2 (breaking changes!)
+* [ROCK-NA] Allow to execute multiline native queries in crossdata driver
+* [ROCK-5174] Add missing db-start-of-the-week method to Stratio Crossdata driver
+* [ROCK-5164] Disable auto-commit in stratiopostgres driver so PgBouncer can be used

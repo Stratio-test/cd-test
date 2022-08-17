@@ -1,0 +1,531 @@
+= BigQuery
+
+Este documento explica cómo acceder al almacén de datos de BigQuery (que no está incluido dentro de la plataforma Stratio) desde cada módulo de la plataforma. Google BigQuery es un almacenamiento externo incluido en Google Cloud Platform.
+
+== Matriz de soporte
+
+|===
+| Módulo | Versiones | BigQuery
+
+| _Stratio Spark_
+| ≥ 2.4.4-3.5.0 +
+≥ 3.0.1-1.1.0
+| OK
+
+| _Stratio Crossdata_
+| ≥ 3.4.0
+| OK
+
+| _Stratio Virtualizer_
+| ≥ 0.3.0
+| OK
+
+| _Stratio Data Governance_
+| ≥ 1.10.0
+| OK
+
+| _Stratio Rocket_
+| ≥ 2.4.0
+| Ok
+
+| _Stratio Sparta_
+| -
+| -
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| ≥ 0.8.0
+| OK
+|===
+
+:note-caption: AVISO
+
+NOTE: Los módulos sin versiones no han sido probados aún. Podrían estar soportados.
+
+== _Stratio Spark_
+
+=== [[stratio-spark-acceso-al-dato]]Acceso al dato
+
+La fuente de datos de Spark se conecta a BigQuery utilizando una API optimizada. Esta API permite operaciones distribuidas más rápidas que JDBC. _Stratio Spark_ no ha modificado Spark para este conector.
+
+=== [[stratio-spark-secretos]]Autorización/gestión de secretos
+
+La fuente de datos de Spark permite dos métodos de autenticación:
+
+* _Google Service Account_.
+* Acceso pre-generado y _Refresh Tokens_.
+
+Actualmente, en _Stratio Spark_ solo se soporta la autorización usuario/contraseña.
+
+Estos credenciales pueden almacenarse de forma segura en Vault y _Stratio Spark_ puede recuperarlos y usarlos para establecer la conexión.
+
+_Stratio Spark_ permite configurar varios proyectos de BigQuery en el mismo _job_, cada proyecto con sus propios secretos. Debes configurar una variable de entorno para cada proyecto:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_<BIGQUERY_PROJECT_NAME_UPPER_CASE>_VAULT_PATH"
+----
+
+Al hacer esto, Spark podrá descargar los secretos necesarios de Vault y establecer las siguientes propiedades de Spark por ti, donde el usuario es el ``projectId`` y las credenciales de acceso están en formato base64:
+
+[source,json]
+----
+"spark.db.<bigquery_project_name_lower_case>.user",
+"spark.db.<bigquery_project_name_lower_case>.pass"
+----
+
+=== [[stratio-spark-guia-de-usuario]]Guía de usuario
+
+El primer paso es configurar las credenciales en _Google Cloud_ y almacenar los secretos en Vault.
+
+Después de esto, puedes añadir la siguiente dependencia en tu proyecto de Spark. Está disponible para Scala 2.11 y 2.12 y funciona en las versiones de Spark 2 y 3.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.google.cloud.spark</groupId>
+    <artifactId>spark-bigquery-with-dependencies_2.11</artifactId>
+    <version>0.25.2</version>
+</dependency>
+----
+
+Ejemplo de lectura:
+
+[source,scala]
+----
+def main(args: Array[String]): Unit = {
+    val programName = "example"
+    implicit val spark: SparkSession = SparkSession
+      	.builder()
+      	.appName(programName)
+     	 .config("spark.master", "local[1]")
+     	 .getOrCreate()
+
+    val dbOptions: Map[String, String] = Map(
+      	"credentials" -> spark.sparkContext.getConf.getOption("spark.db.<bigquery_project_name_lower_case>.pass"),
+     	 "parentProject"    -> spark.sparkContext.getConf.getOption("spark.db.<bigquery_project_name_lower_case>.user"),
+      	"table" -> "bigquerytest.userdata1-parquet"
+    )
+    val df = spark.read
+     	 .format("bigquery")
+     	 .options(dbOptions)
+      	.load()
+    val res = df.count()
+    res
+ }
+----
+
+=== [[stratio-spark-escritura]]Escritura
+
+Es necesario crear un _bucket_ de _Google Cloud Storage_ y añadir la dependencia de _Google Cloud_ en tus proyectos de Spark para poder realizar operaciones de escritura.
+
+Ejemplo de escritura:
+
+[source,scala]
+----
+def main(args : Array[String]) {
+ val spark: SparkSession = SparkSession.builder().master("local[1]")
+   .appName("BigQuerySparkDatasource")
+   .config("credentialsFile", "/home/user/stratio/resources/credentials.json")
+   .config("parentProject", "connectorstorage")
+   .config("spark.hadoop.fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
+   .config("spark.hadoop.fs.AbstractFileSystem.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS")
+   .config("spark.hadoop.fs.gs.project.id", "connectorstorage")
+   .config("spark.hadoop.fs.gs.auth.service.account.email", "connectors-service@connectorstorage.iam.gserviceaccount.com")
+   .config("spark.hadoop.fs.gs.auth.service.account.enable", "true")
+ .config("spark.hadoop.fs.gs.auth.service.account.private.key.id", "ID")
+   .config("spark.hadoop.fs.gs.auth.service.account.private.key", "-----BEGIN PRIVATE KEY-----BIGQUERY KEY=\n-----END PRIVATE KEY-----\n")
+   .getOrCreate()
+ val parquetDf =     spark.read.parquet("/home/user/stratio/resources/file.parquet").toDF()
+ parquetDf.show()
+ // Use the Cloud Storage bucket for temporary BigQuery export data used by the connector.
+ val bucket = "connectors-bucket"
+ // Saving the data to BigQuery.
+ parquetDf.write.format("bigquery")
+   .option("table","bigquerytest.parquetAllTypesExtra")
+   .option("temporaryGcsBucket", bucket)
+   .mode(SaveMode.Overwrite)
+   .save()
+}
+----
+
+== _Stratio Virtualizer_
+
+=== Acceso al dato
+
+El acceso al dato se hace mediante la fuente de datos de Spark. Revisa la sección xref:bigquery.adoc#stratio-spark-acceso-al-dato[_Stratio Spark_] para más información.
+
+=== Autorización/gestión de secretos
+
+Como se explica en la sección de autorización de xref:bigquery.adoc#stratio-spark-secretos[_Stratio Spark_], una vez que se ha configurado la cuenta del servicio de Google y se ha descargado el JSON, es posible cargarlo en Vault.
+
+Los permisos necesarios para la lectura son: *roles/bigquery.user*.
+
+Como se ha comentado anteriormente, las credenciales deben estar en Vault y el secreto debe estar dentro de la ruta de _Stratio Virtualizer_.
+
+==== Virtualización a través de la fuente de datos de Spark
+
+El secreto tiene que estar en formato base64:
+
+[source,bash]
+----
+Ruta de Vault: `/v1/userland/passwords/s000001-crossdata/bigquery-credentials`
+Ejecutar en vCLI: `put s000001-crossdata/bigquery-credentials {"credentials": "<base64_json>", "parentProject": "<parent_project>"}`
+----
+
+:note-caption: AVISO
+
+NOTE: Desde la versión sscc-bigquery-0.3.0-1.5.0, se utiliza el secreto con formato en base64 tanto para la virtualización a través de la fuente de datos de Spark como para la virtualización a través de JDBC.
+
+=== [[stratio-virtualizer-guia-de-usuario]]Guía de usuario
+
+_Stratio Virtualizer_ soporta tres métodos diferentes de configuración de credenciales:
+
+* *"`stratiocredentials`"*  almacena un secreto diferente para cada base de datos en Vault. Este es el método recomendado desde la versión 2.22.
+* *"`stratiosecurity`"* utiliza las credenciales de _Stratio Virtualizer_ (usuario/contraseña) para conectarse a todas las bases de datos. Hay que crear las mismas credenciales para cada base de datos.
+* Texto plano en la sentencia del "`create table`".
+
+Una vez almacenados los secretos en Vault, el siguiente paso es desplegar _Stratio Virtualizer_. Desde la versión 3.1.0, el descriptor de _Stratio Command Center_ incluye todos los parámetros necesarios. Las siguientes variables deben estar correctamente configuradas:
+
+[source,json]
+----
+"CROSSDATA_SERVER_SPARK_DATABASE_ENABLE": "true",
+"CROSSDATA_EXTRA_JARS": "http://niquel.int.stratio.com/repository/new-releases/com/stratio/connectors/sscc-bigquery-0.3_2.12/1.5.1-6c22d2c/sscc-bigquery-0.3_2.12-1.5.1-6c22d2c.jar"
+----
+
+Para controlar el acceso a los datos nativos sin _fallback_ a Spark (la configuración recomendada), se pueden establecer las siguientes variables:
+
+[source,json]
+----
+"CROSSDATA_SQL_NATIVE_QUERIES_ENABLED": "true",
+"CROSSDATA_SQL_NATIVE_QUERIES_FALLBACK_TO_SPARK_ENABLED": "false"
+----
+
+La primera variable permite el acceso directo a los datos mediante JDBC a través del _driver_ Simba y el _push-down_ de las consultas mediante _Crossdata NativeDialect_, minimizando la cantidad de datos intercambiados y por tanto ahorrando costes.
+
+El acceso nativo, con o sin _fallback_, requiere que la tabla haya sido creada con la opción `BigQuery native mode` a `true` en la fase de descubrimiento o mediante la opción de bdl (ver la xref:bigquery.adoc#_Stratio Data Governance[sección de _Stratio Data Governance_]).
+
+La última habilita el _fallback_ (es decir, si el modo anterior falla con un error) a Spark sin usar el _NativeDialect_ pero usando el _driver_ JDBC directamente sin hacer uso de *google api datasource*. Puedes forzar ese modo poniendo el valor a `true`.
+
+Una vez desplegado, es posible registrar la tabla en el catálogo y ejecutar consultas. Se recomienda especificar el proyecto dentro de la consulta para evitar problemas cuando se configure otra cuenta de _Google Cloud Storage_.
++
+[source,sql]
+----
+create table test_bigquery using bigquery OPTIONS (
+'stratiosecurity'='true',
+'stratiosecuritymode'='custom',
+'stratiocredentials'='bigquery-credentials',
+'table'='bigquerytest.userdata1-parquet',
+'project'='connectorstorage')
+----
+
+=== [[stratio-virtualizer-escritura]]Escritura
+
+Para realizar operaciones de escritura en BigQuery, es necesario configurar la cuenta de _Google Cloud Storage_:
+
+Secretos:
+
+[source,bash]
+----
+Ruta de Vault: `/v1/userland/passwords/s000001-crossdata/googlecs`
+Ejecutar en vCLI: `put googlecs {"user": "<private_key_id>", "pass": "<private_key>"}`
+----
+
+Variables de entorno:
+
+[source,json]
+----
+"SPARK_SECURITY_GCS_ENABLE": "true",
+"SPARK_SECURITY_GCS_VAULT_PATH": "/v1/userland/passwords/s000001-crossdata/googlecs",
+"SPARK_SECURITY_GCS_SERVICE_ACCOUNT": "connectors-service",
+"SPARK_SECURITY_GCS_PROJECT_ID": "connectorstorage"
+----
+
+
+Una vez esté configurado, es posible realizar una simple operación de escritura en la _shell_ de _Stratio Virtualizer_ (*es obligatorio especificar la propiedad _temporatyGcsBucket_*):
+
+[source,sql]
+----
+create table test_bigquery using bigquery OPTIONS (
+  'stratiosecurity'='true',
+  'stratiosecuritymode'='custom',
+  'stratiocredentials'='bigquery',
+  'table'='bigquerytest.test-write',
+  'project'= 'connectorstorage',
+  'temporaryGcsBucket'= 'connectors-bucket') AS SELECT 1 AS id, 'Name 1' AS name UNION SELECT 2 AS id, 'Name 2' AS name;
+----
+
+Si el catálogo devuelve un error '_None.get_', consulta la xref:bigquery.adoc#_troubleshooting[sección de _troubleshooting_].
+
+== _Stratio Data Governance_
+
+=== Acceso al dato
+
+El agente de descubrimiento BigQuery tiene soporte para descubrir metadatos de BigQuery y es posible visualizarlos en _Stratio Data Governance_, _Stratio Virtualizer_ y _Stratio Rocket_.
+
+Existe un descriptor _Stratio Command Center_ para instalar el agente de descubrimiento (_agent-bigquery-default_).
+
+=== Autorización/gestión de secretos
+
+El agente de descubrimiento de BigQuery solamente admite el método de autenticación _Google Service Account_.
+
+Los permisos necesarios para el agente de descubrimiento son: *roles/bigquery.metadataViewer*.
+
+Como se ha comentado anteriormente, las credenciales deben estar en formato base64 y el secreto debe estar dentro de la ruta de _Stratio Virtualizer_:
+
+[source,bash]
+----
+Ruta de Vault: /userland/passwords/dg-bigquery-agent
+Ejecutar en vCLI: put bigquery-connectors {"credentials": "<base64_json>", "parentProject": "<parent_project>"}
+----
+
+=== Guía de usuario
+
+Requisitos previos:
+
+* _Google Cloud Platform_ con BigQuery y una cuenta de servicio de Google configurada.
+* Una instalación de _Stratio Data Governance_. El agente escribe los metadatos directamente en PostgreSQL, pero se recomienda tener desplegados los servicios "`dg-businessglossary-api`" y "`governance-ui`" para poder ver los metadatos descubiertos.
+
+Tabla de compatibilidad:
+
+|===
+| _Stratio Data Governance_ | SSCC BigQuery Connector
+
+| ≥ 1.8.1
+| sscc-bigquery-0.1_2.11-1.2.x
+
+| ≥ 1.9.0
+| sscc-bigquery-0.2_2.11-1.3.x
+
+| ≥ 1.10.0
+| sscc-bigquery-0.3_2.11-1.4.x
+| sscc-bigquery-0.3_2.11-1.5.x
+|===
+
+Una vez que te asegures de que cumples los requisitos necesarios, sigue estos pasos:
+
+1) Crea los secretos en Vault. Al igual que en las secciones de autorización <<Stratio_Crossdata,_Stratio Crossdata_>> y <<Stratio_Spark,_Stratio Spark_>>, es necesario tener el JSON descargado con la clave en formato base64. Estos secretos no se crean automáticamente por el instalador de _Stratio Command Center_ (ver la sección de Autorización más arriba).
+
+[source,bash]
+----
+Ruta de Vault: /userland/passwords/s000002-dg-bigquery-agent/bigquery-credentials
+Ejecutar en vCLI: put bigquery-connectors {"credentials": "<base64_json>", "parentProject": "<parent_project>"}
+----
+
+2) Utiliza el descriptor de _Stratio Command Center_ para instalar el agente de descubrimiento para _Google BigQuery_: agent-bigquery-default.
+
+Los campos más importantes a rellenar en la instalación son:
+
+* *General*
+ ** *_Service name_*: nombre mostrado en DC/OS.
+* *Metadata Data store (PostgreSQL)*
+ ** *_Host_*: instancia de PostgreSQL que almacena los metadatos de BigQuery. Ej: poolpostgresgov.
+* *Configuration of the service to be discovered*
+ ** *BigQuery to be discovered*
+  *** *_BigQuery name_*: nombre que se utilizará para identificar este almacén de datos en _Stratio Data Governance_. Este nombre se mostrará en la interfaz de usuario de _Stratio Data Governance_.
+  *** *_Root discovery path_*: ruta desde la que se quieren descubrir los metadatos de forma recursiva. Los proyectos disponibles están dentro de la sección del explorador _BigQuery_ en _Google Cloud Platform_. Ej: /conectorstorage.
+  *** *_Google Cloud Storage temporary bucket_*: necesario para las operaciones de escritura de BigQuery.
+ ** *Resource data store connection configuration*
+  *** *_Custom data store service security_*: solo soporta SERVICE_ACCOUNT.
+  *** *_Access credentials_*: ruta de Vault con las credenciales de autorización Eg: bigquery-connectors. La ruta completa será  `userland/passwords/<vault_path>/<access_credentials>`. Ver la ruta de Vault más arriba.
+  *** *_BigQuery Native Mode_*: `(True/False)`. ´True´ si el usuario quiere virtualizar con JDBC y ´False´ si quiere virtualizar con la fuente de datos de Spark.
+  *** *_Catalog native credentials_*: nombre del secreto usado para la virtualización por JDBC utilizada por _Stratio Virtualizer_ y _Stratio Rocket_.
+  *** *_Data store driver location_*: URL donde se encuentra el JAR de SSCC-BigQuery-Connector.
+  *** *_BigQuery connection attempts_*: define los reintentos de conexión con BigQuery.
+  *** *_Dataset page size_*: utilizado para la paginación de conjuntos de datos de BigQuery. Define el número de conjuntos de datos devueltos por página..
+  *** *_Table page size_*: utilizado para la paginación de conjuntos de datos de BigQuery. Define el número de tablas devueltas por página.
+  *** *_BigQuery concurrent connections_*: aumenta la velocidad de descubrimiento de grandes conjuntos de datos con tareas paralelas.
+* *Service identity*
+ ** *_Vault role_*: se recomienda crear un nuevo rol para los agentes de descubrimiento. Eg: s000001-dg-agent.
+3) Comprueba que el servicio se despliega, es capaz de descargar el _driver_ y los secretos, y que el proceso de descubrimiento comienza. La primera vez puede tardar un poco. Si el servicio funciona correctamente, puedes ver los metadatos descubiertos en las trazas:
+
+[source,bash]
+----
+  Extract begins at: Fri Mar 27 09:56:05 CET 2020
+  NewOrUpdate 14 DataAssets begins at: Fri Mar 27 09:56:06 CET 2020
+  Delete 0 DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+  Synchronizing 14 and 0 Federated DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+----
+
+4) A continuación, se puede comprobar que se ha descubierto un nuevo almacén de datos en la interfaz de usuario de _Stratio Data Governance_, y se pueden examinar los metadatos.
+
+image::bigquery-discover-metadata.png[]
+
+5) Atributos personalizados de _Stratio Data Governance_
+
+* **bdl.options.virtualizer.native**:`(True/False)`. ´True´ si el usuario quiere virtualizar con JDBC y ´False´ si quiere virtualizar con Spark Datasource. Si se configura este atributo, se sobrescribirá la configuración por defecto (variable de entorno ``BIGQUERY_IS_DEFAULT_NATIVE_MODE``).
+* **bdl.options.native.filter**: filtro aplicado sobre la virtualización de JDBC.
+
+==== Escritura
+
+Para realizar operaciones de escritura, es obligatorio añadir la variable `GCS_BUCKET` en el descriptor del agente SSCC-bigquery para indicar el _bucket_ de _Google Cloud Storage_.
+
+Por ejemplo: `“GCS_BUCKET”: “connectors-bucket”`.
+
+Con esta variable configurada, el agente _SSCC BigQuery_ es capaz de propagarla. Ahora, el agente Eureka discovery puede generar tablas con el parámetro `temporaryGcsBucket` configurado para realizar operaciones de escritura.
+
+==== Vistas
+
+Las vistas en BigQuery están soportadas, pero se muestran como tablas en la interfaz de usuario de _Stratio Data Governance_. Para poder realizar consultas a las vistas, es necesario añadir la propiedad Spark `viewsEnabled` a `true`. Este atributo se añade automáticamente a las opciones del catálogo.
+
+==== BDL: soporte de atributos personalizados
+
+Los atributos de las tablas descubiertas se pueden parametrizar por los atributos personalizados de BDL establecidos desde la interfaz de usuario de _Stratio Data Governance_. El _driver_ admite estos atributos personalizados:
+
+* `filter`: una expresión 'where' arbitraria aplicada a las tablas descubiertas en modo no nativo.
+* `native.filter`: igual que la anterior pero para el modo nativo.
+* `native`: si se debe acceder a la tabla en modo nativo. Anula la variable de entorno `BIGQUERY_IS_DEFAULT_NATIVE_MODE`.
+
+Ten en cuenta que los atributos llevan el prefijo "bdl.options." en la interfaz de usuario de _Stratio Data Governance_.
+
+== _Stratio Rocket_
+
+=== Acceso al dato
+
+La forma recomendada de acceder a los datos de BigQuery desde _Stratio Rocket/Stratio Sparta_ es utilizar la integración con el catálogo de _Stratio Virtualizer_, ya que implementa todos los mecanismos de seguridad. Desde _Stratio Rocket_ 2.1.0 hasta 2.4.0, las dependencias de BigQuery y _Google Cloud Storage_ están incluidas. Para versiones posteriores, es necesario adjuntar el JAR como dependencia.
+
+=== Autorización/gestión de secretos
+
+Consulta la sección de autorización de _Stratio Virtualizer_ para ver cómo configurar y cargar correctamente la clave de acceso en Vault.
+
+:note-caption: AVISO
+
+NOTE: Es obligatorio cargar las credenciales para el usuario de servicio de _Stratio Rocket_ y para cada suplantación de identidad que se vaya a utilizar en cada ruta de Vault.
+
+=== Guía de usuario
+
+El despliegue es similar al del servicio _Stratio Virtualizer_, pero las variables de entorno cambian.
+En las versiones más nuevas de _Stratio Rocket_ (>= 2.4), hay que añadir el artefacto del conector, del _native engine_ de _Stratio Virtualizer_ y el JDBC de Simba en las siguientes variables:
+
+[source,json]
+----
+"ROCKET_EXTRA_JARS": "http://repository.com/repository/com/stratio/connectors/sscc-bigquery-0.3_2.12/1.4.0/sscc-bigquery-0.3_2.12-1.4.0-20220602.093205-5.jar,http://repository.com/native-engine_2.12-latest.jar""
+"ROCKET_EXTRA_SPARK_JARS": "http://repository.com/new-releases/com/simba/jdbc/bigquery/simba-jdbc-bigquery/42_1.2.19.1023-1.0.0-901b83e/simba-jdbc-bigquery-42_1.2.19.1023-1.0.0-901b83e.jar"
+----
+
+Para controlar el acceso con el modo nativo:
+
+[source,json]
+----
+"ENABLE_CONNECTOR_CROSSDATA_NATIVE_CONNECTOR": "true",
+"ENABLE_CONNECTOR_CROSSDATA_NATIVE_ENGINE": "true"
+----
+
+A continuación, en la sección del catálogo de la configuración del proyecto, se puede establecer:
+
+[source,json]
+----
+"crossdata.sql.enable-native-queries": "true"
+"crossdata.sql.enable-native-fallback-to-spark": true
+----
+
+Para crear colecciones, es necesario descubrir todos los datos con el agente de descubrimiento Eureka. Una vez configurados todos los prerrequisitos (secretos correctamente cargados en Vault, descubrimiento de metadatos correctamente configurado y funcionando, versión compatible con _Stratio Rocket_ desplegada... ) se puede acceder al catálogo de un proyecto y crear colecciones al igual que con las consultas utilizadas en _Stratio Virtualizer_.
+
+Una vez desplegado, es posible registrar la tabla en el catálogo y ejecutar consultas. Se recomienda especificar el proyecto dentro de la consulta para evitar futuros problemas cuando se configure otra cuenta de _Google Cloud Storage_.
+
+[source,sql]
+----
+create table test_bq_alltypes using bigquery OPTIONS (
+  'stratiosecurity'='true',
+  'stratiosecuritymode'='custom',
+  'stratiocredentials'='bigquery',
+  'table'='bigquerytest.userdata1-parquet',
+  'project'='connectorstorage')
+----
+
+:note-caption: AVISO
+
+NOTE: Los _workflows_ de _Stratio Rocket_ (también las reglas de calidad planificadas) usan JDBC puro para acceder a los datos, por lo que solo se admiten los tipos simples excepto `TIME`.
+
+==== Escritura
+
+:note-caption: AVISO
+
+NOTE: Desde _Stratio Rocket_ 2.1.0 hasta 2.4.0, las dependencias de BigQuery y _Google Cloud Storage_ están incluidas. En versiones posteriores, es necesario adjuntar el JAR como dependencia.
+
+Para poder realizar operaciones de escritura en las tablas de BigQuery, es necesario tener una conexión con el _bucket_ de _Google Cloud Storage_. Para ello, basta con subir los secretos de _Google Cloud Storage_ a Vault y añadir las variables de entorno en la instancia de _Stratio Rocket_.
+
+Por favor, considera subir los secretos a la ruta del usuario del servicio _Stratio Rocket_ para poder realizar consultas dentro del proyecto de catálogo y en cada suplantación de identidad utilizada para los despliegues de _workflows_.
+
+Secretos:
+
+[source,bash]
+----
+Ruta de Vault: `/v1/userland/passwords/s000001-rocket/googlecs`
+Ejecutar en vCLI: `put googlecs {"user": "<private_key_id>", "pass": "<private_key>"}`
+----
+
+Variables de entorno:
+
+[source,json]
+----
+"SPARK_SECURITY_GCS_ENABLE": "true",
+"SPARK_SECURITY_GCS_VAULT_PATH": "/v1/userland/passwords/s000001-rocket/googlecs",
+"SPARK_SECURITY_GCS_SERVICE_ACCOUNT": "connectors-service",
+"SPARK_SECURITY_GCS_PROJECT_ID": "connectorstorage"
+----
+
+Ejemplo de escritura en el catálogo de _Stratio Rocket_:
+
+[source,sql]
+----
+create table bigquery.test_bigquery using bigquery OPTIONS (
+  'stratiosecurity'='true',
+  'stratiosecuritymode'='custom',
+  'stratiocredentials'='bigquery',
+  'table'='bigquerytest.test-write',
+  'project'= 'connectorstorage',
+  'temporaryGcsBucket'= 'connectors-bucket') AS SELECT 1 AS id, 'Name 3' AS name UNION SELECT 2 AS id, 'Name 4' AS name;
+----
+
+Si el catálogo devuelve un error `None.get`, puedes consultar la xref:bigquery.adoc#_troubleshooting[sección de _troubleshooting_] para obtener más información sobre este problema.
+
+== _Stratio GoSec_
+
+Los almacenes de datos externos no están integrados en _Stratio GoSec_.
+
+La autorización a los mismos debe configurarse directamente en la base de datos cuando se crea el usuario para _Stratio Virtualizer_/_Stratio Spark_/_Stratio Data Governance_. Se recomienda crear un usuario específico para cada aplicación con permisos limitados.
+
+La mayoría de módulos acceden a los datos mediante _Stratio Virtualizer_. Esto permite configurar diferentes políticas de autorización para cada usuario en _Stratio GoSec_.
+
+Los secretos se pueden almacenar de forma segura en Vault. _Stratio Virtualizer_/_Stratio Spark_/_Stratio Data Governance_ tienen mecanismos para descargar y utilizar los secretos cuando lo necesiten.
+
+== _Troubleshooting_
+
+En esta sección, aprenderás a resolver posibles errores o problemas relacionados con el descubrimiento de metadatos de BigQuery que puedan ocurrir.
+
+=== El diccionario de datos de _Stratio Data Governance_ aparece vacío
+
+Al añadir un proyecto que no tiene los secretos de Vault correctamente configurados en la variable `COMM_SERVICE_INIT_PATH`, el agente de descubrimiento no muestra ningún rastro de error o advertencia.
+
+Comprueba que el valor de la variable `COMM_SERVICE_INIT_PATH` coincide con el nombre del secreto guardado para el agente de descubrimiento de BigQuery y que los secretos de este proyecto se han generado correctamente.
+
+:note-caption: AVISO
+
+NOTE: Por razones de seguridad, la API de BigQuery no muestra ningún rastro de registro o lo hace de forma silenciosa. Además, BigQuery devuelve un error tipo 'Not found' en lugar de un 'Not authorize'.
+
+=== _Stratio Virtualizer_ o _Stratio Rocket_ devuelven un error 'None.get'
+
+Ten en cuenta que, si creas una tabla en el catálogo que no existe en BigQuery, el catálogo muestra un error 'None.get' y la tabla no aparecerá en el catálogo de _Stratio Virtualizer_ pero se creará en BigQuery. Se trata de un error en la libreria de BigQuery https://github.com/GoogleCloudDataproc/spark-bigquery-connector/issues/451[issue].
+
+Para resolver este error, solo es necesario volver a ejecutar la consulta y la tabla se creará en el catálogo de _Stratio Virtualizer_.
+
+== Problemas conocidos
+
+* La API de _Google BigQuery de Java_ tiene un modo silencioso que no informa de los errores cuando no puede conectarse a un determinado proyecto. Si aparece un almacén de datos vacío en _Stratio Data Governance_ (o no aparece en absoluto), puede deberse a que no tiene los permisos necesarios en la configuración de la cuenta de servicio de Google.
+* Para poder realizar operaciones de escritura, es necesario configurar un _bucket_ de _Google Cloud Storage_.
+* Si se crea una tabla que no existe en BigQuery, el catálogo de _Stratio Virtualizer_ devuelve un error `None.get`. Consulta la xref:bigquery.adoc#_troubleshooting[sección de _troubleshooting_] para obtener más información sobre este problema.
+* Las vistas de BigQuery son compatibles pero se muestran como tablas en la interfaz de usuario de _Stratio Data Governance_.
+* Todos los tipos de datos de datos y tablas de BigQuery no están permitidos por todos los modos de acceso:
+** Spark datasource (provider `spark`):
+*** Soporta todos los tipos de datos, simples y complejos.
+*** No soporta tablas externas o _snapshot_.
+** Native dialect (provider `com.stratio.crossdata.connector.bigquery`):
+*** Soporta todos los tipos de datos, simples y complejos.
+*** Soporta todos los tipos de tabla.
+** jdbc (provider `jdbc`):
+*** Soporta todos los tipos simples excepto el tipo `TIME`. No soporta tipos complejos, _arrays_ o _structs_.
+*** Soporta todos los tipos de tablas.

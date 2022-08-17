@@ -1,0 +1,237 @@
+= MongoDB
+
+This document explains how to access the _MongoDB_ data store (which is not included within the Stratio platform) from each supported module of the platform.
+
+Compatibility table:
+
+|===
+| Universe Version | SSCC MongoDB Connector
+
+| ≥ 12.0
+| sscc-mongodb-0.2_2.11-1.0.0-937387f-driver.jar +
+sscc-mongodb-0.2_2.12-1.0.0-937387f-driver.jar
+|===
+
+== Support matrix
+
+|===
+| Module | Versions | MongoDB
+
+| _Stratio Spark_
+| ≥ 2.4.4-3.5.0 +
+≥ 3.0.1-1.1.0
+| OK
+
+| _Stratio Virtualizer_
+| -
+| -
+
+| _Stratio Data Governance_
+| ≥ 1.9.0
+| OK
+
+| _Stratio Rocket_
+| -
+| -
+
+| _Stratio Sparta_
+| -
+| -
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| -
+| -
+|===
+
+[box type="info"]Modules without versions are not tested yet. They might be supported.[/box]
+
+== _Stratio Spark_
+
+=== Data access
+
+_Spark_ data source connects to _MongoDB_ using an optimized API. This API allows faster-distributed operations than the API. _Stratio Spark_ has not changed Spark for this connector.
+
+=== Authorization/secrets management
+
+_MongoDB_ supports many authorization methods (user/password, Kerberos...). Currently, only user and password authorization is supported in _Stratio Spark_.
+
+These credentials can be safely stored in Vault and _Stratio Spark_ can retrieve and use them to establish the connection. By doing this, Spark will be able to download the needed secrets from Vault and set the following Spark properties for you:
+
+[source,json]
+----
+"spark.db.<mongodb_name_lower_case>.user",
+"spark.db.<mongodb_name_lower_case>.pass"
+----
+
+=== User guide
+
+The first step is to set up the credentials in _MongoDB_ and store the secrets in Vault.
+
+After this, you can add the following dependency in your _Spark_ project. It's available for Scala 2.11 and 2.12 and works in Spark 2 and 3 versions.
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.mongodb.spark</groupId>
+  <artifactId>mongo-spark-connector_2.12</artifactId>
+  <version>3.0.1</version>
+</dependency>
+----
+
+Example of reading:
+
+[source,scala]
+----
+def main(args: Array[String]): Unit = {
+  val programName = "TEST-MONGODB"
+  implicit val spark: SparkSession = SparkSession
+          .builder()
+          .appName(programName)
+          .config("spark.master", "local[1]")
+          .getOrCreate()
+
+  val dbOptions: Map[String, String] = Map(
+    "uri" -> "mongodb://sakila-read:1234@127.0.0.1:27017/sakila.stores"
+  )
+
+  val df = spark.read
+          .format("com.mongodb.spark.sql") // or "mongo"
+          .options(dbOptions)
+          .load()
+
+  df.show()
+  df.printSchema()
+
+  val df2 = df.filter(df("Country") === "Canada")
+  df2.show()
+
+  val df3 = df.filter(array_contains(df("Inventory.inventoryId"), 1))
+  df3.show()
+}
+----
+
+== _Stratio Crossdata_
+
+=== Data access
+
+Access to data is done through _Spark_ data source. See the Spark section for more information.
+
+=== Authorization/secrets management
+
+_Stratio Crossdata_ only supports the user/password authorization method as plain text inside the query.
+
+=== User guide
+
+Since version 3.1.0, the _Stratio Command Center_ descriptor includes all required parameters. The following variables should be properly set up:
+
+[source,json]
+----
+"CROSSDATA_SERVER_SPARK_DATABASE_ENABLE": "true",
+"CROSSDATA_EXTRA_JARS": "https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/3.0.1/mongo-spark-connector_2.12-3.0.1-assembly.jar"
+----
+
+For previous versions, you have to deploy a regular _Stratio Crossdata_ and do the following changes in the DC/OS descriptor:
+
+* Add the fetch to download the _MongoDB_ driver and load them in the Classpath. _Stratio Crossdata_ automatically loads all JARs into the classpath and Spark jobs.
+```json
+"fetch": [
+  {"uri": "https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/3.0.1/mongo-spark-connector_2.12-3.0.1-assembly.jar"}
+]
+
+----
+* Once deployed, it is possible to register the table in the catalog and execute queries.
+```sql
+CREATE TABLE test using mongo OPTIONS(
+'uri'='mongodb://stratio:1234@s000002-mongodb.s000002.marathon.mesos:27017/sakila.stores2'
+)
+----
+
+== _Stratio Data Governance_
+
+=== Data access
+
+_MongoDB_ discovery agent has support for discovering _MongoDB_ metadata and it is possible to visualize it in _Stratio Data Governance_.
+
+There is a _Stratio Command Center_ descriptor to install the discovery agent (_agent-mongodb-default_).
+
+=== Authorization/secrets management
+
+The _MongoDB_ discovery agent only supports the user/password authorization method. Secrets can be safely stored in Vault. These secrets are not created automatically by the _Stratio Command Center_ installer.
+
+[source,bash]
+----
+Vault path: /userland/passwords/s000002-dg-mongodb-agent
+Run in vCLI: put mongo-secret {"user": "admin", "pass": "1234"}
+----
+
+=== User guide
+
+Prerequisites:
+
+* A _MongoDB_ instance set up.
+* A _Stratio Data Governance_ installation. The agent writes the metadata directly into PostgreSQL, but it is recommended to have the "`dg-businessglossary-api`" and "`governance-ui`" services deployed in order to view the metadata.
+
+Once you assure you meet the required prerequisites, follow the next steps:
+
+1) Create the secrets in Vault.
+
+[source,bash]
+----
+Vault path: /userland/passwords/s000002-dg-mongodb-agent
+Run in vCLI: put mongo-secret {"user": "admin", "pass": "1234"}
+----
+
+2) Use the _Stratio Command Center_ descriptor to install the _MongoDB_ discovery agent: agent-mongodb-default.
+
+The most important fields to fill in the installation are:
+
+* *General*
+ ** *Service name*: name displayed in DC/OS.
+* *Metadata Data store (PostgreSQL)*
+ ** *Host*: PostgreSQL instance to save _MongoDB_ metadata.
+* *Configuration of the service to be discovered*
+ ** *MongoDB name*: name to be used to identify this data store in _Stratio Data Governance_. This name will be shown in the _Stratio Data Governance_ UI.
+ ** *Root discovery path*: the path from which you want to discover the metadata recursively. Eg: /sakila.
+* *Resource data store connection configuration*
+ ** *Custom data store service security*: only supports MD5.
+ ** *Access credentials*: Vault path with the authorization credentials. Eg: mongodb-secret. The full path will be `userland/passwords/<vault_path>/<access_credentials>`.
+ ** *Datastore driver location*: URL where SSCC MongoDB agent JAR is located.
+ ** *MongoDB sample size*: number of documents taken as a sample to obtain the final schema.
+ ** *MongoDB white spaces replacement*: replacement for field names that contain white spaces.
+ ** *MongoDB SSCC await duration*: agent awaits for MongoDB petitions.
+* *Service identity*
+ ** *Vault role*: it's recommended to create a new role for discovery agents. Eg: s000001-dg-agent.
+* *Calico network*
+ ** *Network name*: it's necessary to use the stratio-shared network if the discovery agent is configured to save the metadata in Postgreseos.
+
+3) Check that the service deploys, that it's able to download the driver and secrets, and that the discovery process begins. The first time may take a while. If the service works correctly, you can see the discovered metadata in the traces:
+
+[source,bash]
+----
+  Extract begins at: Fri Mar 27 09:56:05 CET 2021
+  NewOrUpdate 14 DataAssets begins at: Fri Nov 27 09:56:06 CET 2021
+  Delete 0 DataAssets begins at: Fri Nov 27 09:56:07 CET 2021
+  Synchronizing 14 and 0 Federated DataAssets begins at: Fri Nov 27 09:56:07 CET 2021
+----
+
+4) Then, you can see that a new data store has been discovered in the _Stratio Data Governance_ UI, and you can browse the metadata.
+
+image::../attachments/mongodb-discover-metadata.png[]
+
+== _Stratio GoSec_
+
+External data stores are not integrated into _Stratio GoSec_.
+
+The authorization will be configured directly in the database when the user is created for _Stratio Crossdata_/_Stratio Spark_/_Stratio Data Governance_. It is recommended to create a specific user for each application with limited permissions.
+
+Most modules will access the data store through _Stratio Crossdata_. This allows configuring different authorization policies for each user in _Stratio GoSec_.
+
+Secrets can be stored in Vault safely. _Stratio Crossdata_/_Stratio Data Governance_ has mechanisms to download the secrets and use them when necessary.
+
+== Known issues
+
+* _Stratio Data Governance_ does not allow save field names with white spaces. By default, they are replaced by the '`_`' symbol. It is possible to change it via the environment variable.

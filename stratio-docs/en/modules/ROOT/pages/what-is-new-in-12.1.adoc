@@ -1,0 +1,33 @@
+= What's new in version 12.1
+
+The main objective of this Universe is to port to Kubernetes the new features included in the recently released Mesos 11.1.0M Universe. This is the summary of the functionalities that are brought in _Stratio GoSec_, _Stratio Virtualizer_, _Stratio Spark_, _Stratio Rocket_, _Stratio Discovery_, and _Stratio Intelligence_.
+
+== _Stratio GoSec_
+
+Some improvements have been introduced in domain policy management, both in terms of performance and in assigning access to all resources in a collection. Other changes improve the user experience of its interface and make it possible to create secrets in Vault (keytabs and certificates) for users.
+
+== Connectors
+
+Decoupling connectors to be able to use them in services by configuration, starting with decoupling Hive and BigQuery, to which new connectors will be added and existing ones will be decoupled.
+
+== _Stratio Virtualizer_
+
+The integration of Delta Lake has been implemented, so that catalogs can be defined and Delta-type SQL queries can be performed on tables (in _Stratio Rocket_, a specific step input and output of Delta Lake type are available). It also allows the configuration of built-in functions for encryption, and push down is available against Oracle 18 and 19 and against Hive Server 3.2.
+
+== _Stratio Rocket_, _Stratio Discovery_ and _Stratio Intelligence_
+
+In the Rocket section, versions of important components have been uploaded, such as the upload to version 0.42.2 of Metabase in _Stratio Discovery_, which brings improvements in collections, navigation and inclusion of models, among others. _Stratio Intelligence_ has switched to using Python 3.6 in its analytic containers and is now compatible with Spark 2.x and 3.x.
+
+In _Stratio Rocket_, in addition to the adaptations for connector decoupling and integrations with BigQuery, Hive and Delta Lake, several improvements have been implemented in the management of workflows that avoid problems detected in clients when many quality rules are executed at the same time.
+
+== New only from the Kubernetes Universe
+
+In addition to the features ported since 11.1.0M, there are other new features or fixes that apply -only to the Kubernetes Universe*:
+
+* _Fixes_ in _Stratio Command Center_ to improve component editing and updating processes.
+* _Fix_ to resolve issues when using external plugins in _Stratio Open Distro Operator_.
+* _Fix_ in _Stratio PostgreSQL Operator_ to avoid overloading the logs solution due to the accumulation of non-relevant information.
+* Ability to use GPU in the executions of _MLProject_ and _workflows_ of _Stratio Rocket_ and in the analytical environment of _Stratio Intelligence_.
+* Support the creation and assignment of permissions by the _root_ user on persistent volumes in _Stratio Intelligence_ to make them compatible with those in Azure.
+* Improved the capabilities of _Stratio Virtualizer_ to support uppercase characters, numbers, special characters, etc., in the Hive catalog.
+* In both _Stratio Virtualizer_ and _Stratio Rocket_, UDFs can be used to manage the encryption/decryption of data on the platform, while in _Stratio GoSec_ the UDF for said encryption has been implemented.

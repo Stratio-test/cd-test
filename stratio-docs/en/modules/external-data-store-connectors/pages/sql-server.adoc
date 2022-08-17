@@ -1,0 +1,251 @@
+= SQL Server
+
+This document explains how to access the data store (that is not included within the Stratio platform) from each module of the platform. It is possible to deploy it in the platform with the official Docker images, although not all versions of _SQL Server_ have Docker images.
+
+Microsoft software is commercially licensed. The registration and acceptance of license terms are required.
+
+== Known issues
+
+* _Stratio Command Center_ descriptor includes support for this data store since version 2.22.0. For previous versions, you have to deploy _Stratio Crossdata_ and then change some environment variables.
+
+== Support matrix
+
+|===
+| Module | Versions | _SQL Server_ 2019 | _SQL Server_ 2017
+
+| _Stratio Spark_
+| ≥ 2.4.4-3.3.0
+| OK
+| OK
+
+| _Stratio Crossdata_
+| ≥ 2.23.0
+| OK
+| OK
+
+| _Stratio Data Governance_
+| ≥ 1.7.0
+| OK
+| OK
+
+| _Stratio Rocket_
+| ≥ 1.7.0
+| OK
+| OK
+
+| _Stratio Sparta_
+| ≥ 2.14
+| OK
+| OK
+
+| _Stratio Intelligence_
+| -
+| -
+| -
+
+| _Stratio BDL_
+| ≥ 1.7.0
+| OK
+| OK
+|===
+
+[box type="info"]Modules without versions are not tested yet. They might be supported.[/box]
+
+== _Stratio Spark_
+
+=== Data access
+
+Spark has official support for the _SQL Server_ JDBC connector (includes classes to support the _SQL Server_ dialect).
+
+_Stratio Spark_ has not changed Spark for this connector.
+
+=== Authorization/Secrets management
+
+_SQL Server_ supports many authorization methods (user/password, SSL, Kerberos... ). Currently, in _Stratio Spark_ only user and password authorization is supported.
+
+These credentials can be safely stored in Vault and _Stratio Spark_ can retrieve and use them to establish the connection.
+
+_Stratio Spark_ allows configuring several JDBC databases in the same job, each database with its own secrets. You must configure an environment variable for each database:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_<BD_NAME_UPPER_CASE>_VAULT_PATH"
+----
+
+By doing this, Spark will be able to download the needed secrets from Vault and set the following Spark properties for you:
+
+[source,json]
+----
+"spark.db.<db_name_lower_case>.user",
+"spark.db.<db_name_lower_case>.pass"
+----
+
+=== User guide
+
+The _SQL Server_ driver is not included in _Stratio Spark_ for licensing reasons. It is necessary to add it to the JAR of the job that we want to execute. Those drivers are available in the Stratio repository.
+
+The first step is to create the secrets in Vault with the user/password. You have to ask the system administrator to do it for you.
+
+*Vault path*: `/v1/userland/passwords/s000001-spark-fw/s000001-mssql-server`
+*Run in vCLI*: `put s000001-mssql-server {"user": "<user>", "pass": "<password>"}`
+
+Then, you can write regular Spark code. _Stratio Spark_ will fill the user/pass Spark properties with the secrets.
+
+[source,scala]
+----
+val user = spark.sparkContext.getConf.getOption("spark.db.database1.user")
+val password = spark.sparkContext.getConf.getOption("spark.db.database1.pass")
+
+val df = spark.read.
+  format("jdbc").
+  option("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver").
+  option("url", "jdbc:sqlserver://s000001-mssql-server.s000001.marathon.mesos:1433;database=master").
+  option("dbtable", "table").
+  option("user", user).
+  option("password", password).
+  load()
+
+df.show()
+----
+
+Launch the Spark job using _Spark Dispatcher_. You need to set these properties in the job to download the secrets. The Vault path will be provided by the system administrator.
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_ENABLE": "true",
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_DATABASE1_VAULT_PATH": "/v1/userland/passwords/s000001-spark-fw/s000001-mssql-server",
+----
+
+== _Stratio Crossdata_
+
+=== Data access
+
+Access to data is done through _Stratio Spark_ configured with the _SQL Server_ JDBC driver. See the <<Stratio_Spark,_Stratio Spark_ section>> for more information.
+
+=== Authorization/Secrets management
+
+_Stratio Crossdata_ uses the authorization methods supported in _Stratio Spark_. Currently, only user/password authorization is implemented.
+
+Secrets can be safely stored in Vault. It is also possible to indicate the username and password in the _Stratio Crossdata_ "create table" sentence in plain text. This method is not recommended for security reasons.
+
+=== User guide
+
+In order to carry out a test, you will need to deploy the _SQL Server_ database beforehand.
+
+_Stratio Crossdata_ supports three different credentials configuration methods:
+
+* "`stratiocredentials`" stores a different secret for each database in Vault. This is the recommended method since version 2.22.
+* "`stratiosecurity`" uses the _Stratio Crossdata_ credentials (user/password) to connect to all databases. You have to create the same credentials for each database.
+* Plain text in the "`create table`" sentence.
+
+The first step is to create the secrets in Vault.
+
+*Vault path*: `/v1/userland/passwords/s000001-crossdata/s000001-sqlserver`
+*Run in vCLI*: `put s000001-crossdata/s000001-sqlserver {"user": "<user>", "pass": "<pass>"}`
+
+The next step is to deploy _Stratio Crossdata_ using _Stratio Command Center_. You can find the configuration for this connector in the section Environment → External data stores → JDBC Integration.
+
+Once deployed, it is possible to register the table in the catalog and execute queries.
+
+[source,text]
+----
+create table mssql_table using jdbc options (
+  url 'jdbc:sqlserver://s000001-mssql-server.s000001.marathon.mesos:1433;database=master',
+  dbtable 'dbo.mssql_table',
+  stratiosecurity 'true',
+  stratiosecuritymode 'user_pass',
+  stratiocredentials 's000001-sqlserver'
+) AS SELECT 1 AS id, 'Name 1' AS name UNION SELECT 2 AS id, 'Name 2' AS name;
+
+select * from mssql_table;
+----
+
+== _Stratio Data Governance_
+
+=== Data access
+
+Access to the data is done through the _SQL Server_ JDBC driver. The driver is not included for license reasons, but it can be found in the Stratio repository.
+
+The JDBC discovery agent (dg-jdbc-agent) has support for discovery _SQL Server_ metadata.
+
+=== Authorization/Secrets management
+
+The Discovery agent currently only supports the user/password authorization method. Secrets can be safely stored in Vault.
+
+It is highly recommended to create a dedicated user for the discovery agent with limited permissions.
+
+=== User guide
+
+Prerequisites:
+
+* A working _SQL Server_ instance.
+* A _Stratio Data Governance_ installation.
+
+The first step is to create the secrets in Vault. These secrets are not created automatically by the _Stratio Command Center_ installer.
+
+*Vault path*: `/v1/userland/passwords/s000001-dg-mssql-agent/s000001-dg-mssql-agent`
+*Run in vCLI*: `put s000001-dg-mssql-agent {"user": "<user>", "pass": "<password>"}`
+
+It's *highly recommended* to create a new user in _SQL Server_ for _Stratio Data Governance_ with limited permissions.
+
+Use the _Stratio Command Center_ descriptor to install the JDBC discovery agent for _SQL Server_: _agent-mssql-external-default_.
+
+The most important fields to fill in the installation are:
+
+*General*
+
+* Backend _Stratio Data Governance_ (PostgreSQL)
+ ** Host: PostgreSQL instance to save _SQL Server_ metadata.
+* Configuration of the service to be discovered
+ ** Service name: name to be used to identify this data store in _Stratio Data Governance_. This name will be shown in the _Stratio Data Governance_ UI.
+ ** Host name: domain name of the _SQL Server_ instance. It can be internal or external to the Stratio platform. Eg: s000001-mssql-server.s000001.marathon.mesos.
+ ** Port: _SQL Server_ port. By default: 1433.
+ ** Properties: JDBC URL properties. -db- placeholder will be replaced with the database name from "`init path`". By default: ;database=-db-.
+ ** Init path: the path from which you want to discover the metadata recursively. If you are not sure, use the database name. The default domain for the official _SQL Server_ Docker image is: /master.
+ ** Vault credentials: only MD5 (user/password) is supported.
+ ** Access credentials: Vault path with the authorization credentials. Eg: sql-server-dev. The full path will be "`userland/passwords/<vault_path>/<access_credentials>`". See the vault_path below.
+* Service identity
+ ** Vault role: it's recommended to create a new role for discovery agents. Eg: s000001-dg-agent.
+* Calico network
+ ** Network name: it's necessary to use the stratio-shared network if the discovery agent is configured to save the metadata in Postgreseos.
+
+*Settings*
+
+* Discovered service configuration
+ ** Driver's JAR URL: URL to download the _SQL Server_ driver. There is a copy of the artifact in the Stratio Repository.
+* Secrets path
+ ** Vault path: Vault path with the authorization credentials. By default, it is <tenantId>-<serviceId>. Eg: s000001-dg-sqlserver-agent.
+
+Check that the service deploys, is able to download the driver and secrets, and the discovery process begins. The first time may take a while.
+
+If the service works correctly, you can see the discovered metadata in the traces:
+
+[source,text]
+----
+Extract begins at: Fri Mar 27 09:56:05 CET 2020
+NewOrUpdate 14 DataAssets begins at: Fri Mar 27 09:56:06 CET 2020
+Delete 0 DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+Synchronizing 14 and 0 Federated DataAssets begins at Fri Mar 27 09:56:07 CET 2020
+----
+
+In the _Stratio Data Governance_ UI you can see that a new data store has been discovered, and you can browse the metadata. All tables, columns, data types, primary key, foreign key... have been detected correctly.
+
+image::../attachments/external-sqlserver-connector-governance.png[]
+
+The agent updates the metadata periodically. A test can be performed, for example, launching an "ALTER TABLE" in _SQL Server_ and waiting for the agent to detect the change. These changes are reflected in the _Stratio Data Governance_ UI.
+
+== _Stratio Rocket_/_Stratio Sparta_
+
+There are different possibilities to access _SQL Server_ data store from _Stratio Rocket_/_Stratio Sparta_. The recommended way is to use the integration with _Stratio Crossdata_ as it implements all the security mechanisms. It is also possible to use the JDBC input/output or even the data source input and data store output.
+
+See the link:../../Stratio-Rocket/User-guide/Workflow-asset-user-guide/Data-inputs.md#stratio-crossdata[_Stratio Rocket_] documentation for more information about configuring these steps.
+
+== _Stratio GoSec_
+
+External data stores are not integrated into _Stratio GoSec_.
+
+The authorization will be configured directly in the database when the user is created for _Stratio Crossdata_/_Stratio Spark_/_Stratio Data Governance_. It is recommended to create a specific user for each application with limited permissions.
+
+Most modules will access the data store through _Stratio Crossdata_. This allows you to configure different authorization policies for each user in _Stratio GoSec_.
+
+Secrets (user/password) can be stored in Vault safely. _Stratio Crossdata_/_Stratio Spark_/_Stratio Data Governance_ have mechanisms to download the secrets and use them when necessary.

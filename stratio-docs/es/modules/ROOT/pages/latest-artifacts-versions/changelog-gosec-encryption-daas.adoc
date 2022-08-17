@@ -1,0 +1,28 @@
+= Changelog GoSec Encryption Daas
+
+== 0.2.1 (June 30, 2022)
+
+* Change asset size to 255
+
+== 0.2.0 (April 11, 2022)
+
+* [GS-4358] Fixed docker vulnerabilities
+* [GS-4191] Added new endpoint for getting algorithms
+* [GS-4295] Fix Log4j-shell vulnerability
+
+== 0.1.3 (March 16, 2022)
+
+* Remove data key clean method
+
+== 0.1.2 (March 08, 2022)
+
+* Addapt for k8s
+
+== 0.1.1 (December 22, 2021)
+
+* [GS-4293] Fix Log4j-shell vulnerability
+* [GS-4303] Fix saving assets with data-keys from other tenant
+
+== 0.1.0 (June 10, 2021)
+
+* Initial version

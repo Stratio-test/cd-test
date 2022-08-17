@@ -1,0 +1,17 @@
+= Changelog CCT Central Configuration
+
+== 0.2.1 (March 29, 2022)
+
+* [SAAS-4685] Stratio authorization system
+
+== 0.2.0 (August 20, 2021)
+
+* [SAAS-3662] Added kubernetes deployment resource limits
+* [SAAS-3936] Modify Jenkinsfile jiraproject variable
+* [SAAS-3927] Updated stratio-microservices to 1.6.0
+
+== 0.1.0 (March 05, 2021)
+
+* [SAAS-3387] Updated k8s yamls
+* [SAAS-3500] Vault auth with Kubernetes Service Account Token by default
+* [SAAS-3503] Upgraded stratio-microservices version

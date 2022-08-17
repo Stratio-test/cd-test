@@ -1,0 +1,101 @@
+= Términos y definiciones
+
+*BDL (_Business Data Layer_)*: capa de datos de negocio.
+
+*Big Data/macrodatos*: proceso que analiza e interpreta grandes volúmenes de trabajo. Datos que son tan grandes, rápidos o complejos que es difícil o imposible procesarlos con los métodos tradicionales. El acto de acceder y almacenar grandes cantidades de información para la analítica ha existido desde hace mucho tiempo.
+
+*Business data view*: permite al usuario visualizar varias bases de datos en una sola vista, facilitando así su entendimiento y comprensión.
+
+*CaaS (_Container as a Service_)*: contenedor como servicio. Permite gestionar e implementar aplicaciones usando el aislamiento en contenedores y las características de la implementación de aplicaciones en contenedores.
+
+*Caso de uso*: descripción de una actividad o acción desde el punto de vista del usuario. Aplicación práctica de la teoría. Una solución para un problema.
+
+*Colecciones*: (dentro de Stratio) dominio del dato que se quiere exponer al usuario final.
+
+*Computación distribuida*: modelo informático que usa un _software_ que permite hacer grandes cálculos y funciona repartiendo la información entre los nodos que se necesite.
+
+*CRM (_Customer Relationship Management_)*: gestión de relaciones con el cliente.
+
+*Datamart:* versión de almacén de datos centrados en un área de negocio. Subconjuntos de datos que ayudan a que el área pueda tomar mayores decisiones.
+
+*ETL (_Extract, Transform, Load_)*: procesos aplicados a los datos en los que se constan de las fases de extracción, transformación y carga.
+
+*GDPR*: Regulación General de Protección de Información de la UE.
+
+*HDFS (_Hadoop Distributed File System_)*: sistema distribuido de ficheros de Hadoop, optimizado para grandes cantidades de datos y garantizar disponibilidad y tolerancia a fallos.
+
+*IdP (_Identity Provider_)*: un proveedor de identidad es un servicio que almacena y verifica la identidad del usuario.
+
+*Ingress*: la forma de acceder a tus _pods_ desde fuera del _cluster_ es a través de lo que se conoce como Ingress. Este recurso permite acceder a servicios a través de HTTP(S) y el tráfico se controla utilizando un conjunto de reglas que tú defines.
+
+*Kafka*: plataforma de transmisión de datos distribuida que permite almacenar y procesar flujos de datos. Está disponible como almacén de datos en _Stratio Command Center_.
+
+*KV*: almacén genérico de clave-valor utilizado para almacenar secretos arbitrarios dentro del almacenamiento físico configurado para Vault.
+
+*Lago de Datos/_Data Lake_*: repositorio donde se almacenan grandes conjuntos de datos sin procesar en formato original, permitiendo obtener un panorama general de datos.
+
+*Linaje de datos*: capacidad que tienen las organizaciones para visibilizar la proveniencia, transformación, utilización y consumo de datos. Con ella, se logra una visibilidad del recorrido de principio a fin del dato.
+
+*Mesos/Kubernetes*: plataformas de código abierto que se usan para computación distribuida y permiten gestionar el ciclo de vida de contenedores de aplicaciones.
+
+*Middleware*: capa de _software_ que enmascara la heterogeneidad de una red subyacente, el _hardware_, el sistema operativo y los lenguajes de programación.
+
+*ML (_Machine learning_)*: parte de la inteligencia artificial en la que los algoritmos son capaces de aprender de las muestras de datos que procesan.
+
+*MLOps*: práctica y cultura de desarrollo y puesta en producción de módulos de _machine learning_. Adopción de buenas prácticas que permiten la automatización y la correcta monitorización de aplicaciones con modelos de ML.
+
+*Nodo*: punto de conexión de red que puede recibir, crear, almacenar o enviar daos a lo largo de rutas de red.
+
+*OKR (_Objective key results_)*: metodología de trabajo que tiene como finalidad facilitar los objetivos marcados por una empresa y poder medir de manera cualitativa y cuantitativa la consecución de los mismos.
+
+*On-Premise*: significa “en las instalaciones propias” o “in situ”. Esta definición de _on-premises_ se refiere a la utilización de servidores y entorno informático propios de la empresa.
+
+*Ontología*: definición formal de tipos, propiedades y relaciones entre entidades que existen para un dominio en particular. Modela la lógica del dato. Las colecciones relacionan las entidades finales a las diferentes ontologías.
+
+*PaaS (_Platform as a Service_)*: plataforma como servicio. Es un entorno de desarrollo e implementación completo en la nube.
+
+*Procesamiento _batch_*: el procesamiento por lotes o modo _batch_ consiste en la ejecución de lotes de trabajos, a menudo simultáneamente, en orden secuencial y sin el control o supervisión directa del usuario.
+
+*Procesamiento _streaming_*: este procesamiento está basado en la idea de procesar los datos de forma continua y en tiempo real. Se usan flujos de datos infinitos y sin límites de tiempo.
+
+*Reglas de calidad*: se definen en el módulo de _Stratio Data Governance_ y, una vez creadas, se pueden asociar al catálogo técnico términos de negocio y ontologías.
+
+*Silo*: contenedores de almacenamiento donde no se produce una transferencia de conocimientos.
+
+*_Stratio Augmented Data Fabric Basics_*: es el primer curso _online_ de iniciación a la formación sobre la plataforma Stratio. Su principal objetivo es servir de introducción, con una vista general del producto que describe sus principales partes y permite conocer a alto nivel la plataforma.
+
+Servirá de introducción a otras capacidades de Stratio como _Stratio Augmented Data Governance & Business Data Layer_, _Stratio Augmented Data Processing_ y _Stratio Augmented Artificial Intelligence_.
+
+*_Stratio Augmented Data Processing_*: el objetivo de esta certificación _online_ es profundizar en las capacidades de _Stratio Rocket_ y las capacidades de Stratio para el desarrollo de proyectos basados en datos.
++
+En esta especialización nos centraremos en:
+** Gestión de proyectos y capacidad de colaboración.
+** Trabajar con flujos de datos _batch_ y en tiempo real.
+** _Data Quality_, Virtualización de datos.
+
+*_Stratio Augmented Data Governance & Business Data Layer_*: el objetivo de este curso _online_ es profundizar en las capacidades de _Stratio Data Governance_ para realizar proyectos basados en gobierno del dato:
++
+** Catálogo técnico.
+** Ontologías.
+** Dominios de datos.
+** Glosario de negocio.
+** Calidad del dato.
+** _Datamarket place_.
+
+*_Stratio Augmented Artificial Intelligence_*: el objetivo de este curso _online_ es profundizar en las capacidades de gestión del ciclo de vida de MLOps con _Stratio Rocket_ para la  . En esta especialización nos centraremos en capacidades de Stratio para:
++
+** Realizar análisis exploratorio.
+** Desarrollar modelos de inteligencia artificial.
+** Paquetización, versionado y entrenamiento de modelos.
+** Productivización de modelos.
+** Monitorización, observabilidad y re-entreno de modelos.
+
+*Spark*: motor rápido de procesamiento distribuido para análisis de grandes volúmenes de datos. Está especialmente diseñado para su implementación en _machine learning_ y _big data_.
+
+*SQL*: lenguaje de programación específico de gestión y tratamiento de datos y bases de datos relacionales.
+
+*TTM (_Time To Market_)*: plazo de lanzamiento desde que un producto/servicio es concebido hasta que esté disponible para su usuario final.
+
+*_Workflows_*: llamamos _workflows_ de datos a los _assets_ construidos en _Stratio Rocket_ para el tratamiento de flujos de datos, ya sean en _batch_ o en _streaming_.
+
+*XAI (_eXplainable AI_)*: conjunto de técnicas que permiten entender, interpretar y confiar en los resultados emergentes de los modelos complejos en IA.

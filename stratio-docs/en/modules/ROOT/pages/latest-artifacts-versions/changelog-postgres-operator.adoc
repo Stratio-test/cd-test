@@ -1,0 +1,233 @@
+= Changelog PostgreSQL Operator
+
+== 0.4.3 (February 22, 2022)
+
+* [FRAM-8122] Feature: Migrate documentation to module repository
+* Helm chart compatibility with Kubernetes 1.21.x
+* Kubernetes Kubebuilder Version: 2.3.1
+* Stratio Datastores Base Version: 1.0.2-d0db81e
+* Stratio Secrets Operator Version: v0.4.0-685cfc6
+* Patroni Version: 2.1.0
+* PostgreSQL Versions: 10, 11, 12 and 13
+* PostgreSQL Extensions: contrib extensions, postgis 3, cstore-fdw (except pg13), pg_cron, pgagent, orafce, pg-audit
+* PostgreSQL Prometheus Exporter Version: 0.10.0
+* WAL-G Version: 0.2.19 without LZO
+* PgBouncer Version: 1.16.1
+* PgBouncer Prometheus Exporter Version: 2.1.0
+
+== 0.4.2 (January 17, 2022)
+
+* [FRAM-8023] Improvement: Repository migration to new CI/CD
+* [FRAM-8036] Feature: Build and upload to helm repository
+* Kubernetes Kubebuilder Version: 2.3.1
+* Stratio Datastores Base Version: 1.0.2-d0db81e
+* Stratio Secrets Operator Version: v0.4.0-685cfc6
+* Patroni Version: 2.1.0
+* PostgreSQL Versions: 10, 11, 12 and 13
+* PostgreSQL Extensions: contrib extensions, postgis 3, cstore-fdw (except pg13), pg_cron, pgagent, orafce, pg-audit
+* PostgreSQL Prometheus Exporter Version: 0.10.0
+* WAL-G Version: 0.2.19 without LZO
+* PgBouncer Version: 1.16.1
+* PgBouncer Prometheus Exporter Version: 2.1.0
+
+== 0.4.1 (January 10, 2022)
+
+* [FRAM-8020] Improvement: Change default governance URL
+
+* Kubernetes Kubebuilder Version: 2.3.1
+* Stratio Datastores Base Version: 1.0.2-d0db81e
+* Stratio Secrets Operator Version: v0.4.0-685cfc6
+* Patroni Version: 2.1.0
+* PostgreSQL Versions: 10, 11, 12 and 13
+* PostgreSQL Extensions: contrib extensions, postgis 3, cstore-fdw (except pg13), pg_cron, pgagent, orafce, pg-audit
+* PostgreSQL Prometheus Exporter Version: 0.10.0
+* WAL-G Version: 0.2.19 without LZO
+* PgBouncer Version: 1.16.1
+* PgBouncer Prometheus Exporter Version: 2.1.0
+
+== 0.4.0 (December 14, 2021)
+
+  * [FRAM-5995] Feature: Expose pgBouncer through LoadBalance Service
+  * [FRAM-7794] Feature: Expose wal-segsize initdb parameter in PgCluster
+  * [FRAM-7731] Improvement: Upgrade prometheus exporter to 0.10.0
+  * [FRAM-7803] Improvement: Don't check Storage Size in ValidateUpdate Webhook
+  * [FRAM-7805] Improvement: Set successfulJobsHistoryLimit and failedJobsHistoryLimit in pgBackup to fixed value 10
+  * [FRAM-7845] Improvement: Change Governance default URL in GoSec agent config
+  * [FRAM-7932] Improvement: Install pgBouncer from PostgreSQL official repository
+  * [FRAM-7693] Fix: PostgreSQL Readiness Healthcheck has typo error and race condition
+  * [FRAM-7707] Fix: Annotations are not propagated to PVCs
+  * [FRAM-7695] Fix: PostgreSQL default PodAntiAffinity is not correct
+  * [FRAM-7712] Fix: Use PodMonitor instead ServiceMonitor
+  * [FRAM-7698] Fix: Permissions with shared storageClass
+  * [FRAM-7724] Fix: Boutroni readiness healthcheck
+  * [FRAM-7735] Fix: PgCluster resolve 2 dns names when make the reverse DNS to PgBouncer
+  * [FRAM-7746] Fix: Grant minimal privileges to rewind user
+  * [FRAM-7807] Fix: Send VAULT_ROLE to containers with <saNamespace>-<saName>
+  * [FRAM-7867] Fix: Label propagation in "agent" service doesn't work
+  * [FRAM-7940] Fix: Agent Recreate Update Strategy
+  * [FRAM-7823] Vulnerabilities: Don't offer SSLv1, SSLv2, SSLv3, TLSv1 and TLSv1.1 in Patroni's API
+  * [FRAM-7832] Vulnerabilities: Patch PostgreSQL to avoid CVE-2021-23214 and CVE-2021-23222
+  * [FRAM-7850] Vulnerabilities: Patch PgBouncer to avoid CVE-2021-23214 and CVE-2021-23222
+
+  * Kubernetes Kubebuilder Version: 2.3.1
+  * Stratio Datastores Base Version: 1.0.2-d0db81e
+  * Stratio Secrets Operator Version: v0.4.0-685cfc6
+  * Patroni Version: 2.1.0
+  * PostgreSQL Versions: 10, 11, 12 and 13
+  * PostgreSQL Extensions: contrib extensions, postgis 3, cstore-fdw (except pg13), pg_cron, pgagent, orafce, pg-audit
+  * PostgreSQL Prometheus Exporter Version: 0.10.0
+  * WAL-G Version: 0.2.19 without LZO
+  * PgBouncer Version: 1.16.1
+  * PgBouncer Prometheus Exporter Version: 2.1.0
+
+== 0.3.0 (August 31, 2021)
+
+  * [FRAM-7446] Feature: Helm Chart compatibility with Kubernetes 1.20
+  * [FRAM-7468] Feature: Add Defaults in storage
+  * [FRAM-7476] Feature: Auto generation of CCT's descriptors in make manifests
+  * [FRAM-7464] Feature: Reload pgBouncer backend connection when failover in PostgreSQL
+  * [FRAM-7562] Feature: Synchronous replication factor support
+  * [FRAM-5995] Feature: Expose pgBouncer through LoadBalancer service type
+  * [FRAM-7482] Improvement: Default values in CRDs and Webhooks
+  * [FRAM-7555] Improvement: Use CERT instead of TLS to align with official PostgreSQL authentication
+  * [FRAM-7560] Improvement: Match the tenant section like the rest of the operators
+  * [FRAM-7563] Improvement: Add defaulting with general tuning in postgres.config
+  * [FRAM-7436] Improvement: Improvements in pgdatabase controller
+  * [FRAM-7589] Improvement: Defaults in GoSec agent configuration
+  * [FRAM-7614] Improvement: Add check_timeline parameter in patroni.dcs section
+  * [FRAM-7432] Fix: postgres-agent does not have the whitelist set for pgrewind and replicator users
+  * [FRAM-7433] Fix: Upscale doesn't generate new certificates in secretsBundle
+  * [FRAM-7434] Fix: Downscale to 0 doesn't work when SYNC_STRICT replication is activated
+  * [FRAM-7567] Fix: Patroni fail with psycopg2's last version version
+  * [FRAM-7565] Fix: Shutdown annotation and scale 0 doesn't work
+  * [FRAM-7584] Fix: pgBouncer instances cannot patch to 0 instances
+  * [FRAM-7582] Fix: synchronous_node_count is not applied when pgcluster is deployed
+  * [FRAM-7548] Task: Upgrade crd-parser to 0.1.0
+
+  * Kubernetes Kubebuilder Version: 2.3.1
+  * Stratio Datastores Base Version: 1.0.1-a8344c2
+  * Stratio Secrets Operator Version: v0.3.0-e7dc1cf
+  * Patroni Version: 2.1.0
+  * PostgreSQL Versions: 10, 11, 12 and 13
+  * PostgreSQL Extensions: contrib extensions, postgis 3, cstore-fdw (except pg13), pg_cron, pgagent, orafce, pg-audit
+  * PostgreSQL Prometheus Exporter Version: 0.8.0
+  * WAL-G Version: 0.2.19 without LZO
+  * PgBouncer Version: 1.16.0
+  * PgBouncer Prometheus Exporter Version: 2.1.0
+
+== 0.2.0 (June 29, 2021)
+
+  * [FRAM-7122] Feature: Operator Metrics - Pgcluster
+  * [FRAM-6054] Feature: Operator Metrics - Pool
+  * [FRAM-7123] Feature: Operator Metrics - Backup
+  * [FRAM-7124] Feature: Operator Metrics - PgDatabase
+  * [FRAM-7025] Feature: Integrate secret operator SecretsIdentity CRD
+  * [FRAM-7141] Feature: Integrate shared SecretsIdentity
+  * [FRAM-7105] Feature: Add securityContext with fsGroup to statefulset
+  * [FRAM-7376] Feature: Add CCT annotations to postgres CRD
+  * [FRAM-7371] Feature. Add default images postgres
+  * [FRAM-7085] Improvement: Upgrade controller-gen to 0.4.1
+  * [FRAM-7041] Improvement: Add more validations in Webhooks to pgCluster, pgBouncer, pgBackup and pgDatabase
+  * [FRAM-7092] Improvement: Rename volumes to storage
+  * [FRAM-7091] Improvement: Users section in pgCluster to group users
+  * [FRAM-7093] Improvement: Make configurable pg_rewind and replicator users
+  * [FRAM-7132] Improvement: Controller package naming
+  * [FRAM-7144] Improvement: Same operator structure in postgres-operator and opendistro-operator
+  * [FRAM-7095] Fix: Wrong Status description when pgAgent is healthy but PostgreSQL is unhealthy
+  * [FRAM-7109] Fix: Needed /dev/shm volume for shared memory
+  * [FRAM-7113] Fix: Check the failover configmap
+  * [FRAM-7112] Fix: PgAgent dbaas integration
+  * [FRAM-7130] Fix: pool_mode field NULL in Boutroni
+  * [FRAM-7163] Fix: Don't allow updating Postgresql information in pgbouncer
+  * [FRAM-7150] Fix: When deploy pgBouncer in a different namespace than pgCluster, operator doesn't register in pg_hba.conf
+  * [FRAM-7193] Fix: Wrong Update Replica Instances
+  * [FRAM-7359] Fix: Disable monitoring doesn't work
+  * [FRAM-7397] Fix: Error getting switchover metrics
+  * [FRAM-7386] Fix: Custom annotations don't spread to other objects
+  * [FRAM-7432] Fix: postgres-agent does not have the whitelist set for pgrewind and replicator users
+  * [FRAM-7433] Fix: Upscale doesn't generate new certificates in secretsBundle
+  * [FRAM-7434] Fix: Downscale to 0 doesn't work when SYNC_STRICT replication is activated
+  * [FRAM-7390] Task: Move postgres-operator to single repository
+  * [FRAM-7401] Task: Upgrade secrets-operator to v0.2.0-c3ca749
+  * [FRAM-7615] Task: Set default postgres-agent version to 2.2.0
+
+  * Kubernetes Kubebuilder Version: 2.3.1
+  * Stratio Datastores Base Version: 1.0.1-138e299
+  * Stratio Secrets Operator Version: v0.2.0-c3ca749
+  * Patroni Version: 2.0.1
+  * Postgres agent: 2.2.0
+  * PostgreSQL Versions: 10, 11, 12 and 13
+  * PostgreSQL Extensions: contrib extensions, postgis 3, cstore-fdw (except pg13), pg_cron, pgagent, pldebugger, orafce, pg-audit
+  * PostgreSQL Prometheus Exporter Version: 0.8.0
+  * WAL-G Version: 0.2.19 without LZO
+  * PgBouncer Version: 1.15.0
+  * PgBouncer Prometheus Exporter Version: 2.1.0
+
+== 0.1.0 (February 26, 2021)
+
+  * [FRAM-5987] Feature: PGCluster CRD Specification
+  * [FRAM-5849] Feature: Being able to deploy with different topologies in Kubernetes
+  * [FRAM-5577] Feature: PostgreSQL for Kubernetes
+  * [FRAM-6064] Feature: Upgrade Patroni to 2.0.1
+  * [FRAM-5945] Feature: PGCluster status and events
+  * [FRAM-6003] Feature: PostgreSQL Operator Package
+  * [FRAM-6405] Feature: Logical Backup for Kubernetes
+  * [FRAM-6406] Feature: Logical Restore for Kubernetes
+  * [FRAM-6547] Feature: PgBouncer task healthcheck local server (liveness/readiness probes)
+  * [FRAM-6047] Feature: PgBouncer operator status
+  * [FRAM-6404] Feature: Post Init DB
+  * [FRAM-6470] Feature: PgBouncer Scale
+  * [FRAM-6541] Feature: PgBackup CRD Specification
+  * [FRAM-6738] Feature: Create pgBackup Controller
+  * [FRAM-6542] Feature: Scheduled pgBackup
+  * [FRAM-6057] Feature: Vault integration in the Operator
+  * [FRAM-6403] Feature: Security on Patroni
+  * [FRAM-6544] Feature: WAL-G without LZO
+  * [FRAM-6891] Feature: Upgrade pgBouncer to version 1.15.0
+  * [FRAM-6079] Feature: Validating webhook to inform the human operator that a field is not updatable
+  * [FRAM-6044] Feature: Constraints section in pgCluster, pgBouncer and pgBackup to group Affinity, NodeSelector and Tolerations
+  * [FRAM-6053] Feature: DBAAS Create Database
+  * [FRAM-6894] Feature: DBAAS Update Database
+  * [FRAM-6907] Feature: DBAAS Delete Database
+  * [FRAM-6909] Feature: Remove LDAP authentication to launch pgbouncer with non-privileged user
+  * [FRAM-6529] Feature: Integrate kms-utils with ServiceAccountToken
+  * [FRAM-6921] Feature: Create serviceaccount to pgBouncer, pgAgent and pgBackup
+  * [FRAM-6065] Feature: Added PostgreSQL 13
+  * [FRAM-6402] Feature: Integrate pgAudit instead of Stratio logs_hook for Audit
+  * [FRAM-6920] Feature: Healthchecks section in pgCluster, pgAgent and pgBouncer to group livenessProbe and readinessProbe
+  * [FRAM-6559] Feature: updateStrategy in pgCluster and pgBouncer
+  * [FRAM-7011] Feature: Add authorized groups on pgBouncer
+  * [FRAM-6910] Feature: Integrate postgres-agent (dorus)
+  * [FRAM-7009] Feature: Multi-namespaced and clustered Operator
+  * [FRAM-6058] Feature: Stratio Multitenant integration
+  * [FRAM-6739] Feature: Update pgBackup Controller
+  * [FRAM-7014] Feature: Implement readinessProbe and liveness Probe
+  * [FRAM-7013] Feature: Consider the postgres-agent in pgCluster status
+  * [FRAM-6893] Feature: Integrate with Stratio Secrets Operator
+  * [FRAM-7059] Feature: Webhook Namespaced
+  * [FRAM-7048] Feature: Debug mode in Operator
+  * [FRAM-7056] Feature: Default consecutive_failures:-1 to PostgreSQL GoSec Agent
+  * [FRAM-7021] Feature: Status pgBackup Controller
+  * [FRAM-6158] Improvement: Patroni configuration file
+  * [FRAM-6167] Improvement: Split authorization and authentication from CR
+  * [FRAM-7022] Improvement: Use TASK_NAME/SERVICE_NAME instead of TASK_DNS_NAME/SERVICE_DNS_NAME in Certificates CN
+  * [FRAM-7045] Improvement: Unification in a single pgbouncer's service with pgbouncer and boutroni ports
+  * [FRAM-7060] Improvement: pgBouncer Status
+  * [FRAM-7061] Improvement: pgBouncer Events
+  * [FRAM-7075] Improvement: Change GoSec url to keos-core
+  * [FRAM-7047] Improvement: pgCluster Status
+  * [FRAM-6841] Improvement: pgCluster Events
+  * [FRAM-7082] Improvement: Annotations naming
+  * [FRAM-7053] Fix: Fixed client certificate filename in boutroni
+  * [FRAM-7054] Fix: Boutroni healthchecks fail when force_user statistics database field is null
+  * [FRAM-6060] POC: Support Major PostgreSQL Upgrades
+
+  * Kubernetes Kubebuilder Version: 2.3.1
+  * Stratio Task Core Version: 1.11.0-09ad1dd
+  * Patroni Version: 2.0.1
+  * PostgreSQL Versions: 10, 11, 12 and 13
+  * PostgreSQL Extensions: contrib extensions, postgis 3, cstore-fdw (except pg13), pg_cron, pgagent, pldebugger, orafce, pg-audit
+  * PostgreSQL Prometheus Exporter Version: 0.8.0
+  * WAL-G Version: 0.2.19 without LZO
+  * PgBouncer Version: 1.15.0
+  * PgBouncer Prometheus Exporter Version: 2.1.0

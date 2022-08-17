@@ -1,0 +1,99 @@
+= Changelog CCT Paas Services
+
+== 0.5.1 (March 29, 2022)
+
+* [SAAS-4683] Stratio authorization system
+* [SAAS-4491] Support for asymmetric key validation in JWT
+* [SAAS-4482] Support for K8sBasedPermissions
+* [SAAS-4727] Add resilience framework
+* [SAAS-5048] Upgraded PostgreSQL driver version
+* [SAAS-5074] Add support for the configuration of replicaset history limit
+* [SAAS-5096] Customizable ingressClassName
+* [CVE-2020-36518] Solved jackson-databind vulnerability in 2.12.1
+
+== 0.5.0 (December 29, 2021)
+
+* [EOS-5350] Updated fabric8 to 5.6.0
+* [SAAS-4077] LifeCycle Stop for applications
+* [SAAS-4078] LifeCycle Start for applications
+* [SAAS-4115] Support for storage types
+* [SAAS-4160] Add permissions on persistent-volume and persistent-volume-claim with role and cluster-role
+* [SAAS-4161] Namespace metadata validation exception
+* [SAAS-4163] Incorrect parameter merge in ConfigMaps
+* [SAAS-4213] Create a controller to get a list of storageClass
+* [SAAS-4284] Namespace description should be the id
+* [SAAS-4252] Preserve deployment environment for start/stop/restart
+* [SAAS-4218] Support for application permissions
+* [SAAS-4278] Add Persistent Volume Claim informer
+* [SAAS-4282] Disable default Autoscaling creation
+* [SAAS-4315] Ignore Tenant unknown properties
+* [CVE-2021-37714] Vulnerability found in jsoup-1.8.3
+* [SAAS-4347] Support for custom resource dynamic informers
+* [SAAS-4388] Hash event filtering
+* [SAAS-4429] Send updated deployment after editing
+* [CVE-2020-2025] Vulnerability found in aspectjrt-1.9.6
+* [SAAS-4445] Stratio log format
+
+== 0.4.0 (August 20, 2021)
+
+* [SAAS-3834] Refactor extract namespaces from capsule tenants
+* [SAAS-3850] Rollback for updated applications
+* [SAAS-3936] Modify Jenkinsfile jiraproject variable
+* [SAAS-3844] Leader election for K8s informers
+* [SAAS-3939] Removed lock for aggregator since event is handled by a single instance
+* [SAAS-3862] Develop informer for StatefulSets
+* [SAAS-3927] Updated stratio-microservices to 1.6.0
+* [SAAS-3837] Support for ServiceAccount, Roles and RoleBindings on migrated applications
+* [SAAS-3989] JWT-based tenant resolver adapter
+* [SAAS-3995] Customizable port name inclusion for ingress path
+* [SAAS-4002] Exception getting a tenant without namespaces
+* [SAAS-4070] H2 pact database moved to current directory
+* [SAAS-4073] Configurable flag for migration features
+* [SAAS-4076] Memory resource without unit when it's amount is 0
+* [SAAS-4082] Concat application path fails when create ingress
+* [SAAS-4079] Unprocessable messages freeze the event queue
+* [SAAS-4101] Default universe configuration
+* [SAAS-4106] Upgrade ingress implementation to v1 in k8s 1.20
+
+== 0.3.0 (June 18, 2021)
+
+* [SAAS-3754] Include events for migrated applications
+* [SAAS-3662] Added kubernetes deployment resource limits
+* [SAAS-3782] Validate update for applications with k8s deployment only
+* [SAAS-3800] Add support for K8s ConfigMaps
+* [SAAS-3890] Fix install bug with all namespaces except keos-cct
+
+== 0.2.0 (May 10, 2021)
+
+* [SAAS-3219] Added ServiceMonitor
+* [SAAS-3572] Application extensions for annotations
+* [SAAS-3771] Modify update to accept upgrade
+* [SAAS-3579] Application extensions for labels
+* [SAAS-3544] Informers with HA
+* [SAAS-3584] Include support for array parameters
+* [SAAS-3589] Fixed element status overlap
+* [SAAS-3585] Namespaces retrieval endpoint
+* [SAAS-3574] Fixed unusual bugs
+* [SAAS-3573] Added ServiceAccount support given application parameter
+* [SAAS-3636] Added missing server properties
+* [SAAS-3606] PeriodSeconds mapping for healthchecks
+* [SAAS-3642] Avoid null parameters on deployments
+* [SAAS-3633] Filter namespaces endpoint response by jwt tenant
+* [SAAS-3587] Use application domain as k8s objects namespace
+* [SAAS-3614] Reduced the number of delivered events
+* [SAAS-3680] Fix update/upgrade error when updating service account and rolebinding
+* [SAAS-3683] Fixed lock fail on service startup
+* [SAAS-3638] Updated readme
+* [SAAS-3701] Refactor namespaces response to title: value format
+* [SAAS-3571] Include port labels to service monitor
+* [SAAS-3719] Included missing properties in minikube property file
+* [SAAS-3700] Included autoscaling configuration
+* [SAAS-3707] Include support for dependency parameters
+* [SAAS-3716] Service monitor update and upgrade lifecycles
+
+== 0.1.0 (March 05, 2021)
+
+* [SAAS-3433] Updated k8s yamls
+* [SAAS-3450] Return audit datetimes for k8s elements
+* [SAAS-3501] Vault auth with Kubernetes Service Account Token by default
+* [SAAS-3399] Return status for k8s elements

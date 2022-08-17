@@ -1,0 +1,238 @@
+= Changelog Eureka BDL
+
+== 0.7.5 (May 23, 2022)
+
+* [DGPB-9256] Send sync alerts to glossary-api when no connection to catalog
+* [DGPB-9288] Downgrade Hive version to 2.3.7 to match catalog's version
+* Improve hive-site definition to reconnect to catalog when connection is lost
+* [DGPB-9330] Skip call to alterTableDataSchema (configurable)
+
+== 0.7.4 (April 12, 2022)
+
+* [DGPB-8329] Support for case-sensitive concepts and collections at Operational Security Layer
+* [DGPB-8329] Support for renamed collections at Operational Security Layer
+* [DGPB-8025][DGPB-8745] Bump crossdata catalog version to 0.4.1-0715fa0 & 1.6.1-4de57fe
+* [DGPB-8748][DGPB-8755] Fix vulnerability. Bump Log4j to 2.17.2 version and Slf4j to 1.7.36 version
+* [DGPB-8748][DGPB-8755] Fix vulnerability. Bump PostgreSQL driver to 42.3.3 version
+* [DGPB-8731] Modify technical and business tables schema explicitly
+* [DGPB-8731] Add configurable drop&create behaviour for technical and business tables update
+* [DGPB-9152] Set proper PostgreSQL long type (bigint)
+* Publish custom SQL concepts even if analysis exception (configurable)
+
+== 0.7.3 (January 04, 2022)
+
+* [DGPB-7943] Add environment variable to configure drop of registered partitions of a partitioned table
+* [DGPB-8264] Fix: Catalog is not closed when no collections have to be imported/refreshed
+
+== 0.7.2 (December 22, 2021)
+
+* [DGPB-8025] Bump crossdata catalog version to 0.4.1-0715fa0 & 1.3.0-4403613
+* [DGPB-8143] Support for case-sensitive names and special characters at Operational Security Layer
+* [DGPB-8195] Fix CVE-2021-44228 vulnerability. Bump log4j2 version to 2.17.0
+
+== 0.7.1 (October 29, 2021)
+
+* [DGPB-7597] Fix hadoop hive catalog, add missing dependency
+* [DGPB-7893] Fix pgcrypto extension usage
+* [DGPB-7893] Improve operational data-masking function
+
+== 0.7.0 (October 01, 2021)
+
+* Cross-build dockers (Scala 2.11 with Spark 2 and Scala 2.12 with Spark 3 versions are now available)
+* [DGPB-5725] Selective blocking by group
+* [DGPB-6809] Removing static way to handle data-asset types
+* [DGPB-7023] Add data-masking to secured operational layer
+* [DGPB-7193] Configurable publish schema for technical and business layers
+* [DGPB-7325] Add support for JSON files
+* [DGPB-7325] Make supported DFS schemas configurable through environment variables
+* [DGPB-7346] Adapt blocking groups at cronnables to avoid parallel executions
+* [DGPB-7375] Initialize tenant during boot
+* [DGPB-7353] Publish custom SQL concepts even if parsing exception
+* [DGPB-7363] Add support for Crossdata catalog on Hive
+* [DGPB-7392] Bump Spark version to 3.1.0
+* [DGPB-7457] Internal fetch mechanism
+* [DGPB-7692] Use JDBC metadata to check if an operational concept definition is outdated
+* [DGPB-7693] Add view query comparison while checking if an informational concept definition is outdated
+* [DGPB-7731] Improve DataType parser to convert NUMBER and NUMERIC as DECIMAL
+
+== 0.6.0 (June 21, 2021)
+
+* [DGPB-6657] Upgrade to kms_utils 0.5.1
+* [DGPB-6848] Add support for Google Cloud Storage
+* [DGPB-6848] Add support for Azure DataLake Gen. 1
+* [DGPB-6848] Add support for Azure BLOB
+* [DGPB-6827] Add support for Custom connectors
+* [DGPB-6983] Fix columns retrieval for AS400 & DB2 at optimizer
+* [DGPB-6983] Avoid optimization attributes removal when connection error
+* [DGPB-6983] Fix Spark configuration for only-optimization mode
+* [DGPB-6988] Fix constraints discovery on AS400 & DB2 at optimizer
+* [DGPB-7006] Bump crossdata-catalog versions (0.4.0-9ed532e & 1.3.0-2f26fca)
+* [DGPB-7078] Fix regex quality rules stored at Crossdata catalog
+* [DGPB-7097] [Optimizer] Set default fetch size to 0 (configurable)
+
+== 0.5.0 (April 13, 2021)
+
+* Cross-build for sub-modules (Scala 2.11 and Scala 2.12 versions are now available)
+* [DGPB-4598] Add validation to avoid master concepts with unmapped primary-keys on root tables
+* [DGPB-5865] Refactor Akka dispatchers definition
+* [DGPB-5866] Avoid implicit global executor usage
+* [DGPB-5873] Group collections for parallel processing (configurable)
+* [DGPB-5885] Allow partitioning definition for SQL tables through Governance attributes
+* [DGPB-5886] Allow table filtering definition for SQL tables through Governance attributes
+* [DGPB-5889] Allow link attributes for hierarchy definition
+* [DGPB-5729] Generic optimizer for JDBC tables
+* [DGPB-6075] Allow options configuration at Stratio Governance on technical layer tables
+* [DGPB-6172] Fix CVE-2020-9492
+* [DGPB-5905] Advanced BDL with custom SQL support including Spark queries validation
+* [DGPB-6216] Adapt partitioning bounds to get partitions without decimal bounds
+* [DGPB-6228] Adapt refusals journal write returned value
+* [DGPB-6228] Register failure due to 'read-only concept' at refusals journal
+* [DGPB-6141] [Constraints] Allow multiple constraints (auto-discovered FKs)
+* [DGPB-6127] Configurable native security layer for operational concepts
+* [DGPB-6335] Add technical layer limit as attribute
+* [DGPB-6462] Bump crossdata-catalog versions (0.3.1-f756de1 & 1.2.0-154922d)
+
+== 0.4.0 (December 11, 2020)
+
+* Move common elements to dg-agent-commons
+* [DGPB-3952][DGPB-3956] Report logical layer alerts
+* [DGPB-4363] Add support for Avro files
+* [DGPB-4375][DGPB-4379] Add support for CSV files
+* [DGPB-4484][DGPB-4486] Add support for ORC files
+* [DGPB-4488] Periodic optimization for JDBC partitioned tables
+* [DGPB-4635] Include catalog information in reported alerts
+* [DGPB-4643] Remove partitions from catalog when upserting a table
+* [DGPB-4815] Include catalog optimizer for SQLServer
+* [DGPB-5189] Add support for complex types at technical layer
+* [DGPB-5503] Add support for Avro binary and enum types
+* Fix vulnerability CVE-2020-1971
+* Fix vulnerability CVE-2020-25649
+
+== 0.3.0 (July 31, 2020)
+
+* Add scalatest plugin to report executed tests
+* [DGPB-3946] Add Stratio Credentials to informational catalog
+* [DGPB-4242] Include catalog optimizers for AS400, SAP-HANA and DB2
+* [DGPB-4253] Remove special-character replacement at technical layer
+
+== 0.2.0 (June 30, 2020)
+
+* [DGPB-3615] Improve quality rules transformation consistency
+* Bump kms-utils & b-log version to 0.4.8
+* Bump crossdata version & use crossdata catalog module
+* [DGPB-3638] Support for aliased tables at mapping
+* Prometheus Metrics - Fix timer counters
+* [DGPB-3684] Adaptive health-checks: Fix delay calculation
+* [DGPB-3685] Health-checks: Execution failures restart checks
+* Fix b-log format
+* [DGPB-3689] Fix OUTER JOIN usage at semantic layer
+* [DGPB-3690] Fix operational tables enclosure in functions
+* [DGPB-3691] Fix status report system
+* [DGPB-3699] Operational backends validation
+* [DGPB-3712] Build semantic layer using INNER JOIN instead of filtered CROSS JOIN
+* [DGPB-3688] Operational CRUD based on root tables definition
+* Add operational domain validations
+* Add validation to avoid multiple root tables at operational master concepts
+* [DGPB-3728] ABAC with concept properties and fixed values
+* Add validation to avoid ABAC based on user attributes
+* [DGPB-3729] Concept property encryption
+* [DGPB-3736] Add metadatapath reference to informational catalog
+* [DGPB-3755] Improvements on data-type casting
+* [DGPB-3777] Add validation to avoid master concepts with encrypted properties
+* [DGPB-3777] Add validation to avoid master concepts with ABAC at property level
+* [DGPB-3777] ABAC at concept level for master concepts modifications
+* [DGPB-3887] Add support for concepts and domains with capital letters
+* [DGPB-3902] Fix operational update and delete when null-clause
+* [DGPB-3901] Fix condition casting appliance at operational update and delete
+* [DGPB-3978] Include S3 and ADLS2 types
+* [DGPB-3992] Fix response encoding
+* [DGPB-3999] Fix 'not equals' ABAC condition
+* [DGPB-4000] Add 'is empty' and 'is not empty' to ABAC conditions
+* [DGPB-4025] Fix ABAC and encryption appliance at informational layer
+* [DGPB-4035] Fix ABAC appliance at informational layer for insertions
+* [DGPB-4177] Fix fixed partition label when no partitions and make it configurable
+* [DGPB-3524] Create scenarios-definition module for global scenarios
+* [DGPB-3532] Use scenarios to test informational query building
+* [DGPB-3523] Mocked governance server based on scenarios
+* [DGPB-3622] Test scenarios using Embedded Postgres
+* [DGPB-3622] Test expected failures based on scenario definition
+* [DGPB-3632] More scenarios (including failure-scenarios)
+* [DGPB-3680] Mocked data generator module
+* [DGPB-3687] Scenario-based informational & operational CRUD tests
+* [DGPB-3888] Add concept lineage check at informational tests
+* Test informational layer using Crossdata and Spark
+* Test informational layer using Crossdata's native connector to PostgreSQL
+* Improve scenarios definition to allow independent behaviour for operational and informational scenarios
+* New scenarios for ABAC functionality
+* New scenarios for concept property encryption
+* [DGPB-3755] Add casting scenarios
+* [DGPB-4044] Test scenarios on parquet (with/without partitioning) using HDFS Mini-Cluster
+
+== 0.1.0 (March 27, 2020)
+
+* [DGPB-2960] Initial version for BDL Agent & Security Agent, based on Crossdata's catalog
+* Include support for N-tables joins functions
+* Include support for access control (RUBAC)
+* Include support for concepts inheritance
+* Include BPM integration
+* Improve cron executions (basic & forced)
+* [DGPB-2894] Operational master concepts should only write into journal if defined as/with journal
+* [DGPB-2974] Add basic catalog definition
+* [DGPB-3047][DGPB-3048] Add DDL for Replication
+* [DGPB-3089] Use PostgreSQL stacktrace on error
+* Use class concept view definition for abstract concepts creation
+* [DGPB-3111] Check Kafka brokers environment variable
+* [DGPB-3112] Refactor Trigger generation for Replica Views
+* [Security Considerations] Use stratio-base:2.0.0 as Docker base container
+* [DGPB-3016][DGPB-3117] Governance API client refactor & ABAC fix
+* [DGPB-3128] Do not create internal view for abstract concepts
+* [DGPB-3131] Set inferPartitionsTTL at informational JDBC logical tables
+* [DGPB-3132][DGPB-3025] Include `name` metadata into table schema & bump crossdata version
+* [DGPB-3145] Add env variable to treat readonly concepts as replica
+* [DGPB-3147] Add wildcard to publish all registered collections
+* [DGPB-3143] Separate BDL replica internal elements from the semantic internal elements (improve security and manageability)
+* [DGPB-3146] Append the name of the collection to the Kafka Server
+* [DGPB-3158] Unquote user attributes when used @ ABAC
+* [DGPB-3166] Catalog Optimization functionality
+* [DGPB-3154] Only create Kafka publication / consumption when it is needed
+* Remove pattern from descriptor and create images folder at doc
+* Fix CVE-2019-17571 vulnerability
+* [Fix] Add properties to JDBC connection when user&pass authorization
+* [DGPB-3253] Parquet decimal fields fail due to lack of precision and scale
+* Quotes are no longer needed in descriptors
+* [Fix] Retrieve foreign keys using federated data-assets
+* [DGPB-3292] Add forced-semantic-schema collection attribute
+* [DGPB-3312] Avoid join-functions over single table
+* [DGPB-3341] Enclose operational query validation with a try-catch
+* [DGPB-3342] Improve detection of related columns at functions
+* [DGPB-3321] Extract property name on parsing failures
+* [DGPB-3251] Use foreign-keys defined by views
+* Improve issues reporting (errors creating tables, mapping inconsistency...)
+* Allow creation of logical layer for table with columns with special characters (i.e. '?')
+* Removed operational auto-replicas behaviour
+* [DGPB-3223] Build logical layer over Oracle
+* Fix quality rules objects to meet new endpoints requirements
+* [DGPB-3214] Informational semantic insert without root discrimination
+* Add collections blacklist
+* Fix missing `name` metadata into table schema (removed by Spark 2.4)
+* [DGPB-3405] Adapt informational queries based on root tables definition
+* [DGPB-3400] Validate root table existence at concept
+* [DGPB-3418] Avoid redundant conditions at informational view query
+* [DGPB-3406] Informational insertions based on root tables definition
+* [DGPB-3401] Validate root tables are not referenced by non-root tables
+* [DGPB-3433] Avoid forward references at outer joins
+* [DGPB-3440] Validate join keys are mapped at concept (if master)
+* [DGPB-3437] Detect unconnected table groups
+* [DGPB-3461] Detect cycles existence at defined foreign keys
+* [DGPB-3464] Allow un-mapped join keys if joined tables are both non-root
+* [DGPB-3463] Detect initial non-root tables
+* [DGPB-3488] Fix vulnerabilities & add Maven Enforcer plugin
+* [DGPB-3224] Optimizer implementation for Oracle
+* Add JDBC utilities object
+* Deploy an Akka-HTTP based server at agents with a basic ping endpoint
+* [DGPB-3030] Add health-checks to agents (synchronous, asynchronous and adaptive asynchronous)
+* [DGPB-3295] Remove needed HDFS definition from CCT descriptor
+* [DGPB-3553] Check root tables are connected between them
+* [DGPB-3552] Add Zookeeper catalogs check
+* [DGPB-3029] Report JMX metrics & add Prometheus endpoint
+* [DGPB-3615] Improve quality rules transformation consistency

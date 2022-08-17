@@ -1,0 +1,277 @@
+= AWS S3
+
+S3 es un almacenamiento externo incluido en Amazon Web Services (AWS) que se puede emplear para almacenar cualquier tipo de objeto que permita usos como el almacenamiento para aplicaciones de Internet, _backup_ y _restore_, recuperación ante desastres, archivos de datos, _data lakes_ para análisis y almacenamiento híbrido en la nube.
+
+== Matriz de soporte
+
+|===
+| Módulo | Versiones | AWS S3
+
+| _Stratio Spark_
+| ≥ 2.4.4-3.1.0
+| OK
+
+| _Stratio Virtualizer_
+| ≥ 2.21.0
+| OK
+
+| _Stratio Data Governance_
+| ≥ 1.5.0
+| OK
+
+| _Stratio Rocket_
+| ≥ 1.1.0
+| OK
+
+| _Stratio Sparta_
+| ≥ 2.15
+| OK
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| ≥ 1.6.0
+| OK
+|===
+
+:note-caption: AVISO
+
+NOTE: Los módulos sin versiones no han sido probados aún. Podrían estar soportados.
+
+== _Stratio Spark_
+
+=== Acceso al dato
+
+_Stratio Spark_ incluye las dependencias del cliente de Hadoop para soportar AWS S3.
+
+Soporta los formatos de archivo Parquet, CSV, JSON y ORC. Los formatos XML y Avro son compatibles con Spark, pero es necesario añadir algunas dependencias que no están incluidas en _Stratio Spark_. También se ha probado a crear particiones con archivos Parquet.
+
+=== Autorización/gestión de secretos
+
+S3 soporta 2 métodos de autorización para los que el equipo de Spark ha realizado un desarrollo en _Stratio Spark_ para almacenar los secretos en Vault.
+
+==== Clave de acceso y clave secreta
+
+Para usar este método, necesitas almacenar los secretos en Vault. Pide al administrador del sistema que lo haga por ti.
+
+* *Ruta de Vault*: `/v1/userland/passwords/s000001-aws-s3`.
+* *Ejecutar en vCLI*: `put s000001-aws-s3 {"user": "<access_key>", "pass": "<secret_key>"}`.
+
+Después, puedes iniciar el _job_ de Spark con las siguientes propiedades:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_S3_ENABLE": "true",
+"spark.mesos.driverEnv.SPARK_SECURITY_S3_SECRETS_VAULT_PATH": "/v1/userland/passwords/s000001-aws-s3"
+----
+
+:important-caption: AVISO
+
+NOTE: _Stratio Spark_ solo permite almacenar un único secreto para S3. Esto significa que el mismo _job_ de Spark no puede conectarse de forma segura a dos cuentas de AWS S3 al mismo tiempo.
+
+==== Rol de IAM (_assume role_)
+
+Es el *método recomendado*, ya que permite un control de permisos más específico y la creación de credenciales temporales.
+
+El primer paso es cambiar la configuración de la cuenta de AWS para usar el rol de IAM. En la https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html[documentación de AWS] puedes encontrar información útil. Este es el resumen de los pasos:
+
+. Crea un nuevo rol en IAM.
+. Modifica la política de usuario con permisos de _assume role_.
+. Crea una política asociada con ese rol.
+. Modifica el JSON de las relaciones _Trust_ dentro de ese rol.
+. Modifica la política _bucket_ para lectura/escritura.
+
+Luego, necesitas almacenar los secretos en Vault. Pide al administrador del sistema que lo haga por ti.
+
+* *Ruta de Vault*: `/v1/userland/passwords/s000001-aws-s3`.
+* *Ejecutar en vCLI*: `put s000001-aws-s3 {"user": "<access_key>", "pass": "<secret_key>"}`.
+
+Después, puedes lanzar el _job_ de Spark con las siguientes propiedades:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_S3_ENABLE": "true",
+"spark.mesos.driverEnv.SPARK_SECURITY_S3_SECRETS_VAULT_PATH": "/v1/userland/passwords/s000001-aws-s3",
+"spark.hadoop.fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.auth.AssumedRoleCredentialProvider",
+"spark.hadoop.fs.s3a.assumed.role.arn":"<assumed_role>",
+"spark.hadoop.fs.s3a.assumed.role.sts.endpoint": "https://sts.eu-west-1.amazonaws.com",
+"spark.hadoop.fs.s3a.assumed.role.sts.endpoint.region": "eu-west-1"
+----
+
+* 'assumed_role': este es el rol que se crea en AWS. Por ejemplo: ``arn:aws:iam::769605326598:role/Role-S3-Bucket-Spark``.
+
+:important-caption: AVISO
+
+NOTE: _Stratio Spark_ solo permite almacenar un único secreto para S3. Esto significa que el mismo _job_ de Spark no puede conectarse de forma segura a dos cuentas de AWS S3 al mismo tiempo.
+
+=== Guía de usuario
+
+El primer paso es elegir uno de los métodos de autorización, configurar las credenciales en AWS y almacenar los secretos en Vault. Luego, debes establecer las propiedades de Spark para descargar los secretos y configurar el acceso a almacenes de datos. Una vez configurado el almacén de datos, se accederá a él como si fuera un sistema de archivos normal (como HDFS). Consulta la <<_autorizacióngestión_de_secretos, sección de Administración de autorización/secretos>> para obtener instrucciones.
+
+La URI utilizada por AWS S3 para localizar los diferentes recursos es la siguiente:
+
+[source,text]
+----
+s3a://<bucket_name>/<path_to_file>
+----
+
+Ejemplo de código de Spark:
+
+[source,scala]
+----
+val df = spark.read.
+ parquet("s3a://demo-spark/sample-data/userdata1.parquet")
+
+df.show()
+----
+
+Lanza el _job_ de Spark utilizando _Spark Dispatcher_. Necesitas establecer estas propiedades en el _job_ para descargar los secretos. La ruta de Vault será proporcionada por el administrador del sistema.
+
+== _Stratio Virtualizer_
+
+=== Acceso al dato
+
+El acceso a los datos se realiza a través de _Stratio Spark_. Consulta <<_stratio_spark, la sección de _Stratio Spark_>> para más información.
+
+=== Autorización/gestión de secretos
+
+_Stratio Virtualizer_ utiliza los mismos métodos de autorización soportados en _Stratio Spark_.
+
+El método recomendado es "Rol de IAM" y los secretos pueden almacenarse de forma segura en Vault. También es posible configurar los credenciales en texto sin formato utilizando variables de entorno, pero este método no se recomienda por razones de seguridad.
+
+=== Guía de usuario
+
+Para realizar una prueba, es necesario tener una cuenta de AWS, crear un _bucket_ de S3 y configurar las credenciales de acceso.
+
+Antes de nada, necesitas guardar las credenciales en Vault. Consulta la sección de _Spark/Secrets_ para obtener instrucciones sobre cómo hacerlo.
+
+El siguiente paso es desplegar _Stratio Virtualizer_ utilizando _Stratio Command Center_. Puedes encontrarlo en *_Environment → External data stores → AWS-S3 integration_*.
+
+:important-caption: AVISO
+
+NOTE: El descriptor de _Stratio Command Center_ está disponible desde la versión 2.22.0. Para versiones anteriores, tienes que hablar con el administrador del sistema.
+
+Una vez desplegado, es posible registrar la tabla en el catálogo y ejecutar consultas.
+
+[source,text]
+----
+-- Read an existing parquet file
+CREATE TABLE s3_1 USING parquet OPTIONS (path 's3a://demo-spark/sample-data/parquet/userdata1.parquet');
+SELECT * from s3_1;
+
+-- Create a new parquet file in S3 with two columns and five rows.
+CREATE TABLE s3_2 USING parquet OPTIONS (path 's3a://demo-spark/my_file.parquet') AS SELECT 1 AS id, 'Roque' AS name UNION SELECT 2 AS id, 'Miguel Angel' AS name UNION SELECT 3 AS id, 'Ivan' AS name UNION SELECT 4 AS id, 'Alberto' AS name UNION SELECT 5 AS id, 'Juan Miguel' AS name;
+SELECT * from s3_2;
+----
+
+== _Stratio Data Governance_
+
+=== Acceso al dato
+
+El agente de descubrimiento de HDFS tiene soporte para el descubrimiento de metadatos de S3 utilizando el cliente de Hadoop S3. Los formatos de archivo admitidos son Parquet y Avro.
+
+=== Autorización/gestión de secretos
+
+El agente de descubrimiento actualmente soporta los métodos de autorización con *clave de acceso y clave secreta* y con el *rol de IAM*. Los secretos pueden almacenarse de forma segura en Vault. Consulta la sección de <<_stratio_spark,_Stratio Spark_>> para obtener más información.
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario dedicado para el agente de descubrimiento con permisos limitados.
+
+=== Guía de usuario
+
+Requisitos previos:
+
+* Una cuenta de S3 con acceso a un sistema de ficheros _bucket_ de S3.
+* Una instalación de _Stratio Data Governance_.
+
+El primer paso es crear los secretos en Vault. Estos no se crean automáticamente por el instalador de _Stratio Command Center_, por lo que debes pedirle al administrador del sistema que lo haga por ti. Se recomienda crear un nuevo usuario en AWS para _Stratio Data Governance_ con permisos limitados. Consulta la sección de secretos de Spark si necesitas instrucciones.
+
+:tip-caption: CONSEJO
+
+TIP: Se recomienda crear un nuevo usuario en AWS para _Stratio Data Governance_ con permisos limitados. Consulta la sección de secretos de Spark si necesitas instrucciones.
+
+* *Ruta de Vault*: `/v1/userland/passwords/s000001-dg-s3-agent.s000001.marathon.mesos/s000001-dg-s3-agent.s000001.marathon.mesos`.
+* *Ejecutar en vCLI*: `put <vault_path> {"user": "<access_key>", "pass": "<secret_key>"}`.
+
+Utiliza el descriptor de  _Stratio Command Center_ para instalar el agente de descubrimiento de HDFS para S3: _agent-cloud-default_.
+
+Los campos más importantes a rellenar en la instalación son:
+
+*General*
+
+* _Backend_ de _Stratio Data Governance_ (PostgreSQL):
+ ** _Host_: instancia de PostgreSQL para guardar metadatos de S3.
+* Configuración externa:
+ ** Servidor en la nube a descubrir.
+  *** _Data store type_: S3.
+  *** _Default FS_: sistema de archivos predeterminado. Por ejemplo: s3a://demo-spark.
+  *** _Init path_: ruta desde la que deseas descubrir los metadatos de forma recursiva. Establece "/" si no estás seguro.
+ ** Configuración de S3.
+  *** _S3 Authorization method_: puede ser _Assumed Role_ o _Access Key_. En ambos casos, los secretos deben almacenarse en Vault.
+  *** _S3 Assumed Role Endpoint Region_: solo para la autorización _Assumed Role_. Por ejemplo: eu-west-1.
+  *** _S3 Assumed Role ARN_: solo para la autorización _Assumed Role_. Por ejemplo: arn:aws:iam::769605326598:role/Role-S3-Bucket-Spark.
+ ** Identidad de servicio.
+  *** _Vault role_: se recomienda crear un nuevo rol para los agentes de descubrimiento. Por ejemplo: s000001-dg-agent.
+ ** Red de Calico.
+  *** _Network name_: es necesario utilizar la red compartida de Stratio si el agente de descubrimiento está configurado para guardar los metadatos en Postgreseos.
+
+*Ajustes*
+
+* Ruta de secretos:
+ ** _Vault path_: ruta de Vault con las credenciales de autorización. Por ejemplo: s000001-dg-s3-agent.
+ ** _Instance name_: secreto de Vault con las credenciales de autorización. Por ejemplo: s000001-dg-s3-agent.
+
+Comprueba que el servicio despliega, es capaz de descargar el _driver_ y los secretos y comienza el proceso de descubrimiento. La primera vez puede tardar un tiempo.
+
+Si el servicio funciona correctamente, puedes ver los metadatos descubiertos en las trazas:
+
+[source,text]
+----
+Extract begins at: Fri Mar 27 09:56:05 CET 2020
+NewOrUpdate 14 DataAssets begins at: Fri Mar 27 09:56:06 CET 2020
+Delete 0 DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+Synchronizing 14 and 0 Federated DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+----
+
+En la interfaz de usuario de _Stratio Data Governance_, puedes ver que se ha descubierto un nuevo almacén de datos y puedes examinar los metadatos. Todos los archivos, columnas y tipos de datos se han detectado correctamente.
+
+image::external-awss3-connector-governance.png[]
+
+El agente actualiza los metadatos periódicamente. Se puede realizar una prueba, por ejemplo, cargando un nuevo archivo en S3 y esperando a que el agente detecte el cambio. Estos cambios se reflejan en la interfaz de usuario de _Stratio Data Governance_.
+
+== _Stratio Rocket_/_Stratio Sparta_
+
+El acceso a los datos se realiza a través de _Stratio Spark_. Consulta la sección <<_stratio_spark,_Stratio Spark_>> para obtener más información.
+
+El descriptor de _Stratio Command Center_ incluye soporte para este almacén de datos. Puedes encontrar los campos de AWS S3 en la sección *_General → External configuration → S3 configuration enabled_*.
+
+Los campos más importantes a rellenar en la instalación son:
+
+*General*
+
+* Configuración externa:
+ ** _S3 configuration enabled_: habilita la compatibilidad con AWS S3.
+ ** _Credentials Vault path_: ruta de Vault con los secretos. Esto lo proporciona el administrador del sistema.
+
+== _Stratio GoSec_
+
+Los almacenes de datos externos no están integrados en _Stratio GoSec_.
+
+La autorización se configurará directamente en la base de datos cuando se cree el usuario para _Stratio Virtualizer_/_Stratio Spark_/_Stratio Data Governance_.
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario específico para cada aplicación con permisos limitados.
+
+La mayoría de los componentes accederán al almacén de datos a través de _Stratio Virtualizer_. Esto te permite configurar diferentes políticas de autorización para cada usuario en _Stratio GoSec_.
+
+Los secretos (usuario/contraseña) se pueden almacenar en Vault de forma segura. _Stratio Virtualizer_/_Stratio Spark_/_Stratio Data Governance_ tienen mecanismos para descargar los secretos y usarlos cuando sea necesario.
+
+== Problemas conocidos
+
+* _Stratio Spark_ solo permite almacenar un único secreto para S3. Esto significa que el mismo _job_ de Spark no puede conectarse de forma segura a dos cuentas de AWS S3 al mismo tiempo.
+* Soporta los formatos de archivo Parquet, CSV JSON y ORC. Los formatos XML y Avro son compatibles con Spark, pero es necesario añadir algunas dependencias que no están incluidas en _Stratio Spark_. También se ha probado a crear particiones con archivos Parquet.
+* El descriptor de _Stratio Command Center_ incluye soporte para este almacén de datos desde la versión 2.22.0. Para versiones anteriores, debes desplegar un _Stratio Virtualizer_ y después cambiar algunas variables de entorno.

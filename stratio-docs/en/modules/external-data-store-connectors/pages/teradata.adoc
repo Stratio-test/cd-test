@@ -1,0 +1,243 @@
+= Teradata
+
+This document explains how to access the data store (that is not included within the Stratio platform) from each module of the platform. _Teradata_ does not provide official Docker images, but they provide a VMWare image for testing purposes.
+
+_Teradata_ software is commercially licensed. The registration and acceptance of license terms are required.
+
+== Support matrix
+
+|===
+| Module | Versions | Teradata 16.20
+
+| _Stratio Spark_
+| ≥ 2.4.4-3.5.0
+| OK
+
+| _Stratio Crossdata_
+| ≥ 3.1.0
+| OK
+
+| _Stratio Data Governance_
+| ≥ 1.8.1
+| OK
+
+| _Stratio Rocket_
+| ≥ 2.1.0
+| OK
+
+| _Stratio Sparta_
+| -
+| -
+
+| _Stratio Intelligence_
+| -
+| -
+
+| _Stratio BDL_
+| ≥ 1.8.1
+| OK
+|===
+
+[box type="info"]Modules without versions are not tested yet. They might be supported.[/box]
+
+== _Stratio Spark_
+
+=== Data access
+
+Spark has official support for the _Teradata JDBC_ connector (includes classes to support the Teradata dialect).
+
+Some type conversions are made when writing to the data source due to types mismatch between Spark and _Teradata_:
+
+* Double → Float
+* Boolean → Char(1)
+
+_Stratio Spark_ has not changed Spark for this connector.
+
+=== Authorization/Secrets management
+
+_Teradata_ supports many authorization methods (user/password, LDAP, Kerberos...). Currently, in _Stratio Spark_ only user and password authorization is supported.
+
+These credentials can be safely stored in Vault and _Stratio Spark_ can retrieve and use them to establish the connection.
+
+_Stratio Spark_ allows configuring several JDBC databases in the same job, each database with its own secrets. You must configure an environment variable for each database:
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_<BD_NAME_UPPER_CASE>_VAULT_PATH"
+----
+
+By doing this, Spark will be able to download the needed secrets from Vault and set the following Spark properties for you:
+
+[source,json]
+----
+"spark.db.<db_name_lower_case>.user",
+"spark.db.<db_name_lower_case>.pass"
+----
+
+=== User guide
+
+The _Teradata_ driver is not included in _Stratio Spark_ for licensing reasons. It is necessary to add it to the JAR of the job that we want to execute. Those drivers are available in the Stratio repository.
+
+The first step is to create the secrets in Vault with the user/password. You have to ask the system administrator to do it for you.
+
+*Vault path*: `/v1/userland/passwords/s000001-spark-fw/s000001-teradata`
+*Run in vCLI*: `put s000001-teradata {"user": "<user>", "pass": "<password>"}`
+
+Then, you can write regular Spark code. _Stratio Spark_ will fill the user/pass Spark properties with the secrets.
+
+[source,scala]
+----
+val user = spark.sparkContext.getConf.getOption("spark.db.database1.user")
+val password = spark.sparkContext.getConf.getOption("spark.db.database1.pass")
+
+val df = spark.read.
+  format("jdbc").
+  option("driver", "com.teradata.jdbc.TeraDriver").
+  option("url", "jdbc:teradata://10.10.10.10/DBS_PORT=1025,database=connectors").
+  option("dbtable", "table").
+  option("user", user).
+  option("password", password).
+  load()
+
+df.show()
+----
+
+Launch the Spark job using _Spark Dispatcher_. You need to set these properties in the job to download the secrets. The Vault path will be provided by the system administrator.
+
+[source,json]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_ENABLE": "true",
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_DATABASE1_VAULT_PATH": "/v1/userland/passwords/s000001-spark-fw/s000001-teradata",
+----
+
+== _Stratio Crossdata_
+
+=== Data access
+
+Access to data is done through _Stratio Spark_ configured with the _Teradata JDBC_ driver. See the <<Stratio_Spark,_Stratio Spark_ section>> for more information.
+
+=== Authorization/Secrets management
+
+_Stratio Crossdata_ uses the authorization methods supported in _Stratio Spark_. Currently, only user/password authorization is implemented.
+
+Secrets can be safely stored in Vault. It is also possible to indicate the username and password in the _Stratio Crossdata_ "create table" sentence in plain text. This method is not recommended for security reasons.
+
+=== User guide
+
+In order to carry out a test, you will need to deploy the _Teradata_ database beforehand.
+
+_Stratio Crossdata_ supports three different credentials configuration methods:
+
+* "`stratiocredentials`" stores a different secret for each database in Vault. This is the recommended method since version 2.22.
+* "`stratiosecurity`" uses the _Stratio Crossdata_ credentials (user/password) to connect to all databases. You have to create the same credentials for each database.
+* Plain text in the "`create table`" sentence.
+
+The first step is to create the secrets in Vault. You have to ask the system administrator to do it for you.
+
+*Vault path*: `/v1/userland/passwords/s000001-crossdata/s000001-teradata`
+*Run in vCLI*: `put s000001-crossdata/s000001-teradata {"user": "<user>", "pass": "<pass>"}`
+
+The next step is to deploy _Stratio Crossdata_ using _Stratio Command Center_. You can find the configuration for this connector in the section Environment → External data stores → JDBC integration.
+
+Once deployed, it is possible to register the table in the catalog and execute queries.
+
+[source,text]
+----
+create table teradata_table using jdbc options (
+  url 'jdbc:teradata://10.10.10.10/DBS_PORT=1025,database=connectors',
+  dbtable 'teradata_table',
+  stratiosecurity 'true',
+  stratiosecuritymode 'user_pass',
+  stratiocredentials 's000001-teradata'
+) AS SELECT 1 AS id, 'Name 1' AS name UNION SELECT 2 AS id, 'Name 2' AS name;
+
+select * from teradata_table;
+----
+
+== _Stratio Data Governance_
+
+=== Data access
+
+Access to the data is done through the _Teradata JDBC_ driver. The driver is not included for license reasons, but it can be found in the Stratio repository.
+
+The JDBC discovery agent (dg-jdbc-agent) has support for the discovery of _Teradata_ metadata.
+
+=== Authorization/Secrets management
+
+The discovery agent currently only supports the user/password authorization method. Secrets can be safely stored in Vault.
+
+*Vault path*: `/v1/userland/passwords/s000001-dg-teradata-agent/s000001-dg-teradata-agent`
+*Run in vCLI*: `put s000001-dg-teradata-agent {"user": "<user>", "pass": "<password>"}`
+
+It is highly recommended to create a dedicated user for the discovery agent with limited permissions.
+
+=== User guide
+
+Prerequisites:
+
+* A working _Teradata_ instance.
+* A _Stratio Data Governance_ installation.
+
+The first step is to create the secrets in Vault. These secrets are not created automatically by the _Stratio Command Center_ installer. You have to ask the system administrator to do it for you. It's highly recommended to create a new user in _Teradata_ for _Stratio Data Governance_ with limited permissions.
+
+Use the _Stratio Command Center_ descriptor to install the JDBC discovery agent for _Teradata_: _agent-teradata-external-default_.
+
+The most important fields to fill in the installation are:
+
+*General*
+
+* Backend _Stratio Data Governance_ (PostgreSQL)
+ ** Host: PostgreSQL instance to save _Teradata_ metadata.
+* Configuration of the service to be discovered
+ ** Service name: name to be used to identify this data store in _Stratio Data Governance_. This name will be shown in the _Stratio Data Governance_ UI.
+ ** Host name: domain name of the _Teradata_ instance. It can be internal or external to the Stratio platform. Eg: s000001-teradata.s000001.marathon.mesos.
+ ** Port: _Teradata_ port. By default: 1025.
+ ** Properties: JDBC URL properties. -db- placeholder will be replaced with the database name form "`init path`". By default: /-db-.
+ ** Init path: the path from which you want to discover the metadata recursively. If you are not sure, use the database name.
+ ** Vault credentials: only MD5 (user/password) is supported.
+ ** Access credentials: Vault path with the authorization credentials. Eg: teradata-dev. The full path will be "`userland/passwords/<vault_path>/<access_credentials>`". See the vault_path below.
+* Service identity
+ ** Vault role: it's recommended to create a new role for discovery agents. Eg: s000001-dg-agent.
+* Calico network
+ ** Network name: it's necessary to use the stratio-shared network if the discovery agent is configured to save the metadata in Postgreseos.
+
+*Settings*
+
+* Discovered service configuration
+ ** Driver's JAR URL: URL to download the _Teradata_ driver. There is a copy of the artifact in the Stratio repository.
+* Secrets path
+ ** Vault path: Vault path with the authorization credentials. By default, it is <tenantId>-<serviceId>. Eg: s000001-dg-teradata-agent.
+
+Check that the service deploys, is able to download the driver and secrets, and the discovery process begins. The first time may take a while.
+
+If the service works correctly, you can see the discovered metadata in the traces:
+
+[source,text]
+----
+Extract begins at: Fri Mar 27 09:56:05 CET 2020
+NewOrUpdate 14 DataAssets begins at: Fri Mar 27 09:56:06 CET 2020
+Delete 0 DataAssets begins at: Fri Mar 27 09:56:07 CET 2020
+Synchronizing 14 and 0 Federated DataAssets begins at Fri Mar 27 09:56:07 CET 2020
+----
+
+In the _Stratio Data Governance_ UI you can see that a new data store has been discovered, and you can browse the metadata. All tables, columns, data types, primary keys, foreign keys... have been detected correctly.
+
+image::../attachments/external-teradata-connector-governance.png[]
+
+The agent updates the metadata periodically. A test can be performed, for example, launching an "ALTER TABLE" in _Teradata_ and waiting for the agent to detect the change. These changes are reflected in the _Stratio Data Governance_ UI.
+
+== _Stratio Rocket_/_Stratio Sparta_
+
+There are different possibilities to access the _Teradata_ data store from _Stratio Rocket_/_Stratio Sparta_. The recommended way is to use the integration with _Stratio Crossdata_ as it implements all the security mechanisms. It is also possible to use the JDBC input/output or even the data source input and data store output.
+
+See the xref:../../Stratio-Rocket/User-guide/Workflow-asset-user-guide.adoc[_Stratio Rocket_] documentation for more information about configuring these steps.
+
+== _Stratio GoSec_
+
+External data stores are not integrated into _Stratio GoSec_.
+
+The authorization will be configured directly in the database when the user is created for _Stratio Crossdata_/_Stratio Spark_/_Stratio Data Governance_. It is recommended to create a specific user for each application with limited permissions.
+
+Most modules will access the data store through _Stratio Crossdata_. This allows you to configure different authorization policies for each user in _Stratio GoSec_.
+
+Secrets (user/password) can be stored in Vault safely. _Stratio Crossdata_/_Stratio Spark_/_Stratio Data Governance_ have mechanisms to download the secrets and use them when necessary.

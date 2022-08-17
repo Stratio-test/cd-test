@@ -1,0 +1,289 @@
+= MongoDB
+
+MongoDB es una base de datos de documentos que ofrece gran escalabilidad y flexibilidad, además de un modelo de consultas e indexación avanzado.
+
+Almacena datos en documentos flexibles similares a JSON, por lo que los campos pueden variar entre documentos y la estructura de datos puede cambiarse con el tiempo.
+
+== Matriz de soporte
+
+|===
+| Módulo | Versión | MongoDB 2.1.0 | MongoDB 3.1.2
+
+| _Stratio Spark_
+| &#8805; 3.1.1-1.4.0
+| OK
+| OK
+
+| _Stratio Virtualizer_
+| &#8805; 0.3.0
+| OK
+| OK
+
+| _Stratio Crossdata_
+| &#8805; 3.4.0
+| OK
+| OK
+
+| _Stratio Data Governance_
+| &#8805; 1.10.0
+| OK
+| OK
+
+| _Stratio Rocket_
+| &#8805; 2.4.0
+| OK
+| OK
+
+| _Stratio Sparta_
+| -
+| -
+| -
+
+| _Stratio Intelligence_
+| -
+| -
+| -
+
+| _Stratio BDL_
+| &#8805; 1.0.0
+| OK
+| OK
+
+|===
+
+== Tipos complejos de datos
+
+Manejar tipos complejos y semi-desestructurados no es una tarea sencilla de abordar, ya que se debe dotar de estructura a los documentos de MongoDB (inherententemente desestructurados). Para llevar a cabo esto, se deben tener en cuenta los siguientes principios de diseño:
+
+* La estructura final inferida se obtendrá de aplicar _sampling_, es decir, tomar un número arbitratio de documentos y unificar la estructura de los mismos. Por defecto, se toman 1000 documentos, pero este número se puede configurar mediante la variable de entorno `MONGODB_DOCUMENT_SAMPLE_SIZE`.
+* Para la integración con _Stratio Data Governance_, es necesario establecer un orden para los campos descubiertos. El orden aplicado será alfabético descendente sin tener en cuenta mayúsculas (el orden tratará las mayúsculas como minúsculas, pero se conservarán los caracteres originales para los nombres de los campos).
+* El conector ha sido sometido a pruebas de estrés con un elevado número de columnas y/o niveles de profundidad en las estructuras, por lo que se garantiza un funcionamiento ágil en la mayoría de los casos. Si las estructuras tienen un número muy elevado de columnas y niveles de profundidad, el conector podría demorarse minutos o, en el peor de los casos, desbordar la pila.
+
+== Configuración
+
+La siguiente tabla muestra los parámetros que se pueden configurar mediante variables de entorno:
+
+|===
+| Variable de entorno | Valor por defecto | Descripción
+
+| MONGODB_WHITE_SPACES_REPLACEMENT
+| _
+| _OBSOLETO_ carácter de reemplazo de los espacios en blanco. Actualmente no aplica.
+
+| MONGODB_SSCC_AWAIT_DURATION
+| 40
+| Tiempo de espera máximo (en segundos) a la hora de recuperar resultados de MongoDB.
+
+| MONGODB_DOCUMENT_SAMPLE_SIZE
+| 1000
+| Número de muestras aleatorias que se toman para construir el esquema de la colección.
+
+| MONGODB_FIX_HUGE_STRUCTS_ENABLED
+| _true_
+| Permite mitigar el efecto de estructuras recursivas mal construidas, sustituyendo las mismas por un campo _STRING_ llamado 'malformed_field_[<_nombre original del campo_>]'. Un caso típico de este fenónomeno se puede apreciar en este https://www.mongodb.com/docs/atlas/sample-data/sample-analytics/#sample-document-1[conjunto de datos de MongoDB Atlas].
+|===
+
+== _Stratio Spark_
+
+=== [[stratio-spark-acceso-al-dato]]Acceso al dato
+
+_Stratio Spark_ soporta oficialmente MongoDB de forma nativa (debes proveer las clases para el soporte del dialecto).
+
+=== [[stratio-spark-secretos]]Autorización/gestión de secretos
+
+MongoDB soporta autenticación mediante validación usuario/clave respaldada por LDAP.
+
+Las credenciales se pueden almacenar de forma segura en Vault. _Stratio Spark_ se encargará de recuperarlas para establecer la conexión.
+
+_Stratio Spark_ permite configurar múltiples bases de datos MongoDB en el mismo _job_, cada cual con sus propios secretos. Debes configurar una variable de entorno para cada base de datos:
+
+[source,bash]
+----
+"spark.mesos.driverEnv.SPARK_SECURITY_DB_<NOMBRE_BD_EN_MAYÚSCULAS>_VAULT_PATH"
+----
+
+De esta manera, _Stratio Spark_ podrá descargarse los secretos necesarios de Vault y establecer para ti las siguientes propiedades:
+
+[source,bash]
+----
+"spark.db.<nombre_db_en_minúsculas>.user",
+"spark.db.<nombre_db_en_minúsculas>.password",
+----
+
+=== [[stratio-spark-guia-de-usuario]]Guía de usuario
+
+En primer lugar, debes crear los secretos en Vault. Puedes contactar con el administrador del sistema para que lo haga por ti.
+
+[source,bash]
+----
+# Ruta de Vault
+/v1/userland/passwords/s000002-spark-fw/s000002-mongodb
+# Ejecutar en vCLI
+put mongodb-secret {"user": "<nombre_usuario>", "pass": "<clave>"}
+----
+
+Una vez establecidos los secretos, podrás acceder a MongoDB mediante _Stratio Spark_ de la siguiente manera:
+
+[source,scala]
+----
+val user = spark.sparkContext.getConf.getOption("spark.db.database1.user")
+val password = spark.sparkContext.getConf.getOption("spark.db.database1.pass")
+
+val df = spark.read.
+  format("jdbc").
+  option("driver", "org.apache.hive2.jdbc.HiveDriver").
+  option("url", "mongodb://mongodb.labs.stratio.com:27017").
+  option("dbtable", "<tabla_mongodb>").
+  option("user", user).
+  option("password", password).
+  load()
+
+df.show()
+----
+
+== _Stratio Virtualizer_
+
+=== Acceso al dato
+
+El acceso al dato se hace mediante una fuente de datos de Spark. Revisa la sección xref:mongodb.adoc#stratio-spark-acceso-al-dato[_Stratio Spark_] para más información.
+
+=== Autorización/gestión de secretos
+
+_Stratio Virtualizer_ utiliza los métodos de autenticación soportados en xref:mongodb.adoc#stratio-spark-secretos[_Stratio Spark_]. Actualmente está implementada la autenticación mediante usuario/clave. Los secretos se deben almacenar de forma segura en Vault.
+
+=== [[stratio-virtualizer-guia-de-usuario]]Guía de usuario
+
+Requisitos previos:
+
+- Una instancia activa de MongoDB Server.
+- Una instalación de _Stratio Virtualizer_.
+
+En primer lugar, debes asegurarte de que los secretos están almacenados de la misma manera que en xref:mongodb.adoc#stratio-spark-guia-de-usuario[_Stratio Spark_], teniendo en cuenta que la ruta de Vault debe corresponderse con el nombre de servicio de la instancia de _Stratio Virtualizer_:
+
+[source,bash]
+----
+# Ruta de Vault
+/v1/userland/passwords/s000002-crossdata/
+# Ejecutar en vCLI
+put mongodb-secret {"user": "<nombre_usuario>", "pass": "<clave>"}
+----
+
+Una vez comprobado lo anterior, podrás crear referencias a tablas externas y realizar consultas sobre ellas. Por ejemplo:
+
+[source,sql]
+----
+CREATE TABLE tabla_prueba_mongodb USING mongo OPTIONS (
+  'stratiosecurity'='true',
+  'stratiosecuritymode'='custom_sscc',
+  'stratiocredentials'='mongodb-secret',
+  'stratiossccdriver'='com.stratio.connectors.ssccmongodb.MongoDBDriverMD5',
+  'url'='mongodb://mongodb.labs.stratio.com:27017',
+  'database'='base_datos_mongodb',
+  'collection'='colección_mongodb')
+----
+
+== _Stratio Data Governance_
+
+=== Acceso al dato
+
+El acceso al dato se realiza mediante el _driver_ de MongoDB. El agente de descubrimiento se encargará de mostrar todos los metadatos y recursos que contiene la fuente de datos MongoDB.
+
+=== Autorización/gestión de secretos
+
+El agente de descubrimiento soporta autenticación mediante usuario/clave. Los secretos se almacenarán de forma segura en Vault.
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario dedicado para el agente de descubrimiento con permisos limitados.
+
+=== Guía de usuario
+
+Requisitos previos:
+
+- Una instancia activa de MongoDB.
+- Una instalación de _Stratio Data Governance_.
+
+1) El primer paso será crear los secretos en Vault, ya que no se crean automáticamente por el instalador de _Stratio Command Center_:
+
+[source,bash]
+----
+# Ruta de Vault
+/v1/userland/passwords/s000002-dg-mongodb-agent/s000002-dg-mongodb-agent
+# Ejecutar en vCLI
+put mongodb-secret {"user": "<nombre_usuario>", "pass": "<clave>"}
+----
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario en MongoDB para _Stratio Data Governance_ con permisos limitados.
+
+2) Utiliza el descriptor de _Stratio Command Center_ para instalar el agente de descubrimiento para MongoDB: _agent-mongodb-default_.
+
+Los campos más importantes a rellenar en la instalación son:
+
+* Almacén de metadatos:
+** _Host_: instancia de PostgreSQL que almacena los metadatos de MongoDB. Ej: poolpostgresgov.
+* Configuración del servicio a descubrir:
+** _Service name_: nombre que identificará a esta fuente de datos en _Stratio_Data_Governance_ y se mostrará en la interfaz de usuario.
+** URL de servicio personalizado: cadena de conexión JDBC del servidor MongoDB que se quiere explotar. Ej: mongodb://mongodb.labs.stratio.com:27017. El conector de MongoDB por defecto trae todas las colecciones relativas a la conexión. Mediante los filtros se pueden configurar las colecciones que necesites.
+** _Custom data store service security_: tipo de seguridad empleada para conectarnos al servicio. En este caso, se soporta MD5.
+** _Access credentials_: nombre del secreto en Vault al que el agente irá a buscar los credenciales de acceso. Ejemplo: mongodb-secret.
+** _SSCC driver location_: URL que apunta al JAR del _driver_ SSCC en su versión para Scala 2.11. Habitualmente, este artefacto se encuentra en el repositorio Nexus de _Stratio_. Ej: http://niquel.int.stratio.com/repository/new-releases/com/stratio/connectors/sscc-mongodb-0.3_2.11/1.0.0/sscc-mongodb-0.3_2.11-1.0.0.jar.
+* *Identidad del servicio*:
+** _Vault role_: es recomendable crear un nuevo rol para los agentes de descubrimiento. Ej: s000002-dg-agent.
+* *Red de Calico*:
+** _Network name_: nombre de la red de Calico a la que estará conectado el agente. Ej: s000002-core.
+* Adicionalmente, puedes realizar un *filtrado más granular* mediante los siguientes campos opcionales:
+** *Expresión regular para incluir nombres de recursos (tablas)*: permite establecer una expresión regular para filtrar los nombres de tabla que quieras incluir en el descubrimiento.
+** *Expresión regular para excluir nombres de recursos (tablas)*: permite establecer una expresión regular para filtrar los nombres de tabla que quieras excluir en el descubrimiento.
+** *Modo de expresión regular para rutas de bases de datos*: permite seleccionar si el filtrado mediante expresiones regulares de bases de datos se aplica a nivel de nombre, ruta o ambos.
+** *Expresión regular para incluir nombres de recursos (bases de datos)*: permite establecer una expresión regular para filtrar los nombres (o rutas) de bases de datos que quieras incluir en el descubrimiento.
+** *Expresión regular para excluir nombres de recursos (bases de datos)*: permite establecer una expresión regular para filtrar los nombres (o rutas) de bases de datos que quieras excluir en el descubrimiento.
+
+3) Una vez desplegado el agente mediante el descriptor, puedes comprobar su correcto funcionamiento localizando en las trazas algo parecido a:
+
+[source,bash]
+----
+Extract begins at: Fri Apr 08 09:56:05 CET 2022
+NewOrUpdate 14 DataAssets begins at: Fri Apr 08 09:56:06 CET 2022
+Delete 0 DataAssets begins at: Fri Apr 08 09:56:07 CET 2022
+Synchronizing 14 and 0 Federated DataAssets begins at: Fri Apr 08 09:56:07 CET 2022
+----
+
+4) Cuando el agente esté arrancado, podrás ver qué datos han sido descubiertos desde la interfaz de usuario de _Stratio Data Governance_.
+
+== _Stratio Rocket/Stratio Sparta_
+
+=== Acceso al dato
+
+Existen varias formas de acceder a los datos de MongoDB mediante _Stratio Rocket_/_Stratio Sparta_, no obstante, es muy recomendable hacerlo mediante el catálogo de _Stratio Virtualizer_ para aprovechar los mecanismos de seguridad que implementa.
+
+No es necesario añadir ningún fichero .jar extra, siempre y cuando estos estén incluidos en el _classpath_ de _Stratio Rocket_.
+
+=== Autorización/gestión de secretos
+
+Consulta la sección de xref:mongodb.adoc#_autorización/gestión_de_secretos_[autorización/gestión de secretos] de _Stratio Virtualizer_ para ver cómo configurar y subir las credenciales de acceso a Vault.
+
+=== Guía de usuario
+
+Es importante tener en consideración que, para crear colecciones, se deben descubrir todos los datos con el agente de descubrimiento _Eureka_.
+
+Una vez cumplidos todos los prerrequisitos (se han subido adecuadamente los secretos a Vault, los metadatos se descubren adecuadamente, la versión desplegada de _Stratio Rocket_ es compatible...) podrás acceder al catálogo de un proyecto y crear colecciones de la misma manera que en xref:mongodb.adoc#stratio-virtualizer-guia-de-usuario[_Stratio Virtualizer_].
+
+== _Stratio GoSec_
+
+Las fuentes de datos externas no están integradas en _Stratio GoSec_.
+
+La autorización a las mismas debe configurarse directamente en la base de datos cuando se crea el usuario para _Stratio Virtualizer_/_Stratio Spark_/_Stratio Data Governance_.
+
+:tip-caption: CONSEJO
+
+TIP: Es muy recomendable crear un usuario específico para cada aplicación con permisos limitados.
+
+La mayoría de módulos acceden a los datos mediante _Stratio Virtualizer_, lo que permite configurar diferentes políticas de autorización para cada usuario de _Stratio GoSec_.
+
+Los secretos se pueden almacenar de forma segura en Vault. _Stratio Virtualizer_ / _Stratio Spark_ / _Stratio Data Governance_ tienen mecanismos para descargar y utilizar los secretos cuando lo necesiten.
+
+== Problemas conocidos
+
+* Las versiones oficiales del _driver_ de MongoDB y la fuente de datos de Spark para MongoDB en sus versiones más recientes son incompatibles. Esto se debe a que la fuente de datos de Spark, a su vez, tiene como dependencia el _driver_ de MongoDB, teniendo este último una versión inferior a la última liberada. El conector está construido sobre la versión 4.1.2 del _driver_ de MongoDB y la versión 3.0.1 de la fuente de datos de Spark, con las cuales se ha probado compatibilidad.

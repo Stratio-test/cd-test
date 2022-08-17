@@ -1,0 +1,99 @@
+= Changelog CCT Applications Query
+
+== 0.5.2 (May 19, 2022)
+
+* [SAAS-5315] Configurable transactionality and improved performance
+* [CVE-2022-22965] Updated spring-core dependencies
+
+== 0.5.1 (March 29, 2022)
+
+* [SAAS-4682] Stratio authorization system
+* [SAAS-4491] Support for asymmetric key validation in JWT
+* [SAAS-4724] Tenant extraction for role based authorization
+* [SAAS-4680] Graph NPE on missing elements list
+* [SAAS-4482] Support for K8sBasedPermissions
+* [SAAS-4670] Cache for universe descriptors
+* [SAAS-4727] Add resilience framework
+* [SAAS-5048] Upgraded PostgreSQL driver version
+* [SAAS-4695] Cache for RequestData parameters
+* [SAAS-5094] Improved index for Spring Integration
+* [SAAS-5105] Deserialization improvements for message store
+* [CVE-2020-36518] Solved jackson-databind vulnerability in 2.12.1
+
+== 0.5.0 (January 04, 2022)
+
+* [SAAS-4077] LifeCycle Stop for applications
+* [SAAS-4078] LifeCycle Start for applications
+* [SAAS-4230] Create an endpoint to destroy uninstalled application
+* [SAAS-4334] Namespace parameter inside namespaces section
+* [CVE-2021-37714] Vulnerability found in jsoup-1.8.3
+* [CVE-2020-10663] Vulnerability found in javax.json-1.0.4
+* [CVE-2020-2025] Vulnerability found in aspectjrt-1.9.6
+* [SAAS-4373] Batch processing for PaaS events
+* [SAAS-4388] Improved performance in activities
+* [SAAS-4348] Take in deployments for requestData. Add CR parser for K8S objects
+* [SAAS-4429] Configuration page is updated with the newest values
+* [SAAS-4440] Allow to execute Destroy Lifecycle for failed installations and uninstalled apps
+* [SAAS-4454] Graph representation for application elements
+* [SAAS-4471] Discard events for destroyed applications
+* [SAAS-4503] Change endpoint to return 404 only when application not found
+* [SAAS-4445] Stratio log format
+* [SAAS-4584] Resources priority over original deployment
+
+== 0.4.0 (August 23, 2021)
+
+* [SAAS-3936] Modify Jenkinsfile jiraproject variable
+* [SAAS-3927] Updated stratio-microservices to 1.6.0
+* [SAAS-3792] Forced uninstall of migrated applications
+* [SAAS-3989] JWT-based tenant resolver adapter
+* [SAAS-3948] Added name to items from PAAS timeline response
+* [SAAS-4075] Empty ConfigMap on application rebuild
+* [SAAS-4101] Default universe configuration
+
+== 0.3.0 (June 22, 2021)
+
+* [SAAS-3756] Include support for migrated applications
+* [SAAS-3662] Added kubernetes deployment resource limits
+* [SAAS-3772] Added current lifecycle while requesting for applications
+* [SAAS-3814] Not found error returned while requesting for application activities and application is not found
+* [SAAS-3815] Fixed request data ignoring failed lifecycles when it is possible
+* [SAAS-3878] Status none for application with deleted history items
+* [SAAS-3891] Default rest configuration
+* [SAAS-3846] Remove applications only for successful uninstalls
+* [SAAS-3883] Calculate request data ignoring events before last uninstall
+* [CVE-2021-22118] Updated spring-boot webflux dependencies
+
+== 0.2.0 (May 19, 2021)
+
+* [SAAS-3429] Calculate application status based on lifecycle events
+* [SAAS-3399] Added health field in applications
+* [SAAS-3532] Descriptor-less uninstall lifecycle
+* [SAAS-3558] Materialization of applications
+* [SAAS-3371] Include upgrade started and finished events
+* [SAAS-3430] Added filters on applications query
+* [SAAS-3589] Adapt to changed ApplicationChangedEvent signature
+* [SAAS-3574] Materialization of application elements
+* [SAAS-3655] Re-launched jobs that end in successful state prevail as failed
+* [SAAS-3664] Forced uninstall will not remove applications from query list
+* [SAAS-3615] Housekeeping for uninstalled applications
+* [SAAS-3676] Added domain in applications
+* [SAAS-3706] Endpoints for dependency resolution
+* [SAAS-3698] Added application generation from PAAS events
+* [SAAS-3764] Update cct-orchestrator and cct-paas-services dependencies to pre-release versions
+
+== 0.1.0 (March 05, 2021)
+
+* [SAAS-2441] Event handling for uninstall and secret remove
+* [SAAS-2513] Event handling for deploy requested
+* [SAAS-2480] Event handling for gosec service tenant remove
+* [SAAS-2798] Add support for scale up/down events
+* [SAAS-3387] Updated k8s yamls
+* [SAAS-3419] Modified applicationId database column length from 64 to 255 characters
+* [SAAS-3400] Added audit timestamps on paas element items
+* [SAAS-3446] Fixed some logging traces
+* [SAAS-3460] Process restart events
+* [SAAS-3450] Parse audit datetimes from k8s elements
+* [SAAS-3493] Include activities endpoint
+* [SAAS-3469] Vault auth with Kubernets Service Account Token by default
+* [SAAS-3505] Upgraded stratio-microservices version
+* [SAAS-3511] Upgraded cct dependencies to prereleases

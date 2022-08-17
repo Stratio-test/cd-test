@@ -1,0 +1,24 @@
+= Changelog DataMarket API
+
+== 0.2.2 (April 13, 2022)
+
+* [DGPB-8308] Adjust jwt cookie with commons-api
+
+== 0.2.1 (December 22, 2021)
+
+* [DGPB-8194] Fix CVE-2021-44228 vulnerability. Bump Log4j to 2.17.0 version
+
+== 0.2.0 (September 09, 2021)
+
+* [DGPB-6456] Auto-redirect to Swagger index
+* [DGPB-6657] Upgrade to kms_utils 0.5.1
+* [DGPB-6569] API Update to commons generalization: Spring Filters
+* [DGPB-6570] API Update to commons generalization: Audit features
+* [DGPB-6571] API Update to commons generalization: Swagger configuration
+* [DGPB-7241] Security configuration unified
+
+== 0.1.0 (April 20, 2021)
+
+* [DGPB-5855] Dataset API to manage collections exposure at Data Market
+* [DGPB-5855] Data Contract API to manage access requests to Datasets
+* [DGPB-6015] API Commons integration

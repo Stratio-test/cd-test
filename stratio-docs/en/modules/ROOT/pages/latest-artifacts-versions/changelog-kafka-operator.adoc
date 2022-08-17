@@ -1,0 +1,121 @@
+= Changelog Kafka Operator
+
+== 0.2.2 (June 07, 2022)
+
+* [FRAM-7815] Vulnerabilities: Don't offer SSLv1, SSLv2, SSLv3, TLSv1 and TLSv1.1 in Operator Webhook's API
+* [FRAM-9033] Fix: Rename Zookeeper and Kafka images (kafka-task to kafka-task-k / zookeeper-task to kafka-zookeeper-task-k)
+* [FRAM-9048] Fix: Invalid comparison in Zookeeper Section inside Defaulter webhook
+* [FRAM-9052] Vulnerabilities: Upgrade stratio-datastores-base to avoid CVE-2022-0778
+
+* Go Version: 1.16.14
+* Kubernetes Kubebuilder Version: 3.2.0
+* Stratio Datastores Base Version: 1.0.4-164078b
+* Stratio Secrets Operator Version: v0.4.0-685cfc6
+* Stratio GoSec Dyplon Facade Version: 0.12.4-3df3fe6
+* Apache Kafka Version: 3.0.0
+* Apache Zookeeper Version: 3.6.3
+
+== 0.2.1 (April 13, 2022)
+
+* [FRAM-XXXX] Fix: Kafka topic status is error when try to create a topic that exists
+
+* Go Version: 1.16.14
+* Kubernetes Kubebuilder Version: 3.2.0
+* Stratio Datastores Base Version: 1.0.3-3c51ee2
+* Stratio Secrets Operator Version: v0.4.0-685cfc6
+* Stratio GoSec Dyplon Facade Version: 0.12.4-3df3fe6
+* Apache Kafka Version: 3.0.0
+* Apache Zookeeper Version: 3.6.3
+
+== 0.2.0 (February 22, 2022)
+
+* [FRAM-8036] Feature: Build and upload to helm repository
+* [FRAM-7997] Feature: Kafka Performance Benchmark
+* [FRAM-7994] Feature: Kafka Stability Tests
+* [FRAM-8130] Feature: Migrate operator project to Kubebuilder v3
+* [FRAM-8123] Feature: Migrate documentation to module repository
+* [FRAM-8015] Improvement: Upgrade Stratio GoSec Dyplon Facade
+* [FRAM-8023] Improvement: Repository migration to new CI/CD
+* [FRAM-8019] Fix: Kafka and Zookeeper pods don't restart after changing config
+* [FRAM-8037] Fix: Wrong resources validation in ValidatingWebhook
+* [FRAM-8060] Fix: Integer divide by zero in Kaftroni StartCheckHealthcheckTopic
+* [FRAM-8066] Fix: Wrong flags launching kaftroni
+* [FRAM-8068] Fix: Broken Authentication on Kaftroni
+* [FRAM-8074] Fix: Broken Authentication on Zucchini
+* [FRAM-8127] Fix: Validating CA doesn't work in kaftroni, zucchini
+* Go Version: 1.16.14
+* Kubernetes Kubebuilder Version: 3.2.0
+* Stratio Datastores Base Version: 1.0.2-d0db81e
+* Stratio Secrets Operator Version: v0.4.0-685cfc6
+* Stratio GoSec Dyplon Facade Version: 0.12.4-3df3fe6
+* Apache Kafka Version: 3.0.0
+* Apache Zookeeper Version: 3.6.3
+
+== 0.1.0 (December 02, 2021)
+
+* [FRAM-7863] Improvement: Zookeeper java heap configuration
+* [FRAM-7849] Feature: Extended Zookeeper Nodes Status
+* [FRAM-7842] Feature: Extended Kafka Nodes Status
+* [FRAM-7751] Feature: Dynamic Zookeeper configuration
+* [FRAM-7339] Feature: DyplonAuthorizer with KafkaAuthzPlugins
+* [FRAM-7738] Feature: Integrate Functional Healthcheck on status
+* [FRAM-7691] Feature: Functional Healthcheck
+* [FRAM-7398] Feature: Create Kafka Operator Project
+* [FRAM-7331] Feature: Migrate kafka-task to kafka-task inside K8s
+* [FRAM-7426] Feature: Add default images for Kafka
+* [FRAM-7427] Feature: Authentication Configuration inside kafka-task
+* [FRAM-7428] Feature: Authorization Configuration inside kafka-task
+* [FRAM-7302] Feature: KafkaCluster CRD definition
+* [FRAM-7303] Feature: Create KafkaCluster
+* [FRAM-7304] Feature: Update KafkaCluster
+* [FRAM-7335] Feature: Delete KafkaCluster
+* [FRAM-7336] Feature: KafkaCluster Metrics
+* [FRAM-7410] Feature: Kafka without Zookeeper
+* [FRAM-7446] Feature: Helm Chart compatibility with Kubernetes 1.20
+* [FRAM-7448] Feature: Add JVM Configuration
+* [FRAM-7470] Feature: Add defaults in storage
+* [FRAM-7472] Feature: Add defaults in nodeGroup
+* [FRAM-7476] Feature: Auto generation of CCT's descriptors in make manifests
+* [FRAM-7333] Feature: Create Kaftroni for Kafka status and health checks
+* [FRAM-7667] Feature: Define Zookeeper config section in Kafka CR
+* [FRAM-7668] Feature: Create embedded Zookeeper
+* [FRAM-7669] Feature: Update embedded Zookeeper
+* [FRAM-7670] Feature: Validation webhooks for embedded Zookeeper
+* [FRAM-7334] Feature: Healthcheck NF
+* [FRAM-7332] Feature: Status KafkaCluster
+* [FRAM-7671] Feature: Create Zucchini for Zookeeper status and healthchecks
+* [FRAM-7715] Feature: KafkaTopic CRD definition
+* [FRAM-7117] Feature: Topics management in kaftroni
+* [FRAM-7719] Feature: Status DBAAS Topics (Controller)
+* [FRAM-7740] Feature: Status Zookeeper
+* [FRAM-7716] Feature: Create DBAAS Topics (Controller)
+* [FRAM-7718] Feature: Update DBAAS Topics (Controller)
+* [FRAM-7577] Feature: Expose Kafka through LoadBalancer service type
+* [FRAM-7821] Feature: Shutdown zookeeper
+* [FRAM-7484] Improvement: Default values in CRDs and Webhooks
+* [FRAM-7804] Improvement: Don't check Storage Size in ValidateUpdate Webhook
+* [FRAM-7750] Improvement: Improve Kafka Raft 3.x
+* [FRAM-7824] Improvement: Workaround to avoid https://issues.apache.org/jira/browse/ZOOKEEPER-2938
+* [FRAM-7841] Improvement: Review K8S security objects in Zookeeper mode
+* [FRAM-7851] Improvement: Upgrade dyplon-facade to 0.12.1-d0497f6
+* [FRAM-7862] Improvement: Change Zookeeper to openjdk-11-jre
+* [FRAM-7709] Fix: Annotations are not propagated to PVCs
+* [FRAM-7714] Fix: Use PodMonitor instead ServiceMonitor
+* [FRAM-7809] Fix: Send VAULT_ROLE to containers with <saNamespace>-<saName>
+* [FRAM-7835] Fix: Kafka doesn't scale secrets when scaling horizontally.
+* [FRAM-7836] Fix: When scale Zookeeper to 0 instances, global status is still OK
+* [FRAM-7837] Fix: When scale Kafka and Zookeeper to 0 instances, global status doesn't reach STOPPED
+* [FRAM-7839] Fix: Problems when scaling Kafka to 1 instance
+* [FRAM-7840] Fix: Default descriptor doesn't work
+* [FRAM-7857] Fix: Zookeeper reconfig doesn't work fine
+* [FRAM-7548] Task: Upgrade crd-parser to 0.1.0
+* [FRAM-7666] Task: Integrate Zookeeper task
+* [FRAM-7703] Task: Upgrade to Apache Kafka 2.8.1
+* [FRAM-7722] Task: Upgrade to Apache Kafka 3.0.0
+
+* Kubernetes Kubebuilder Version: 2.3.1
+* Stratio Datastores Base Version: 1.0.2-d0db81e
+* Stratio Secrets Operator Version: v0.4.0-685cfc6
+* Stratio GoSec Dyplon Facade Version: 0.12.1-d0497f6
+* Apache Kafka Version: 3.0.0
+* Apache Zookeeper Version: 3.6.3

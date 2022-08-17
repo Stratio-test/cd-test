@@ -1,0 +1,205 @@
+= Changelog GoSec Management UI
+
+== 0.7.3 (June 29, 2022)
+
+* [GS-5735] fix(policies): policies attributes active tab  [`GS-5735`](https://stratio.atlassian.net/browse/GS-5735)
+
+== 0.7.2 (June 29, 2022)
+
+* [GS-5654] feat(encryption): change max length asset name [`GS-5654`](https://stratio.atlassian.net/browse/GS-5654)
+* [GS-5709] fix(encryption): change regexp key asset  [`GS-5709`](https://stratio.atlassian.net/browse/GS-5709)
+* [GS-5646] fix(encryption): fix validation key [`GS-5646`](https://stratio.atlassian.net/browse/GS-5646)
+
+== 0.7.1 (June 01, 2022)
+
+* [GS-5406] feat(policies): show displayed acl permissions section in resource policies [`GS-5406`](https://stratio.atlassian.net/browse/GS-5406)
+* [GS-5402] fix(identities): change regexp user vault [`GS-5402`](https://stratio.atlassian.net/browse/GS-5402)
+
+== 0.7.0 (April 11, 2022)
+
+* [NA] fix(gosec): prevents undefined gs-tag-input
+* [GS-3853] fix(gosec): when deleting name from an impersonator resource, the form button is not enabled. [`GS-3853`](https://stratio.atlassian.net/browse/GS-3853)
+* [GS-3879] fix(policies):The users that have been added in the list of users of the policy, appear duplicated in the drop-down of 'impersonator'[`GS-3879`](https://stratio.atlassian.net/browse/GS-3879)
+* [GS-3875] fix(policies): use only predefined operators or 'filterOperators' in dynamic/static filter row (https://stratio.atlassian.net/browse/GS-3875)
+* [GS-3894] fix(domain): adjust modal buttons (https://stratio.atlassian.net/browse/GS-3894)
+* [GS-4024] fix(policies): temporarily disable active / enable orderings in policies
+ [`GS-4024`](https://stratio.atlassian.net/browse/GS-4024)
+* [GS-4016] fix(policies): adjust styles detail card general (https://stratio.atlassian.net/browse/GS-4016)
+* [GS-4085] fix(policies): When there are no policies in an environment, a blank screen is displayed instead of the correct screen (https://stratio.atlassian.net/browse/GS-4085)
+* [GS-4084] fix(export): fix remove tag (https://stratio.atlassian.net/browse/GS-4084)
+* [GS-4091] fix(service): fix empty page (https://stratio.atlassian.net/browse/GS-4091)
+* [GS-4114] fix(filters): controlss and or and operator in lowercase (https://stratio.atlassian.net/browse/GS-4114)
+* [GS-4170] fix(tags): check validations for repeated elements in form in tags, set default value true in boolean subtype  (https://stratio.atlassian.net/browse/GS-4170)1916d3ea2a01a0f18e5d0df5463431bcd15bb9f6
+* [GS-4304] fix(policies): When adding a new instance, resources are not being filtered well(https://stratio.atlassian.net/browse/GS-4304)
+* [NA] feat(gosec): update ts-node, remove node-saas libraries
+* [GS-4373] fix(policy): improve performance loading acls (https://stratio.atlassian.net/browse/GS-4373)
+* [GS-3915] fix(gosec): Fix search component style with filter [`GS-3915`](https://stratio.atlassian.net/browse/GS-3915)
+* [GS-5012] fix(gosec): When deleting policy associated with a service, the following list is not correct [`GS-5012`](https://stratio.atlassian.net/browse/GS-5012)
+* [GS-5061] fix(sidebar): fix height sidebar to fill parent (https://stratio.atlassian.net/browse/GS-5061)
+* [NA] fix(encryption): reload data correctly after save
+* [GS-3717] feat(gosec): Dockerizing stack gosec [`GS-3717`](https://stratio.atlassian.net/browse/GS-3717)
+* [GS-3861] feat(gosec): include SHOW_USER_SECRETS env var to enable secrets in user detail [`GS-3861`](https://stratio.atlassian.net/browse/GS-3861)
+* [GS-3867] feat(gosec): Switch to partial save mode in details [`GS-3867`](https://stratio.atlassian.net/browse/GS-3867)
+* [GS-3872] feat(gosec): change identities home page if no items [`GS-3872`](https://stratio.atlassian.net/browse/GS-3872)
+* [GS-3873] feat(gosec): changes subheader layout [`GS-3873`](https://stratio.atlassian.net/browse/GS-3873)
+* [GS-3995] feat(gosec): review read only fields [`GS-3873`](https://stratio.atlassian.net/browse/GS-3995)
+* [GS-4011] feat(gosec): changes error pages [`GS-4011`](https://stratio.atlassian.net/browse/GS-4011)
+* [GS-3939] feat(domains): domain policies with allow all [`GS-3939`](https://stratio.atlassian.net/browse/GS-3939)
+* [GS-4018] feat(gosec): Review error notifications so they never close automatically [`GS-4018`](https://stratio.atlassian.net/browse/GS-4018)
+* [GS-3985] feat(encryption): includes encription key field in data key creation [`GS-3985`](https://stratio.atlassian.net/browse/GS-3985)
+* [GS-4032] feat(encryption): includes validation 256 bits for key value  [`GS-4032`](https://stratio.atlassian.net/browse/GS-4032)
+* [GS-4036] feat(identities): change style details[`GS-4036`](https://stratio.atlassian.net/browse/GS-4036)
+* [GS-4043] feat(encryption): add max limit length asset name/type [`GS-4043`](https://stratio.atlassian.net/browse/GS-4043)
+* [GS-4041] feat(gosec): multi-row behavior in tables[`GS-4036`](https://stratio.atlassian.net/browse/GS-4041)
+* [GS-3856] feat(gosec): update angular 12, lint refactors [`GS-3856`](https://stratio.atlassian.net/browse/GS-3856)
+* [GS-4072] feat(gosec): style st-pagination [`GS-4072`](https://stratio.atlassian.net/browse/GS-4072)
+* [GS-4042] feat(gosec): new search pattern in tables [`GS-4042`](https://stratio.atlassian.net/browse/GS-4042)
+* [GS-4080] feat(gosec): change position save button in details [`GS-4080`](https://stratio.atlassian.net/browse/GS-4080)
+* [GS-4083] feat(attributes): Change graphic details in attribute policy conditions [`GS-4083`](https://stratio.atlassian.net/browse/GS-4083)
+* [GS-4075] feat(services): Change graphic details in services page [`GS-4075`](https://stratio.atlassian.net/browse/GS-4083)
+* [GS-4107] feat(modals): Remove status icon [`GS-4075`](https://stratio.atlassian.net/browse/GS-4107)
+* [GS-4126] feat(gosec): include stylelint [`GS-4126`](https://stratio.atlassian.net/browse/GS-4126)
+* [GS-4087] feat(gosec): update egeo 28.1.0 [`GS-4087`](https://stratio.atlassian.net/browse/GS-4087)
+* [GS-4369] feat(gosec): update angular 13 [`GS-4369`](https://stratio.atlassian.net/browse/GS-4369)
+* [GS-2623] feat(gosec): Leakage of secrets in logs on DEBUG mode [`GS-2623`](https://stratio.atlassian.net/browse/GS-2623)
+* [NA] feat(gosec): include pagination in domains
+* [GS-4343] feat(gosec): includes nested/parent groups [`GS-4343`](https://stratio.atlassian.net/browse/GS-4343)
+* [GS-4456] feat(domains): nconsistencies - Performance improvements [`GS-4456`](https://stratio.atlassian.net/browse/GS-4456)
+* [GS-5030] feat(domains): new save flow [`GS-4368`](https://stratio.atlassian.net/browse/GS-5030)
+* [GS-5057] feat(domains): use  retry time env timeout var from configuration [`GS-4368`](https://stratio.atlassian.net/browse/GS-5057)
+* [GS-5065] feat(domains): force recursive false if allowAll [`GS-4368`](https://stratio.atlassian.net/browse/GS-5065)
+* [NA] feat(domains): rename domains to collections
+
+* [GS-4368] test(gosec): update karma libraries [`GS-4368`](https://stratio.atlassian.net/browse/GS-4368)
+
+== 0.6.5 (March 07, 2022)
+
+* [GS-4114] fix(filters): controlss and or and operator in lowercase (https://stratio.atlassian.net/browse/GS-4114)
+* [GS-4304] fix(policies): When adding a new instance, resources are not being filtered well(https://stratio.atlassian.net/browse/GS-4304)
+* [GS-4368] test(gosec): update karma libraries [`GS-4368`](https://stratio.atlassian.net/browse/GS-4368)
+* [GS-4373] fix(policy): improve performance loading acls (https://stratio.atlassian.net/browse/GS-4373)
+* [GS-4257] feat(gosec): adapt to new ci [`GS-4257`](https://stratio.atlassian.net/browse/GS-4257)
+* [GS-2623] feat(gosec): Leakage of secrets in logs on DEBUG mode [`GS-2623`](https://stratio.atlassian.net/browse/GS-2623)
+* [NA] fix(domain): properties inconsistencies
+
+== 0.6.4 (October 21, 2021)
+
+* [GS-3991] fix(domains): In domain policies, when assigning Data Masking in policy, the drop down arrow is not interactive(https://stratio.atlassian.net/browse/GS-3911)
+* [GS-4030] feat(gosec): Allow only TLS1.2 [`GS-4030`](https://stratio.atlassian.net/browse/GS-4030)
+
+== 0.6.3 (October 05, 2021)
+
+* [GS-3879] fix(policies):The users that have been added in the list of users of the policy, appear duplicated in the drop-down of 'impersonator'[`GS-3879`](https://stratio.atlassian.net/browse/GS-3879)
+* [GS-3875] fix(policies): use only predefined operators or 'filterOperators' in dynamic/static filter row (https://stratio.atlassian.net/browse/GS-3875)
+
+== 0.6.2 (September 21, 2021)
+
+* [NA] fix(gosec): prevents undefined gs-tag-input
+* [GS-3853] fix(gosec): when deleting name from an impersonator resource, the form button is not enabled. [`GS-3853`](https://stratio.atlassian.net/browse/GS-3853)
+* [GS-3861] feat(gosec): include SHOW_USER_SECRETS env var to enable secrets in user detail [`GS-3861`](https://stratio.atlassian.net/browse/GS-3861)
+
+== 0.6.1 (September 02, 2021)
+
+* [GS-3799] fix(gosec): search boxes, content overlaps when it exceeds a length[`GS-3799`](https://stratio.atlassian.net/browse/GS-3799)
+* [GS-3801] fix(policies): Form validation error creating policy for dynamic filtering[`GS-3801`](https://stratio.atlassian.net/browse/GS-3801)
+
+== 0.6.0 (September 01, 2021)
+
+* [GS-3788] feat(gosec): update to egeo 27.2.1 [`GS-3788`](https://stratio.atlassian.net/browse/GS-3788)
+* [GS-3498] feat(gosec): domain datamasking [`GS-3498`] (https://stratio.atlassian.net/browse/GS-3498)
+* [GS-3224] feat(gosec): styles header [`GS-3224`] (https://stratio.atlassian.net/browse/GS-3224)
+* [GS-3633] feat(gosec): new favicon [`GS-3633`] (https://stratio.atlassian.net/browse/GS-3633)
+* [GS-3690] feat(gosec): Put the IDs as read-only field and move their position[`GS-3690`] (https://stratio.atlassian.net/browse/GS-3690)
+* [NA] feat(encryption): order select data asset by value
+* [GS-3731] fix(groups): fix nested group screen styles[`GS-3731`](https://stratio.atlassian.net/browse/GS-3731)
+* [GS-3765] fix(policies): Scrolling through policies using sidebar fails when we have a lot of resources/acls
+
+== 0.5.0 (June 24, 2021)
+
+* [GS-3487] feat(gosec): update to egeo 26.0.0 [`GS-3487`](https://stratio.atlassian.net/browse/GS-3487)
+* [GS-3367] feat(gosec): Update lint to eslint [`GS-3367`] (https://stratio.atlassian.net/browse/GS-3367)
+* [GS-3340] feat(gosec): domain consistency [`GS-3340`] (https://stratio.atlassian.net/browse/GS-3340)
+* [GS-3391] feat(gosec): update lodash to lodash-es [`GS-3391`] (https://stratio.atlassian.net/browse/GS-3391)
+* [GS-3453] feat(domains): Includes the option to recursively apply permissions on domains [`GS-3453`] (https://stratio.atlassian.net/browse/GS-3453)
+* [GS-3366] feat(domains):Includes dynamic filtering on domain concepts [`GS-3466`] (https://stratio.atlassian.net/browse/GS-3466)
+* [GS-3406] feat(domains): usability and performance improvements  [`GS-3406`] (https://stratio.atlassian.net/browse/GS-3406)
+* [GS-3419] feat(domains): Domain management refactor: levels in domain policy management [`GS-3419`] (https://stratio.atlassian.net/browse/GS-3419)
+* [GS-3483] feat(encription): includes management of data keys and data assets [`GS-3483`] (https://stratio.atlassian.net/browse/GS-3483)
+* [GS-3457] feat(domains): ux review  (https://stratio.atlassian.net/browse/GS-3457)
+* [GS-3389] fix(domain): When deploying / collapsing a domain permission, the row is moved[`GS-3389`](https://stratio.atlassian.net/browse/GS-3389)
+* [GS-3460] fix(tags): Error displaying security tags in management-ui[`GS-3460`](https://stratio.atlassian.net/browse/GS-3460)
+* [GS-3462] fix(domain): When editing the permissions or filters of a domain policy at the concept/property level, the information on the screen is duplicated[`GS-3462`](https://stratio.atlassian.net/browse/GS-3462)
+
+== 0.4.0 (April 14, 2021)
+
+* [GS-3229] feat(domains): visual domain refactor [`GS-3229`](https://stratio.atlassian.net/browse/GS-3229)
+* [GS-3184] feat(gosec): update egeo to 24.0.0 [`GS-3184`] (https://stratio.atlassian.net/browse/GS-3184)
+* [GS-3184] feat(gosec): update egeo to 24.0.0 [`GS-3184`] (https://stratio.atlassian.net/browse/GS-3184)
+* [GS-3256] feat(sync): Button ldap sync [`GS-3256`] (https://stratio.atlassian.net/browse/GS-3256)
+* [GS-3261] feat(sync): Add history [`GS-3261`] (https://stratio.atlassian.net/browse/GS-3261)
+* [GS-3340] feat(gosec): domain consistency [`GS-3340`] (https://stratio.atlassian.net/browse/GS-3340)
+* [GS-3393] feat(gosec): update kms util to 0.5.1 [`GS-3393`] (https://stratio.atlassian.net/browse/GS-3393)
+* [GS-3158] style(gosec): update color palette [`GS-3158`](https://stratio.atlassian.net/browse/GS-3158)
+* [NA] fix(policy): error in resource column when changes other resources
+* [GS-3336] fix(ldap): Correct rows are not displayed on pagination.[`GS-3336`](https://stratio.atlassian.net/browse/GS-3336)
+* [GS-3399] fix(domain): UI improvements for domain consistency [`GS-3399`](https://stratio.atlassian.net/browse/GS-3399)
+* [GS-3403] fix(domain: [Known Issue] It is necessary for performance to limit to a single domain per policy) [`GS-3403`](https://stratio.atlassian.net/browse/GS-3403)
+
+== 0.3.0 (March 04, 2021)
+
+* [GS-2373] feat(policy-filter): improve form validation [`GS-2373`](https://stratio.atlassian.net/browse/GS-2373)
+* [FC-116] feat(gosec): Theme library update and replacement [`FC-116`](https://stratio.atlassian.net/browse/FC-116)
+* [GS-3076] feat(gosec): The content of a tab must not have lateral paddings [`GS-3076`](https://stratio.atlassian.net/browse/GS-3076)
+* [GS-3077] feat(gosec): changes subheader [`GS-3077`](https://stratio.atlassian.net/browse/GS-3077)
+* [GS-3080] feat(services): change the font size of the services section [`GS-3080`](https://stratio.atlassian.net/browse/GS-3080)
+* [GS-3088] feat(card-general): Help tooltips pop off the screen [`GS-3088`](https://stratio.atlassian.net/browse/GS-3088)
+* [GS-3143] feat(roles): show role config [`GS-3143`](https://stratio.atlassian.net/browse/GS-3143)
+* [GS-3221] feat(roles): include tenant column in the list of roles [`GS-3221`](https://stratio.atlassian.net/browse/GS-3221)
+* [GS-2714] fix(gosec): The translation in the detail of a policy does not work well if you reload the page.[`GS-2640`](https://stratio.atlassian.net/browse/GS-2714)
+* [GS-2749] fix(errors): The 404 [not found resource] error message does not appear centered on the screen. [`GS-2689`](https://stratio.atlassian.net/browse/GS-2749)
+* [GS-2857] fix(policies): When removing the default column filter (*) in 'table' policy and saving more filters, they are not sent correctly to the back  [`GS-2857`](https://stratio.atlassian.net/browse/GS-2857)
+* [GS-3038] fix(policies): Error creating a policy for the version of a service that has fewer ACLs defined than the last deployed version  [`GS-3038`](https://stratio.atlassian.net/browse/GS-3038)
+* [GS-3048] fix(domains): styles add modal domain  [`GS-3038`](https://stratio.atlassian.net/browse/GS-3048)
+* [NA] chore(package): update egeo 22.0.2
+* [GS-3155] fix(gosec): The correct information of users / groups is not displayed if they have been modified with identities [`GS-3155`](https://stratio.atlassian.net/browse/GS-3155)
+* [GS-3209] fix(gosec): The black border does not appear when clicking on the role button  [`GS-3209`](https://stratio.atlassian.net/browse/GS-3209)
+* [GS-3218] fix(gosec): Adding the Operator is not allowed in dynamic table filtering policies  [`GS-3218`](https://stratio.atlassian.net/browse/GS-3218)
+* [GS-2931] test(cypress): import policies.[`GS-2931`](https://stratio.atlassian.net/browse/GS-2931)
+* [GS-2932] test(cypress): export policies.[`GS-2932`](https://stratio.atlassian.net/browse/GS-2932)
+* [GS-2930] test(cypress): policy domains.[`GS-2930`](https://stratio.atlassian.net/browse/GS-2930)
+* [GS-3139] test(cypress): roles.[`GS-2930`](https://stratio.atlassian.net/browse/GS-3139)
+
+== 0.2.0 (October 30, 2020)
+
+* [GS-2243] feat(gosec): include automatic changelog [`GS-2243`](https://stratio.atlassian.net/browse/GS-2243)
+* feat(gosec): include data-qa attribute for cypress [`#ff972a5`](https://github.com/Stratio/gosec-management-ui/commit/ff972a5d6f990ea2a122b8a9602c1fb482f405a7)
+* [NA] feat(layout): remove unnecesary calls to loginProfile , unsubscribe observable [`#d9b3580`](https://github.com/Stratio/gosec-management-ui/commit/d9b3580cc6a0dde804bc4618e4d98df19ffe4baf)
+* [GS-2290] feat(gosec): update egeo to 22.0.0-SNAPSHOT [`GS-2290`](https://stratio.atlassian.net/browse/GS-2290)
+* [GS-2319] feat(gosec): update egeo to 22.0.0-SNAPSHOT [`GS-2290`](https://stratio.atlassian.net/browse/GS-2319)
+* [GS-2319] feat(policies): adds description field [`GS-2319`](https://stratio.atlassian.net/browse/GS-2319)
+* [FC-35] feat(gosec): update angular 10 [`FC-35`](https://stratio.atlassian.net/browse/FC-35)
+* [GS-2381] feat(policies): include caducity and schedule in policies [`GS-2381`](https://stratio.atlassian.net/browse/GS-2381)
+* [GS-2357] feat(policies): export/import [`GS-2357`](https://stratio.atlassian.net/browse/GS-2357)
+* [GS-2402] feat(policies):include domains policies functionality [`GS-2402`](https://stratio.atlassian.net/browse/GS-2402)
+* [GS-2684] feat(domains): show or hide tab domains if exists [`GS-2684`](https://stratio.atlassian.net/browse/GS-2684)
+* [GS-2281] fix(goseclist): search by service or tag doesnt return results [`GS-2281`](https://stratio.atlassian.net/browse/GS-2281)
+* [GS-2210] fix(gosec): check progress bar position while scrolling (#49) [`GS-2210`](https://stratio.atlassian.net/browse/GS-2210)
+* [NA] fix(policies): fix format scope when update a policy
+* [GS-2502] fix(policies): policies cannot be created by choosing all instances [`GS-2502`](https://stratio.atlassian.net/browse/GS-2502)
+* [GS-2558] fix(nginx): Infinite loop when accesing login [`GS-2588`](https://stratio.atlassian.net/browse/GS-2558)
+* [GS-2599] fix(card-general): remove contextual help in description field[`GS-2599`](https://stratio.atlassian.net/browse/GS-2599)
+* [GS-2640] fix(policy-tags):Error creating a tag policy with an attribute of type boolean[`GS-2640`](https://stratio.atlassian.net/browse/GS-2640)
+* [GS-2636] fix(import):control 400 error [`GS-2636`](https://stratio.atlassian.net/browse/GS-2636)
+* [GS-2674] fix(export): disable button while loading export. [`GS-2674`](https://stratio.atlassian.net/browse/GS-2674)
+* [GS-2675] fix(export): enter a count of 1 when bringing the policies for the export screen. [`GS-2675`](https://stratio.atlassian.net/browse/
+* [GS-2689] fix(contextual-header): fix title translate. [`GS-2689`](https://stratio.atlassian.net/browse/GS-2689)
+* [GS-2714] fix(gosec): The translation in the detail of a policy does not work well if you reload the page.[`GS-2640`](https://stratio.atlassian.net/browse/GS-2714)
+* [GS-2749] fix(errors): The 404 [not found resource] error message does not appear centered on the screen. [`GS-2689`](https://stratio.atlassian.net/browse/GS-2749)
+* [GS-2813] fix(list attributes): fix width column tags. [`GS-2813`](https://stratio.atlassian.net/browse/GS-2813)
+
+== 0.1.0 (September 04, 2020)
+
+* [NA] fix(policies): fix format scope when update a policy
+* [GS-2502] fix(policies): Policies cannot be created by choosing all instances
+* [GS-2558] fix(nginx): Infinite loop when accesing login
+* [GS-2635] feat(policies): dont show auditable checkbox

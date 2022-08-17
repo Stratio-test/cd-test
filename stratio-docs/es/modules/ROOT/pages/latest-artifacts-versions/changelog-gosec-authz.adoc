@@ -1,0 +1,127 @@
+= Changelog GoSec Authz
+
+== 1.11.1 (June 03, 2022)
+
+* Fix set default value to algorithm
+
+== 1.11.0 (April 22, 2022)
+
+* [GS-3928] Auth full domain policies
+* [GS-4227] Rename column type to algorithm in encryption
+* [GS-4219] Log4j vulnerability
+
+== 1.10.8 (March 23, 2022)
+
+* Jackson vulnerability
+
+== 1.10.7 (March 08, 2022)
+
+* Fix model scripts for k8s
+
+== 1.10.6 (February 25, 2022)
+
+* [GS-4609] Fix Codec Issue
+
+== 1.10.5 (December 21, 2021)
+
+* [GS-4220] Log4j vulnerability
+
+== 1.10.4 (November 03, 2021)
+
+* [GS-4028] Fix getting users with implicit tenants in authorization process
+
+== 1.10.3 (October 19, 2021)
+
+* [GS-3902][KEOS] Configurable database initialization
+
+== 1.10.2 (September 29, 2021)
+
+* [GS-3878] - Restart on fail to get secrets
+
+== 1.10.1 (September 20, 2021)
+
+* [GS-3688] Auth when user has tags and no domain policies
+
+== 1.10.0 (August 27, 2021)
+
+* [GS-3461] BDL Datamasking - Update BBDD script and new endpoint for filterColumns
+* [GS-3341] Auth access to BDL assets using Governance tags
+
+== 1.9.0 (June 24, 2021)
+
+* Upgrade KMS_UTILS to version 0.5.1
+* [GS-3406] Updated db script to add new restrictions for domain tables
+* [GS-3366] Dynamic filter domains
+
+== 1.8.0 (April 15, 2021)
+
+* [GS-3250] Upgrade process from 1.6 to 1.8
+* Updated dyplon.version to version 1.9.0-77b26ce
+
+== 1.7.0 (February 23, 2021)
+
+* [GS-2822] LDAP and Postgres connection status metrics
+
+== 1.6.0 (October 30, 2020)
+
+* [SAAS-2387] Added CCT new DB objects
+* [GS-2221] Configurable resilience with backend errors
+* [GS-1853] Update scala version to 2.12.11
+* [GS-2259] Rich auth method response
+* [GS-2305] DB script for remove owner service
+* [GS-2259] Integration with gosec dyplon
+* [GS-2315] Add description field to policies
+* [GS-2371] Domains Authorization
+* [GS-2350] Update bbdd script with dated and enabled fields in policies
+* [GS-2326] Added observability metrics
+* [GS-2400] Add authorization method version for new response object
+* [GS-2401] Fix error codes
+* [GS-2768] Add authorization mode to call filter column/row
+
+== 1.5.0 (June 12, 2020)
+
+* [GS-1545] Improve service registration CRUD
+* [GS-1892] DB retrocompatability script for new services workflow
+* Audit by policy ID
+* [GS-1996] Add duplicate authorization endpoint with audit by policy to maintain retrocompatibility
+* [GS-2095] Changed DTOs and added v2 for filterRow and filterColumn
+* Updated dyplon.version to version 1.6.2-74f6488
+
+== 1.4.0 (March 03, 2020)
+
+* [GS-1679] Resolve critical vulnerabilities
+* [GS-1547] Securize dynamic filter query (CRUD and execution)
+* [GS-1290] Refactor AuditService to add new audit types
+* [GS-1725] Renew connection for dynamic query when DB returns not authorized error
+* [GS-1723] Discovery DB config
+* Updated dyplon.version to version 1.5.0-2dd7029
+
+== 1.3.0 (November 25, 2019)
+
+* [GS-1540] Manage fine grained security in GoSec Management (not only XD and resource table)
+* [SECTY-1533] Dyplon-http exporters integration
+* [SECTY-1589] Add removed policy route
+* Updated dyplon.version to version 1.3.0-86f52c8
+
+== 1.2.0 (October 07, 2019)
+
+* [SECTY-1156] Insert Permitted Role
+* [SECTY-1173] Clean unused routes
+* Updated dyplon version to version 1.2.x
+* Updated dyplon.version to version 1.2.0-9039093
+
+== 1.1.0 (July 26, 2019)
+
+* [SECTY-850] Get jdbc user from certificate when tls is enabled
+* [SECTY-810] Add default jdbc connection as property for dynamic_filtering
+* [SECTY-689] Added multiple log levels
+* Updated Dyplon Core version to 1.1.0-ec808c4
+* [SECTY-726] Include owners endpoints in GoSec dyplon-http
+
+== 1.0.0 (April 04, 2019)
+
+* [SECTY-810] Add default jdbc connection as property for dynamic_filtering
+  * [SECTY-689] Added multiple log levels
+  * [SECTY-726] Include owners endpoints in GoSec dyplon-http
+  * Rename branch 0.2 to 1.0
+  * [SECTY-820] Remove audit references where are not used

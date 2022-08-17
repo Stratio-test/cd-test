@@ -1,0 +1,148 @@
+= Changelog GoSec Services Daas
+
+== 0.11.3 (July 22, 2022)
+
+* Fix response put policies
+
+== 0.11.2 (July 22, 2022)
+
+* Fix response put policies
+
+== 0.11.1 (July 20, 2022)
+
+* Register Service Fix
+
+== 0.11.0 (2022-05-20)
+
+* [GS-4268] Fixed log4j-shell vulnerability
+* [GS-3878] Restart on fail to get secrets
+* [GS-3858] Deleted if to update service from existing version
+* [GS-3942] Add allFullDomain field in domain policies
+* [GS-4060] Authorization on service registration based on CNs.
+* [GS-4456][GS-5028] Domain inconsistencies performance improvements
+
+== 0.10.9 (March 23, 2022)
+
+* Fix tenant regex for KEOS
+* Fix Jackson Vulnerability
+
+== 0.10.8 (March 03, 2022)
+
+* [GS] Bump log4j to 2.17.1
+
+== 0.10.7 (February 09, 2022)
+
+* [GS-4114] Policy API enhancements (fine-rained filters)
+* [GS-4100] Fix upgrade services with all acl policies
+* [GS-4060] Authorization on service registration based on CNs.
+* [GS-4412] Postgres vulnerability to 4.2.25
+
+== 0.10.6 (December 22, 2021)
+
+* [GS-4266] Fix log4j-shell vulnerability
+
+== 0.10.5 (November 29, 2021)
+
+* [GS-4113] Fix validate entities saving policies
+
+== 0.10.4 (November 24, 2021)
+
+* [GS-4028] Fix getting users with implicit tenants in authorization process
+* [GS-4065] Fix checking entities updating resource policies
+
+== 0.10.3 (October 19, 2021)
+
+* [GS-3902][KEOS] Configurable database initialization
+
+== 0.10.2 (September 28, 2021)
+
+* [GS-3878] Restart on fail to get secrets
+* [GS-3858] Deleted if to update service from existing version
+
+== 0.10.1 (September 21, 2021)
+
+* [GS-3854] Fix get active domain policies by type
+
+== 0.10.0 (August 18, 2021)
+
+* [GS-3476] Add datamasking property to domain policies
+
+== 0.9.0 (June 24, 2021)
+
+* [GS-3406] New domain policy API to improve performance
+* Upgrade KMS_UTILS to version 0.5.1
+* [GS-3366] Add dynamic filter on domain policies
+
+== 0.8.0 (April 15, 2021)
+
+* [FIX] Conflicts do not return error when service/user does not exist.
+* Updated dyplon.version to version 1.9.0-77b26ce
+
+== 0.7.0 (February 24, 2021)
+
+* [GS-2918] Integrate dyplon without LDAP
+* [FIX] Conflicts do not return error when service/user does not exist.
+
+== 0.6.0 (October 30, 2020)
+
+* [GS-2241] Fixed services upgrading
+* [GS-2308] Trim for resources
+* [GS-2287] Fix error message when trying to create a policy with non-existing resource
+* [GS-2303] Error handler fixed and added LDAP exceptions
+* [GS-2315] Add "Description" to policies
+* [GS-2259] Integration with gosec dyplon
+* [GS-2372] Domains Authorization
+* [GS-2358] Policies Export
+* [GS-2352] Integration with disabled and expiration fields in policies
+* [GS-2359] Add new endpoint to check conflicts in policies import
+* [GS-2552] Add java memory size config
+* [GS-2537] Updated snakeyaml version to 1.26 in order solve vulnerability
+* [GS-2616] Check value types in tag policies
+* [GS-2771] Added new policies/V3 endpoint(added select param)
+* [GS-2679] Policies performance improvements
+
+== 0.5.0 (June 12, 2020)
+
+* [GS-2032] Add gosec-management-baas to daas services allowed lists
+* [GS-1836] Improve service registration workflow
+* [GS-1935] Filter policies by user. Refactor get all policies by service, instance and version
+* [GS-1915] Policies conflicts endpoint bug
+* [GS-1922] Add actions "Monitor", "Manage snapshots", "Admin" for Elasticsearch Agent
+* Added auditable field in policies creation
+* [GS-1984] Log forging - Log4j encoding
+* [GS-2055] Add gid filter to policies endpoint
+* [GS-2042] Add fine grained filtering resource fields
+* [GS-2164] Add tenant parameter to get a policy
+* Updated dyplon.version to version 1.6.2-74f6488
+
+== 0.4.0 (March 04, 2020)
+
+* [GS-1680] Make version optional on Delete service
+* [GS-1679] Resolve critical vulnerabilities
+* [GS-1750] Audit services endpoints
+* Updated dyplon.version to version 1.5.0-93def7f
+* [GS-1861] Endpoints profiling
+
+== 0.3.0 (November 25, 2019)
+
+* [GS-1540] Manage fine grained security in GoSec Management (not only XD and resource table)
+* [SECTY-1608] added paramter "tid" to method GET /services/id break retrocompatibility
+* [SECTY-1537] Services Daas exporters integration
+* [SECTY-1580] New endpoint to get impersonate users
+* Updated dyplon.version to version 1.3.0-86f52c8
+
+== 0.2.0 (October 07, 2019)
+
+* [SECTY-1560] CRUD Policies endpoints in Services Daas
+* [SECTY-1483] Added tenant parameter on service get operations
+* Updated dyplon.version to version 1.2.0-9039093
+
+== 0.1.0 (July 26, 2019)
+
+* Add gosecX509AuthenticationFilter: This filter valid that the certificate name matches the cnList configured for a defined "method URL"
+* [SECTY-1111] Move endpoint (get policies by service) to Service DAAS
+* [SECTY-1097] Add service authorizer to register api
+* [SECTY-875] Modify Gosec services Daas endpoint
+* [SECTY-842] Add list services endpoint
+* [SECTY-841] Add register service endpoint
+* [SECTY-834] Add mock responses for register and list services endpoint

@@ -1,0 +1,22 @@
+= Changelog CCT Universe
+
+== 1.8.1 (March 29, 2022)
+
+* [SAAS-4684] Stratio authorization system
+* [SAAS-4491] Support for asymmetric key validation in JWT
+* [SAAS-4727] Add resilience framework
+* [SAAS-5048] Upgraded PostgreSQL driver version
+* [CVE-2020-36518] Solved jackson-databind vulnerability in 2.12.1
+
+== 1.8.0 (January 04, 2022)
+
+* [SAAS-4280] [SAAS-4281] Configurable section type for Stratio managed schema properties
+* [CVE-2021-37714] Vulnerability found in jsoup-1.8.3
+* [SAAS-4333] Kubernetes namespace custom section
+* [CVE-2020-2025] Vulnerability found in aspectjrt-1.9.6
+* [SAAS-4492] Improved validations for descriptor upload
+* [SAAS-4597] Enforced camel case in parameters validation
+* [SAAS-4599] Error message in production environments
+* [SAAS-4602] Exclude internal name validation from arrays
+* [SAAS-4618] Disabled validation for duplicated parameter names
+* [SAAS-4582] Improvements on inheritance validations

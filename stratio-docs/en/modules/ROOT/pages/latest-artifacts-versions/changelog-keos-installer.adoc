@@ -1,0 +1,205 @@
+= Changelog KEOS Installer
+
+== 0.5.0 (May 09, 2022)
+
+* [EOS-6548] Bump Kubernetes version to 1.21.11
+* [EOS-5511] Bump Kubespray version to 2.17.1
+* [EOS-5306] Bump SIS version to 1.0.3 and its chart to 0.4.6
+* [EOS-5543] Bump Secrets Operator version to 0.5.0 and its chart to 0.5.4
+* [EOS-5938] Bump Opendistro to version 0.3.0 and its chart to 0.3.0
+* [EOS-5976] Bump CCT artifacts and its chart to 0.2.17
+* [EOS-5976] Bump GoSec artifacts and its chart to 0.4.1
+* [EOS-6008] Bump Kyverno version to 1.5.8 and its chart to 2.2.0
+* [EOS-6009] Bump Vault ETCD version to 3.5.3 and vault-etcd chart 7.4.0
+* [EOS-6010] Bump Grafana to 8.3.7 version
+* [EOS-6019] Bump Ingress Nginx Controller to 0.3.0
+* [EOS-6225] Bump Postgres Operator version to 0.4.3 and its chart to 0.4.3
+* [EOS-6236] Bump Ansible to 4.8.0 version
+* [EOS-6304] Bump Rook Ceph version to v1.8.6 and its chart to 1.8.6
+* [EOS-6385] Bump Local Path Provisioner storage version to v0.0.21 and its chart to 0.0.21
+* [EOS-6386] Bump NFS Subdir Provisioner version to 4.0.2 and its chart to 4.0.16
+* [EOS-6387] Bump Falco version to 0.31.0 and its chart to 1.17.4
+* [EOS-6388] Bump Cloud Controller Manager to 1.0.12
+* [EOS-6397] Bump Vault Operator version to 1.15.1 and its chart to 1.19.0
+* [EOS-6401] Bump k8s Gateway version to 0.2.2 and its chart to 1.1.4
+* [EOS-6404] Bump External DNS version to 0.10.2 and external-dns chart to 6.2.0
+* [EOS-5623] Add RSA keys support for jwt signing
+* [EOS-5800] Add Nvidia GPU support
+* [EOS-5824] Add OIDC authentication support in APIserver
+* [EOS-6009] Add ETCD_EXPERIMENTAL_INITIAL_CORRUPT_CHECK flag to ETCD Vault config
+* [EOS-6195] Add Kibana OIDC integration
+* [EOS-6214] Add Grafana OIDC integration
+* [EOS-6324] Add basic auth when retrieving artifacts from fileserver
+* [EOS-6324] Add basic auth when retrieving artifacts from fileserver
+* [EOS-5810] Support selinux enforcing mode
+* [EOS-6562] Support KEOS upgrade from KEOS 0.4.X
+* [EOS-6548] Disable docker bridge network
+* [EOS-5976] Make external_domain available for CCT
+* [EOS-6256] Make LDAPSchema configurable
+* [EOS-6321] Ensure postgreskeos monitor is enabled by default
+* [EOS-6626] Ensure HDFS components do not use default Vault role
+* [EOS-6000] Avoid using latest and stable docker image tag references
+* [EOS-6192] Avoid configuring proxying for yum/dnf package configuration
+* [EOS-6194] Fix HDFS deployment in offline environments
+* [EOS-6316] Fix Grafana with admin vhost and subpath
+* [EOS-6317] Fix Kibana with admin vhost and subpath
+* [EOS-6383] Fix Grafana password error when is fully numeric
+* [EOS-6407] Fix OIDC URL path value
+* [EOS-6549] Fix Falco offline static files checks
+* [EOS-6703] Fix Storage Benchmark tool
+* [EOS-7073] Fix `keos_workspace_extractor.sh` failing when override_vars contain files with underscores
+* [EOS-5322] Refactor Falco to switch from kernel module to bpf probe
+* [EOS-5713] Refactor Central Logging Elasticsearch to use Elasticsearch operator
+* [EOS-5832] Refactor Metrics Sever deployment using Helm
+* [EOS-5861] Refactor ingress configuration in keos.yaml
+* [EOS-5874] Refactor IdP from CentOS to Alpine and rename `idp-k8s` => `idp`
+* [EOS-5927] Refactor Falco kernel releated compilation requirement
+* [EOS-6019] Improve Ingress Nginx Controller Vault Certificates management
+* [EOS-6396] Improve ETCD auto compaction retention configuration
+* [EOS-6410] Improve CCT and governance pgbouncer pool configuration
+* [EOS-6627] Improve Bastion data management
+* [EOS-5322] Deprecate CentOS and RHEL 7
+* [EOS-6228] Remove local-volume storage support
+* [EOS-6632] Remove role default for Grafana
+
+== 0.4.0 (January 19, 2022)
+
+* [EOS-5878] Bump Postgres versions to 0.4.1
+* [EOS-5306] Bump CCT stack versions
+* [EOS-5711] Bump Kyverno to 1.5.2 version
+* [EOS-5847] Fix scale when nodes are not available
+* [EOS-5840] Fix CSI Azure configuration during KEOS node scale process
+* [EOS-5521] Support KEOS backup artifacts fetch
+* [EOS-5845] Refactor Stratio Docker images registry management
+* [EOS-5835] Deprecate Vault AppRole auth. Deprecate Vault tais auth role, policies and PKI role
+
+== 0.3.0 (December 22, 2021)
+
+* [EOS-5350] Bump Kubernetes to 1.20.11 version
+* [EOS-5108] Bump Ansible version to 2.10.7 version
+* [EOS-5356] Bump Ingress Nginx Controller to 3.11.0 version
+* [EOS-5269] Bump Local Path to v0.0.20 for volume expansion
+* [EOS-5272] Bump Monitoring and Central Loggin stack versions
+* [EOS-5271] Bump Capsule to 0.1.0 Stratio version
+* [EOS-5118] Bump Postgres versions to 0.4.0
+* [EOS-5118] Bump IdP versions to 0.5.0
+* [EOS-5306] Bump SIS versions to 1.0.1
+* [EOS-5306] Bump SIS Api versions to 0.4.0
+* [EOS-5306] Bump CCT stack versions
+* [EOS-5306] Bump Containerd version to 1.4.9
+* [EOS-5655] Bump Prometheus version to 2.31.1
+* [EOS-5655] Bump Prometheus-operator version to 0.52.0
+* [EOS-5655] Bump Node-exporter version to 1.2.2
+* [EOS-5765] Bump Grafana version to 8.2.7
+* [EOS-5655] Bump Grafana version to 8.2.3
+* [EOS-5712] Bump elasticsearch curator version
+* [EOS-5743] Bump CCT chart version
+* [EOS-5403] Migrate Stratio Charts to Stratio Helm registry
+* [EOS-5120] Migrate Gosec deployment components to Helm
+* [EOS-5340] Migrate CCT deployment components to Helm
+* [EOS-5289] Automate HDFS deployment
+* [EOS-4888] Automate external NFS integration
+* [EOS-5206] Automate sysctl configuration for Elasticsearch
+* [EOS-5159] Automate egress policy creation from all namespaces with a ClusterPolicy
+* [EOS-5643] Automate Grafana ingress integration
+* [EOS-5521] Support IdP backup and restore
+* [EOS-5515] Support Kubernetes ETCD standalone deployment
+* [EOS-5356] Support provided PKI using an intermediate CA
+* [EOS-5352] Support KEOS Nodes IDs customization
+* [EOS-4888] Support node Kerberization
+* [EOS=5218] Support LDAP to be port-forwarded
+* [EOS-5298] Support LDAP exposition through LB services
+* [EOS-5298] Support Kerberos exposition through LB services
+* [EOS-5307] Support Calico subnet configuration per node
+* [EOS-5100] Support Ceph manager exposition on ingress-nginx-controller
+* [EOS-5345] Support secrets.yml encryption pass from non-interactive way
+* [EOS-5206] Support sysctl configuration management
+* [EOS-5111] Support coredns/nodelocaldns as dns resolver for KEOS nodes
+* [EOS-5152] Support KEOS installation flavours
+* [EOS-5643] Expose grafana through ingress
+* [EOS-5627] Support CCT monitorization
+* [EOS-5566] Support ingress-nginx monitorization
+* [EOS-5171] Support Calico monitorization
+* [EOS-5625] Support LDAP monitorization
+* [EOS-5570] Support Kyverno monitorization
+* [EOS-5573] Support secrets-operator and Vault monitorization
+* [EOS-5348] Fix RHEL 8 compatibility
+* [EOS-5269] Fix CephFS volume resizing
+* [EOS-5333] Fix Control Plane taints configuration
+* [EOS-5315] Fix ETCD validator to check 99th percentile instead of 99.99th percentile
+* [EOS-5334] Fix Kerberos client default_ccache_name configuration
+* [EOS-5219] Fix kerberos_admin and kdc_admin LDAP attributes
+* [EOS-5355] Improve Apiserver balancer configuration within keos.yaml
+* [EOS-5362] Improve KEOS Kerberization deployment depending on resolvconf_mode configuration
+* [EOS-5294] Improve Falco deployment
+* [EOS-5057] Improve Azure stack deployment
+* [EOS-5306] Improve CCT tenant configuration to production-ready adapters
+* [EOS-5522] Improve Grafana dashboards management
+* [EOS-5198] Add KEOS utils & tools documentation
+* [EOS-5687] Deprecate stratio-vault-secrets-webhook
+* [EOS-5662] Configure basic auth in kibana and create ingress
+
+== 0.2.0 (July 02, 2021)
+
+* [EOS-5070] Bump kubespray version to v2.16.0
+* [EOS-5004] Bump Kubernetes version to v1.19.11
+* [EOS-5118] Bump Postgres versions
+* [EOS-5139] Bump CCT versions
+* [EOS-5139] Bump SIS and SIS API versions
+* [EOS-5139] Bump Rook and Ceph versions
+* [EOS-5070] Bump k8s etcd version to v3.4.13
+* [EOS-5105] Bump ansible_vault version to 2.1.0
+* [EOS-4977] Automate Tenant Operator deployment for multitenancy
+* [EOS-4889] Automate MetalLB Calico integration and k8s Gateway deployment
+* [EOS-4715] Automate Azure LB deployments when creating LoadBalancer services
+* [EOS-5134] Improve IdP stability Fixed health check not working when slapd process is unresponsive
+* [EOS-5091] Improve IdP scale flow
+* [EOS-4781] Refactor IdP deployment to use Helm Charts
+* [EOS-4851] Integrate Vault secrets injector for IdP deployment
+* [EOS-5134] Fix health check not working when slapd process is unresponsive
+* [EOS-5093] Fix Kerberos logs not shown in containers stdout
+* [EOS-5077] Refactor domain from keos.json as KEOS k8s domain
+* [EOS-4953] Refactor SIS & SIS API secrets management to use SecretsBundle
+* [EOS-5085] Ensure time is synced after `ntp` role execution
+* [EOS-5074] Automate Kyverno Policies load from a ConfigMap in Tenant Operator
+* [EOS-5074] Automate Vault pki creation from a ConfigMap in Tenant Operator
+* [EOS-4924] Allow tenant's pkis API from Secrets Operator
+* [EOS-4924] Adapt secrets-operator cert issuing for multitenant
+* [EOS-4945] Add storage benchmarks configurations for Ceph
+* [EOS-4945] Enable Ceph FS and Ceph Object Storage
+* [EOS-5089] Remove nmap package to avoid issues with clients' security protocol
+* [EOS-5014] Remove conflicting packages podman & buildah
+
+== 0.1.0 (March 04, 2021)
+
+* [EOS-3758] Automate fully configurable Kubernetes installation based on Kubespray installer
+* [EOS-3983] Automate LDAP and Kerberos deployments on Kubernetes
+* [EOS-4719] Support KEOS scale based on KEOS Operator
+* [EOS-3801] Support Offline installations
+* [EOS-4453] Support external LDAP and Kerberos integration
+* [EOS-3987] Support Ceph storage
+* [EOS-4135] Support Local Path storage
+* [EOS-3995] Support Local Volume storage
+* [EOS-3957] Support CSI Azure storage
+* [EOS-3756] Automate Vault deployment based on Banzai Vault Operator
+* [EOS-3756] Support Vault AppRole auth based on Stratio Vault Secrets Webhook
+* [EOS-3756] Support Vault Kubernetes auth
+* [EOS-4473] Support Vault secrets injection based on Hashicorp Vault Injector
+* [EOS-4810] Automate Stratio Secrets Operator deployment
+* [EOS-3794] Automate Vault PKI deployment
+* [EOS-3822] Automate Vault Kerberos plugin deployment
+* [EOS-4849] Automate Stratio Postgres deployment based on Stratio Postgres Operator
+* [EOS-4716] Automate Stratio Gosec deployment
+* [EOS-3800] Support Stratio Auth flow based on SIS, SIS Api and Oauth2Proxy
+* [EOS-3804] Support external services access based on Stratio Ingress Controller
+* [EOS-4486] Support IDS based on Falco
+* [EOS-4812] Prepare Multi-tenancy support based on Capsule
+* [EOS-3827] Automate Monitoring stack deployment based on Prometheus and Grafana
+* [EOS-4385] Automate Central Logging stack deployment based on EFK stack
+* [EOS-3799] Support Calico on Azure based on Azure Synchronizer
+* [EOS-4734] Automate NetworkPolicies creation
+* [EOS-4084] Support CentOS8/RHEL8
+* [EOS-3909] Support Kubernetes Service Account Token Volume Projection
+* [EOS-4630] Support installations using Bastion server
+* [EOS-4714] Support Kubernetes audit logs
+* [EOS-4715] Support External LB integration

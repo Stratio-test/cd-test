@@ -1,0 +1,18 @@
+= Changelog GoSec Encryption Daas
+
+== 0.1.3 (March 16, 2022)
+
+* Remove data key clean method
+
+== 0.1.2 (March 08, 2022)
+
+* Addapt for k8s
+
+== 0.1.1 (December 22, 2021)
+
+* [GS-4293] Fix Log4j-shell vulnerability
+* [GS-4303] Fix saving assets with data-keys from other tenant
+
+== 0.1.0 (June 10, 2021)
+
+* Initial version

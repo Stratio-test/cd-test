@@ -1,0 +1,89 @@
+= Changelog Dorus Agent
+
+== 2.3.8 (February 23, 2022)
+
+* [FRAM-8362] Fix: elasticsearch-agent replaces kibana permissions for cluster:monitor/nodes/info
+
+== 2.3.7 (February 08, 2022)
+
+* Fix to allow CAPS in domains
+* [FRAM-8072] Vulnerabilities: Upgrade PostgreSQL JDBC 42.3.2 to avoid CVE-2022-21724
+* [FRAM-8071] Vulnerabilities: Upgrade log4j2 2.17.1 to avoid CVE-2021-44832
+
+== 2.3.6 (January 13, 2022)
+
+* [FRAM-8008] [Postgres]: Fix: Support Materialized Views
+
+== 2.3.5 (December 20, 2021)
+
+* [GS-4202] Log4j to 2.17.0
+
+== 2.3.4 (December 03, 2021)
+
+* [GS-4172] [domains]: Fix Tags Authz - Wrong logic when user has same tag with different values
+* [FRAM-7870] [Dorus]: Integration with k8s: append prefix on parameters
+* Stratio Datastores Base Version: 0.1.5-8d8d761
+
+== 2.3.3 (November 18, 2021)
+
+* [FRAM-7814] [Dorus]: Fix include action group search on GoSec read
+* [GS-4073] [Dorus]: Fix tag auth when user and user group are in a policy
+* [FRAM-7833] [Elastic]: Manage Cluster now has unlimited permission
+* [FRAM-7814] [Elastic]: Fix include action group search on GoSec read
+
+== 2.3.2 (October 18, 2021)
+
+* [FRAM-7753] [Dorus] Fix: Reconfigure connection on database deletion
+
+== 2.3.1 (September 27, 2021)
+
+* [GS-3854] [Dorus] Fix auth tags without domain policies
+
+== 2.3.0 (August 31, 2021)
+
+* [FRAM-7601] [Dorus]: Fix upgrade by filtering "PUBLIC" user acls
+* [FRAM-7619] [Dorus]: Filter cookies with no expired date on SSO authentication flow
+* [FRAM-7541] [Dorus]: Query metrics
+* [FRAM-7437] [Dorus]: Statement timeout (server side)
+* [FRAM-7452] [Dorus]: Use max number of connections in total
+* [FRAM-7424] [Dorus]: Improvement: JDBC urls
+* [FRAM-7620] [Postgres]: Fix. Update datastores base version 0.1.4-ae7e5ac
+
+== 2.2.0 (July 02, 2021)
+
+* [FRAM-7437] [Dorus] Statement timeout (server side)
+* [FRAM-7424] [Dorus] Improvement: JDBC urls
+* [FRAM-7368] [Dorus] Task: New permissions (pg_catalog) for BDL
+* [FRAM-7375] [Dorus] Fix: SSO client timeout
+* [FRAM-7392] [Dorus] Fix: Filter empty identities
+* [FRAM-7365] [Postgres] Feature: New resource for postgres: Role Attributes
+* [FRAM-7391] [ElasticSearch] Feature: Integrate elasticsearch-agent config for k8s
+* [FRAM-7318] [Dorus] Improvement: Fix thread pool size to avoid Out of Memory
+* [FRAM-7260] [ElasticSearch] Feature: Integrate elasticsearch-agent inside operator
+* [FRAM-7220] [Postgres] Fix: Pool size dynamic calculation
+* [FRAM-7253] [Dorus] Fix: Gosec Group Id
+* [FRAM-7251] [Dorus] Fix: SSO token was not renewed
+* [FRAM-7264] [Dorus] Fix: Procedures from 11
+* [FRAM-7279] [Dorus] Task: JVM GC flags
+* [GS-3455] Dynamic filter in domains
+* [GS-3361] Fine grain in domains
+* [FRAM-7234] [ElasticSearch] [Postgres] Improvement: Upgrade kms_utils to 0.5.1-deaa72e (Core Version and Datastores Base Version)
+* [GS-3477] [Dorus] Datamasking in properties
+
+== 2.1.0 (April 20, 2021)
+
+* [FRAM-7220] [Postgres] Fix: Pool size dynamic calculation
+* [FRAM-7190] [Postgres] Task: Community framework integration
+* [FRAM-6735] [DORUS]: Domains integration
+* [FRAM-7143] [ElasticSearch] Fix: Global tenant
+* [FRAM-7112] [DORUS]: Postgres Agent support for DBAAS
+* [FRAM-7056] [DORUS]: Allow to not stop after consecutive failures
+* [FRAM-7098] [Postgres] Fixed database connection with role because of belonging to PUBLIC group
+* Stratio Datastores Base Version: 0.1.1-6f47e3c
+
+== 2.0.0 (Febuary 12, 2021)
+
+* [FRAM-6734] [POSTGRES]: Postgres boilerplate
+* [FRAM-6914] [ELASTICSEARCH] Implements tenants permissions
+* [FRAM-6910] [POSTGRES]: Integrate in Stratio PostgreSQL Operator
+* [FRAM-7014] Feature: Implement readinessProbe and liveness Probe

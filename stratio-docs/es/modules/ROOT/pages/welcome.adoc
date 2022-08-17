@@ -1,0 +1,71 @@
+= ¡Bienvenido/a a _Stratio Augmented Data Fabric_!
+
+_Stratio Augmented Data Fabric_ es un *producto completo* sobre el que construir la nueva generación de aplicaciones digitales, poniendo el dato en el centro de la organización. Su propio sistema operativo basado en Kubernetes, llamado xref:stratio-keos::introduction.adoc[_Stratio KEOS_], se puede desplegar en diferentes configuraciones de entornos _Cloud_ y _on-premise_ (públicos, privados y mixtos), y una serie de módulos le permiten sacar todo el provecho a los datos de la organización aunque necesiten ser recogidos de diferentes fuentes.
+
+Stratio ofrece un único producto para *gobernar y gestionar todos los datos de la compañía*. Esto garantiza consistencia y provee a aplicaciones y usuarios de una visión integrada y unificada de sus datos.
+
+La plataforma sirve como esqueleto para la transformación digital de las empresas. Asegura escalabilidad, máxima flexibilidad y adaptación, juntando las últimas y más disruptivas tecnologías en un único producto que responde a las necesidades del mercado actual, *centrado en el cliente, con estrategia omnicanal e inteligencia de datos*.
+
+== El único margen de tiempo aceptable es el tiempo real
+
+Hace años, la información era válida unos días u horas después de que hubiera sido creada, pero el mundo cambia deprisa y las empresas deben adaptar sus estrategias, procesos y estructuras a una forma de trabajo líquida que les permita ser los primeros en reaccionar ante dicha información. Hoy en día, el único lapso aceptable para competir entre que un hecho ocurre y la información llega a los responsables de tomar decisiones es el *tiempo real*. Si no es ya mismo, entonces llega tarde.
+
+Para hacer esto posible, Stratio provee la más avanzada infraestructura de computación así como herramientas analíticas para obtener flujos de datos en tiempo real. Esto permite conocer qué está pasando, dónde y cómo, exactamente en el momento en el que ocurre.
+
+En los sistemas tradicionales, las operaciones hacen transacciones en tiempo real, tomando datos desde las aplicaciones con las que interactúan los usuarios (esto se llama entorno operacional). Algún tiempo más tarde, estos datos se mueven al entorno informacional donde los científicos de datos usan herramientas analíticas para obtener informes y hacer análisis de datos.
+
+Por primera vez, _Stratio Augmented Data Fabric_ junta ambos mundos, analizando los datos en el mismo momento en que las operaciones se llevan a cabo.
+
+== ¿Cómo han gestionado los datos las empresas hasta ahora?
+
+Las grandes compañías reúnen ingentes cantidades de datos a gran velocidad. Sin embargo, el problema es cómo pueden utilizarlos y cuán deprisa pueden hacerlo para adelantarse a su competencia. La mayoría de ellas invierte sus esfuerzos en cinco grandes grupos de entidades que Stratio llama el _Big 5_:
+
+. *Microservicios PaaS*: una plataforma de microservicios para gestionar diferentes operaciones con autonomía, sin comprometer la funcionalidad completa en caso de fallo en alguno de los componentes.
+. *Almacenamiento de datos*: un grupo de almacenes de datos, cada uno con diferentes fortalezas, dependiendo del propósito y la naturaleza de dichos datos.
+. *Plataforma de _Big Data_*: una plataforma especializada en trabajar con grandes cantidades de datos.
+. *Plataforma de IA*: una plataforma especializada en agregar Inteligencia Artificial que ayude a la compañía a tomar decisiones basadas en datos.
+. *_Streaming/Real Time_*: conseguir que los  cuatro grupos mencionados anteriormente sean capaces de hacer su trabajo lo más rápido posible, preferentemente, en tiempo real.
+
+image::5-on-1-5.png[]
+
+Desde el punto de vista de Stratio, es absolutamente imposible obtener todo esto sin una solución _data-centric_ aumentada. La mayoría de las empresas trabajan hoy en día con una arquitectura de múltiples entornos aislados que usan complejos procesos para compartir datos entre ellos. Esto resulta en *silos de datos*, inconsistencias en la replicación y falta de rendimiento, que hacen que se pierdan los objetivos presentados anteriormente.
+
+== ¿Cómo llevar tu empresa al siguiente nivel?
+
+Para solventar todos estos problemas, Stratio ha desarrollado su propia plataforma _data-centric_ aumentada con los requisitos _Big 5_ en su núcleo. Todo ello, gobernado por su propio sistema operativo (_Stratio KEOS_).
+
+image::data-fabric-solution.png[]
+
+Esto nos permite ofrecer un grupo de iniciativas estructurales que se cubren de forma completa y natural, algo casi imposible de lograr con otras arquitecturas:
+
+* Gobierno del dato.
+* Centralización de _logs_.
+* Monitorización.
+* Seguridad.
+* Seguridad del dato.
+* Auditoría.
+
+Profundizando un poco más, se puede averiguar cómo los productos de Stratio se conectan entre sí en un ecosistema completo en el que cada uno cumple con una función clave dentro de una compañía del siglo XXI.
+
+En la vida real, las grandes empresas trabajan con diferentes grupos de _data stores_ que cubren distintas necesidades. Esto implica que la plataforma de Stratio debe ser _multi-data store_. Además, Stratio necesita trabajar con _workflows_ de datos en _streaming_ para asegurar otro de los requisitos _Big 5_: *el tiempo real*.
+
+Sin embargo, estas posibilidades pueden ser difíciles de conseguir por el manejo de diferentes conexiones, formas de acceso, etc. Para solucionarlo, Stratio ha creado una capa de _data fusion_ que permite gobernar y gestionar todos los datos de forma centralizada, sin importar de qué _data store_ provengan. A esto lo llamamos xref:stratio-virtualizer:architecture:technical-introduction.adoc[_Stratio Virtualizer_].
+
+Stratio también ofrece una serie de productos para trabajar con datos de forma visual, exponiéndolos como un servicio y dando a los científicos de datos las herramientas más poderosas disponibles hoy en día. A eso lo llamamos xref:stratio-intelligence:ROOT:architecture.adoc[_Stratio Intelligence_].
+
+Sobre estos productos y sobre el dato actúa una capa de Inteligencia Artificial para potenciar la toma de decisiones y ayudar a los desarrolladores a conseguir sus objetivos más rápida y fácilmente.
+
+Para juntar todas estas piezas en un solo producto asegurando el mejor rendimiento, la única posibilidad fue desarrollar un sistema operativo propio (_Stratio KEOS_), moderno, nacido para trabajar con un enfoque _data-centric_ y con el _Big 5_ en la misma definición de su núcleo. Esto permite desplegar todos los servicios con un simple clic y proteger los datos contra brechas de seguridad, cumpliendo con todas las directivas y regulaciones gracias a xref:stratio-gosec:operations-guide:stratio-gosec.adoc[_Stratio GoSec_].
+
+_Stratio KEOS_ rompe los silos del _cluster_, unificando todo en un _data center_ único para gestionar _frameworks_ de Big Data, contenedores y microservicios. Está basado en https://kubernetes.io/[Kubernetes], con un ecosistema completo a su alrededor que soporta todas las operaciones del _data center_:
+
+* Gestión de recursos.
+* Orquestación.
+* Coordinación.
+* Contenedores.
+* Provisionamiento.
+* Monitorización.
+* Descubrimiento.
+* Gestión del _cluster_.
+
+Las soluciones de Stratio no solo están pensadas para cumplir técnicamente bien los objetivos marcados, se ha puesto mucho esfuerzo en conseguir una buena usabilidad que potencie la productividad y el control sobre procesos complejos.
