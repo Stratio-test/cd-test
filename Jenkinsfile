@@ -27,10 +27,10 @@ hose {
         doCompile(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	//doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true, BUILDTOOL: "maven", storageClass: "portworx"])
         doPackage(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
-	doGrypeAnalysis(conf: config)
+	//doGrypeAnalysis(conf: config)
 	//doStaticAnalysis(conf: config)
 	doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
-	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
+	doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
 	//doDocker(conf: config, credentialsMap: [[credentials: "ATHENS_SSH_KEY", credentialsType: "sshagent"]], dockerfile: 'Dockerfile.test2')
     }
 
