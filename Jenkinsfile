@@ -5,7 +5,7 @@ hose {
     DEPLOYONPRS = false
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
-    //ANCHORE_TEST = true
+    ANCHORE_TEST = true
 //    ANCHORE_NIGHTLY_JOB = true
 
     ITSERVICES = [
