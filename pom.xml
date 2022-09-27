@@ -40,7 +40,7 @@
     </parent>
 
     <artifactId>cd-test</artifactId>
-    <version>0.86.16-SNAPSHOT</version>
+    <version>0.86.16-${revision}</version>
 
     <properties>
 	<revision>0.48.0</revision>
