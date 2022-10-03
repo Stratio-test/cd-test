@@ -1,4 +1,4 @@
-FROM python:slim-buster
+FROM python:latest
 MAINTAINER CD "cd@stratio.com"
 
 ARG VERSION
