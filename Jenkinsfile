@@ -2,12 +2,12 @@
 
 hose {
     EMAIL = 'cd'
-    ANCHORE_TEST = false
+    GRYPE_TEST = true
     DEPLOYONPRS = true
     GENERATE_QA_ISSUE = true
     //BUILDTOOL = 'docker'
     ENABLE_CONCURRENT_BUILDS = false
-    SHOW_RAW_YAML = false
+    //SHOW_RAW_YAML = false
     //BUILDTOOL_IMAGE = 'backflow/docker-maven-alpine'
 //    ITPARAMETERS = """
 //    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
@@ -61,15 +61,15 @@ hose {
 		}
 	)
 	
-	    parallel(UT: {
-        	doUT(config)
-            }, IT: {
-                doIT(config)
-            }, failFast: true)
+// 	    parallel(UT: {
+//         	doUT(config)
+//             }, IT: {
+//                 doIT(config)
+//             }, failFast: true)
 	    
-        doPackage(config)
+        //doPackage(config)
 	//doStaticAnalysis(conf: config)
-	doDeploy(conf: config)
+	//doDeploy(conf: config)
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
 	doDocker(conf: config, credentialsMap: [[credentials: "ATHENS_SSH_KEY", credentialsType: "sshagent"]])
     }
