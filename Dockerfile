@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.0.0-experimental
 
-FROM ubuntu:16.04
+FROM ubuntu:latest
 MAINTAINER CD "cd@stratio.com"
 
 ARG VERSION
