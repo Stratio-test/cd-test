@@ -25,7 +25,9 @@ hose {
 			'sleep': 5]]]
     //MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
     DEV = { config ->
-	    doAT(config)
+	def extraWildcards = ["testsAT/target/executions/**/*.mp4", "testsAT/target/executions/**/*.jpg", "testsAT/target/executions/**/*.txt", "testLaura/**/*.html"]
+
+        doAT(conf:config, extraArchiveWildcards: extraWildcards)
 // 	    parallel(case_a: {
 // 	    useClonedVolume(config) { volumneName -> 
 // 		//doCompile(config)
