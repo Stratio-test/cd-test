@@ -25,26 +25,6 @@ hose {
 			'sleep': 5]]]
     //MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
     DEV = { config ->
-// 	    parallel(case_a: {
-// 	    useClonedVolume(config) { volumneName -> 
-// 		//doCompile(config)
-// 		//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"], [conf: config, image: "cd-test"]])
-// 		doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test"], [conf:config, dockerfile:"Dockerfile.test2", image: "cd-test2"]], volumeName: volumneName)
-// 		//doDocker(conf: config)
-
-// 		//doRenameImages(conf: config)
-// 	    }
-// 	    },
-// 		    case_b: {
-//                 //doCompile(config)
-// 		//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"], [conf: config, image: "cd-test"]])
-// 		doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test"], [conf:config, dockerfile:"Dockerfile.test2", image: "cd-test2"]], volumeName: volumneName)
-// 		//doDocker(conf: config)
-
-// 		//doRenameImages(conf: config)
-	    
-// 	 }
-// 	)
 	    doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test"]])
     }
     
