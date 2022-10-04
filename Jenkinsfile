@@ -25,6 +25,7 @@ hose {
 			'sleep': 5]]]
     //MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
     DEV = { config ->
+	    doAT(config)
 // 	    parallel(case_a: {
 // 	    useClonedVolume(config) { volumneName -> 
 // 		//doCompile(config)
