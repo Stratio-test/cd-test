@@ -71,6 +71,7 @@ hose {
 	//doStaticAnalysis(conf: config)
 	//doDeploy(conf: config)
 	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
+	doAT(conf: config)
 	doDocker(conf: config, credentialsMap: [[credentials: "ATHENS_SSH_KEY", credentialsType: "sshagent"]])
     }
 }
