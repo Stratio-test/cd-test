@@ -25,7 +25,7 @@ hose {
 			'sleep': 5]]]
     //MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
     DEV = { config ->
-	def extraWildcards = ["testsAT/target/executions/**/*.mp4", "testsAT/target/executions/**/*.jpg", "testsAT/target/executions/**/*.txt", "testsAT/testLaura/test.html"]
+	def extraWildcards = ["testsAT/target/executions/**/*.mp4", "testsAT/target/executions/**/*.jpg", "testsAT/target/executions/**/*.txt", "testsAT/testLaura/teeest.html"]
 
         doAT(conf:config, extraArchiveWildcards: extraWildcards)
 // 	    parallel(case_a: {
