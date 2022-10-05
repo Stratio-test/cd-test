@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.81.2 (upcoming)
+
+* doDockers podTemplate
+* test grype
+* test grype II
 
 ## 0.81.2 (2022-10-05)
 
