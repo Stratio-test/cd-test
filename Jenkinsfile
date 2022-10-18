@@ -2,7 +2,7 @@
 
 hose {
     EMAIL = 'cd'
-    GRYPE_TEST = true
+    //GRYPE_TEST = true
     DEPLOYONPRS = true
     GENERATE_QA_ISSUE = true
     //BUILDTOOL = 'docker'
