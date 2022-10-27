@@ -9,13 +9,13 @@ hose {
     GRYPE_TEST = true
 //    ANCHORE_NIGHTLY_JOB = true
 
-//     ITSERVICES = [
-//         ['ZOOKEEPER': [
-//             'image': 'jplock/zookeeper:3.5.2-alpha',
-// 	    'healthcheck': 2181,
-//             'env': [
-//                   'zk_id=1'],
-//             'sleep': 5]]]
+    ITSERVICES = [
+        ['ZOOKEEPER': [
+            'image': 'jplock/zookeeper:3.5.2-alpha',
+	    'healthcheck': 2181,
+            'env': [
+                  'zk_id=1'],
+            'sleep': 5]]]
 
 // 	ATSERVICES = [
 // 		['ZOOKEEPER': [
