@@ -1,2 +1,2 @@
-FROM python:latest
+FROM python:la
 CMD ["/usr/bin/tail", "-f", "/dev/null"]
