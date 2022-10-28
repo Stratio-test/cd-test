@@ -1,2 +1,2 @@
 FROM ubuntu:latest
-CMD [""]
+CMD ["/usr/bin/tail", "-f", "/dev/null"]
