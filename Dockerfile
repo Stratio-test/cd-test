@@ -1,2 +1,2 @@
-FROM ubuntu:22.04
-CMD ["/usr/bin/tail", "-f", "/dev/null"]
+FROM node:14.17.6-slim
+CMD ["node"]
