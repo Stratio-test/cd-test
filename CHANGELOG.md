@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.81.9 (2022-10-28)
+## 0.81.9 (2022-10-31)
 
 * doDockers podTemplate
 * test grype
