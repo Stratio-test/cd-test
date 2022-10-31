@@ -6,7 +6,7 @@ hose {
     BUILDTOOL = 'docker'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
-    GRYPE_TEST = true
+ //   GRYPE_TEST = true
 //    ANCHORE_NIGHTLY_JOB = true
 
 //     ITSERVICES = [
