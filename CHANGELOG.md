@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.81.10 (upcoming)
+## 0.81.10 (2022-11-02)
 
 * test branch lock
 
