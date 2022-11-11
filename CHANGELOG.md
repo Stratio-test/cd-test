@@ -1,6 +1,6 @@
 # Changelog 
 
-## 0.86.17 (upcoming)
+## 0.86.17 (2022-11-11)
 
 * New test 2
 * New test 2
