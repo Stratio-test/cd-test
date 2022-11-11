@@ -49,7 +49,7 @@ hose {
 	    
 // 	 }
 // 	)
-	    doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile.test2", image: "cd-test-2"]])
+	    doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test-mbuilder2", target: "build2"]])
     }
     
 }
