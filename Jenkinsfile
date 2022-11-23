@@ -26,9 +26,9 @@ hose {
 // 			'sleep': 5]]]
  //   MAVEN_ADDITIONAL_POM = ['legacy_pom.xml', 'pom.xml']
     DEV = { config ->
-	def extraWildcards = ["testsAT/target/executions/**/*.mp4", "testsAT/target/executions/**/*.jpg", "testsAT/target/executions/**/*.txt", "testsAT/**/*.html"]
+// 	def extraWildcards = ["testsAT/target/executions/**/*.mp4", "testsAT/target/executions/**/*.jpg", "testsAT/target/executions/**/*.txt", "testsAT/**/*.html"]
 
-        doAT(conf:config, extraArchiveWildcards: extraWildcards)
+//         doAT(conf:config, extraArchiveWildcards: extraWildcards)
 // 	    parallel(case_a: {
 // 	    useClonedVolume(config) { volumneName -> 
 // 		//doCompile(config)
@@ -49,7 +49,8 @@ hose {
 	    
 // 	 }
 // 	)
-	    doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test-mbuilder1", target: "build1"], [conf:config, dockerfile: "Dockerfile.test2", image: "cd-test-2"], [conf:config, dockerfile: "Dockerfile", image: "cd-test-mbuilder2", target: "build2"]])
+	    //doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test-mbuilder1", target: "build1"], [conf:config, dockerfile: "Dockerfile.test2", image: "cd-test-2"], [conf:config, dockerfile: "Dockerfile", image: "cd-test-mbuilder2", target: "build2"]])
+	    doEmail(conf: config, to: "lgutierrez@stratio.com", subject: "test doEmail", body: "Test this body with version placeholder %%VERSION and BRANCH_SITE %%BRANCH_SITE.")
     }
     
 }
