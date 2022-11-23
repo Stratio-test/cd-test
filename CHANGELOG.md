@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.81.11 (upcoming)
+## 0.81.11 (2022-11-23)
 
 * test branch lock
 * test lock in milestone
