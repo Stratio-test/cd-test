@@ -15,7 +15,6 @@ hose {
                          | Se va a proceder al cambio de la ejecución de la nighlty de kubernetes/mesos (gamma/nightlyforward) para ejecutar con las nuevas versiones de %%NEXT_VERSION.
                          | Por favor ir revisando si tenéis que modificar/añadir/eliminar algún parametro :).
                          | Muchas gracias.""".stripMargin().stripIndent(), 
-                placeholders: [body: [version: "%%NEXT_VERSION"]], 
-                onlyOnFinal: false)
+                placeholders: [body: [version: "%%NEXT_VERSION"]])
     }
 }
