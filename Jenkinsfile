@@ -19,6 +19,10 @@ hose {
     ITPARAMETERS = """
     | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
     | """
+	
+	INSTALL = {
+		doRundeck(conf: config, jobId: "job_id_invent", jobOptions: [version: "version_invent"])
+	}
 
     DEV = { config ->
 	//doTestScript(conf: config)
