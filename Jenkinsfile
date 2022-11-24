@@ -24,14 +24,25 @@ hose {
 	//doTestScript(conf: config)
 	//doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "egeo", activeDelete: true, credentials: "EGEO_DOWNLOADS_USER", files: "dist/egeo-demo", 
         //               remoteServer: "egeo-statics.int.stratio.com", localFolder: "dist/egeo-demo/", branchOnPath: true])
-        doCompile(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
+        //doCompile(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	//doUT(conf: config, buildToolOverride: [CLONE_WORKSPACE_VOLUME: true, BUILDTOOL: "maven", storageClass: "portworx"])
-        doPackage(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
+        //doPackage(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
 	//doGrypeAnalysis(conf: config)
 	//doStaticAnalysis(conf: config)
-	doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
-	doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
+	//doDeploy(conf: config, buildToolOverride: [BUILDTOOL: "maven"])
+	//doDockers(conf:config, dockerImages: [[conf: config, image: "cd-test"]])
 	//doDocker(conf: config, credentialsMap: [[credentials: "ATHENS_SSH_KEY", credentialsType: "sshagent"]], dockerfile: 'Dockerfile.test2')
+	    doEmail(conf: config, 
+                to: "lgutierrez@stratio.com", 
+                subject: "ACTUALIZACIÓN NIGHTLY K8S/MESOS GAMMA/NIGHTLYFORWARD", 
+                body: """| Hola a todos.
+                         |
+                         | Se va a proceder al cambio de la ejecución de la nighlty de kubernetes/mesos (gamma/nightlyforward) para ejecutar con las nuevas versiones de %%NEXT_VERSION.
+                         | Por favor, ir revisando si tenéis que modificar/añadir/eliminar algún parametro :).
+                         |
+                         | Muchas gracias.""".stripMargin().stripIndent(), 
+                placeholders: [body: [version: "%%NEXT_VERSION"]],
+                onlyOnFinal: true)
     }
 
 }
