@@ -8,6 +8,7 @@ hose {
     JIRAPROJECT = 'cd-test-project'
     GRYPE_TEST = true
     DEV = { config ->
+        doDockers(config)
         doEmail(conf: config, 
                 to: "lgutierrez@stratio.com", 
                 subject: "ACTUALIZACIÓN NIGHTLY K8S/MESOS GAMMA/NIGHTLYFORWARD", 
