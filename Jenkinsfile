@@ -18,6 +18,6 @@ hose {
                          |
                          | Muchas gracias.""".stripMargin().stripIndent(), 
                 placeholders: [body: [version: "%%NEXT_VERSION"]],
-                onlyOnFinal: false)
+                onlyOnFinal: true)
     }
 }
