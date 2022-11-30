@@ -4,6 +4,7 @@ hose {
     EMAIL = 'cd'
     DEPLOYONPRS = false
     //BUILDTOOL = 'make'
+    BUILDTOOL_IMAGE = 'python'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
     GRYPE_TEST = true
