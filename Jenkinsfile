@@ -3,7 +3,7 @@
 hose {
     EMAIL = 'cd'
     DEPLOYONPRS = false
-    BUILDTOOL = 'docker'
+    //BUILDTOOL = 'make'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
     GRYPE_TEST = true
