@@ -1,4 +1,4 @@
-@Library('libpipelines@feature/multiple-credentials-custom-command') _
+@Library('libpipelines@preproduction') _
 
 hose {
     EMAIL = 'cd'
