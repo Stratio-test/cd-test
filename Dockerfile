@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:22.04 AS builder
+FROM python AS builder
 RUN pwd
 
 FROM builder AS build1
