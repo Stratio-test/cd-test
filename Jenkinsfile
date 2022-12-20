@@ -9,6 +9,7 @@ hose {
     JIRAPROJECT = 'cd-test-project'
     GRYPE_TEST = true
     DEV = { config ->
+        doDeploy(config)
         doHandsOffDeploy(conf: config, sources: ["bundle.json"], targetRepositoryGroup: "paas", targetSubfolder: "test", buildDestination: false, runOnFinal: true, runOnPR: false)
         doSemgrepAnalysis(conf: config, configs: ["/semgrep-rules/rules/python-rules.json"], includes: ["*.py", "*.json", "testsAT"], )
         //doSemgrepAnalysis(conf: config, configs: ["p/ci", "p/jwt", "p/r2c", "p/xss", "p/scala", "p/owasp-top-ten", "p/sql-injection", "p/security-audit", "p/command-injection", "p/r2c-ci", "p/r2c-security-audit", "p/insecure-transport", "p/secrets", "p/mobsfscan","p/r2c-bug-scan"], excludes: ["*.json", "testsAT"])
