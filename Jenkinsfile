@@ -17,4 +17,7 @@ hose {
         doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "cd-test-mbuilder1", target: "build1"]])
        
     }
+    INSTALL = { config ->
+        doAT(config)
+    }
 }
