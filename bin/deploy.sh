@@ -13,4 +13,4 @@ fi
 cd $BASEDIR
 
 echo "Uploading to Nexus kms_utils.sh version $VERSION"
-curl -u stratio:${NEXUSPASS} --upload-file bundle.json http://qa-pre.int.stratio.com:8081/repository/paas/testmake/${VERSION}/bundle.json
+curl -u stratio:$NEXUSPASS --upload-file bundle.json http://qa-pre.int.stratio.com:8081/repository/paas/testmake/bundle.json
