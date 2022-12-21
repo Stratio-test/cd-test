@@ -21,7 +21,7 @@ hose {
     | """
 	
 	INSTALL = {
-		doRebuildJob(conf: config, job: 'AI', branch: 'Modules/test-ai-0')
+		doRebuildJob(conf: config, job: 'AI', branch: 'test-ai-0')
 		//doRundeck(conf: config, jobId: "job_id_invent", jobOptions: [version: "version_invent"])
 	}
 
