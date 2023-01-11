@@ -7,7 +7,7 @@ hose {
     //BUILDTOOL_IMAGE = 'python:latest'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
-    GRYPE_TEST = true
+    GRYPE_TEST = false
     DEV = { config ->
         //doDeploy(config)
         //doHandsOffDeploy(conf: config, sources: ["bundle.json"], targetRepositoryGroup: "paas", targetSubfolder: "test", buildDestination: false, runOnFinal: true, runOnPR: false)
