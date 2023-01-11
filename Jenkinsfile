@@ -3,7 +3,7 @@
 hose {
     EMAIL = 'cd'
     DEPLOYONPRS = false
-    //BUILDTOOL = 'docker'
+    BUILDTOOL = 'docker'
     //BUILDTOOL_IMAGE = 'python:latest'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
