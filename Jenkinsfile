@@ -4,7 +4,7 @@ hose {
     EMAIL = 'cd'
     DEPLOYONPRS = false
     //BUILDTOOL = 'docker'
-    BUILDTOOL_IMAGE = 'python:latest'
+    BUILDTOOL_IMAGE = 'maven:latest'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
     GRYPE_TEST = false
