@@ -4,7 +4,7 @@ hose {
     EMAIL = 'cd'
     DEPLOYONPRS = false
     //BUILDTOOL = 'docker'
-    //BUILDTOOL_IMAGE = 'maven:3.8.5-openjdk-11'
+    BUILDTOOL_IMAGE = 'maven:3.8.5-openjdk-11'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
     GRYPE_TEST = false
