@@ -9,7 +9,7 @@ hose {
     JIRAPROJECT = 'cd-test-project'
     GRYPE_TEST = false
     DEV = { config ->
-        doCompile(conf: config, buildToolOverride: [BUILDTOOL_IMAGE: 'maven:3.8.5-openjdk-11'])
+        doCompile(conf: config])
         //doDeploy(config)
         //doHandsOffDeploy(conf: config, sources: ["bundle.json"], targetRepositoryGroup: "paas", targetSubfolder: "test", buildDestination: false, runOnFinal: true, runOnPR: false)
         doSemgrepAnalysis(conf: config, configs: ["/semgrep-rules/rules/python-rules.json"], includes: ["*.py", "*.json", "testsAT"])
