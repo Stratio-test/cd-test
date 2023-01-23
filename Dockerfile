@@ -1,7 +1,10 @@
 FROM ubuntu:22.04
 
-RUN apt-get update && apt-get install wget -y
+RUN apt-get update && apt-get install -y \
+    curl
 
-RUN wget -c http://archive.ubuntu.com/ubuntu/pool/main/m/make-dfsg/make_4.3-4.1build1_amd64.deb
+USER root
 
-RUN apt-get install ./make_4.3-4.1build1_amd64.deb -y
+RUN curl https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+RUN curl https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
