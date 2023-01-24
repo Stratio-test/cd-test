@@ -22,13 +22,13 @@ hose {
                     dockerImages :[
                         /* JDK 8 */
                         [
-                            image : 'cd-test-8',
+                            image : 'gosec-builder',
                             dockerfile : 'Dockerfile',
                             conf : config
                         ],
                         /* JDK 11 */
                         [
-                            image : 'cd-test-11',
+                            image : 'gosec-builder-jdk-11',
                             dockerfile : 'Dockerfile.test2',
                             conf : config
                         ]
