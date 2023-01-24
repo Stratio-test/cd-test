@@ -1,6 +1,15 @@
-FROM ubuntu:18.04
-MAINTAINER CD "cd@stratio.com"
+FROM maven:3.8.6-openjdk-8
 
-ARG VERSION
+ARG UNAME=jenkins
+ARG UID=1000
+ARG GID=1000
 
-CMD ["/usr/bin/tail", "-f", "/dev/null"]
+RUN groupadd -g $GID $UNAME
+RUN useradd -m -u $UID -g $GID -s /bin/bash $UNAME
+
+RUN chown -R $UNAME:$UNAME /home/$UNAME
+
+RUN apt-get update && apt-get install -y fakeroot rpm
+
+ENTRYPOINT ["/usr/local/bin/mvn-entrypoint.sh"]
+CMD ["mvn"]
