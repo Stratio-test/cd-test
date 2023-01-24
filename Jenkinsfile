@@ -29,7 +29,7 @@ hose {
                         /* JDK 11 */
                         [
                             image : 'cd-test-11',
-                            dockerfile : 'Dockerfile.test',
+                            dockerfile : 'Dockerfile.test2',
                             conf : config
                         ]
                     ]
