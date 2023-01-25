@@ -1,4 +1,4 @@
-@Library('libpipelines@preproduction') _
+@Library('libpipelines@grype/clean-nexus-repository') _
 
 hose {
     EMAIL = 'cd'
