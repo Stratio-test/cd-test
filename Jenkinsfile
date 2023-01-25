@@ -7,7 +7,7 @@ hose {
     BUILDTOOL_IMAGE = 'maven:3.8.5-openjdk-11'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
-    GRYPE_TEST = false
+    GRYPE_TEST = true
     DEV = { config ->
         doCompile(conf: config)
         //doDeploy(config)
@@ -25,14 +25,13 @@ hose {
                             image : 'gosec-builder',
                             dockerfile : 'Dockerfile',
                             conf : config
-                         ]
-//                         ],
-//                         /* JDK 11 */
-//                         [
-//                             image : 'gosec-builder-jdk-11',
-//                             dockerfile : 'Dockerfile.test2',
-//                             conf : config
-//                         ]
+                        ],
+                        /* JDK 11 */
+                        [
+                            image : 'gosec-builder-jdk-11',
+                            dockerfile : 'Dockerfile.test2',
+                            conf : config
+                        ]
                     ]
                 )
        
