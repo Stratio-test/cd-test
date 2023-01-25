@@ -25,13 +25,14 @@ hose {
                             image : 'gosec-builder',
                             dockerfile : 'Dockerfile',
                             conf : config
-                        ],
-                        /* JDK 11 */
-                        [
-                            image : 'gosec-builder-jdk-11',
-                            dockerfile : 'Dockerfile.test2',
-                            conf : config
-                        ]
+                         ]
+//                         ],
+//                         /* JDK 11 */
+//                         [
+//                             image : 'gosec-builder-jdk-11',
+//                             dockerfile : 'Dockerfile.test2',
+//                             conf : config
+//                         ]
                     ]
                 )
        
