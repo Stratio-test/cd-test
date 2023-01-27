@@ -1,4 +1,4 @@
-@Library('libpipelines@grype/clean-nexus-repository') _
+@Library('libpipelines@preproduction') _
 
 hose {
     EMAIL = 'cd'
@@ -7,7 +7,7 @@ hose {
     BUILDTOOL_IMAGE = 'maven:3.8.5-openjdk-11'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
-    GRYPE_TEST = false
+    GRYPE_TEST = true
     DEV = { config ->
         doCompile(conf: config)
         //doDeploy(config)
