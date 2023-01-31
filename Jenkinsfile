@@ -9,8 +9,8 @@ hose {
     JIRAPROJECT = 'cd-test-project'
     GRYPE_TEST = true
     DEV = { config ->
-        doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "stratiocommit-test", activeDelete: false, credentials: "GRYPE_DOWNLOADS", files: "anchore", 
-                       remoteServer: "anchore-reports.int.stratio.com", localFolder: "anchore", branchOnPath: true])
+//         doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "stratiocommit-test", activeDelete: false, credentials: "GRYPE_DOWNLOADS", files: "anchore", 
+//                        remoteServer: "anchore-reports.int.stratio.com", localFolder: "anchore", branchOnPath: true])
         doCompile(conf: config)
         //doDeploy(config)
         //doHandsOffDeploy(conf: config, sources: ["bundle.json"], targetRepositoryGroup: "paas", targetSubfolder: "test", buildDestination: false, runOnFinal: true, runOnPR: false)
