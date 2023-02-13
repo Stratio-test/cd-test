@@ -7,7 +7,7 @@ hose {
     BUILDTOOL_IMAGE = 'maven:3.8.5-openjdk-11'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
-    GRYPE_TEST = false
+    GRYPE_TEST = true
     DEV = { config ->
 //         doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "stratiocommit-test", activeDelete: false, credentials: "GRYPE_DOWNLOADS", files: "anchore", 
 //                        remoteServer: "anchore-reports.int.stratio.com", localFolder: "anchore", branchOnPath: true])
