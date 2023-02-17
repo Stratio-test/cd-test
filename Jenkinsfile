@@ -12,6 +12,7 @@ hose {
     ITSERVICES = [
         ['ARANGODB_MD5': [
             'image': 'arangodb:3.10.2',
+            'fixedName': true, 
             'ports': [['containerPort': 8529]],
             'sleep': 300,
             'healthcheck': 8529,
