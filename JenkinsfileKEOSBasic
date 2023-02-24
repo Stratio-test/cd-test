@@ -9,6 +9,6 @@ hose {
 
 
     INSTALL = { config ->
-        doKeosInstall(config)
+        doKeosInstallBasic(config)
     }
 }
