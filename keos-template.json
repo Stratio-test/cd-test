@@ -1,0 +1,15 @@
+{
+  "external_registry": {
+    "auth_required": false,
+    "url": ""
+  },
+  "keos": {
+    "cluster_id": ""
+  },
+  "infra": {
+    "kube_control_plane": [],
+    "kube_node": [],
+    "ssh_user": "",
+    "ssh_port": 22
+  }
+}
