@@ -1,5 +1,4 @@
-@Library('libpipelines@preproduction') import cd.Util
-def util = new Util(this, conf, currentBuild)
+@Library('libpipelines@preproduction')
 
 hose {
     EMAIL = 'cd'
@@ -36,15 +35,13 @@ hose {
         
         echo "${config.INTERNAL_REBUILD_HISTORY[0].result.getNumber().toString()}"
         
-        util.getPipelineAgent() {
-                node(POD_LABEL) {
-                    for (i in config.INTERNAL_REBUILD_HISTORY){
-                                def job = i.name
-                                def exe = i.result.getNumber().toString()
-                                //sh(script: 'curl GET https://builder.int.stratio.com/job/AI/job/Modules/job/' + job + '/' + exe + '/artifact/testsAT/target/cucumberInstallOperatorPostgres.json > ${job}-${exe}.json')
-                            }
+        
+        for (i in config.INTERNAL_REBUILD_HISTORY){
+                    def job = i.name
+                    def exe = i.result.getNumber().toString()
+                    //sh(script: 'curl GET https://builder.int.stratio.com/job/AI/job/Modules/job/' + job + '/' + exe + '/artifact/testsAT/target/cucumberInstallOperatorPostgres.json > ${job}-${exe}.json')
                 }
-        }
+                
     
         //doIT(conf: config)
 //         doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "stratiocommit-test", activeDelete: false, credentials: "GRYPE_DOWNLOADS", files: "anchore", 
