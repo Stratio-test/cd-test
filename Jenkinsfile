@@ -40,9 +40,8 @@ hose {
                     for (i in config.INTERNAL_REBUILD_HISTORY){
                                 def job = i.name
                                 def exe = i.result.getNumber().toString()
-                                sh(script: 'curl GET https://builder.int.stratio.com/job/AI/job/Modules/job/' + job + '/' + exe + '/artifact/testsAT/target/cucumberInstallOperatorPostgres.json > ${job}-${exe}.json')
+                                //sh(script: 'curl GET https://builder.int.stratio.com/job/AI/job/Modules/job/' + job + '/' + exe + '/artifact/testsAT/target/cucumberInstallOperatorPostgres.json > ${job}-${exe}.json')
                             }
-                    sh(script:'pwd')
                 }
         }
     
