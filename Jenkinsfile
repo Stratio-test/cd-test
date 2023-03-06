@@ -24,6 +24,7 @@ hose {
     ]
     
     DEV = { config ->
+       
         doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
         //def buildNumber = jobInfo[0].buildNumber
         //echo "${buildNumber.toString()}"
@@ -33,13 +34,16 @@ hose {
         //echo "${buildNumber2.toString()}"
         
         echo "${config.INTERNAL_REBUILD_HISTORY[0].result.getNumber().toString()}"
-        node(POD_LABEL) {
-            for (i in config.INTERNAL_REBUILD_HISTORY){
-                        def job = i.name
-                        def exe = i.result.getNumber().toString()
-                        sh(script: 'curl GET https://builder.int.stratio.com/job/AI/job/Modules/job/' + job + '/' + exe + '/artifact/testsAT/target/cucumberInstallOperatorPostgres.json > ${job}-${exe}.json')
-                    }
-            sh(script:'pwd')
+        
+        util.getPipelineAgent() {
+                node(POD_LABEL) {
+                    for (i in config.INTERNAL_REBUILD_HISTORY){
+                                def job = i.name
+                                def exe = i.result.getNumber().toString()
+                                sh(script: 'curl GET https://builder.int.stratio.com/job/AI/job/Modules/job/' + job + '/' + exe + '/artifact/testsAT/target/cucumberInstallOperatorPostgres.json > ${job}-${exe}.json')
+                            }
+                    sh(script:'pwd')
+                }
         }
     
         //doIT(conf: config)
