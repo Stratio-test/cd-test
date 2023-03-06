@@ -1,4 +1,5 @@
-@Library('libpipelines@preproduction') _
+@Library('libpipelines@preproduction') import cd.Util
+def util = new Util(this, conf, currentBuild)
 
 hose {
     EMAIL = 'cd'
