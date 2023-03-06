@@ -32,7 +32,7 @@ hose {
         def buildNumber2 = jobInfo2[1].buildNumber
         echo "${buildNumber2.toString()}"
         
-        echo "${config.INTERNAL_REBUILD_HISTORY}
+        echo "${config.INTERNAL_REBUILD_HISTORY}"
         //doIT(conf: config)
 //         doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "stratiocommit-test", activeDelete: false, credentials: "GRYPE_DOWNLOADS", files: "anchore", 
 //                        remoteServer: "anchore-reports.int.stratio.com", localFolder: "anchore", branchOnPath: true])
