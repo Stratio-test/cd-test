@@ -25,7 +25,7 @@ hose {
     
     DEV = { config ->
         doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
-        def buildNumber = config.INTERNAL_REBUILD_HISTORY.getNumber()
+        def buildNumber = config.INTERNAL_REBUILD_HISTORY
         echo builNumber
         //doIT(conf: config)
 //         doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "stratiocommit-test", activeDelete: false, credentials: "GRYPE_DOWNLOADS", files: "anchore", 
