@@ -24,15 +24,15 @@ hose {
     ]
     
     DEV = { config ->
-        def jobInfo = doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
-        def buildNumber = jobInfo[0].buildNumber
-        echo "${buildNumber.toString()}"
+        doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
+        //def buildNumber = jobInfo[0].buildNumber
+        //echo "${buildNumber.toString()}"
         
-        def jobInfo2 = doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
-        def buildNumber2 = jobInfo2[1].buildNumber
-        echo "${buildNumber2.toString()}"
+        doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
+        //def buildNumber2 = jobInfo2[1].buildNumber
+        //echo "${buildNumber2.toString()}"
         
-        echo "${config.INTERNAL_REBUILD_HISTORY}"
+        echo "${config.INTERNAL_REBUILD_HISTORY[0].result.getNumber().toString()}"
         //doIT(conf: config)
 //         doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "stratiocommit-test", activeDelete: false, credentials: "GRYPE_DOWNLOADS", files: "anchore", 
 //                        remoteServer: "anchore-reports.int.stratio.com", localFolder: "anchore", branchOnPath: true])
