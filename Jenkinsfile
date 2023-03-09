@@ -25,30 +25,30 @@ hose {
     
     DEV = { config ->
        
-        doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
-        //def buildNumber = jobInfo[0].buildNumber
-        //echo "${buildNumber.toString()}"
+//         doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
+//         //def buildNumber = jobInfo[0].buildNumber
+//         //echo "${buildNumber.toString()}"
         
-        doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
-        //def buildNumber2 = jobInfo2[1].buildNumber
-        //echo "${buildNumber2.toString()}"
+//         doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
+//         //def buildNumber2 = jobInfo2[1].buildNumber
+//         //echo "${buildNumber2.toString()}"
         
-        echo "${config.INTERNAL_REBUILD_HISTORY[0].result.getNumber().toString()}"
+//         echo "${config.INTERNAL_REBUILD_HISTORY[0].result.getNumber().toString()}"
         
         
-        for (i in config.INTERNAL_REBUILD_HISTORY){
-                    def job = i.name
-                    def exe = i.result.getNumber().toString()
-                    echo job
-                    echo exe
-                    //sh(script: 'curl GET https://builder.int.stratio.com/job/AI/job/Modules/job/' + job + '/' + exe + '/artifact/testsAT/target/cucumberInstallOperatorPostgres.json > ${job}-${exe}.json')
-                }
+//         for (i in config.INTERNAL_REBUILD_HISTORY){
+//                     def job = i.name
+//                     def exe = i.result.getNumber().toString()
+//                     echo job
+//                     echo exe
+//                     //sh(script: 'curl GET https://builder.int.stratio.com/job/AI/job/Modules/job/' + job + '/' + exe + '/artifact/testsAT/target/cucumberInstallOperatorPostgres.json > ${job}-${exe}.json')
+//                 }
                 
     
         //doIT(conf: config)
 //         doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "stratiocommit-test", activeDelete: false, credentials: "GRYPE_DOWNLOADS", files: "anchore", 
 //                        remoteServer: "anchore-reports.int.stratio.com", localFolder: "anchore", branchOnPath: true])
-        doCompile(conf: config)
+        //doCompile(conf: config)
         //doDeploy(config)
         //doHandsOffDeploy(conf: config, sources: ["bundle.json"], targetRepositoryGroup: "paas", targetSubfolder: "test", buildDestination: false, runOnFinal: true, runOnPR: false)
         //doSemgrepAnalysis(conf: config, configs: ["/semgrep-rules/rules/python-rules.json"], includes: ["*.py", "*.json", "testsAT"])
@@ -61,14 +61,8 @@ hose {
                     dockerImages :[
                         /* JDK 8 */
                         [
-                            image : 'anchore-dispatcher',
+                            image : 'test-docker-build-time',
                             dockerfile : 'Dockerfile',
-                            conf : config
-                        ],
-                        /* JDK 11 */
-                        [
-                            image : 'cd-test-1',
-                            dockerfile : 'Dockerfile.test2',
                             conf : config
                         ]
                     ]
