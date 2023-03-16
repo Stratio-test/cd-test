@@ -1,4 +1,4 @@
-@Library('libpipelines@semgrep/improvements') _
+@Library('libpipelines@preproduction') _
 
 hose {
     EMAIL = 'cd'
@@ -24,6 +24,7 @@ hose {
     ]
     
     DEV = { config ->
+        doGrypeScan(conf: config, artifactsPath = '/python')
        
 //         doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
 //         //def buildNumber = jobInfo[0].buildNumber
