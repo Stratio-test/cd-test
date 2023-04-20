@@ -2,7 +2,7 @@
 
 ## 0.201.0 (upcoming)
 
-* Pending changelog
+* test branch protection
 
 ## Previous development
 
