@@ -1,10 +1,14 @@
 # Changelog
 
-## 0.201.0 (upcoming)
+## 0.202.0 (upcoming)
 
-* test branch protection
+* Pending changelog
 
 ## Previous development
+
+### Branched to branch-0.201 (2023-04-20)
+
+* test branch protection
 
 ### Branched to branch-0.200 (2022-11-03)
 
