@@ -1,0 +1,14 @@
+@Library('libpipelines@preproduction') _
+
+hose {
+    EMAIL = 'lgutierrez'
+    BUILDTOOL = 'maven'
+    //BUILDTOOL_IMAGE = "stratio/qa-builder:0.4.0"
+    INSTALLTIMEOUT = 720
+
+
+    INSTALL = { config ->
+        def envParams = doEnvironmentsConfig(config)
+        println("Env aprams = ${envParams}")
+    }
+}
