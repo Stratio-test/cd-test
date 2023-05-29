@@ -7,7 +7,7 @@ hose {
     //BUILDTOOL_IMAGE = 'maven:3.8.5-openjdk-11'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'cd-test-project'
-    GRYPE_TEST = true
+    ANCHORE_TEST = false
     
     ITSERVICES = [
         ['ARANGODB_MD5': [
@@ -49,7 +49,7 @@ hose {
         //doIT(conf: config)
 //         doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "stratiocommit-test", activeDelete: false, credentials: "GRYPE_DOWNLOADS", files: "anchore", 
 //                        remoteServer: "anchore-reports.int.stratio.com", localFolder: "anchore", branchOnPath: true])
-        doCompile(conf: config)
+        //doCompile(conf: config)
         //doDeploy(config)
         //doHandsOffDeploy(conf: config, sources: ["bundle.json"], targetRepositoryGroup: "paas", targetSubfolder: "test", buildDestination: false, runOnFinal: true, runOnPR: false)
         //doSemgrepAnalysis(conf: config, configs: ["/semgrep-rules/rules/python-rules.yaml", "/semgrep-rules/rules/java-rules.yaml"], includes: ["src/*", "python/*.py"])
@@ -57,22 +57,22 @@ hose {
         //doCustomStage(conf:config, buildToolOverride: [BUILDTOOL_IMAGE: "python:latest", CREDENTIALS_ID: [[credentialsId: "STRATIOCOMMIT-TEST_GH_API_TOKEN", credentialsVariable:"VAR1"], [credentialsId: "POSTGREST_JWT", credentialsVariable:"VAR2"]], CUSTOM_COMMAND: 'python python/test.py'], stageName: "Running python scripts", runOnFinal: true)
         //doCustomStage(conf:config, buildToolOverride: [BUILDTOOL_IMAGE: "python:latest", CREDENTIALS_ID: "STRATIOCOMMIT-TEST_GH_API_TOKEN", CUSTOM_COMMAND: 'python python/test_2.py'], stageName: "Running python scripts", runOnFinal: true)
         //doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "grype-builder"]])
-//          doDockers(
-//                      conf : config,
-//                      dockerImages :[
-//                          /* JDK 8 */
-//                          [
-//                             image : 'test-docker-build-time',
-//                             dockerfile : 'Dockerfile',
-//                             conf : config
-//                         ],
-//                          [
-//                             image : 'test-docker-2',
-//                             dockerfile : 'Dockerfile2',
-//                             conf : config
-//                         ]
-//                     ]
-//                 )
+         doDockers(
+                     conf : config,
+                     dockerImages :[
+                         /* JDK 8 */
+                         [
+                            image : 'test-docker-build-time',
+                            dockerfile : 'Dockerfile',
+                            conf : config
+                        ],
+                         [
+                            image : 'test-docker-2',
+                            dockerfile : 'Dockerfile2',
+                            conf : config
+                        ]
+                    ]
+                )
        
     }
     INSTALL = { config ->
