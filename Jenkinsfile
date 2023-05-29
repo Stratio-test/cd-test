@@ -1,4 +1,4 @@
-@Library('libpipelines@add-jira-version-release-flow') _
+@Library('libpipelines@preproduction') _
 
 hose {
     EMAIL = 'cd'
