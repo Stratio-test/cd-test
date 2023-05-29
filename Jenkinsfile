@@ -1,4 +1,4 @@
-@Library('libpipelines@preproduction') _
+@Library('libpipelines@add-jira-version-release-flow') _
 
 hose {
     EMAIL = 'cd'
@@ -6,7 +6,7 @@ hose {
     //BUILDTOOL = 'docker'
     //BUILDTOOL_IMAGE = 'maven:3.8.5-openjdk-11'
     GENERATE_QA_ISSUE = true
-    JIRAPROJECT = 'cd-test-project'
+    JIRAPROJECT = 'TEST1'
     ANCHORE_TEST = false
     
     ITSERVICES = [
@@ -57,22 +57,22 @@ hose {
         //doCustomStage(conf:config, buildToolOverride: [BUILDTOOL_IMAGE: "python:latest", CREDENTIALS_ID: [[credentialsId: "STRATIOCOMMIT-TEST_GH_API_TOKEN", credentialsVariable:"VAR1"], [credentialsId: "POSTGREST_JWT", credentialsVariable:"VAR2"]], CUSTOM_COMMAND: 'python python/test.py'], stageName: "Running python scripts", runOnFinal: true)
         //doCustomStage(conf:config, buildToolOverride: [BUILDTOOL_IMAGE: "python:latest", CREDENTIALS_ID: "STRATIOCOMMIT-TEST_GH_API_TOKEN", CUSTOM_COMMAND: 'python python/test_2.py'], stageName: "Running python scripts", runOnFinal: true)
         //doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "grype-builder"]])
-         doDockers(
-                     conf : config,
-                     dockerImages :[
-                         /* JDK 8 */
-                         [
-                            image : 'test-docker-build-time',
-                            dockerfile : 'Dockerfile',
-                            conf : config
-                        ],
-                         [
-                            image : 'test-docker-2',
-                            dockerfile : 'Dockerfile2',
-                            conf : config
-                        ]
-                    ]
-                )
+//          doDockers(
+//                      conf : config,
+//                      dockerImages :[
+//                          /* JDK 8 */
+//                          [
+//                             image : 'test-docker-build-time',
+//                             dockerfile : 'Dockerfile',
+//                             conf : config
+//                         ],
+//                          [
+//                             image : 'test-docker-2',
+//                             dockerfile : 'Dockerfile2',
+//                             conf : config
+//                         ]
+//                     ]
+//                 )
        
     }
     INSTALL = { config ->
