@@ -1,12 +1,18 @@
 # Changelog
 
-## 0.203.0 (upcoming)
+## 0.204.0 (upcoming)
+
+* Pending changelog
+
+## Previous development
+
+### Branched to branch-0.203 (2023-06-01)
 
 * Increase version to avoid issues with chart previous versions
 * [EOS-10976] Add gosec-authz chart to repository
 * [GS-7253] Service type alias
 
-## Previous development
+
 
 ### Branched to branch-0.202 (2023-06-01)
 
