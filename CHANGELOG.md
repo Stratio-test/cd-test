@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.202.0 (upcoming)
+## 0.203.0 (upcoming)
+
+* Pending changelog
+
+## Previous development
+
+### Branched to branch-0.202 (2023-06-01)
 
 Test egeo bug with changelog
 
@@ -32,7 +38,7 @@ Test egeo bug with changelog
 
 * Upgrade to Angular 14 and latest dependencies versions
 
-## Previous development
+
 
 ### Branched to branch-0.201 (2023-04-20)
 
