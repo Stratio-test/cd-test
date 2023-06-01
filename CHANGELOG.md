@@ -2,7 +2,9 @@
 
 ## 0.203.0 (upcoming)
 
-* Pending changelog
+* Increase version to avoid issues with chart previous versions
+* [EOS-10976] Add gosec-authz chart to repository
+* [GS-7253] Service type alias
 
 ## Previous development
 
