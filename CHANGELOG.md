@@ -2,7 +2,46 @@
 
 ## 0.203.0 (upcoming)
 
-* Pending changelog
+* Test egeo bug with changelog
+
+**New features:**
+
+* st-table: Added load on scroll. Added showEllipsis and tooltip in table header label.
+* constants: Add sdsColors object.
+* st-docs: Added tab 'Readme' to visualize readme.md
+* st-datepicker-input: Create new component
+* sds-link: Add class sds-link--disabled to disable the link
+* directives: Create a new menu Directives on show diferents components of directives in to egeo
+* st-tag: Add new option inactive and change color of the selected tag
+* all: Add internalId and qaTag inputs to components.
+* st-menu: Add new option with which the menu overlaps all layers
+* sds-dropdown: Add new option with which the dropdown overlaps all layers
+
+
+**Breaking changes:**
+
+* sds-input: Correct name of minLenght and maxLenght attributes to minlenght and maxlenght of SdsInputError obj, affect input errors, modify input errors behavior
+* chore: Added internalId input to components to be used as id.
+* chore: Now qaTag input is assigned to html attribute data-qa-tag.
+
+**Fixed bugs:**
+
+* st-table: Table header elements always in one line.
+
+**Others**
+
+* Upgrade to Angular 14 and latest dependencies versions
+
+
+
+
+
+
+
+
+
+
+* Test if lots of intros
 
 ## Previous development
 
