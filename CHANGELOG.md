@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.204.0 (upcoming)
+## 0.204.0 (2023-06-02)
 
 * Test egeo bug with changelog
 
