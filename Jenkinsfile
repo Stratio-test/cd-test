@@ -24,6 +24,7 @@ hose {
     ]
     
     DEV = { config ->
+        doDocker(conf:config, image:'capsule')
     //   doGrypeScan(conf: config, artifactsList: [[path: 'testsAT/', name: 'artifact_1'], [path: 'python/', name: 'artifact_2'], [path: 'go/', name: 'artifact_3']])
        
 //         doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
