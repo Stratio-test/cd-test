@@ -1,11 +1,7 @@
-@Library('libpipelines') _
+@Library('libpipelines@preproduction') _
 
 hose {
     EMAIL = 'cd'
-    DEPLOYONPRS = false
-    //BUILDTOOL = 'docker'
-    BUILDTOOL_IMAGE = 'python:latest'
-    GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'TEST12'
     
     ITSERVICES = [
