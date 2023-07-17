@@ -7,7 +7,6 @@ hose {
     BUILDTOOL_IMAGE = 'python:latest'
     GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'TEST12'
-    ANCHORE_TEST = false
     
     ITSERVICES = [
         ['ARANGODB_MD5': [
@@ -33,19 +32,7 @@ hose {
         
 //         doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
 //         //def buildNumber2 = jobInfo2[1].buildNumber
-//         //echo "${buildNumber2.toString()}"
-        
-//         echo "${config.INTERNAL_REBUILD_HISTORY[0].result.getNumber().toString()}"
-        
-        
-//         for (i in config.INTERNAL_REBUILD_HISTORY){
-//                     def job = i.name
-//                     def exe = i.result.getNumber().toString()
-//                     echo job
-//                     echo exe
-//                     //sh(script: 'curl GET https://builder.int.stratio.com/job/AI/job/Modules/job/' + job + '/' + exe + '/artifact/testsAT/target/cucumberInstallOperatorPostgres.json > ${job}-${exe}.json')
-//                 }
-                
+               
     
         //doIT(conf: config)
 //         doSsh(conf: config, onPr: true, sshConf: [remoteFolder: "stratiocommit-test", activeDelete: false, credentials: "GRYPE_DOWNLOADS", files: "anchore", 
@@ -55,7 +42,7 @@ hose {
         //doHandsOffDeploy(conf: config, sources: ["bundle.json"], targetRepositoryGroup: "paas", targetSubfolder: "test", buildDestination: false, runOnFinal: true, runOnPR: false)
   //      doSemgrepAnalysis(conf: config, configs: ["/semgrep-rules/rules/python-rules.yaml", "/semgrep-rules/rules/java-rules.yaml"], includes: ["src/*", "python/*.py"])
         //doSemgrepAnalysis(conf: config, configs: ["p/ci", "p/jwt", "p/r2c", "p/xss", "p/scala", "p/owasp-top-ten", "p/sql-injection", "p/security-audit", "p/command-injection", "p/r2c-ci", "p/r2c-security-audit", "p/insecure-transport", "p/secrets", "p/mobsfscan","p/r2c-bug-scan"], excludes: ["*.json", "testsAT"])
-        doCustomStage(conf:config, buildToolOverride: [CREDENTIALS_ID: [[credentialsId: "STRATIOCOMMIT-TEST_GH_API_TOKEN", credentialsVariable:"VAR1"], [credentialsId: "POSTGREST_JWT", credentialsVariable:"VAR2"]], CUSTOM_COMMAND: 'python python/test.py %%VERSION'], stageName: "Running python scripts", runOnFinal: true)
+//        doCustomStage(conf:config, buildToolOverride: [CREDENTIALS_ID: [[credentialsId: "STRATIOCOMMIT-TEST_GH_API_TOKEN", credentialsVariable:"VAR1"], [credentialsId: "POSTGREST_JWT", credentialsVariable:"VAR2"]], CUSTOM_COMMAND: 'python python/test.py %%VERSION'], stageName: "Running python scripts", runOnFinal: true)
         //doCustomStage(conf:config, buildToolOverride: [BUILDTOOL_IMAGE: "python:latest", CREDENTIALS_ID: "STRATIOCOMMIT-TEST_GH_API_TOKEN", CUSTOM_COMMAND: 'python python/test_2.py'], stageName: "Running python scripts", runOnFinal: true)
         //doDockers(conf:config, dockerImages:[[conf:config, dockerfile: "Dockerfile", image: "grype-builder"]])
 //          doDockers(
@@ -78,5 +65,9 @@ hose {
     }
     INSTALL = { config ->
         doAT(config)
+    }
+
+    DOC = { config ->
+        doStratioDocsChecks(conf: config)
     }
 }
