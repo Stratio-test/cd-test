@@ -1,11 +1,7 @@
-@Library('libpipelines') _
+@Library('libpipelines@preproduction') _
 
 hose {
     EMAIL = 'cd'
-    DEPLOYONPRS = false
-    //BUILDTOOL = 'docker'
-    BUILDTOOL_IMAGE = 'python:latest'
-    GENERATE_QA_ISSUE = true
     JIRAPROJECT = 'TEST12'
     
     ITSERVICES = [
@@ -23,8 +19,8 @@ hose {
     ]
     
     DEV = { config ->
-        doDocker(conf:config, image:'capsule')
-    //   doGrypeScan(conf: config, artifactsList: [[path: 'testsAT/', name: 'artifact_1'], [path: 'python/', name: 'artifact_2'], [path: 'go/', name: 'artifact_3']])
+     //   doDocker(conf:config, image:'capsule')
+      doGrypeScan(conf: config, artifactsList: [[path: 'testsAT/', name: 'artifact_1'], [path: 'python/', name: 'artifact_2'], [path: 'go/', name: 'artifact_3']])
        
 //         doRebuildJob(conf: config, job: 'Base Images', branch: 'get-job-info', propagateFailure: true, reportMap: [MODULE: 'test', DESCRIPTION: 'test description'])
 //         //def buildNumber = jobInfo[0].buildNumber
