@@ -8,7 +8,7 @@
 * repository field tocosmos ii
 * test lock branch
 * test grype
-* test jira versions
+* test jira versionss
 
 ## 0.81.19 (2023-03-27)
 
