@@ -1,4 +1,4 @@
-@Library('libpipelines@preproduction') _
+@Library('libpipelines@feature/autoCherryPick') _
 
 hose {
     EMAIL = 'cd'
