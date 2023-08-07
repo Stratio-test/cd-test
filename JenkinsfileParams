@@ -1,14 +1,14 @@
 @Library('libpipelines@preproduction') _
 
 hose {
-    EMAIL = 'lgutierrez'
+    EMAIL = 'lgutierrez@stratio.com'
     BUILDTOOL = 'maven'
-    //BUILDTOOL_IMAGE = "stratio/qa-builder:0.4.0"
+    BUILDTOOL_IMAGE = "stratio/qa-builder:0.5.0"
     INSTALLTIMEOUT = 720
 
+    ATCREDENTIALS = [[TYPE:'sshKey', ID:'PEM_VMWARE']]
 
     INSTALL = { config ->
-        def envParams = doEnvironmentsConfig(config)
-        println("Env aprams = ${envParams}")
+        doKeosInstall(config)
     }
 }
