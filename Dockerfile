@@ -5,6 +5,7 @@ MAINTAINER CD "cd@stratio.com"
 
 ARG VERSION
 RUN apt-get update && apt-get -y install git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update
 
 COPY target/cd-test-${VERSION}.jar /
 RUN mkdir -m 700 /root/.ssh; touch -m 600 /root/.ssh/known_hosts; ssh-keyscan github.com > /root/.ssh/known_hosts
