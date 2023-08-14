@@ -2,7 +2,6 @@
 
 hose {
     EMAIL = 'cd'
-    JIRAPROJECT = 'TEST12'
     
     ITSERVICES = [
         ['ARANGODB_MD5': [
