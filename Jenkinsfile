@@ -7,6 +7,7 @@ hose {
     GENERATE_QA_ISSUE = true
     ENABLE_CONCURRENT_BUILDS = false
     SHOW_RAW_YAML = true
+    DOCNAME = "Documetation test name"
 //    ITPARAMETERS = """
 //    | -DZOOKEEPER_HOSTNAME=%%ZOOKEEPER
 //    | """
