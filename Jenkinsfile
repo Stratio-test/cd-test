@@ -1,4 +1,4 @@
-@Library('libpipelines@preproduction') _
+@Library('libpipelines@include-doc-name-in-cmdb') _
 
 hose {
     EMAIL = 'cd'
