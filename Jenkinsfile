@@ -5,7 +5,6 @@ hose {
     ANCHORE_TEST = true
     DEPLOYONPRS = true
     GENERATE_QA_ISSUE = true
-    ENABLE_CONCURRENT_BUILDS = false
     SHOW_RAW_YAML = true
     DOC_NAME = "Stratio Doc"
 //    ITPARAMETERS = """
