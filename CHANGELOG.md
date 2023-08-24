@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.204.1 (upcoming)
+## 0.204.1 (2023-08-24)
 
 * Testing
 
