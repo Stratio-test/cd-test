@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>cd-test</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.1.0_0.2.0_PR34_SNAPSHOT-0.1.0-SNAPSHOT</version>
 
     <properties>
         <javax.json.version>1.0.4</javax.json.version>
