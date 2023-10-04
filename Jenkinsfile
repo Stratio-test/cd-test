@@ -6,6 +6,7 @@ hose {
     GENERATE_QA_ISSUE = true
     SHOW_RAW_YAML = true
     DOC_NAME = "Stratio Doc"
+    BUILDTOOL_IMAGE = "python:latest"
 
 
     DEV = { config ->
