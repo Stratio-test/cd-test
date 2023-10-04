@@ -1,10 +1,16 @@
 # Changelog
 
-## 0.205.0 (upcoming)
+## 0.206.0 (upcoming)
+
+* Pending changelog
+
+## Previous development
+
+### Branched to branch-0.205 (2023-10-04)
 
 * test
 
-## Previous development
+
 
 ### Branched to branch-0.204 (2023-06-02)
 
