@@ -1,4 +1,4 @@
-@Library('libpipelines@include-doc-name-in-cmdb') _
+@Library('libpipelines@fix-version-replace') _
 
 hose {
     EMAIL = 'cd'
