@@ -1,4 +1,4 @@
-@Library('libpipelines@fix-version-replace') _
+@Library('libpipelines@add-AT-clouds-features') _
 
 hose {
     EMAIL = 'cd'
