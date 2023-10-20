@@ -1,4 +1,4 @@
-FROM golang:1.18 as builder
+FROM python:3.9.18-slim
 # RUN apt update && apt install -y git && mkdir /app
 # RUN cd /app && git clone https://github.com/apache/spark
 # RUN useradd spark 
