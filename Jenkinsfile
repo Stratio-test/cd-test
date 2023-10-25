@@ -6,6 +6,7 @@ hose {
     JIRA_TRANSITION = 'Done'
 
     
+    
     DEV = { config ->
      //    doTrivy(config)
      //    doDocker(conf:config, image:'capsule')
