@@ -4,6 +4,7 @@ hose {
     EMAIL = 'cd'
     JIRAPROJECT = 'TEST1'
     JIRA_TRANSITION = 'Done'
+
     
     DEV = { config ->
      //    doTrivy(config)
