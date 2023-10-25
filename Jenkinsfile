@@ -2,7 +2,7 @@
 
 hose {
     EMAIL = 'cd'
-    JIRAPROJECT = 'TEST1'
+    JIRA_PROJECT = 'TEST1'
     JIRA_TRANSITION = 'Done'
 
 
