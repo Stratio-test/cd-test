@@ -7,7 +7,7 @@ hose {
    
     
     DEV = { config ->
-     //   doTrivy(config)
+     //    doTrivy(config)
      //    doDocker(conf:config, image:'capsule')
          doGrypeScan(conf: config, artifactsList: [[path: 'testsAT/', name: 'artifact_1'], [path: 'python/', name: 'artifact_2'], [path: 'go/', name: 'artifact_3']])
        
