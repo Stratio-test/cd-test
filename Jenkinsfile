@@ -5,7 +5,6 @@ hose {
     JIRA_PROJECT = 'TEST1'
     JIRA_TRANSITION = 'Done'
 
-
     
     DEV = { config ->
      //    doTrivy(config)
