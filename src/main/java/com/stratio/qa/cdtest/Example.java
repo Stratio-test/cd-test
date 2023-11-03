@@ -6,8 +6,6 @@ import java.util.*;
   
 public class Example{  
   
-   /* Get the class name to be printed on */  
-   static Logger log = Logger.getLogger(Example.class.getName());  
      
    public static void main(String[] args)throws IOException,SQLException{  
       log.debug("Hello this is a debug message");  
