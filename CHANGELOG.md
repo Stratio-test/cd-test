@@ -2,7 +2,7 @@
 
 ## 0.206.0 (upcoming)
 
-* Pending changelog
+* Test of the life
 
 ## Previous development
 
