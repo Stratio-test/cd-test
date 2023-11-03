@@ -1,4 +1,4 @@
-@Library('libpipelines@feature/autoCH') _
+@Library('libpipelines') _
 
 hose {
     EMAIL = 'cd'
