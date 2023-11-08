@@ -1,4 +1,4 @@
-FROM python:3.9.18-slim
+FROM busybox:latest
 # RUN apt update && apt install -y git && mkdir /app
 # RUN cd /app && git clone https://github.com/apache/spark
 # RUN useradd spark 
