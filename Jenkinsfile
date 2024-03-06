@@ -1,4 +1,4 @@
-@Library('libpipelines') _
+@Library('libpipelines@clean-local-path-spark') _
 
 hose {
     EMAIL = 'cd'
