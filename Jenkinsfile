@@ -4,6 +4,7 @@ hose {
     EMAIL = 'cd'
     JIRA_PROJECT = 'TEST1'
     JIRA_TRANSITION = 'Done'
+    STORAGE_CLASS_NAME = 'local-path'
 
 
     
