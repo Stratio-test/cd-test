@@ -1,0 +1,14 @@
+@Library('libpipelines@new-clouds-install') _
+
+hose {
+    EMAIL = 'lgutierrez'
+    BUILDTOOL = 'maven'
+    //BUILDTOOL_IMAGE = "qa.int.stratio.com/docker:latest"
+    INSTALLTIMEOUT = 720
+
+    ATCREDENTIALS = [[TYPE:'sshKey', ID:'PEM_VMWARE']]
+
+    INSTALL = { config ->
+        doCloudsInstall(config)
+    }
+}
