@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## 0.215.0 (upcoming)
 
-* Pending changelog
+ * [FLOW-4556] -  Test CH  - [`#45`](https://github.com/Stratio-test/cd-test/pull/45)
+
 
 ## Previous development
 
