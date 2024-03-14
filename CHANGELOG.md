@@ -2,13 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.207.0 (upcoming)
+## 0.208.0 (upcoming)
+
+* Pending changelog
+
+## Previous development
+
+### Branched to branch-0.207 (2024-03-14)
 
  * [FLOW-976] -  Test staging  - [`#13`](https://github.com/Stratio-test/cd-test/pull/13)
 * [FLOW-785] -  Version 0.43.0  - [`#6`](https://github.com/Stratio-test/cd-test/pull/6)
 
 
-## Previous development
+
 
 ### Branched to branch-0.206 (2023-11-03)
 
