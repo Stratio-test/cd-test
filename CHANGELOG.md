@@ -4,7 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## 0.216.0 (upcoming)
 
-* Pending changelog
+ * [FLOW-4556] -  Test CH  - [`#45`](https://github.com/Stratio-test/cd-test/pull/45)
+* [FLOW-976] -  Test staging  - [`#13`](https://github.com/Stratio-test/cd-test/pull/13)
+* [FLOW-785] -  Version 0.43.0  - [`#6`](https://github.com/Stratio-test/cd-test/pull/6)
+
 
 ## Previous development
 
