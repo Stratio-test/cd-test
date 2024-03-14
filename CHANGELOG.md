@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## 0.219.0 (upcoming)
 
-* Pending changelog
+ * [FLOW-4545] -  Test ACH  - [`#34`](https://github.com/Stratio-test/cd-test/pull/34)
+
 
 ## Previous development
 
