@@ -2,7 +2,7 @@
 
 hose {
     EMAIL = 'cd'
-    DEPLOYONPRS = true
+    DEPLOYONPRS = false
     GENERATE_QA_ISSUE = true
     SHOW_RAW_YAML = true
     DOC_NAME = "Stratio Doc Test"
