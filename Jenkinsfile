@@ -10,7 +10,7 @@ hose {
 
 
     DEV = { config ->
-//        doCompile(config)
+        doCompile(config)
 //         doCustomStage(conf:config, buildToolOverride: [BUILDTOOL_IMAGE: "python:latest", CUSTOM_COMMAND: 'python python/test.py %%VERSION'], stageName: "Running python scripts", runOnPrerelease: true, runOnFinal: true)
 //         doPackage(config)
 // 	//doDoc(config)
