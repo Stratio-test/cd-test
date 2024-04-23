@@ -2,11 +2,10 @@
 
 hose {
     EMAIL = 'samuelgonzalez@stratio.com' // cd
-    // DEPLOYONPRS = false
-    GENERATE_QA_ISSUE = true
-    SHOW_RAW_YAML = true
-    DOC_NAME = "Stratio Doc Test"
-    //BUILDTOOL_IMAGE = "python:latest"
+    DEVTIMEOUT = 30
+    RELEASETIMEOUT = 20
+    ANCHORE_TEST = false
+    AGENT = 'jnlp-agent-openjdk11'
 
 
     DEV = { config ->
