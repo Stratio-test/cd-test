@@ -2,7 +2,6 @@
 
 hose {
     EMAIL = 'cd'
-    ANCHORE_TEST = true
     DEPLOYONPRS = false
     GENERATE_QA_ISSUE = true
     ENABLE_CONCURRENT_BUILDS = true
