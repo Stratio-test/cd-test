@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## 0.220.0 (upcoming)
 
-* Pending changelog
+* Some changes
 
 ## Previous development
 
