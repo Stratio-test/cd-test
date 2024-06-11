@@ -2,9 +2,8 @@
 
 hose {
     EMAIL = 'cd'
-    ANCHORE_TEST = true
     DEPLOYONPRS = false
-    GENERATE_QA_ISSUE = true
+    
     ENABLE_CONCURRENT_BUILDS = true
     SHOW_RAW_YAML = true
 //    ANCHORE_NIGHTLY_JOB = true
