@@ -1,4 +1,4 @@
-@Library('libpipelines@feature/PIT-4634-licenses') _
+@Library('libpipelines') _
 
 hose {
     EMAIL = 'samuelgonzalez@stratio.com'
