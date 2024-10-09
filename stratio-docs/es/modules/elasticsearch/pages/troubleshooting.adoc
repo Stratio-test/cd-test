@@ -1,0 +1,62 @@
+= _Troubleshooting_
+
+== Elasticsearch & OpenSearch Settings
+
+A pesar de que Elasticsearch y OpenSearch son herramientas muy utilizadas y con gran potencial, ambas presentan algunas ineficiencias en el manejo de grandes cantidades de datos.
+
+Una de las principales es la definición del esquema de los índices. Ambas instancias se pueden considerar como una *base de datos NoSQL*. Esto, por definición de su arquitectura, permite el dinamismo en cuanto al esquema de los índices, lo que se verá reflejado en el dinamismo del esquema en su representación como tabla en _Stratio Virtualizer_.
+
+Ambas usan una metainformación denonimanda _mapping_, donde se describe la definición del esquema de los distintos índices. Sin embargo, la semántica de este objeto _mapping_ no es rigurosa y presenta ambigüedades, como por ejemplo:
+
+* Los https://www.elastic.co/guide/en/elasticsearch/reference/master/array.html[_arrays_] no se representan bajo un tipo de datos especifico.
++
+Para los _arrays_, el _mapping_ muestra el tipo de dato contenido, independientemente de si es un único valor, un _array_ de valores de ese tipo, un _array_ de _arrays_ de ese tipo, etc.
+
+* Para el caso de los tipos espaciales `geo_point` y `geo_shape` ocurre algo similar. El _mapping_ muestra si es alguno de los dos, pero ambos tipos pueden definirse de distintas formas en el esquema de la tabla en _Stratio Virtualizer_ según la estructura del dato real que se haya insertado en el índice.
+
+En resumen, existen discrepancias entre la semántica del tipo de dato que se muestra en el _mapping_ con la semántica del tipo de dato del dato real que se indexa en el índice.
+
+TIP: Visita la xref:elasticsearch:operations-guide.adoc#descubre-tus-datos[guía de instalación] del agente de descubrimiento para más información.
+
+=== Elasticsearch & OpenSearch InferSchema Option
+
+Para ayudar a mantener la coherencia en los tipos de datos descubiertos se ha incluido la opción "Elasticsearch & OpenSearch InferSchema Option" en la configuración del agente. El mecanismo consiste en hacer una inferencia del tipo de dato en base a una cantidad fija (definida por el usuario) de los documentos indexados.
+
+La opción está activada por defecto y *se recomienda encarecidamente* mantenerla así para disponer de un esquema del índice más preciso. Para usarla:
+
+* Activa la opción 'Elasticsearch & OpenSearch Settings' -> "Elasticsearch & OpenSearch InferSchema Option".
+
+=== Elasticsearch & OpenSearch Document Sample Size
+
+Esta opción fija la cantidad de documentos que se va considerar como lote para realizar la inferencia de los tipos de datos.
+
+Esta está disponible y sólo tiene sentido si está activada previamente la opción 'Elasticsearch & OpenSearch InferSchema Option'. Para configurarla:
+
+* Activa la opción 'Elasticsearch & OpenSearch Settings' -> "Elasticsearch & OpenSearch InferSchema Option".
+* Define la cantidad en 'Elasticsearch & OpenSearch Settings' -> "Elasticsearch & OpenSearch Document Sample Size".
+
+Su valor por defecto es 100.
+
+IMPORTANT: El rendimiento del proceso de descubrimiento de datos en _Stratio Data Governance_ *puede verse reducido* en función de la cantidad de documentos que se consideran para la inferencia.
+
+=== Force OpenSearch Cluster Settings
+
+OpenSearch es básicamente un _fork_ de Elasticsearch. Este último cambió de licencia a partir de la versión 7.x, motivo por el que se comenzó el proyecto OpenSearch.
+
+Debido a lo anterior, muchos de los recursos utilizados para Elasticsearch sirven también para OpenSearch. Sin embargo, Elasticsearch definió un sistema de validación de _cluster_ en todos los recursos desarrollados por ellos mismos, algunos como el propio _datasource_, que utiliza el conector SSCC Elasticsearch, lo que invalida en muchas ocasiones el uso de esos recursos a los _clusters_ de OpenSearch.
+
+[TIP]
+====
+Puedes obtener más información acerca de esto en la siguiente referencia a la documentación:
+
+* *OpenSearch Doc*. https://opensearch.org/blog/community-clients/[Carrying forward the OpenSearch client libraries as a community] ^[English]^.
+* *OpenSearch Forum*. https://forum.opensearch.org/t/opensearch-hadoop-apache-spark-elasticsearch-connector/7730[OpenSearch Apache Hadoop®/Apache Spark™ Elasticsearch Elasticsearch connector] ^[English]^.
+====
+
+Por ello, si se dispone de una instancia de OpenSearch, se deben realizar una serie de cambios en la configuración del _cluster_ para hacerlo compatible con las herramientas de Elasticsearch.
+
+A continuación se explican dos vías para permitir la compatibilidad:
+
+* *Configuración nativa del _cluster_.* Aquí se delega el cambio de configuración al usuario de la herramienta _Stratio Generative AI Data Fabric_. Para ello, se sugiere seguir la documentación https://docs.aws.amazon.com/es_es/opensearch-service/latest/developerguide/rename.html#rename-upgrade[Comience: Actualice sus dominios a OpenSearch 1.x].
+
+* *Configuración del agente de descubrimiento.* Aquí se presta la opción de delegar el cambio de la configuración del _cluster_ al agente de descubrimiento. Para ello, activa la opción 'Elasticsearch & OpenSearch Settings' -> "Force OpenSearch Cluster Settings".

@@ -1,0 +1,5 @@
+= Known issues
+
+* The limit of rows supported in a table reading is 50 million. If the table has more records, you must use the _limit_ function to set the number of read records.
+* Provider `com.stratio.connectors.sas`:
+** *Write*: not supported for _Compute_ (SPRE) type resources.

@@ -1,0 +1,86 @@
+﻿= Quick start guide
+
+The purpose of this guide is to briefly explain how to integrate an IBM Db2 iSeries AS400 database into the _Stratio Generative AI Data Fabric_ platform.
+
+== Prerequisites
+
+You can find the prerequisites for installing the SSCC AS400 connector in the xref:as400:operations-guide.adoc#_prerequisites[operations guide].
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for IBM Db2 iSeries AS400, select "AS400 Agent" in '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS'.
+
+When installing, you need to add the URL of the connectors repository where the `sscc-postgresql-0.3_2.12-1.1.x` artifact is stored and upload the access credentials to _Stratio KMS_.
+
+The most important fields to fill in are:
+
+* *_Root discovery path_*: path from which you want to discover the metadata recursively.
+* *_Custom Service URL_*: JDBC URL used to connect to AS400. Example: `jdbc:as400://your.host.com/-db-;prompt=false;`. The end of the string must contain the `/-db-` suffix.
+* *_Access credentials_*: name of the secret created in _Stratio KMS_. For example: `as400-secret`.
+* *_SSCC driver location_*: URL where the artifact that will contain the JAR of the SSCC AS400 connector is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar`.
+* *_JDBC driver location_*: URL where the artifact that will contain the JAR of the selected JDBC driver is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/jt400-11.1.jar`.
+
+TIP: More information on the other configuration parameters can be found in the xref:as400:operations-guide.adoc[operations guide].
+
+Once the discovery process is completed, the data store will appear in the _Stratio Data Governance_ UI.
+
+== Virtualize your data
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the SSCC AS400 connector. To do this, simply add the URL of the connectors repository in the 'Customized deployment' -> 'Settings' -> `Additional jars` variable.
+
+In the example being followed, the Eureka agent looks like this:
+
+* _Additional jars_: *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar*.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the SSCC AS400 connector needs to be configured. To do so, you need to add the URL of the artifacts in the 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` variable and also xref:as400:operations-guide.adoc[upload the access credentials to _Stratio KMS_].
+
+In the example being followed, _Stratio Virtualizer_ would look like this:
+
+* _JDBC Drivers URL List_: *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/jt400-11.1.jar*.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the SSCC AS400 connector needs to be configured. To do this, you must add the URL of the artifact in the 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` variable and also upload the access credentials for the workflows and for _Stratio Rocket_ to _Stratio KMS_.
+
+In the example being followed, _Stratio Rocket_ would look like this:
+
+* 'Rocket extra jars': *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/jt400-11.1.jar*.
+* 'Spark classpath extra jars': *http://connectors.<tenant>-<namespace>/v1/api/artifact/jt400-11.1.jar*.
+
+After applying these changes, you should be able to access the virtualized collection of the SSCC AS400 connector via SQL queries directly in the catalog or via a _Stratio Virtualizer_ entry in a _workflow_.
+
+TIP: More information on the other configuration parameters can be found in the xref:as400:operations-guide.adoc#rocket-configuration[operations guide].
+
+=== _Stratio Intelligence_
+
+You'll need to configure _Stratio Intelligence_ before integrating with the connector. For this, visit the xref:ROOT:quick-start-guide#_stratio_intelligence[_Stratio Intelligence_] section of the general quick start guide.
+
+Once you've configured _Stratio Intelligence_, you have to add the IBM DB2 iSeries AS400 connector and the JDBC driver to the _artifacts/spark++_++jars_ directory and xref:as400:operations-guide.adoc[upload the access credentials to _Stratio KMS_].
+
+You can download the necessary artifact to the _artifacts/spark++_++jars_ directory in the _Stratio Intelligence_ workspace by issuing a cURL request. In this case, you could make the following request:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar --output sscc-db2-0.3_2.12-1.4.x.jar
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/jt400-11.1.jar --output jt400-11.1.jar
+----
+
+The following image shows how it is stored in the folder:
+
+image::as400-intelligence-packages.png[BDL]
+
+Once this configuration is done, you'll be able to access the tables that have been virtualized from the external IBM Db2 iSeries AS400 database.
+
+image::as400-intelligence-consulta.png[BDL]
+
+Restart the PySpark kernel.

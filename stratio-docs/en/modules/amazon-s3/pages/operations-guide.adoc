@@ -1,0 +1,337 @@
+﻿= Operations Guide
+
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+== Description
+
+The _AWS-S3_ connector enables full integration of a _AWS S3_ bucket into _Stratio Augmented Data Fabric_.
+
+=== Connector artifact versions
+
+The connector artifacts are as follows:
+
+|===
+|Version | Artifact
+
+|hdfs-agent 1.10.2
+|dg-hdfs-agent-1.10.2-ebc0ba4
+|===
+
+(You don't need to install it anywhere). You'll find everything you need in the *agent-cloud-external* descriptor.
+
+=== Authentication
+
+The connector supports two authentication modes:
+
+* _Access key_
+* https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html[_Assumed role_]
+
+To see how to create IAM role authentication in S3, please see xref:amazon-s3:operations-guide.adoc#_autenticación_iam_role[IAM Authentication]. +
+Both methods use username and password, although the configuration varies slightly. +
+As you'll see below, depending on the mode you choose, you'll have to use specific configuration values and credentials in each of the _Stratio Augmented Data Fabric_ services.
+
+== Prerequisites
+
+. Have an AWS S3 bucket installed and accessible from _Stratio Augmented Data Fabric_ with username/password authentication (_access key_).
++
+image::vista_bucket.png[Bucket S3]
++
+** Have an AWS service access account.
++
+. Have the _Stratio KMS_ UI accessible for credential management:
++
+Visit the xref:ROOT:quick-start-guide.adoc[general Quick Guide] section for the steps required to make the _Stratio KMS_ UI available.
++
+[#create-secret]
+. Create secrets in _Stratio KMS_. To do this, go to https://<stratio_kms_ui_url>/ui/vault/secrets and create a secret in the corresponding service folder with the following options depending on the authentication mode:
++
+--
+** Username/password
+*** *_user_*: _<aws-s3_user>_
+*** *_password_*: _<aws-s3_password>_
+--
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
++
+** *Discovery agent*: userland/passwords/<agent_name>.<agent_namespace>/<secret_name>
+** *_Stratio Virtualizer_*: userland/passwords/<virtualizer_name>.<virtualizer_namespace>/<secret_name>
+** *_Stratio Rocket_*: userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>
+** *_Stratio Rocket_ workflows*: userland/passwords/execution-identity-<rocket_name>.<rocket_namespace>/<secret_name>
+** *_Stratio Intelligence_*: /people/passwords/<intelligence_user_name>/<secret_name>
++
+NOTE: The name and values of the secret for all services must match those chosen to configure the discovery agent.
++
+Make sure you have a connection to the S3 bucket you want to connect to.
+Make sure you have a connection to S3.
++
+NOTE: As for the *agent-cloud-external* connector, when integrating with _Stratio Virtualizer_, you have to create the secret in Vault on your own, so pay attention to the URL indicated.
++
+. You'll also need to create unique passwords for each user to ensure the security of data access for the service account. An example might be:
+* user_governance_s3
+* user_virtualizer_s3
+* user_rocket_s3
+* user_rocket_execution_s3
+* user_virtualizer_s3
++
+. If you want to connect via proxy with SSL/TLS connection, you will need to follow these steps:
+** From your proxy server, download the certificate with which the connection between the proxy and the client is signed.
+** Copy the certificate and insert it into _Stratio KMS_, in the path `/ca-trust/certificates/<your_certificate_name>`. Now put the key with the same name, accompanied by the suffix `_ca`, and the certificate in text format as value. In the path `/ca-trust/bundle`, put the key with the same name, accompanied by the suffix `_crt` and the certificate in text format as value.
+** The discovery agent will automatically download the _trustore_ in `.jks` format on the path `/home/governance/.extract/trustore.jks`.
+** Query the value of the secret located in the path `/ca-trust/passwords`. That value will be the password of the _trustore_ downloaded into the discovery agent. Replace it with <trustore_pwd> later.
++
+The following link explains how to specify the https://aws.amazon.com/es/blogs/security/writing-iam-policies-grant-access-to-user-specific-folders-in-an-amazon-s3-bucket[_S3 permissions_].
+
+Next are the minimum permissions in a *bucket-example*, with two folders */* for reading and */data* that we also want to write.
+
+[source,json]
+----
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucketMultipartUploads",
+                "s3:GetObjectRetention",
+                "s3:GetObjectVersionTagging",
+                "s3:ListBucketVersions",
+                "s3:GetObjectAttributes",
+                "s3:ListBucket",
+                "s3:GetBucketVersioning",
+                "s3:GetObjectVersionAttributes",
+                "s3:ListMultipartUploadParts",
+                "s3:GetObject",
+                "s3:GetEncryptionConfiguration",
+                "s3:GetObjectVersionAcl",
+                "s3:GetObjectTagging",
+                "s3:GetBucketLocation",
+                "s3:GetObjectVersion"
+            ],
+            "Resource": [
+                "arn:aws:s3:::bucket-example/*",
+                "arn:aws:s3:::bucket-example"
+            ]
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": [
+              "s3:CreateBucket",
+              "s3:PutObject",
+              "s3:DeleteObject",
+              "s3:DeleteBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::bucket-example/data/*",
+                "arn:aws:s3:::bucket-example/data"
+            ]
+        },
+        {
+            "Sid": "VisualEditor2",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListJobs",
+                "s3:CreateJob"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+----
+
+== Discover your data
+
+=== Discovery agent
+
+To install a discovery agent for _AWS S3_ you must go to *_Stratio Command Center_ -> "Deploy a Service" -> "Governance"* and select the agent `Agent-cloud-external`.
+
+The most important fields to be filled in the installation are:
+
+* *_Service ID_* (NAME_ID): The discovery agent's unique identifier.
+* *_Name of the Service_*: The service name.
+* *_Datastore type_* (COMM_SERVICE_TYPE): You should always select S3.
+* *_Default FS_* (HDFS_SERVICE_CUSTOM_PROPERTY_fs_defaultFS): You have to enter the bucket connection URL. It should be in this format: `s3a://<your_bucket>/`
+* *_Init path_* (COMM_SERVICE_INIT_PATH): You have to enter the root directory of the bucket on which you want the discovery to be performed. If there are no directories, enter: `/`.
+* *_S3 Authentication method_* (HDFS_SERVICE_S3_AUTH). The S3 authentication method. You can put `ASSUMED_ROLE` or `ACCESS_KEY`. For more information visit the section on xref:amazon-s3:operations-guide.adoc#_cuentas_aws[Authentication Methods].
+* *_S3 Assumed Role Endpoint region_* (`HDFS_SERVICE_CUSTOM_PROPERTY_fs_s3a_assumed_role_sts_endpoint_region`). AWS region where the endpoint is located.
+* *_S3 Assumed role ARN_* (`HDFS_SERVICE_CUSTOM_PROPERTY_fs_s3a_assumed_role_arn`). The _ARN AWS_.
+* *_Access credentials_* (`FS_STRATIO_CREDENTIALS`): The name of the secret. You have to create it in the `/userland/passwords/<Name of the Service>.<agent_namespace>/s3-secret` directory, as explained in the xref:amazon-s3:quick-start-guide.adoc#secreto-quick[Quick Start Guide].
+* *_Discovered namespaces_*: Select the namespace where you want to install the discovery agent.
+
+image::conf_agente_aws.png[Governance,450,100]
+
+image::conf_agente_aws_2.png[Governance,450,100]
+
+The discovery process is asynchronous, once the discovery is finished, it can be visualized from the UI of _Stratio Data Governance_.
+
+==== Connection by proxy/ PrivateLink
+
+* If you want to connect by proxy without SSL/TLS connection, you will need to insert the following variables into the deployment:
++
+[source,]
+----
+HDFS_SERVICE_CUSTOM_PROPERTY_fs_s3a_proxy_host = <your_proxy_host>
+HDFS_SERVICE_CUSTOM_PROPERTY_fs_s3a_proxy_port = <your_proxy_port>
+HDFS_SERVICE_CUSTOM_PROPERTY_fs_s3a_proxy_username = <your_proxy_username>
+HDFS_SERVICE_CUSTOM_PROPERTY_fs_s3a_proxy_password = <your_proxy_password>
+----
+
+* If you want to connect by proxy with SSL/TLS connection, you must indicate in the deployment through _java options_.
++
+[source,]
+----
+JAVA_OPTS = -Djavax.net.ssl.trustStore=/home/governance/.extract/truststore.jks -Djavax.net.ssl.trustStorePassword=<trustore_pwd> -Djavax.net.ssl.trustStoreType=JKS
+----
+
+* If you want to connect by PrivateLink, you will need to insert the following variables into the deployment:
++
+[source,]
+----
+HDFS_SERVICE_CUSTOM_PROPERTY_fs_s3a_endpoint = <your_endpoint_privatelink>
+----
+
+== Virtualize your data
+
+IMPORTANT: Note that in order to virtualize the discovered tables, the xref:stratio-gosec:operations-guide:manage-policies:manage-domains-policies.adoc[domain policies] need to be managed through _Stratio Gosec_.
+
+=== Eureka agent
+
+This section does not apply to the _AWS-S3_ connector.
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ supports interaction with _AWS S3_ via the _AWS-S3_ connector. This integration has certain requirements:
+
+* The following _Stratio Virtualizer_ deployment fields must be modified in _Stratio Command Center_:
++
+image::conf_virtualizer_aws.png[Governance,450,100]
++
+* *_Customized deployment_* -> *_Environment_*
+** *_AWS S3 Integration (IAM Role Auth.)_*: ``Enabled``.
+** *_Vault path_*: The path where you want the secret to be stored so that _Stratio Virtualizer_ can retrieve it.
+** *_Assumed role sts endpoint_*: For example: `https://sts.eu-west-1.amazonaws.com.
+** *_Assumed role sts endpoint region_*: For example: `eu-west-1.
+** *_Assumed role ARN_*: For example: `arn:aws:s3:::stratio-connectors`.
+
+==== Connection by proxy/ PrivateLink
+
+* If you want to connect by proxy without SSL/TLS connection, you will need to insert the following variables into the deployment:
++
+[source,]
+----
+XD_CUSTOM_SPARK_spark_hadoop_fs_s3a_proxy_host = <your_proxy_host>
+XD_CUSTOM_SPARK_spark_hadoop_fs_s3a_proxy_port = <your_proxy_port>
+XD_CUSTOM_SPARK_spark_hadoop_fs_s3a_proxy_username = <your_proxy_username>
+XD_CUSTOM_SPARK_spark_hadoop_fs_s3a_proxy_password = <your_proxy_password>
+----
+
+* If you want to connect by proxy with SSL/TLS connection, you must indicate in the deployment through _java options_.
++
+[source,]
+----
+EXECUTOR_JAVA_OPTS_AGG = -Djavax.net.ssl.trustStore=/etc/virtualizer/.secrets/.trust/truststore.jks -Djavax.net.ssl.trustStorePassword=<trustore_pwd> -Djavax.net.ssl.trustStoreType=JKS
+DRIVER_JAVA_OPTS_AGG = -Djavax.net.ssl.trustStore=/etc/virtualizer/.secrets/.trust/truststore.jks -Djavax.net.ssl.trustStorePassword=<trustore_pwd> -Djavax.net.ssl.trustStoreType=JKS
+----
+
+* If you want to connect by PrivateLink, you will need to insert the following variables into the deployment:
++
+[source,]
+----
+XD_CUSTOM_SPARK_spark_hadoop_fs_s3a_endpoint = <your_endpoint_privatelink>
+----
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the _AWS-S3_ connector needs to be configured. To do this, you must xref:create-secret[upload the access credentials to _Stratio KMS_] for workflows and for _Stratio Rocket_. In addition, you have to configure the following variables in the _Stratio Rocket_ service modification form in _Stratio Command Center_:
+
+* *Customized deployment* -> *Settings* -> *Classpath configuration*
+** *S3 configuration enabled*: Enabled.
+** *S3 endpoint (optional)*: For example: `https://sts.eu-west-1.amazonaws.com`.
+** *Credentials vault secret*: The name of the secret. It should be in the Rocket and Execution Rocket subfolders. Refer to the xref:amazon-s3:quick-start-guide.adoc#_stratio_rocket[Secrets] section of the Quick Start Guide to see how to enter them.
+
+==== Connection by proxy/ PrivateLink
+
+* If you want to connect by proxy without SSL/TLS connection, you will need to insert the following variables into the deployment:
++
+[source,]
+----
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_host = <your_proxy_host>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_port = <your_proxy_port>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_username = <your_proxy_username>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_password = <your_proxy_password>
+WORKFLOWS_SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_host = <your_proxy_host>
+WORKFLOWS_SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_port = <your_proxy_port>
+WORKFLOWS_SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_username = <your_proxy_username>
+WORKFLOWS_SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_password = <your_proxy_password>
+----
++
+* If you want to connect by proxy with SSL/TLS connection, you must modify the corresponding _java options_ to the variables *SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS* and *SPARK_DRIVER_JAVA_OPTIONS*. To do this, access your _Stratio Rocket_ project -> "Parameters" -> "Spark Configurations".
++
+For each variable *SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS* and *SPARK_DRIVER_JAVA_OPTIONS*, add the following to the content that exists:
++
+[source,]
+----
+-Djavax.net.ssl.trustStore=/security/truststore.jks -Djavax.net.ssl.trustStorePassword=<trustore_pwd> -Djavax.net.ssl.trustStoreType=JKS
+----
+
+* If you want to connect by PrivateLink, you must indicate in the descriptor of _Stratio Rocket_ as follows:
++
+** *Customized deployment* -> *Settings* -> *Classpath configuration*
+*** *_S3 endpoint (optional)_*: `<your_endpoint_privatelink>`.
+
+=== _Stratio Intelligence_
+
+To correctly configure _Stratio Intelligence_ with the _AWS-S3_ connector, we recommend referring to the xref:amazon-s3:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_ section]; remember that you have to use the right format for the authentication mode for secrets.
+
+In addition, add the following two variables to the deployment of _Stratio Intelligence_:
+
+* INTERPOLATED_ANALYTIC_ENV_SPARK_SECURITY_S3_SECRETS_VAULT_PATH: "/v1/people/passwords/${username}/<secret_name>"
+* ANALYTIC_ENV_SPARK_SECURITY_S3_ENABLE: "true"
+
+To avoid problems with data consistency, you'll have to configure _Stratio Intelligence_ as indicated in the xref:ROOT:commiters.adoc[integration] document. Refer to this document for more information.
+
+==== Connection by proxy/ PrivateLink
+
+* If you want to connect by proxy without SSL/TLS connection, you need to insert the following variables into the *core-site.xml* of the deployment of _Stratio Intelligence_, in order to insert the variables of Hadoop Spark:
++
+[source,xml]
+----
+    <property>
+      <name>fs.s3a.proxy.host</name>
+      <value>your_host</value>
+    </property>
+    <property>
+      <name>fs.s3a.proxy.port</name>
+      <value>your_port</value>
+    </property>
+    <property>
+      <name>fs.s3a.proxy.username</name>
+      <value>your_username</value>
+    </property>
+    <property>
+      <name>fs.s3a.proxy.password</name>
+      <value>your_password</value>
+    </property>
+----
+
+* If you want to connect by PrivateLink, you will need to insert the following variable into the *core-site.xml* of the _Stratio Intelligence_ deployment:
++
+[source,xml]
+----
+<property>
+  <name>fs.s3a.endpoint</name>
+  <value>your_endpoint_privatelink</value>
+</property>
+----
+
+NOTE: If your proxy does not have authentication, you only need to set the host and port variable.
+
+NOTE: Restart the service each time you apply the configuration in the deployment.

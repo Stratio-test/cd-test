@@ -1,0 +1,24 @@
+﻿= Known issues
+
+== Native dialect
+
+The native dialect of the SSCC Microsoft SQL Server connector has the following limitations:
+
+* _Cast_: when performing a conversion to *VARCHAR*, the value is filled with _NULL_ until it reaches the size of the _VARCHAR_ type (currently defined as _VARCHAR(MAX)_). This can cause unwanted results when using the data, as they do not strictly represent the same value.
++
+One of the problems detected is when converting between *BINARY* and *VARCHAR*, because different results are obtained. To solve this problem, a cleaning process has been implemented in the native dialect in the *_CAST_* functions between the *BINARY* -> *VARCHAR* and *VARCHAR* -> *BINARY* types, removing the _NULL_ values from the text string.
++
+This ensures consistency in conversions between *BINARY* and *VARCHAR* and avoids unexpected results.
+
+* _BooleanType_: the *_BOOLEAN_* type doesn't exist; the *_BIT_* type is used instead to represent binary values. This can lead to some difficulties:
++
+** A *_BIT_* column cannot be used as a condition in a query, for example: `SELECT * FROM table WHERE bitColumn`.
+** Comparison functions cannot be used as part of the _SELECT_ clause, for example: `SELECT 1=1 FROM table`.
+
+* _ORDER BY_: the use of the _ORDER BY_ clause is not allowed in views, inline functions, derived tables or subqueries. The _ORDER BY_ clause can only be used in the main query, that is, at the outermost level of the query.
+
+* _Subquery_: the use of subqueries without aliases is not allowed. When using a subquery in a main query it must be provided. For example: `SELECT * FROM (SELECT * FROM my_table)` would not work, but `SELECT * FROM (SELECT * FROM my_table) AS my_alias` would.
+
+* _Regex_: there are no functions to work with regular expressions such as `regexp_extract` and `rlike`, so they are not supported.
+
+* _LIMIT_: there is no _LIMIT_ function, although similar functions can be used. In the native dialect, the _TOP_ function has been used instead. This limitation of the DBMS means that the use of the security _LIMIT_ (with a value of 10000 by default) added automatically by _Stratio Crossdata_ in queries has no effect. This means that you'll have to apply the _LIMIT_ in queries that could be problematic due to their size.

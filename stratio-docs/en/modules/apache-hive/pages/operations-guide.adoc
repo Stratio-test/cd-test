@@ -1,0 +1,210 @@
+﻿= Operations guide
+
+== Description
+
+The SSCC Apache Hive™ connector enables full integration of an Apache Hive™ database into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:apache-hive:compatibility-matrix.adoc[compatibility matrix].
+
+=== Authentication
+
+The connector supports two authentication modes:
+
+* Username/password supported by LDAP.
+* https://kerberos.org/[Kerberos].
+
+As you'll see later, depending on the mode you choose, specific configuration values and credentials will have to be used in each of the _Stratio Generative AI Data Fabric_ services.
+
+== Prerequisites
+
+. Have an instance of an Apache Hive™ database accessible from the _Stratio Generative AI Data Fabric_ with the chosen authentication mode configured:
++
+** A user with the appropriate permissions and their password will be required for basic authentication.
+** To configure authentication with https://web.mit.edu/kerberos/kfw-4.1/kfw-4.1/kfw-4.1-help/html/kerberos_terminology.htm[Kerberos] in the platform services, you'll need:
+*** The name of the https://web.mit.edu/kerberos/krb5-1.5/krb5-1.5.4/doc/krb5-user/What-is-a-Kerberos-Principal_003f.html[*_service principal_*] and its associated *_realm_*.
+*** The *_keytab_* with the encrypted keys encoded in Base64 associated with the *_service principal_* or the *password*.
+*** The URLs of the *Admin* and *KDC* servers used.
+
+. Have a JDBC URL for the connection to the Apache Hive™ server.
+** You can read more about the JDBC URL format in the https://cwiki.apache.org/confluence/display/Hive/HiveServer2+Clients#HiveServer2Clients-ConnectionURLs[official documentation].
+** The examples use Kerberos' own https://cwiki.apache.org/confluence/display/Hive/HiveServer2+Clients#HiveServer2Clients-UsingKerberoswithaPre-AuthenticatedSubject[JDBC URL with preauthenticated subject]: _jdbc:hive2://hiveserver.labs.stratio.com:10000/default;principal=myprincipal/hive.mycompany.com@MYCOMPANY.COM;kerberosAuthType=fromSubject_.
+
+. Install the xref:connectors-repository:operations-guide.adoc#_installation[connectors repository]:
++
+IMPORTANT: The artifacts used in this guide `sscc-hive-0.3_2.12-1.5.x.jar`, `hive-jdbc-2.2.0-1.0.x.jar` and `hive-jdbc-3.1.2-1.0.x.jar` will be available at the URL `http://connectors.<tenant>-<namespace>/v1/api/artifact/<artifact_name>`.
+
+. The _Stratio KMS_ UI should be accessible to manage credentials:
++
+See the section on the xref:ROOT:quick-start-guide.adoc[_Stratio KMS_ UI] for the steps you need to take to make it available.
+
+. Create secrets in _Stratio KMS_. To do this, go to `https://<stratio_kms_ui_url>/ui/vault/secrets` and create a secret in the corresponding folder of the service with the following options, depending on the authentication mode:
++
+** Username/Password
+*** *_user_*: `<hive_user>`.
+*** *_pass_*: `<hive_password>`.
+
+** Kerberos principal/keytab
+*** *_principal_*: `<hive_service_principal_name>`.
+*** *_keytab_*: `<hive_keytab_base64>`.
+
+This secret must be uploaded to the following _Stratio KMS_ directories:
++
+** *Discovery agent*: `userland/passwords/<agent_name>.<namespace>/<secret_name>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<virtualizer_name>.<virtualizer_namespace>/<secret_name>`.
+** *_Stratio Rocket_*: `userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>`.
+** *_Stratio Rocket_ workflows*: `userland/passwords/<secret_name>`.
+** *_Stratio Intelligence_*: `/people/passwords/<intelligence_user_name>/<secret_name>`.
++
+NOTE: The name and values of the secret for all services must match the ones used to configure the discovery agent.
++
+. Change the Kerberos configuration in the services.
++
+For authentication with Kerberos, you need to modify the configuration file used in the service from which authentication is to be initiated and include the Kerberos information used in Apache Hive™.
++
+To modify it, you have to get the name of the Kerberos _ConfigMap_, which can be found in the service configuration view in _Stratio Command Center_ -> 'Services' -> '<agent_name>' -> '_Configuration_' -> '*_Kerberos configmap name_*'.
+
+Once you get the _ConfigMap_ name, you can edit it with a Kubernetes cluster management tool, for example, _kubectl_:
+
+[source,bash]
+----
+kubectl edit configmap <configmap_name>
+----
+
+The file already contains previous information, specific to the service, to which you have to add the Kerberos configuration to access Apache Hive™.
+
+For example, if you have the following configuration of access with Kerberos to Apache Hive™:
+
+. *_Service Principal_*: `myprincipal/hive.mycompany.com`.
+. *_Realm_*: `MYCOMPANY.COM`.
+. *_KDC host_*: `hive.mycompany.com:88`.
+. *_Admin host_*: `hive.mycompany.com:749`.
+
+And the https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html[_krb5.conf_] file of the _Configmap_ with the service's previous Kerberos configuration is:
+
+[source,bash]
+----
+[libdefaults]
+ default_realm=ZULU.INT
+ dns_lookup_realm=false
+ dns_lookup_kdc=false
+ renew_lifetime=7d
+ ticket_lifetime=24h
+ rdns=false
+ forwardable=true
+ renewable=true
+ default_ccache_name=/tmp/krb5cc_%{uid}
+ udp_preference_limit=1
+[realms]
+ ZULU.INT={
+   kdc=kerberos.keos-idp:88
+   admin_server=kerberos.keos-idp:749
+ }
+----
+
+By modifying it to accept Apache Hive™'s configuration, it would look like this:
+
+[source,bash]
+----
+[libdefaults]
+ default_realm=ZULU.INT
+ dns_lookup_realm=false
+ dns_lookup_kdc=false
+ renew_lifetime=7d
+ ticket_lifetime=24h
+ rdns=false
+ forwardable=true
+ renewable=true
+ default_ccache_name=/tmp/krb5cc_%{uid}
+ udp_preference_limit=1
+[realms]
+  ZULU.INT={
+   kdc=kerberos.keos-idp:88
+   admin_server=kerberos.keos-idp:749
+  }
+  MYCOMPANY.COM={
+   kdc=hive.mycompany.com:88
+   admin_server = hive.mycompany.com:749
+  }
+[domain_realm]
+ .mycompany.com = MYCOMPANY.COM
+ mycompany.com = MYCOMPANY.COM
+----
+
+NOTE: You need to restart the service for changes to this configuration to take effect.
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for Apache Hive™ you must go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS' and select "Hive Agent".
+
+The fields to be filled in for the installation are:
+
+* *_General_*:
+* **_Service ID_*: agent's unique identifier. Example: _dg-hive-agent_.
+* **_Service name_*: name displayed in _Stratio KEOS_. Example: _dg-hive-agent_.
+* *_Metadata Datastore (PostgreSQL®)_*
+** *_Host_*: the PostgreSQL® instance that stores the discovered metadata. Example: _pgbouncer-postgreskeos-governance.keos-core_.
+* *_Configuration of the Service to be Discovered_*
+** *_Service to be discovered_:*
+*** *_Service name_*: name that will be used to identify this data store in _Stratio Data Governance_. It's the one that will be displayed in the UI. Example: _dg-hive-agent_.
+*** *_Root discovery path_*: paths of the Apache Hive™ schemas that you want to be discovered. Example: `/schema_to_be_discovered,/schema_to_be_discovered2`. You can use `/` to discover all schemas accessed.
+* *_Resource datastore connection configuration_*
+** *_Custom Service URL_*: JDBC URL used to connect to Apache Hive™. Example: `jdbc:hive2://hiveserver.labs.stratio.com:10000/default;principal=myprincipal/hive.mycompany.com@MYCOMPANY.COM;kerberosAuthType=fromSubject`.
+** *_Custom data store service security_*: type of authentication used for the connection: MD5 (username/password) or KRB (Kerberos).
+*** *_Access credentials_*: name of the secret created in xref:#create-secret[_Stratio KMS_]. Example: _hive-secret_.
+*** *_SSCC driver location_*: URL where the artifact that will contain the JAR of the SSCC Apache Hive™ connector is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+** *_JDBC driver location_*: URL where the artifact that will contain the JAR of the selected JDBC driver is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-2.2.0-1.0.x.jar`.
++
+image::hive-cct-installation.png[]
+
+. Then, once the discovery process is complete, you can see that a new data store has been discovered in the _Stratio Data Governance_ UI.
++
+image::hive-governance-datastore.png[]
+
+== Virtualize your data
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the Apache Hive™ connector. To do this, simply add the URL of the connectors repository artifact in the 'Customized deployment' -> 'Settings' -> `Additional jars` variable: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
++
+image::hive-eureka-bdl.png[]
++
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the Apache Hive™ connector needs to be configured. To do this, you have to upload the access credentials to _Stratio KMS_ and add the URLs of the required artifacts to the `JDBC Drivers URL List` variable in the _Stratio Virtualizer_ service modification form in _Stratio Command Center_:
+
+* 'Customized deployment' -> 'Environment'
++
+--
+** `JDBC Integration`: enabled
+** `JDBC Drivers URL List`: `http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-2.2.0-1.0.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+--
++
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
++
+image::hive-virtualizer.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the Apache Hive™ connector needs to be configured. To do this, you have to upload the access credentials to _Stratio KMS_ for workflows and for _Stratio Rocket_ and also add the URLs of the required artifacts to the `Rocket extra jars` variable in the _Stratio Rocket_ service modification form in _Stratio Command Center_:
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath'
++
+--
+** `Include Crossdata native connector library`: enabled.
+** `Include Crossdata native engine library`: enabled.
+** `Rocket extra jars`: `http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-2.2.0-1.0.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+--
++
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
++
+image::hive-rocket.png[]
+
+=== _Stratio Intelligence_
+
+For the correct configuration of _Stratio Intelligence_ with the Apache Hive™ connector it is recommended to see the xref:apache-hive:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_ section in the quick start guide], keeping in mind to use the appropriate authentication mode format for secrets.

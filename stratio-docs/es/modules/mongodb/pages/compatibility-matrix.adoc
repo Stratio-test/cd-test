@@ -1,0 +1,32 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector SSCC MongoDB, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-mongodb-0.3_2.12-1.3.x
+
+| _Stratio BDL_
+| Virtualización
+| ≥ sscc-mongodb-0.3_2.12-1.3.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura/Actualización/Sobrescritura
+| ≥ sscc-mongodb-0.3_2.12-1.3.x
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada/Actualización virtualizada/Sobrescritura virtualizada
+| ≥ sscc-mongodb-0.3_2.12-1.3.x
+
+| _Stratio Intelligence_
+| Lectura/Escritura virtualizada/Actualización virtualizada/Sobrescritura virtualizada
+| ≥ sscc-mongodb-0.3_2.12-1.3.x
+|===
+
+== Compatibilidad con versiones de MongoDB
+
+Se ha validado la compatibilidad del conector para MongoDB 4.1.2.

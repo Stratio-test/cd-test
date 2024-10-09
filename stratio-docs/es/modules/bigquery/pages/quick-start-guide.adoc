@@ -1,0 +1,73 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar brevemente cómo integrar una base de datos BigQuery en la plataforma _Stratio Generative AI Data Fabric_.
+
+== Prerrequisitos
+
+Los prerrequisitos necesarios para la instalación del conector de SSCC BigQuery los puedes encontrar en la xref:bigquery:operations-guide.adoc#_prerrequisitos[guía de operaciones].
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para BigQuery debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' el agente "BigQueryAgent".
+
+En la instalación debes añadir la información correspondiente al proyecto de BigQuery que se quiere descubrir, además de la URL del repositorio de conectores donde se almacene el artefacto `sscc-bigquery-0.3_2.12-1.10.x` y subir las credenciales de acceso a _Stratio KMS_.
+
+Los campos más importantes a rellenar en la instalación son:
+
+* *_Root discovery path_*: ruta desde la cual quieres descubrir los metadatos de forma recursiva. Ejemplo: `/<nombre_proyecto>`.
+* *_Access credentials_*: nombre del secreto creado en _Stratio KMS_. Ejemplo: `bigquery-secret`.
+* *_Data store driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC BigQuery. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-bigquery-0.3_2.12-1.10.x.jar`.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:bigquery:operations-guide.adoc#_agente_de_descubrimiento[guía de operaciones].
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de BigQuery. Para ello, hay que añadir la URL del repositorio de conectores del artefacto `sscc-bigquery-0.3_2.12-1.10.x` en la variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+image::bigquery-bdl.png[]
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+=== _Stratio Virtualizer_
+
+Para el uso de _Stratio Virtualizer_ es necesario tener configurado el conector de BigQuery. Para ello, debes añadir la URL de los artefactos `sscc-bigquery-0.3_2.12-1.10.x` y `simba-jdbc-bigquery-X.X.X.jar` en la variable 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` y además subir las credenciales de acceso a _Stratio KMS_.
+
+image::bigquery-virtualizer-conf.png[]
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener configurado el conector de BigQuery. Para ello, debes añadir la URL de los artefactos `sscc-bigquery-0.3_2.12-1.10.x` y `simba-jdbc-bigquery-X.X.X.jar` en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` y además subir las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_.
+
+Si quieres realizar consultas con el dialecto nativo de _Stratio Virtualizer_, es necesario añadir la URL del artefacto JDBC de Simba.
+
+image::bigquery-rocket-conf.png[]
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:bigquery:operations-guide.adoc#rocket-configuration[guía de operaciones].
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_. Se deben añadir las siguientes propiedades:
+
+* `INTERPOLATED_ANALYTIC_ENV_CROSSDATA_CATALOG_SECRET_INSTANCE_NAME`: ${username}
+* `ANALYTIC_ENV_VAULT_PATH`: "people".
+* `ANALYTIC_ENV_REQUESTS_CA_BUNDLE`: /opt/sds/stratio_analytic/security/ca-bundle.pem
+* `ANALYTIC_ENV_HIDE_VAULT_TOKEN`: "false"
+
+Además, en el entorno multiusuario se debe tener activada la opción "Allow artifact deployment" y tener en la ruta el valor _artifacts_.
+
+Una vez esté configurado _Stratio Intelligence_, tienes que añadir el conector de BigQuery en el directorio _artifacts/spark++_++jars_ y subir las credenciales a _Stratio KMS_.
+
+Para la subida de los artefactos, estos se deben descargar desde *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-bigquery-0.3_2.12-1.10.x* en el directorio _artifacts/spark++_++jars_ dentro del _workspace_ de _Stratio Intelligence_ realizando una petición cURL.
+
+En el caso que se está tratando, se debería realizar la siguiente petición:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-bigquery-0.3_2.12-1.10.x --output sscc-bigquery-0.3_2.12-1.10.x
+----

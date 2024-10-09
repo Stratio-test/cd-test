@@ -1,0 +1,465 @@
+﻿= Migrations guide
+
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+== Migration of a jdbc agent to an _SSCC_ agent
+
+This guide will help you migrate discovery and governance from a jdbc agent to a _SSCC_ agent.
+
+IMPORTANT: This guide does *not* cover the migration of tables created directly by the user in the _Stratio Virtualizer_ catalog. The migration of these tables is covered in its xref:link[own migration guide].
+
+=== Prerequisites
+
+. Shut down all services that use the _Stratio Governance_ database, by default called `postgreskeos`. To avoid making writes while the migration is being performed and thus prevent the possible loss of information in case of having to perform a 'Rollback', including:
+* _Stratio Governance_, _Stratio Gosec_, _Stratio Command Center_, and _Stratio Eureka_.
+* All discovery agents.
++
+NOTE: You can perform the migration by turning off only _Stratio Governance_, _Stratio Eureka_ and the discovery agents. In this case a backup copy of the ``dg_metadata`` schema of the ``postgreskeos`` database should be made.
+
+. The following information needs to be collected to correctly execute the scripts:
++
+--
+. The name of the _PostgreSQL_ cluster where _Stratio Governance_ was installed (default `postgreskeos`) and the database used (default `postgreskeos`).
+** In the examples, we'll use the default name for both: `postgreskeos`
+. The name of the jdbc agent to migrate: this is the name that appears in the _Stratio Governance_ "Data Dictionary" UI.
+. The name of the SSCC agent to be installed.
+. The tenant of the cluster to which the jdbc agent belongs and in which the _SSCC_ agent will be installed (must be the same).
+--
++
+. The `kubectl` tool needs to be configured to access the cluster environment.
+
+=== Migration process
+
+The migration process consists of making the necessary modifications to the `postgreskeos` database in the `dg_metadata` schema where the `Data Catalog` metadata is stored and then deploying an _SSCC_ agent that writes in the same place as the jdbc agent did.
+
+After applying the process you'll be able to continue using the `Data collections`, bdl.options, custom attributes and related assets created by the users for the jdbc agent to migrate, with the advantages of the _SSCC_ agent.
+
+=== Steps to take
+
+. Before intervening, a backup needs to be made of the _Postgres_ database used by _Stratio Governance_ to store the discovered metadata (by default called `postgreskeos`).
++
+--
+* You can find more information about backups in xref:stratio-postgres:administration-guide:pgcluster/disaster-recovery-logical.adoc#_backup_pgbackup[the _Stratio PostgresSQL Operator_ Guide].
++
+--
+IMPORTANT: An error in the migration process could cause the loss of information that's essential for the platform to operate correctly, so you should never perform it without a previous backup.
+
+. Download the migration scripts to the local machine in a dedicated directory containing only those scripts.
++
+--
+* xref:attachment$/migrations-guide/from-jdbc-agent/sscc/sanity-check.sql[Pre-checks]
++
+.See script
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-jdbc-agent/sscc/sanity-check.sql[]
+----
+
+====
++
+* xref:attachment$/migrations-guide/from-jdbc-agent/sscc/jdbc-to-sscc-migration.sql[jdbc to _SSCC_ agent migration script]
++
+.See script
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-jdbc-agent/sscc/jdbc-to-sscc-migration.sql[]
+----
+
+====
+--
++
+. Set the namespace and name of the primary _PostgreSQL_ cluster pod.
++
+[source, bash]
+----
+# The default namespace is `keos-core`
+# Postgres cluster and default database is `postgreskeos`
+export PG_CLUSTER_NAME=<postgres_cluster_name>
+export POD_NAMESPACE=<namespace>
+export POD_NAME=$(kubectl get endpoints $PG_CLUSTER_NAME-primary -n $POD_NAMESPACE -o=jsonpath={..targetRef.name})
+----
++
+. Upload the folder containing the migration scripts.
++
+[source, bash]
+----
+kubectl cp /path/to/downloaded/migration-scripts $POD_NAMESPACE/$POD_NAME:/tmp
+----
++
+. Query the password of the `postgres` user in _Vault_:
+** This is the password that you'll need to enter when running the `psql` tool.
++
+[source, bash]
+----
+export KEOS_OP_POD_NAME=$(kubectl get pods -l app.kubernetes.io/name=keos-operator -n keos-ops -o=name)
+kubectl exec $KEOS_OP_POD_NAME -c keos-operator -n keos-ops -- keos vault read /userland/passwords/$PG_CLUSTER_NAME.$POD_NAMESPACE/postgres
+----
++
+. Open a console on the primary _PostgreSQL_ cluster pod.
++
+[source, bash]
+----
+kubectl exec -it $POD_NAME -n=$POD_NAMESPACE -- bash
+----
++
+NOTE: As of here, the commands must be executed in the console of the primary PostgresSQL cluster pod.
++
+. Run xref:attachment$/migrations-guide/from-jdbc-agent/sscc/sanity-check.sql[the pre-check script] which will return the number of records to migrate per table. At the end of the migration re-run it to check that it matches.
++
+This script needs the following https://www.postgresql.org/docs/current/ecpg-variables.html[host variables] to work:
++
+--
+* *``tenant``*: tenant where the agent is deployed.
+** For example `'s000001'`.
+* *``dg_jdbc_agent_name``*: name of the agent to migrate.
+** For example ``'dg-mssql-jdbc-agent'``.
+--
++
+Example of writing the counting of items to be migrated in a file for use in subsequent checks:
++
+[source,bash]
+----
+psql -d postgreskeos -f /tmp/migration-scripts/sanity-check.sql --set tenant="'s000001'" --set dg_jdbc_agent_name="'dg-mssql-jdbc-agent'" -o /tmp/migration-scripts/elements-to-migrate.txt
+----
++
+[source,bash]
+----
+Password for user postgres:
+postgres@postgreskeos-1:/tmp/migration-scripts$ cat elements-to-migrate.txt
+      table      | count
+-----------------+-------
+ key_data_asset  |     1
+ data_asset      |    46
+ entity_relation |    10
+ quality         |     2
+(4 rows)
+----
++
+. Run the migration script:
++
+This script requires a number of https://www.postgresql.org/docs/current/ecpg-variables.html[host variables] to be set for proper operation:
++
+--
+* *``tenant``*: tenant where the agent is deployed.
+** For example `'s000001'`.
+* *``dg_jdbc_agent_name``*: name of the jdbc agent to migrate.
+** For example ``'dg-mssql-jdbc-agent'``.
+* *``dg_sscc_agent_name``*: name of the _SSCC_ agent to be installed.
+** For example ``'dg-mssql-agent'``.
++
+--
++
+The script will perform the modifications temporarily and query the modified rows:
++
+[source,bash]
+----
+psql -d postgreskeos --set tenant="'s000001'" --set dg_jdbc_agent_name="'dg-mssql-jdbc-agent'" --set dg_sscc_agent_name="'dg-mssql-sscc-agent'"
+----
++
+[source,bash]
+----
+Password for user postgres:
+psql (14.5 (Ubuntu 14.5-1.pgdg22.04+1))
+Type "help" for help.
+
+postgreskeos=# \i /tmp/migration-scripts/jdbc-to-sscc-migration.sql
+BEGIN
+UPDATE 1
+UPDATE 1
+UPDATE 44
+UPDATE 51
+UPDATE 6
+UPDATE 6
+UPDATE 6
+UPDATE 6
+UPDATE 7
+UPDATE 4
+UPDATE 6
+UPDATE 3
+UPDATE 1
+UPDATE 2
+      table      | count
+-----------------+-------
+ key_data_asset  |     1
+ data_asset      |    46
+ entity_relation |    10
+ quality         |     2
+(4 rows)
+----
++
+. Now, and still whilst in the ``psql`` console, we can make the necessary checks, such as comparing the modified tables with those returned by the pre-check script:
++
+[source,bash]
+----
+postgreskeos=# \! cat /tmp/migration-scripts/elements-to-migrate.txt
+      table      | count
+-----------------+-------
+ key_data_asset  |     1
+ data_asset      |    46
+ entity_relation |    10
+ quality         |     2
+(4 rows)
+----
++
+. As a last step in the ``psql`` console, we must:
+.. Discard the changes if we have detected any errors or inconsistencies in the data:
++
+[source,bash]
+----
+postgreskeos=# rollback;
+----
++
+.. Otherwise, confirm changes.
++
+IMPORTANT: After this step, if it's necessary to return to the pre-migration situation, you'll have to restore the previously-created backup.
++
+[source,bash]
+----
+postgreskeos=# commit;
+----
++
+. Install the _Microsoft SQL Server_ SSCC agent. You can consult how to perform the installation in the xref:mssql:operations-guide.adoc#_guía_de_operaciones[Operations Guide].
++
+NOTE: Remember that the configuration of the SSCC agent must be the same as that of the jdbc agent. For example, the databases to be discovered must match.
++
+. Check in the _Stratio Governance_ UI that the discovered data, collections, quality rules, relations between assets, etc., can be accessed.
+
+=== Troubleshooting
+
+** Depending on the number of records to update,the migration script may take longer per statement and Postgres may timeout. In this case, it would be necessary to configure the database timeout. Normally it would suffice to set ``idle_in_transaction_session_timeout`` and ``statement_timeout`` to *0* to disable the timeout for the process. It's important *not to configure these parameters in the _postgresql.conf_ configuration file*. It's recommended that you set these parameters before launching the scripts with:
++
+[source,bash]
+----
+SET statement_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+----
++
+For more information see https://www.postgresql.org/docs/current/runtime-config-client.html[Postgres configuration].
+
+== Migrating ungoverned tables from the _Stratio Virtualizer_ catalog to adapt them to the _SSCC_ connector.
+
+This guide is intended *exclusively* to assist with migrating tables created directly by the user in the _Stratio Virtualizer_ catalog.
+
+IMPORTANT: This guide does *not* cover the migration of tables automatically created by _Stratio BDL_ from metadata discovered in _Stratio Governance_. The migration of these tables is covered in their xref:link[own migration guide].
+
+=== Prerequisites
+
+. The following information needs to be collected to correctly execute the scripts:
++
+--
+. The name of the PostgreSQL cluster and database where the _Stratio Virtualizer_ catalog information is stored.
+.. In the examples we'll use ``virtualizer`` as the name of the database.
+. The jdbc url used when the tables were created in the catalog.
+. The jdbc url used in the new _SSCC_ connector.
+. The type of authentication of the new _SSCC_ connector (username and password or _Kerberos_) and the name of the secret where the information required for authentication is stored.
+--
+. The `kubectl` tool needs to be configured to access the environment cluster.
+. You also need to shut down all services using the PostgresSQL cluster where the migration is to be performed, for the duration of the migration: _Stratio Virtualizer_, _Stratio BDL_, _Stratio Rocket_, _Stratio Intelligence_, _Stratio Discovery_, and _Stratio DLC_.
+..
+
+=== Steps to take
+
+. You must make a backup copy of the _Postgres_ database used by _Stratio Virtualizer_ to store the catalog metadata.
++
+--
+** You can find more information about backups in xref:stratio-postgres:administration-guide:pgcluster/disaster-recovery-logical.adoc#_backup_pgbackup[the _Stratio PostgresSQL Operator_ Guide].
+--
+IMPORTANT: An error in the migration process could cause the loss of information that's essential for the platform to operate correctly so you should never perform it without a previous backup.
++
+. Download the appropriate migration scripts to the local machine in a dedicated directory containing only those scripts.
++
+--
+* xref:attachment$/migrations-guide/from-jdbc-agent/virtualizer/sanity-check.sql[Pre-checks]
++
+.See script
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-jdbc-agent/virtualizer/sanity-check.sql[]
+----
+
+====
++
+* Modifications to migrate to _SSCC_ connector. You have to choose between one of the two available:
+** Using xref:mssql:attachment$/migrations-guide/from-jdbc-agent/virtualizer/from-jdbc-agent-to-md5-sscc.sql[username and password authentication].
++
+.See script
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::mssql:attachment$/migrations-guide/from-jdbc-agent/virtualizer/from-jdbc-agent-to-md5-sscc.sql[]
+----
+
+====
++
+** Using xref:mssql:attachment$/migrations-guide/from-jdbc-agent/virtualizer/from-jdbc-agent-to-krb-sscc.sql[_Kerberos_ authentication].
++
+.See script
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::mssql:attachment$/migrations-guide/from-jdbc-agent/virtualizer/from-jdbc-agent-to-krb-sscc.sql[]
+----
+
+====
+--
++
+. Set the namespace and name of the primary PostgreSQL cluster pod.
++
+[source, bash]
+----
+export PG_CLUSTER_NAME=<postgres_cluster_name>
+export POD_NAMESPACE=<namespace>
+export POD_NAME=$(kubectl get endpoints $PG_CLUSTER_NAME-primary -n $POD_NAMESPACE -o=jsonpath={..targetRef.name})
+----
++
+. Upload the folder containing the migration scripts.
++
+[source, bash]
+----
+kubectl cp /path/to/downloaded/migration-scripts $POD_NAMESPACE/$POD_NAME:/tmp
+----
++
+. Query the password of the `postgres` user in _Vault_:
+** This is the password that you'll need to enter when running the `psql` tool.
++
+[source, bash]
+----
+export KEOS_OP_POD_NAME=$(kubectl get pods -l app.kubernetes.io/name=keos-operator -n keos-ops -o=name)
+kubectl exec $KEOS_OP_POD_NAME -c keos-operator -n keos-ops -- keos vault read /userland/passwords/$PG_CLUSTER_NAME.$POD_NAMESPACE/postgres
+----
++
+. Open a console on the primary PostgreSQL cluster pod.
++
+[source, bash]
+----
+kubectl exec -it $POD_NAME -n=$POD_NAMESPACE -- bash
+----
++
+NOTE: As of here, the commands must be executed in the console of the primary PostgresSQL cluster pod.
++
+. Run xref:attachment$/migrations-guide/from-jdbc-agent/virtualizer/sanity-check.sql[the pre-check script] that will return the tables to be migrated. Carefully check that they are correct.
++
+This script needs the following https://www.postgresql.org/docs/current/ecpg-variables.html[host variables]:
++
+--
+* *``databases_with_tables_to_be_migrated``*: a comma-separated list of _Stratio Virtualizer_ catalog databases containing the tables to be migrated.
+** For example `'default', 'my_database'` or `null` if you do not want to filter.
+* *``old_jdbc_agent_url_prefix``*: with a prefix of the jdbc url used in the tables to be migrated.
+** For example ``'jdbc:sqlserver://mssql.mycompany.com:1433;database=my_database%'`` or ``'jdbc:sqlserver:%'``. Remember to add the `%` placeholder at the end.
+--
++
+Below is an example of writing the list to a file so that it can be used for further testing:
++
+[source,bash]
+----
+$ psql -d virtualizer -f /tmp/migration-scripts/sanity-check.sql --set databases_with_tables_to_be_migrated="'default','test_migration'" --set old_jdbc_agent_url_prefix="'jdbc:sqlserver://mssql.mycompany.com:1433;database=my_database%'" -o /tmp/migration-scripts/tables.txt
+Password for user postgres:
+$ cat /tmp/migration-scripts/tables.txt
+        DB_NAME        | TBL_ID |                     TBL_NAME                      | SERDE_ID
+-----------------------+--------+---------------------------------------------------+----------
+ default               |    357 | mssql_jdbc_test                                   |      357
+ default               |    360 | mssql_jdbc_to_sscc_md5_test                       |      360
+ test_migration        |    362 | mssql_jdbc_test                                   |      362
+ test_migration        |    363 | mssql_jdbc_to_sscc_md5_test                       |      363
+ test_migration        |    364 | mssql_jdbc_to_sscc_krb_test                       |      364
+(5 rows)
+----
++
+. Run the appropriate modification script according to the authentication mode used in the new _SSCC_ decoupled connector:
++
+--
+* *username and password*: ``/tmp/migration-scripts/from-jdbc-agent-to-md5-sscc.sql``
+* *_Kerberos_*: ``/tmp/migration-scripts/from-jdbc-agent-to-krb-sscc.sql``
+** In the example we will use the latter.
+--
++
+This script requires a number of https://www.postgresql.org/docs/current/ecpg-variables.html[host variables] to be set for proper operation:
++
+--
+* *``databases_with_tables_to_be_migrated``*: a comma-separated list of _Stratio Virtualizer_ catalog databases containing the tables to be migrated.
+* *``old_jdbc_agent_url_prefix``*: with a prefix of the jdbc url used in the tables to be migrated.
+* *``new_jdbc_url_sscc``*: with the *full* jdbc url used by the new _SSCC_ connector. This url will replace the previous one in the tables to be migrated.
+** For example `'jdbc:sqlserver://mssql.mycompany.com:1434;database=my_database'`
+* *``vault_secret_name``*: the name of the secret with the information for authentication of the new _SSCC_ connector.
++
+--
++
+The script will perform the modifications temporarily and query the modified rows:
++
+[source,bash]
+----
+$ psql -d virtualizer --set databases_with_tables_to_be_migrated="'default','test_migration'" --set old_jdbc_agent_url_prefix="'jdbc:sqlserver://mssql.mycompany.com:1433;database=my_database%'" --set new_jdbc_url_sscc="'jdbc:sqlserver://mssql.mycompany.com:1434;database=my_database'" --set vault_secret_name="'<sscc-mssql-secret-name>'"
+Password for user postgres:
+psql (14.5 (Ubuntu 14.5-1.pgdg22.04+1))
+Type "help" for help.
+
+virtualizer=# \i /tmp/virtualizer/from-jdbc-agent-to-krb-sscc.sql
+BEGIN
+INSERT 0 25
+        DB_NAME        | TBL_ID |              TBL_NAME              | SERDE_ID
+-----------------------+--------+------------------------------------+----------
+ default               |    357 | mssql_jdbc_test                    |      357
+ default               |    360 | mssql_jdbc_to_sscc_md5_test        |      360
+ test_migration        |    362 | mssql_jdbc_test                    |      362
+ test_migration        |    363 | mssql_jdbc_to_sscc_md5_test        |      363
+ test_migration        |    364 | mssql_jdbc_to_sscc_krb_test        |      364
+(5 rows)
+----
++
+. Now, and still whilst in the ``psql`` console, we can make the necessary checks, such as comparing the modified tables with those returned by the pre-check script:
++
+[source,bash]
+----
+virtualizer=# \! cat /tmp/migration-scripts/tables.txt
+        DB_NAME        | TBL_ID |                     TBL_NAME                      | SERDE_ID
+-----------------------+--------+---------------------------------------------------+----------
+ default               |    357 | mssql_jdbc_test                                   |      357
+ default               |    360 | mssql_jdbc_to_sscc_md5_test                       |      360
+ test_migration        |    362 | mssql_jdbc_test                                   |      362
+ test_migration        |    363 | mssql_jdbc_to_sscc_md5_test                       |      363
+ test_migration        |    364 | mssql_jdbc_to_sscc_krb_test                       |      364
+----
++
+. As a last step in the ``psql`` console, we must:
+.. Discard the changes if you've detected any errors or inconsistencies in the data:
++
+[source,bash]
+----
+virtualizer=# rollback;
+----
++
+.. Otherwise, confirm changes.
++
+IMPORTANT: After this step, if it's necessary to return to the pre-migration situation, you'll have to restore the previously-created backup.
++
+[source,bash]
+----
+virtualizer=# commit;
+----
++
+. Start the _Stratio Virtualizer_ service and check in xref:stratio-virtualizer:user-guide:stratio-virtualizer-shell.adoc[its command console] that the _Microsoft SQL Server_ data can be accessed by performing queries on the migrated catalog tables.
+
+NOTE: Remember that the _SSCC_ connector must have been previously installed in _Stratio Virtualizer_. You can consult how to perform the installation in the xref:mssql:operations-guide.adoc#_stratio_virtualizer[Operations Guide].

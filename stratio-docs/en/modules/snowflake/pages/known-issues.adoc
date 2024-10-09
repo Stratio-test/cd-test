@@ -1,0 +1,19 @@
+= Known issues
+
+These are the known issues for Snowflake classified according to their dialect:
+
+* JDBC dialect.
+** The data types _array_, _object_, _variant_, _geography_ and _geometry_ are encoded as string to allow virtualization.
+** Writes of types _array_, _object_ and _variant_ are not supported.
+
+* Native _Stratio Crossdata_ dialect.
+** Writes of types _array_, _object_ and _variant_ are not supported.
+** The following functionalities are not supported:
+*** For the `date_part` function, the `YEAROFWEEK` and `DAYOFWEEK_ISO` formats are not supported.
+*** _WINDOWS_ functions.
+*** _EXPANDING_ functions.
+** For `ARRAY` and `STRUCT` types, _SELECT_ is not allowed if you have Apache Spark™ `Map` or `CalendarInterval` types within the types in question.
+** _Stratio Crossdata_ tables created using the BDL agent will have _array_, _object_ and _variant_ data types created as string.
+** _Stratio Crossdata_ tables created manually without schema will have the _array_ data types created as _array<string>_ and the _object_ and _variant_ types created as string.
+** The _cast_ function from _binary_ to _string_ is decoded to _hex_ format, which is Snowflake's default format.
+** The _cast_ function from _string_ to _binary_ is encoded to _hex_ format, which is Snowflake's default format.

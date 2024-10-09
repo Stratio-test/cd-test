@@ -1,0 +1,28 @@
+= Compatibility matrix
+
+The modules that are compatible with the SSCC Apache Kafka® connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module|Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| -
+
+| _Stratio BDL_
+| Virtualization
+| -
+
+| _Stratio Virtualizer_
+| Read/write
+| -
+
+| _Stratio Rocket_
+| Read/write
+| Integrado
+
+| _Stratio Intelligence_
+| Read/write
+| -
+|===

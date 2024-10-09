@@ -1,0 +1,19 @@
+= Troubleshooting
+
+== SSCC Apache Cassandra® connector
+
+The natural behavior of the `datasource` used in the SSCC Apache Cassandra® connector is to work with queries natively in the Apache Cassandra® instance itself, which is defined as `full-pushdown`.
+
+TIP: For more details on the different query execution modes, visit the xref:stratio-virtualizer:ROOT:introduction.adoc[_Stratio Virtualizer_ documentation].
+
+This means that all query processing would be delegated to the Apache Cassandra® database. Therefore, improvements have been made for the integration with _Stratio Generative AI Data Fabric_. The following are the *added features*:
+
+* It is allowed to register tables in the _Stratio Virtualizer_ catalog instead of working natively in the Apache Cassandra® database.
+* It is possible to work with the tables registered in the _Stratio Virtualizer_ catalog doing pushdown in the filter conditions.
+* It is possible to perform `INSERT INTO` type statements natively using SQL and not CQL, as defined by default.
+
+== `StructTypes` in Apache Cassandra®
+
+Because of how the SSCC Apache Cassandra® connector is defined and how it integrates with the database, a *user-defined type* (UDT) in the Apache Cassandra® database is interpreted as `StructType` in _Stratio Virtualizer_, so it is possible to do a read of these types.
+
+However, the data source used for the connector does not allow writing from _Stratio Virtualizer_ with `StructType` types. For that reason, *writing of `StructTypes` types is not supported*.

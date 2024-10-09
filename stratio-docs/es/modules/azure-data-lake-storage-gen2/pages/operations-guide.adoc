@@ -1,0 +1,397 @@
+= Guía de operaciones
+
+== Descripción
+
+Es un servicio de almacenamiento de objetos distribuido líder en la industria que ofrece escalabilidad, disponibilidad de datos, seguridad y rendimiento.
+
+Se puede utilizar por clientes de cualquier tamaño o sector para almacenar y proteger cualquier cantidad de datos para una variedad de casos de uso, como pueden ser lagos de datos, sitios web, aplicaciones móviles, _backup_ y _restore_, archivado, aplicaciones empresariales, dispositivos IoT y analítica _Big Data_.
+
+El conector Azure Data Lake Storage Gen2 permite la integración completa de una o varias cuentas de almacenamiento en _Stratio Generative AI Data Fabric_.
+
+== Autenticación
+
+Azure Data Lake Storage Gen2 admite dos tipos de credenciales, las de clave compartida y las que se conectan mediante un cliente de aplicación:
+
+* _Shared Key_ (_Storage Account_): la de clave compartida se basa en las claves de acceso de la cuenta y en otros parámetros para generar una cadena de firma cifrada que se pasa en la solicitud en el encabezado _Authorization_. Para más información, consulta https://docs.microsoft.com/es-es/rest/api/storageservices/authorize-with-shared-key[Autorización con clave compartida] y https://learn.microsoft.com/es-es/azure/storage/common/storage-account-keys-manage?tabs=azure-portal#view-account-access-keys[Administrar claves de cuenta de almacenamiento].
+* OAuth2.0 (cliente de aplicación): permiten establecer credenciales temporales para un usuario o servicio. No necesitan una identidad de Azure Data Lake Storage Gen2 asociada. Para más información, consulta https://learn.microsoft.com/es-es/entra/identity-platform/quickstart-register-app[cómo registrar una aplicación].
+
+IMPORTANT: Microsoft recomienda usar Microsoft Entra ID (OAuth2.0) para autorizar solicitudes de datos de _blobs_, colas y tablas, si es posible, en lugar de usar las claves de cuenta (_Shared Key_) (autorización con clave compartida). La autorización con Microsoft Entra ID proporciona más seguridad y facilidad de uso que la autorización con clave compartida.
+
+_Stratio Data Governance_ realiza lecturas sobre las cuentas de almacenamiento, por lo que es necesario que las políticas tengan suficientes permisos para acceder a las mismas.
+
+En _Stratio Rocket_, _Stratio Virtualizer_ y _Stratio Intelligence_ se recomienda tener políticas de lectura/escritura.
+
+TIP: Para más información sobre las políticas recomendadas visita los xref:_prerrequisitos[prerrequisitos de Azure Data Lake Storage Gen2].
+
+[#direct-access-to-resources]
+
+=== Configuración de acceso directo a los recursos con soporte para multicuenta
+
+Es posible configurar múltiples cuentas de servicio de Azure Data Lake Storage Gen2 (con diferentes credenciales) para su uso en _Stratio Virtualizer_, _Stratio Rocket_ y _Stratio Intelligence_.
+
+Aunque la *manera recomendada* de acceder a los datos es mediante el *catálogo de _Stratio Virtualizer_*, pueden existir situaciones en las que sea necesario utilizar directamente SparkSQL. Si este es el caso, el conector de Azure Data Lake Storage Gen2 permite definir credenciales a *nivel de cuenta de almacenamiento*.
+
+==== Credenciales por cuenta de almacenamiento
+
+Para definir estas credenciales debes añadir la variable de entorno `SSCC_ABFSS_CREDENTIALS_BY_ACCOUNT` en el módulo donde se desee utilizar y establecer como valor una lista con la siguiente forma:
+
+[source,bash]
+----
+<storage-account-name1>:<secret_name1>;<storage-account-name2>:<secret_name2>;...
+----
+
+Donde se definen pares _account:secret_ separados por `;`.
+
+El conector se encargará de ubicar los secretos en función del módulo donde se esté ejecutando, por lo que no debes incluir la ruta completa, sólo el nombre. Ejemplo:
+
+[source,bash]
+----
+SSCC_ABFSS_CREDENTIALS_BY_ACCOUNT=storage_account_sales:adls2-sales-secret;storage_account_forecast:adls2-forecast-secret
+----
+
+Esta configuración te permitiría acceder mediante SparkSQL a todas las tablas de Azure Data Lake Storage Gen2 pertenecientes a las cuentas de almacenamiento _storage++_++account++_++sales_ y _storage++_++account++_++forecast_ sin indicar opciones adicionales.
+
+[#setting-spark-config]
+
+==== ¿Cómo configurar las credenciales en cada módulo?
+
+* _Stratio Virtualizer_
++
+** A nivel global de servicio.
++
+Se puede usar la variable de entorno tal cual aparece descrita más arriba: `SSCC_ABFSS_CREDENTIALS_BY_ACCOUNT`.
+
+* _Stratio Rocket_
+** A nivel de _Workflow_.
++
+Se puede establecer usando la siguiente propiedad de Apache Spark™:
++
+[source,bash]
+----
+spark.orchestrator.driverEnv.SSCC_ABFSS_CREDENTIALS_BY_ACCOUNT=storage_account_sales:adls2-sales-secret;storage_account_forecast:adls2-forecast-secret
+----
++
+Dentro de un _Workflow_, puedes definir propiedades de Apache Spark™ navegando hasta 'Edit settings' -> 'Spark' -> 'Spark Configuration' -> 'User properties'.
++
+** A nivel de proyecto.
++
+Puedes usar la variable de entorno tal cual aparece descrita más arriba: `SSCC_ABFSS_CREDENTIALS_BY_ACCOUNT`.
++
+En un proyecto, puedes definir la variable de entorno navegando hasta 'Admin Project' -> 'Environment variables'.
++
+** A nivel global del servicio.
++
+La variable de entorno debe ser prefijada con `SPARTA_EXTRA_`: `SPARTA_EXTRA_SSCC_ABFSS_CREDENTIALS_BY_ACCOUNT`.
+
+* _Stratio Intelligence_
++
+** A nivel de usuario.
++
+Puedes usar la variable de entorno tal cual aparece descrita más arriba: `SSCC_ABFSS_CREDENTIALS_BY_ACCOUNT`.
++
+Dentro de la xref:stratio-intelligence:operations-guide:configuration-and-usage/create-and-configure-users/register-a-new-profile.adoc#_pestaña_general[configuración de los usuarios] puedes definir la variable de entorno navegando hasta 'Profiles' -> 'Edit' -> 'General' -> 'User-defined environment variables'.
++
+** A nivel global del servicio.
++
+La variable de entorno debe ser prefijada con `ANALYTIC_ENV_`: `ANALYTIC_ENV_SSCC_ABFSS_CREDENTIALS_BY_BUCKET`.
+
+== Prerrequisitos
+
+. Disponer de credenciales a una cuenta de Azure Data Lake Storage Gen2 accesible desde _Stratio Generative AI Data Fabric_ con xref:_autenticación[autenticación soportada].
+. Tener accesible la interfaz de usuario de _Stratio KMS_ para la gestión de credenciales.
++
+Visita la sección de la xref:ROOT:quick-start-guide.adoc[guía de inicio rápido general] para consultar los pasos necesarios.
+. Crear los secretos en _Stratio KMS_.
++
+Para ello debes acceder a `https://<stratio_kms_ui_url>/ui/vault/secrets` y crear un secreto en la carpeta correspondiente del servicio con las siguientes opciones según el modo de autenticación:
++
+--
+* _Shared Key_
++
+[source,json]
+----
+{
+  "sharedKey": "<ADLS2-SHARED-KEY>"
+}
+----
+
+* OAuth2.0
++
+[source,json]
+----
+{
+  "tenantId": "<ADLS2-TENANT-ID>",
+  "clientId": "<ADLS2-CLIENT-ID>",
+  "clientSecret": "<ADLS2-CLIENT-SECRET>"
+}
+----
+
+--
++
+Este secreto se debe subir a los siguientes directorios de _Stratio KMS_:
+
+** *Agente de descubrimiento*: `userland/passwords/<nombre_agente>.<namespace_agente>/<nombre_secreto>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<nombre_virtualizer>.<namespace_virtualizer>/<nombre_secreto>`.
+** *_Stratio Rocket_*: `userland/passwords/<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Workflows_ de _Stratio Rocket_*: `userland/passwords/execution-identity-<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Stratio Intelligence_*: `/people/passwords/<nombre_usuario_intelligence>/<nombre_secreto>`.
++
+NOTE: El nombre y los valores del secreto para todos los servicios deben coincidir con los elegidos para configurar el agente de descubrimiento.
++
+[IMPORTANT]
+====
+Para ambos métodos de autenticación ten en cuenta que, debido a que el conector de Azure Data Lake Storage Gen2 soporta multicuentas, en la creación de los secretos el agente de descubrimiento espera un secreto con el nombre definido y con sufijo `<storage_account>` del cual va a realizar el descubrimiento.
+
+Es decir, si has definido el "adls2-secret" como nombre del secreto y en la configuración del agente has indicado que se va a descubrir la cuenta de almacenamiento `storage_account_1`, entonces el nombre del secreto para el agente de descubrimiento debe ser: "adls2-secret-storage_account_1".
+
+De esta manera, el agente reconoce qué secreto debe usar para qué cuenta de almacenamiento.
+====
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento para Azure Data Lake Storage Gen2 debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Governance' el agente "Agent-adls2-default".
+
+Los campos más importantes a rellenar en la instalación son:
+
+* *_General_*
+** *_Custom parameters_*: establece variables de configuración personalizadas.
+** *_Service ID_* (_NAME_ID_): identificador único del agente de descubrimiento. Ejemplo: `dg-adls2-agent`.
+** *_Name of the Service_*: nombre del servicio. Ejemplo: `dg-adls2-agent`.
++
+image::conf_agente_adls2_general.png[General]
+
+* *_Configuration of the Service to be Discovered_*
+** *_Service to be discovered_*
+*** *_Service name_*: `dg-adls2-agent`.
+*** *_Root discovery path_* (`COMM_SERVICE_INIT_PATH`). Cuentas de almacenamiento de Azure Data Lake Storage Gen2 que se desean descubrir precedidas de `/` y separadas por `,`. Ejemplo: _/stratioarchitecture_.
+** *_Resource datastore connection configuration_*
+*** *_Custom datastore service security_* (`CUSTOM_SERVICE_DS_SECURITY`): tipo de seguridad a utilizar: _SharedKey_ o OAuth2.0.
+*** *_Access credentials_* (`CUSTOM_STRATIO_CREDENTIALS`): nombre del secreto que utilizará el agente. Ejemplo: _adls2-secret_.
+*** *_Storage accounts support for hierarchical namespace_* (`SSCC_ADLS2_IS_HIERARCHICAL_NAMESPACE_ENABLED_PER_ACCOUNT`):
+**** Mapa de cuentas de almacenamiento de Azure Data Lake Storage Gen2 y si soportan https://learn.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-namespace[_namespace_ jerárquico]. Ejemplo: `storage_account_1:true;storage_account_2:false`.
+**** Solamente es necesaria si se usa la autenticación OAuth2.0; por defecto, se establece a `true` para todas las cuentas descubiertas.
+*** *_SSCC driver location (Scala 2.12)_* (`CUSTOM_SERVICE_SSCC_DRIVER_LOCATION`): URL del artefacto del conector. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-adls2-0.3_2.12-1.2.x.jar`.
++
+image::conf_agente_adls2_service.png[Configuration of the Service to be Discovered,450]
+
+** *_DFS configuration parameters_*
+*** *_GLOB filter_* (`DFS_GLOB_FILTER`): https://en.wikipedia.org/wiki/Glob_(programming)[patrón GLOB] para filtrar directorios. La ruta tiene la forma `nombre_cuenta/nombre_bucket/directorio_1/directorio_N/fichero`. Pueden incluirse varios patrones separados por `;`.
++
+Ejemplo para filtrar todos los ficheros Parquet y CSV del _container_ _landing++_++container_ perteneciente a la cuenta de almacenamiento _mystorageaccount_ (en cualquier subdirectorio):
++
+[source,bash]
+----
+/mystorageaccount/landing_container/**.parquet;/mystorageaccount/landing_container/**.csv
+----
++
+NOTE: Por *cuestiones de rendimiento*, es altamente recomendable indicar los *patrones GLOB* de los recursos a descubrir para evitar destinar recursos a procesar datos fuera del alcance de tus objetivos. Aunque es posible utilizar comodines en la posición de la cuenta o del contenedor, es desaconsejable ya que esto expandiría todos los árboles de directorios generando un *excesivo consumo de recursos*.
++
+*** *_Parallelism Level_* (`DFS_PARALLELISM_LEVEL`): grado de paralelismo usado en el descubrimiento. Por defecto, se calcula automáticamente en función de la capacidad de CPU asignada al agente.
++
+image::conf_agente_adls2_glob.png[GLOB filter]
++
+* *_Resources_*
+** *_Instances_*: número de instancias del agente a desplegar en el _cluster_.
+** *_CPUs Request_*: CPU asignada al agente al ser desplegado.
+** *_CPUs Limit_*: CPU máxima asignable al agente.
+** *_Memory (MB)_*: memoria asignada al agente al ser desplegado.
+** *_Memory limit (MB)_*: memoria máxima asignable al agente.
++
+image::conf_agente_resources.png[ADLS2Resources]
+
+** *_Proxy Configuration_*: si requiere que el agente de descubrimiento proceda al descubrimiento a través de una conexión mediante proxy, tan sólo debe activar esta opción y rellenar los siguientes campos.
+*** *_Enable Azure Proxy_* (`ADLS2_PROXY_ENABLED`): permite habilitar el uso de un proxy (deshabilitado por defecto).
+*** *_Proxy Adrress_* (`ADLS2_PROXY_ADDRESS`): esta opción sólo aparecerá si el proxy está habilitado. Dirección del proxy con formato: `[http(s)://]<host>:<port>`.
++
+image::conf_agente_adls2_proxy.png[Proxy settings]
++
+*** *_Enable Azure Proxy Authentication_* (`ADLS2_PROXY_AUTHENTICATION_ENABLED`): esta opción sólo aparecerá si el proxy está habilitado. Permite habilitar el uso de proxy con autenticación (deshabilitado por defecto).
+*** *_Proxy Secret_* (`ADLS2_PROXY_SECRET`): esta opción sólo aparecerá si el proxy con autenticación está habilitado. Nombre del secreto que contiene las credenciales para autenticarse en el proxy. Si se deja en blanco, tomará el valor del secreto indicado en _Access credentials_ añadiéndole el sufijo `-proxy`. En caso contrario, se utilizará el secreto indicado para obtener las credenciales de autenticación en el proxy. Ejemplo: _adls2-secret_.
++
+image::conf_agente_adls2_proxy_auth.png[Proxy Authentication settings]
+
+El proceso de descubrimiento es asíncrono. Una vez terminado, se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+image::vista_agente.png[Agente de descubrimiento]
+
+[#hadoop-config]
+
+==== Configuración de Apache Hadoop® aplicada a tablas virtualizadas
+
+En determinados casos, es necesario poder propagar propiedades de Apache Hadoop® a todas las tablas virtualizadas que tienen como origen los _assets_ de un agente. Para ello, puedes añadir en la creación o modificación del servicio en _Stratio Command Center_ propiedades personalizadas que empiecen por el prefijo `SSCC_BDL_OPTIONS_`.
+
+Las propiedades deben tener los puntos sustituidos por guión bajo, como se muestra en el ejemplo:
+
+[source,yaml]
+----
+- name: SSCC_BDL_OPTIONS_fs_azure_account_operation_idle_timeout
+  value: true
+----
+
+Siendo `fs.azure.account.operation.idle.timeout` la propiedad de Apache Hadoop®.
+
+IMPORTANT: Estas propiedades *no afectan al descubrimiento*, se usan exclusivamente para que las tablas virtualizadas las incluyan.
+
+== Virtualiza tus datos
+
+IMPORTANT: Ten en cuenta que para virtualizar las tablas descubiertas es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de Azure Data Lake Storage Gen2 de la siguiente manera:
+
+* Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'eureka-agent' -> 'Edit' -> 'Customize deployment' -> 'Settings'.
+* Añade al campo _Additional jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-adls2-0.3_2.12-1.2.x.jar`.
+
+image::conf_eureka.png[Configuración de Eureka]
+
+=== _Stratio Virtualizer_
+
+Para virtualizar los datos de Azure Data Lake Storage Gen2 es necesario añadir el conector de Azure Data Lake Storage Gen2 a la instancia de _Stratio Virtualizer_:
+
+* Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'virtualizer' -> 'Edit' -> 'Customize deployment' -> 'Environment' -> 'JDBC Integration'.
+* Añade al campo _JDBC Drivers URL List_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-adls2-0.3_2.12-1.2.x.jar`.
+
+image::conf_virtualizer.png[Configuración de Virtualizer]
+
+==== Conexión por proxy
+
+* En caso de querer realizar conexión por proxy sin conexión SSL/TLS, deberás indicarlo en el despliegue mediante opciones Java.
++
+[source,]
+----
+EXECUTOR_JAVA_OPTS_AGG = -Dhttp.proxyHost=<your_proxy_host> -Dhttp.proxyPort=<your_proxy_port>
+DRIVER_JAVA_OPTS_AGG = -Dhttp.proxyHost=<your_proxy_host> -Dhttp.proxyPort=<your_proxy_port>
+----
+
+* En caso de querer realizar conexión por proxy con conexión SSL/TLS, deberás indicarlo en el despliegue mediante opciones Java.
++
+[source,]
+----
+EXECUTOR_JAVA_OPTS_AGG = -Dhttps.proxyHost=<your_proxy_host> -Dhttps.proxyPort=<your_proxy_port> -Djavax.net.ssl.trustStore=/etc/virtualizer/.secrets/.trust/truststore.jks -Djavax.net.ssl.trustStorePassword=<trustore_pwd> -Djavax.net.ssl.trustStoreType=JKS
+DRIVER_JAVA_OPTS_AGG = -Dhttps.proxyHost=<your_proxy_host> -Dhttps.proxyPort=<your_proxy_port> -Djavax.net.ssl.trustStore=/etc/virtualizer/.secrets/.trust/truststore.jks -Djavax.net.ssl.trustStorePassword=<trustore_pwd> -Djavax.net.ssl.trustStoreType=JKS
+----
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+==== Gestión del _driver_
+
+Para acceder y explotar los datos de Azure Data Lake Storage Gen2 es necesario añadir el conector de Azure Data Lake Storage Gen2 a la instancia de _Stratio Rocket_:
+
+* Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Classpath configuration'.
+* Añade al campo _Rocket extra jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-adls2-0.3_2.12-1.2.x.jar`.
+* Añade esa misma URL al campo _Spark classpath extra jars_ (_Stratio Rocket_ necesita disponer del conector en tiempo de inicialización de Apache Spark™).
+
+image::conf_rocket.png[Configuración de Rocket]
+
+==== Gestión de los secretos
+
+Sube las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_ tal como aparece descrito en los prerrequisitos.
+
+[#rocket-configuration]
+
+==== Gestión de la configuración
+
+* Puedes consultar cómo habilitar el acceso directo a recursos de Azure Data Lake Storage Gen2 sin usar tablas del catálogo en xref:#direct-access-to-resources[el apartado específico de esta guía].
+* Linaje personalizado.
++
+_Stratio Rocket_ permite la personalización del linaje para conectores desacoplados. Para activarlo, sigue estos pasos:
++
+** A la hora de desplegar el agente de Azure Data Lake Storage Gen2 en _Stratio Command Center_, debes establecer el nombre de servicio a `dfs.core.windows.net`:
++
+image::lineage_custom_service_name.png[Service Name]
++
+** Edita en _Stratio Command Center_ el descriptor de _Stratio Rocket_ para establecer las propiedades relativas al linaje personalizado.
++
+Existen varios modos de linaje personalizado. Para el caso de Azure Data Lake Storage Gen2, se puede utilizar el modo _Spark Format_ y el modo _Custom_.
++
+*** En el modo _Spark Format_ se puede configurar el linaje personalizado para un tipo concreto de fichero (por ejemplo Parquet) estableciendo el valor `parquet:com.stratio.connectors.ssccadls2.ADLS2QualityRulesAndLineage:getMetadataPath` en '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Governance Lineage' -> 'Custom lineage and quality rules methods using Spark format':
++
+image::lineage_custom_spark_format.png[Spark Format]
++
+IMPORTANT: El linaje personalizado de Azure Data Lake Storage Gen2 se aplicará a *todos los _inputs_ y _outputs_* de un formato de archivo independientemente de su origen. Por lo tanto, si el archivo puede tener otro origen que Azure Data Lake Storage Gen2, será necesario usar una etiqueta personalizada como se describe a continuación.
++
+*** En el modo _Custom_ se puede configurar el linaje personalizado mediante una etiqueta personalizada (por ejemplo `myADLS2`) estableciendo el valor `myADLS2:com.stratio.connectors.ssccadls2.ADLS2QualityRulesAndLineage:getMetadataPath` en '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Governance Lineage' -> 'Custom lineage and quality rules methods':
++
+image::lineage_custom_custom_tag.png[Custom Tag]
++
+** En _Stratio Rocket_ se creará un _Workflow_ de tipo `Datasource` con la siguiente configuración:
+*** En el modo _Spark Format_ se debe añadir la opción "accountName" con el nombre de la cuenta de Azure Data Lake Storage Gen2 que se desee utilizar:
++
+image::lineage_custom_workflow_spark_format.png[Workflow Spark Format]
++
+*** En el modo _Custom_ se debe añadir la opción `accountName` con el nombre de la cuenta de Azure Data Lake Storage Gen2 que se desee utilizar y la opción "lineage++_++custom" con el nombre de la etiqueta definida en el paso anterior:
++
+image::lineage_custom_workflow_custom_tag.png[Workflow Custom Tag]
++
+* Reglas de calidad personalizadas.
++
+_Stratio Rocket_ permite la personalización de reglas de calidad para conectores desacoplados. Para activarlas, sigue estos pasos:
++
+** Edita en _Stratio Command Center_ el descriptor de _Stratio Rocket_ para establecer la propiedad relativa a las reglas de calidad personalizadas.
++
+Estas reglas se pueden configurar estableciendo el valor del campo '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Governance Lineage' -> 'Custom planned quality rules methods'.
++
+*** Si se utiliza el método de autenticación _SharedKey_, el valor debe ser `com.stratio.connectors.ssccadls2.ADLS2DriverSharedKey:com.stratio.connectors.ssccadls2.ADLS2QualityRulesAndLineage:getPlannedQRCreateTable`.
++
+image::qr_custom_shared_key.png[QR Shared Key]
++
+*** Si se utiliza el método de autenticación OAuth2.0, el valor debe ser `com.stratio.connectors.ssccadls2.ADLS2DriverOAuth:com.stratio.connectors.ssccadls2.ADLS2QualityRulesAndLineage:getPlannedQRCreateTable`.
++
+image::qr_custom_oauth.png[QR OAuth2.0]
++
+NOTE: Esta configuración *no es necesaria* para el linaje y las reglas de calidad sobre tablas virtualizadas en el catálogo.
+
+* Conexión por proxy.
+** En caso de querer realizar conexión por proxy sin conexión SSL/TLS, deberás modificar las opciones Java correspondientes a las variables `SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS` y `SPARK_DRIVER_JAVA_OPTIONS`. Para ello, dirígete dentro de tu proyecto de _Stratio Rocket_ → 'Parameters' → 'Spark Configurations'.
++
+Para cada variable `SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS` y `SPARK_DRIVER_JAVA_OPTIONS`, añade lo siguiente al contenido que exista:
++
+[source,]
+----
+-Dhttp.proxyHost=<your_proxy_host> -Dhttp.proxyPort=<your_proxy_port>
+----
++
+** En caso de querer realizar conexión por proxy con conexión SSL/TLS, deberás modificar las opciones Java correspondientes a las variables `SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS` y `SPARK_DRIVER_JAVA_OPTIONS`. Para ello, dirígete dentro de tu proyecto de _Stratio Rocket_ → "Parameters" → "Spark Configurations".
++
+Para cada variable `SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS` y `SPARK_DRIVER_JAVA_OPTIONS`, añade lo siguiente al contenido que exista:
++
+[source,]
+----
+-Dhttps.proxyHost=<your_proxy_host> -Dhttps.proxyPort=<your_proxy_port> -Djavax.net.ssl.trustStore=/security/truststore.jks -Djavax.net.ssl.trustStorePassword=<trustore_pwd> -Djavax.net.ssl.trustStoreType=JKS
+----
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_, tal y como aparece descrito en xref:ROOT:quick-start-guide#_stratio_intelligence[la guía de inicio rápido general].
+
+==== Gestión del _driver_
+
+Para acceder y explotar los datos de Azure Data Lake Storage Gen2 es necesario configurar _Stratio Intelligence_ de la siguiente manera:
+
+* Añade el conector de Azure Data Lake Storage Gen2 a la instancia de _Stratio Intelligence_:
+** Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'intelligence' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Analytic Environment Settings' -> 'Extra jars to Spark Context Configuration'.
+** Añade al campo _Spark classpath extra jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-adls2-0.3_2.12-1.2.x.jar`.
++
+image::conf_intelligence.png[Intelligence]
+
+** Añade a la variable de entorno personalizada `ANALYTIC_ENV_SPARK_HOME_EXTRA_JARS` la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-adls2-0.3_2.12-1.2.x.jar`.
+
+** Añade a la variable de entorno personalizada `ANALYTIC_ENV_SSCC_ABFSS_CREDENTIALS_BY_ACCOUNT` la relación de cuentas de Azure Data Lake Storage Gen2 y secretos separados por `;`. Ejemplo: `storage_account_1:adls2-secret-storage_account_1;storage_account_2:adls2-secret-storage_account_2`.
++
+image::conf_intelligence_descriptor.png[Intelligence descriptor]
++
+NOTE: Para no tener problemas con la consistencia de datos se debe añadir la variable `fs.gs.cooperative.locking.expiration.timeout.ms` con el valor "true" en el _ConfigMap_ de Apache Hadoop® (HDFS) y reiniciar el servicio.
+
+==== Gestión de los secretos
+
+Sube las credenciales de acceso para los _workflows_ y para _Stratio Intelligence_ a _Stratio KMS_ tal como aparece descrito en los prerrequisitos.
+
+==== Gestión de la configuración
+
+* Para no tener problemas con la consistencia de datos se debe configurar _Stratio Intelligence_ como se indica en el documento de xref:ROOT:commiters.adoc#_uso_con_stratio_intelligence[integración].
+* Puedes consultar cómo habilitar el acceso directo a recursos de Azure Data Lake Storage Gen2 sin usar tablas del catálogo en xref:#direct-access-to-resources[el apartado específico de esta guía].

@@ -1,0 +1,12 @@
+= Problemas conocidos
+
+* Los tipos de dato _array_ multidimensionales no están soportados, ya que no se pueden diferenciar de los _array_ unidimensionales en el descubrimiento.
+* El tipo de dato _money_ se tratará como un _double_, ya que existen valores de tipo _money_ que no se pueden leer como _double_ debido al formato. Se utiliza el tipo _double_ para mantener la compatibilidad con el conector anterior.
+* Las cajas de _Stratio Rocket_ para PostgreSQL® no pueden realizar conexiones TLS mutuo porque no pueden utilizar el _driver_ embebido del conector.
+* Las cajas de _Stratio Rocket_ para JDBC pueden utilizar el _driver_ embebido del conector SSCC PostgreSQL® pero actualmente no pueden obtener los secretos de Vault.
+
+== Dialecto nativo
+
+En el dialecto nativo del conector SSCC PostgreSQL® existen las siguientes limitaciones:
+
+* _ArrayType_: las funciones _array++_++max_, _array++_++min_, _filter_ y _exists_ no se soportan ya que no existen en PostgreSQL®.

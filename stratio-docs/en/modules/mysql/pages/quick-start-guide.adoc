@@ -1,0 +1,70 @@
+﻿= Quick start guide
+
+The purpose of this guide is to briefly explain how to integrate MySQL into the _Stratio Generative AI Data Fabric_ platform.
+
+== Prerequisites
+
+You can find the prerequisites for installing the MySQL connector in the xref:oracle:operations-guide.adoc#_prerequisites[operations guide].
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for MySQL you must select "MySQL Agent" in '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS'.
+
+When installing, you have to add the information corresponding to the MySQL project that you want to discover, add the URL of the connectors repository where the `sscc-mysql-0.3_2.12-3.1.x` and `mysql-jdbc-x.x.x` artifacts are stored, and upload the access credentials to _Stratio KMS_.
+
+The most important fields to fill in are:
+
+* *_Root discovery path_*. For example: */<database_name>*.
+* *_Access credentials_*. For example: *<secret_name>*.
+*** *_SSCC driver location_*: URL where the artifact that will contain the JAR of the SSCC MySQL connector is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mysql-0.3_2.12-3.1.x.jar`.
+*** *_JDBC driver location_*: URL where the artifact that will contain the JAR of the selected JDBC driver is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/mysql-jdbc-x.x.x.jar`.
+
+TIP: More information on the other configuration parameters can be found in the xref:mysql:operations-guide.adoc#_discovery_agent[operations guide].
+
+== Virtualize your data
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the MySQL connector. To do this, simply add the URL of the connectors repository of the `sscc-mysql-0.3_2.12-3.1.x` and `mysql-jdbc-x.x.x` artifacts in the 'Customized deployment' -> 'Settings' -> `Additional jars` variable.
+
+image::mysql-bdl.png[]
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the MySQL connector needs to be configured. To do so, you need to add the URL of the `sscc-mysql-0.3_2.12-3.1.x` and `mysql-jdbc-x.x.x` artifacts in the 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` variable and also upload the access credentials to _Stratio KMS_.
+
+image::mysql-virtualizer-conf.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the MySQL connector needs to be configured. To do this, you must add the URL of the `sscc-mysql-0.3_2.12-3.1.x` and `mysql-jdbc-x.x.x` artifacts in the 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` variable and also upload the access credentials for workflows and for _Stratio Rocket_ to _Stratio KMS_.
+
+image::mysql-rocket-conf.png[]
+
+TIP: More information on the other configuration parameters can be found in the xref:mysql:operations-guide.adoc#rocket-configuration[operations guide].
+
+=== _Stratio Intelligence_
+
+You'll need to configure _Stratio Intelligence_ before integrating with the connector. The following properties must be added:
+
+* `INTERPOLATED_ANALYTIC_ENV_CROSSDATA_CATALOG_SECRET_INSTANCE_NAME`: ${username}
+* `ANALYTIC_ENV_VAULT_PATH`: "people".
+* `ANALYTIC_ENV_REQUESTS_CA_BUNDLE`: /opt/sds/stratio_analytic/security/ca-bundle.pem
+* `ANALYTIC_ENV_HIDE_VAULT_TOKEN`: "false"
+
+In addition, in the multiuser environment, you need to enable the Allow artifact deployment option and have the _artifacts_ value in the path.
+
+Once you've configured _Stratio Intelligence_, you have to add the artifacts of the MySQL connector and `mysql-jdbc-x.x.x` to the _artifacts/spark++_++jars_ directory and upload the credentials to _Stratio KMS_.
+
+To upload the artifact, you have to download it from *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mysql-0.3_2.12-3.1.x* to the _artifacts/spark++_++jars_ directory in the _Stratio Intelligence_ workspace by issuing a cURL request. In this case, make the following request:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mysql-0.3_2.12-3.1.x --output sscc-mysql-0.3_2.12-3.1.x
+----

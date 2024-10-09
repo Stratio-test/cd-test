@@ -1,0 +1,7 @@
+﻿= Troubleshooting
+
+In this section, you'll learn how to troubleshoot possible errors or problems related to MySQL metadata discovery.
+
+== _MetadataPath_ issues related to lineage and quality rules
+
+To obtain the _MetadataPath_ you need to know the arbitrary name of the agent established in _Stratio Data Governance_. Currently, there is no DNS-style service that provides such a name. Therefore, and as a temporary measure until this service is developed, if you want to use lineage and/or quality rules generated from the connector, you must set the *host name of the data store to be exploited* as its name in _Stratio Data Governance_ (_COMM++_++SERVICE++_++ID_).

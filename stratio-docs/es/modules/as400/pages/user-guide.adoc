@@ -1,0 +1,79 @@
+= Guía de usuario
+
+== Descripción
+
+El conector SSCC AS400 te permite la integración completa de IBM Db2 iSeries AS400 en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:as400:compatibility-matrix.adoc[matriz de compatibilidad].
+
+== Descubre tus datos
+
+=== Conoce tus datos
+
+Además de lo que se muestra en xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tablas_y_columnas[_Stratio Data Governance_], también puedes encontrar los atributos técnicos extraídos de los recursos de IBM Db2 iSeries AS400. Se extraen todos los metadatos que proporciona IBM Db2 iSeries AS400 y se añaden a la interfaz de usuario de _Stratio Data Governance_ tanto en tabla como en columna.
+
+TIP: Consulta la https://www.ibm.com/docs/en/i/7.5?topic=overview-db2-i[Guía oficial IBM Db2 iSeries AS400] para más información.
+
+* Los metadatos extraídos en tabla son (_tableType_, _insertable_, _typed_, _schema_ y _description_ de la tabla).
++
+image:as400-vista-tablas.png[]
+
+* Los metadatos extraídos a nivel de columna son (_type_, _nullable_, _ordinal_, _typedId_ y _properties_, entre las que se encuentra _description_).
++
+image:as400-vista-cols-total.png[]
+
+=== Virtualización de la BDL
+
+El proceso de descubrimiento es asíncrono. Una vez terminado, se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+El conector soporta la personalización del acceso al dato en las tablas virtualizadas mediante xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_atributos_personalizados_de_bdl[atributos avanzados de BDL] de _Stratio Data Governance_, modificables desde la interfaz de usuario:
+
+* *bdl.options.virtualizer.native*: los posibles valores son "True" y "False". "True" si el usuario quiere acceder al dato con el xref:stratio-virtualizer:user-guide:what-can-i-do-with-stratio-virtualizer.adoc#_consultas_nativas[dialecto nativo] de _Stratio Virtualizer_. Si se configura este atributo, se sobrescribirá la configuración por defecto ("True").
+* *bdl.options.native.filter*: filtro aplicado sobre la virtualización de la tabla en caso de que el modo de acceso al dato sea con el dialecto nativo de _Stratio Virtualizer_.
+
+NOTE: Puedes consultar cómo crear atributos en la xref:stratio-data-governance:user-manual:addition-of-metadata[guía de usuario] de _Stratio Data Governance_.
+
+TIP: Para más detalles del uso de la BDL consulta la xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[documentación de procesamiento de datos con BDL].
+
+== Virtualiza tus datos
+
+Una vez descubiertas las tablas, es posible añadirlas a una vista técnica de una colección. Todos los parámetros configurables del descubrimiento y los modificados desde la interfaz de usuario de _Stratio Data Governance_ se propagan en las colecciones donde se añada esa tabla.
+
+TIP: Para saber más sobre cómo gestionar las colecciones puedes consultar xref:stratio-data-governance:user-manual:collections.adoc[la guía de usuario de _Stratio Data Governance_].
+
+IMPORTANT: Ten en cuenta que, para virtualizar las tablas descubiertas, es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+Para crear una tabla directamente en el catálogo de _Stratio Virtualizer_ puedes ejecutar la siguiente sentencia:
+
+[source,sql]
+----
+CREATE TABLE as400_table USING jdbc OPTIONS (
+  `stratiosecurity` 'true',
+  `stratiosecuritymode` 'custom_sscc',
+  `stratiocredentials` '<secret-name>',
+  `stratiossccdriver` 'com.stratio.connectors.ssccas400.As400DriverMD5',
+  `driver` 'com.ibm.as400.access.AS400JDBCDriver',
+  `url` 'jdbc:as400://<host>:<port>/<schema_name>;prompt=false;naming=sql;errors=full;',
+  `dbtable` '<schema_name>.<table_name>'
+)
+----
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Una vez virtualizados los datos, es posible acceder desde _Stratio Rocket_ mediante:
+
+* El catálogo.
++
+image::as400-vista-catalogo.png[]
+
+* Dentro de los _workflows_, haciendo uso del _input_ de xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[_Stratio Virtualizer_]. Es posible forzar el acceso mediante el dialecto nativo marcando la casilla "Force query execution with native connectors".
++
+image::as400-vista-worflow-crossdata.png[Workflow]
+
+IMPORTANT: Cuando se esté usando el *modo _legacy_*, se debe añadir en los _workflows_ la variable `lineageMode` a "legacy" para que funcionen correctamente las funcionalidades antiguas: reglas de calidad y linaje.
+
+=== _Stratio Intelligence_
+
+Se puede comprobar cómo se accede a los datos desde _Stratio Intelligence_ en la xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[Guía de inicio rápido general].

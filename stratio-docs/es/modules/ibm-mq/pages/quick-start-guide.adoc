@@ -1,0 +1,31 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar de forma sencilla cómo integrar en _Stratio Rocket_ cualquier caja de IBM MQ.
+
+TIP: Para más información sobre el proceso de instalación accede a la xref:stratio-connectors:ROOT:quick-start-guide.adoc[guía de inicio rápido general].
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector especial de IBM MQ en la xref:ibm-mq:operations-guide.adoc#_prerrequisitos[Guía de operaciones].
+
+NOTE: Ten en cuenta que en esta guía de inicio rápido se utilizará el *modo de autenticación usuario/contraseña*.
+
+El conector especial IBM MQ *sólo incluye* implementación para cajas de _Stratio Rocket_.
+
+== Accede a tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario cambiar un parámetro de configuración del xref:stratio-rocket:operations-guide:installing-and-upgrading/deployment.adoc[descriptor de _Stratio Rocket_], además de subir las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_.
+
+TIP: Visita la sección de xref:ibm-mq:operations-guide.adoc#_prerrequisitos[creación de secretos] en la guía de operaciones.
+
+En el ejemplo que se está siguiendo, en el descriptor de _Stratio Rocket_ debes cambiar lo siguiente:
+
+[#conf-secreto]
+
+* 'Security' -> 'Datastore credential retrieval from Vault'.
+** *_Credential retrieval configuration enabled_*: habilitado.
+** *_Credentials absolute vault path (access and secret key)_*: `/v1/userland/passwords/s000002-rocket.rocket.s000002.marathon/ibmmq`.
+
+image::ibm_mq_conf.png[]

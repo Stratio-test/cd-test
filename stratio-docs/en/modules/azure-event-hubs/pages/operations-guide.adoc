@@ -1,0 +1,108 @@
+= Operations guide
+
+== Description
+
+The Azure Event Hubs connector enables full integration of Azure Event Hubs into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:azure-event-hubs:compatibility-matrix.adoc[compatibility matrix].
+
+NOTE: This connector is only integrated in the _Stratio Rocket_ module.
+
+=== Authentication
+
+The connector supports two authentication modes:
+
+* OAuth2.0: you can integrate with Azure's Active Directory to granularize user permissions for a better level of security.
+* Shared Key/_Shared Access Signature_ (SAS): delegated access to users for Azure Event Hubs resources.
+
+== Prerequisites
+
+. Have access to the xref:ROOT:quick-start-guide.adoc[_Stratio KMS_ UI].
+. Have a namespace of https://azure.microsoft.com/en-us/products/event-hubs:[Azure Event Hubs]. That is, an instance of Azure Event Hubs configured and accessible from _Stratio Rocket_.
++
+NOTE: Selecting the _Pricing tier_ of type _Standard_ is important as the _Basic_ type does not support Apache Kafka® clients.
+
+. Create an Event Hub (Apache Kafka® topic) and configure it.
+. Have an Azure account configured with the following basic permissions:
+** Event Hub subscription.
+** Publish to Event Hub.
+
+. Create secrets in _Stratio KMS_.
++
+--
+*OAuth2.0*
+
+The secret to be uploaded consists of two keys:
+
+* _user_: `<client_id>`.
+* _pass_: `<client_secret>`.
+
+*Shared Key/_Shared Access Signature_ (SAS)*
+
+The secret to be uploaded consists of two keys:
+
+* _user_ : `$ConnectionString`.
+* _pass_ : `Endpoint=sb://<your_namespace>.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=<your_shared_access_key>`.
+--
++
+NOTE: When entering secrets, be careful with special characters.
++
+[TIP]
+====
+You'll get an image similar to this one:
+
+image::azure-event-hubs-vault-rocket-user-pass.png[]
+
+====
++
+---
++
+This secret must be uploaded to the following _Stratio KMS_ directory:
+
+** *_Stratio Rocket_ _workflows_*: `userland/passwords/execution-identity-<rocket_name>.<rocket_namespace>/<secret_name>`.
++
+. If you want to connect via privatelink, make sure you meet these prerequisites:
+** Have _Stratio Generative AI Data Fabric_ installed in an Azure *VPC*.
+** Have created a privatelink linked to a private host to the Azure private network with a specific host name. Example: `<your_namespace>.privatelink.servicebus.windows.net`.
+
+IMPORTANT: You should not confuse the host of the privatelink with the namespace name. The name of a namespace can be `your_namespace_` but never `your_namespace.privatelink`.
+
+IMPORTANT: It is recommended to create a dedicated user with limited permissions.
+
+NOTE: The Azure Event Hubs connector is integrated into _Stratio Rocket_ and includes the necessary drivers to be able to connect, so it is not necessary to include additional artifacts.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the Azure Event Hubs connector must be configured. To do that, go to 'Settings' -> 'Classpath':
+
+. *Include Kafka connector*: enabled.
+. *Include EventHub*: enabled.
+
+[TIP]
+====
+The configuration should be similar to the one shown in the image:
+
+image::azure-event-hubs-rocket-environment.png[]
+
+====
+
+==== Connection via proxy/privatelink
+
+* In case you want to connect through a proxy server, follow these steps:
++
+. Make sure you have an active proxy server accessible from your cluster.
+. Go to your _Stratio Rocket_ project and access the 'Parameters' -> 'SparkConfigurations' section.
+. In the `SPARK_DRIVER_JAVA_OPTIONS` and `SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS` parameters, you must add the following:
++
+[source,bash]
+----
+-Dhttp.proxyHost = <your_host>
+-Dhttp.proxyPort = <your_port>
+-Dhttp.nonProxyHosts = kubernetes.*|*.keos-core
+-Dhttp.proxyUser = <your_user> -Dhttp.proxyPort = <your_user>
+-Dhttp.proxyPassword = <your_password> -Dhttp.proxyPassword = <your_password>
+----
+
+* In case you connect with privatelink, you only have to modify the host of the input/output boxes of Azure Event Hubs.

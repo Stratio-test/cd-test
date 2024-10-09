@@ -1,0 +1,32 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector SSCC ClickHouse, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-clickhouse-0.3_2.12-1.0.x
+
+| _Stratio BDL_
+| Virtualización
+| ≥ sscc-clickhouse-0.3_2.12-1.0.x
+
+| _Stratio Virtualizer_
+| Lectura y escritura
+| ≥ sscc-clickhouse-0.3_2.12-1.0.x
+
+| _Stratio Rocket_
+| Lectura y escritura virtualizada
+| ≥ sscc-clickhouse-0.3_2.12-1.0.x
+
+| _Stratio Intelligence_
+| Lectura y escritura virtualizada
+| ≥ sscc-clickhouse-0.3_2.12-1.0.x
+|===
+
+== Compatibilidad con versiones de ClickHouse
+
+Se ha validado la compatibilidad del conector para ClickHouse 22.5 y 24.1.3.31.

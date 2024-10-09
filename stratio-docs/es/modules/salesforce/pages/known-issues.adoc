@@ -1,0 +1,35 @@
+= Problemas conocidos
+
+* El conector SSCC Salesforce sólo permite la escritura en Salesforce en modo _append_ y _upsert_. Para ambos modos, es necesario realizar en un paso previo un _asset_ de transformación eliminando aquellas columnas de sistema creadas y autogeneradas por Salesforce. Columnas como por ejemplo:
+** Id
+** LastModifiedDate
+** IsDeleted
+** etc.
+
+* Recuperaciones de *datos parciales* sobre conjuntos de datos grandes usando la opción https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/api_asynch_introduction_bulk_api.htm[Bulk API]:
+** El Bulk API de Salesforce tiene un límite de 5 minutos para la recuperación total de los datos. Si no consigue recuperarlos en ese tiempo, devolverá el resultado parcial obtenido hasta ese momento. Para evitar este comportamiento, la API da la opción de separar la recuperación de los datos en la parte del servidor de Salesforce en https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_code_curl_walkthrough_pk_chunking.htm[_chunks_].
+** Para activar esta opción en _Stratio Rocket_, es necesario añadir la siguiente propiedad personalizada:
+*** *`pkChunking`*: `true`.
+** También se puede configurar el tamaño de esos _chunks_ con la siguiente propiedad:
+*** *`chunkSize`*: <tamaño_del_chunk> (valor por defecto: 100.000).
++
+image::salesforce-with-chunks-enabled.png[]
+
+* Define el número máximo de caracteres permitidos para un valor. Si utilizando el Bulk API se están extrayendo datos con una gran longitud, aparecerá el siguiente error: "Length of parsed input (4097) exceeds the maximum number of characters defined in your parser settings (4096)". Para evitarlo, puedes configurar el tamaño máximo permitido para un dato:
+** *`maxCharsPerColumn`* (opcional): <tamaño_maximo_columna> (valor por defecto: 4096). Disponible a partir de la versión 2.1.0.
+
+* Error a la hora de escribir un determinado número de registros:
++
+[source,bash]
+----
+Failed to parse CSV. Exceed number of records : 10002. Number of records should be less than or equal to 10001;
+Timeout : It took longer than 5 minutes to process this batch. Trying again later.
+----
++
+La API de Salesforce tiene un límite por _batches_ a la hora de escribir. Para controlar el número de elementos por _batch_ es necesario incluir el siguiente parámetro:
++
+** *`maxRecordsPerBatch`*: <numero_registros_por_batch>
++
+image::salesforce-rocket-max-records.png[]
+
+* Las reglas de calidad planificadas sobre tablas del diccionario no pueden ejecutarse si la tabla no tiene datos, ya que el origen de datos de _Stratio Spark_ no es capaz de inferir las columnas correctamente en ese caso.

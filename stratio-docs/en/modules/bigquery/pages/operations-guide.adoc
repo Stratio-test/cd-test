@@ -1,0 +1,173 @@
+﻿= Operations guide
+
+== Description
+
+The SSCC BigQuery connector allows you to integrate BigQuery into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:bigquery:compatibility-matrix.adoc[compatibility matrix].
+
+== Prerequisites
+
+. Install the xref:connectors-repository:operations-guide.adoc#_installation[connectors repository].
++
+IMPORTANT: In the connectors repository, the `sscc-bigquery-0.3_2.12-1.10.x` artifact, which will be used for basic use of the BigQuery connector, will be available at the URL `http://connectors.<tenant>-<namespace>/v1/api/artifact/<artifact_name>`. Since version 1.10.0, you must upload the driver JDBC Simba artifact indicated in the compatibility matrix to the connector repository. This driver isn't made available.
+
+. The xref:ROOT:quick-start-guide.adoc[_Stratio KMS_] UI should be accessible to manage credentials.
+. Have Google Cloud Platform with BigQuery.
+. Have a Google Cloud service account xref:https://developers.google.com/identity/protocols/oauth2/service-account[configured] with the permissions shown below:
+* You need to assign the role `bigquery.metadataViewer` to the service account of the BigQuery discovery agent. This role contains the following permissions:
+** _bigquery.datasets.get_
+** _bigquery.datasets.getIamPolicy_
+** _bigquery.models.getMetadata_
+** _bigquery.models.list_
+** _bigquery.routines.get_
+** _bigquery.routines.list_
+** _bigquery.tables.get_
+** _bigquery.tables.getIamPolicy_
+** _bigquery.tables.list_
+** _resourcemanager.projects.get_
+** _resourcemanager.projects_
+
+. Create secrets in _Stratio KMS_. To connect to a BigQuery project, use the Google service account authorization method. To do this, you must generate the credentials for this account from the Google API console. Once generated, you can download them. Here you have https://developers.google.com/identity/protocols/oauth2/service-account[more information about OAuth authentication using a service account].
++
+--
+The secret to be uploaded consists of two keys:
++
+** _credentials_: `<bigquery_token_base64_json>`, JSON of the BigQuery service account encoded in Base64.
+** _parentProject_: `<project_id_parent_project>`, name of the BigQuery project to which you want to bill the data access costs.
+--
++
+To perform Base64 encoding of the service account's JSON you can use the following command:
++
+[source,bash]
+----
+base64 BQService-account-key.json > base64GBQService-account-key.json
+----
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
++
+** *Discovery agent*: `userland/passwords/<agent_name>.<namespace>/<secret_name>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<virtualizer_name>.<virtualizer_namespace>/<secret_name>`.
+** *_Stratio Rocket_*: `userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>`.
+** *_Stratio Rocket_ workflows*: `userland/passwords/execution-identity-<rocket_name>.<rocket_namespace>/<secret_name>`.
+** *_Stratio Intelligence_*: `people/passwords/<intelligence_user_name>/<secret_name>`.
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for an external BigQuery, go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' and select "BigQueryAgent".
+
+The fields to be filled in for the installation are:
+
+* *General*:
+** *_Service ID_*: agent's unique identifier. Example: _dg-bigquery-agent_.
+** *_Name of the Service_*: name displayed in DC/OS.
+* *Metadata Data store (PostgreSQL®)*
+** *_Host_*: the PostgreSQL® instance that stores the discovered metadata. Example: _poolpostgresgov_.
+* *Configuration of the Service to be Discovered*
+** *_Service to be discovered_*
+*** *_Service name_*: name that will be used to identify this data store in _Stratio Data Governance_. It's the one that will be displayed in the UI.
+*** *_Root discovery path_*: path from which you want to discover the metadata recursively, following the pattern `/<projectId>/<dataset>/<table>`.
++
+Examples: _/myproject-111111_, _/myproject-111111/mydataset_, _/myproject-111111/mydataset/mytable_.
++
+*** *_Google Cloud Storage temporary bucket_*: required for BigQuery write operations.
++
+image::bigquery-cct-deployment.png[]
++
+** *_Resource data store connection configuration_*
+*** *_Custom datastore service security_*: only supports `SERVICE_ACCOUNT`.
+*** *_Access credentials_*: name of the secret created in _Stratio KMS_. Example: _bigquery-connectors_.
+*** *_BigQuery Native Mode_*: `(True/False)`. `True` if you want to virtualize with the native _Stratio Virtualizer_ connector and `False` if you want to virtualize without it.
++
+image::bigquery-cct-deployment2.png[]
++
+*** *_Data store driver location_*: URL where the SSCC BigQuery JAR is located.
+*** *_BigQuery connection attempts_*: defines BigQuery connection attempts.
+*** *_Dataset page size_*: used for BigQuery data set pagination. Defines the number of data sets returned per page.
+*** *_Table page size_*: used for BigQuery data set pagination. Defines the number of tables returned per page.
+*** *_BigQuery concurrent connections_*: increases the speed of discovery of large data sets with parallel tasks.
+*** *_Enable connection through proxy_*: `(True/False)`. Enable connection via proxy.
+*** *_Proxy Address_*: if connection via proxy is enabled, the host and port of the proxy must be specified in the format `host:port`.
+*** *_Proxy authentication enabled_*: `(True/False)`. If the proxy requires authentication. If `True`, you need to upload the secret in the service path with the name `bigquery-proxy-secret`.
++
+image::bigquery-cct-deployment3.png[]
+
+The discovery process is asynchronous. Once the discovery is finished you can view it from the _Stratio Data Governance_ UI.
+
+image::bigquery-discover-metadata.png[]
+
+NOTE: Views in BigQuery are supported, but are shown as tables in the _Stratio Data Governance_ UI.
+
+== Virtualize your data
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the BigQuery connector. To do this, just add the URL of the connectors repository of the `sscc-bigquery-0.3_2.12-1.10.x` artifact in the variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+image::bigquery-bdl.png[]
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+TIP: See here xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[more information about data processing with BDL].
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ supports interaction with BigQuery through the SSCC BigQuery connector. This integration has certain requirements:
+
+* The following _Stratio Virtualizer_ deployment fields must be modified in _Stratio Command Center_.
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Integration'.
+*** *_JDBC Integration_*: `True/False`.
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Drivers URL List'.
+*** *_JDBC Drivers URL List_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-bigquery-0.3_2.12-1.10.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/simba-jdbc-bigquery-42_1.3.3.1004-4.0.0-08702a9.jar`.
++
+image::bigquery-virtualizer-conf.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+==== Managing the driver
+
+To use _Stratio Rocket_, the SSCC BigQuery connector needs to be configured. To do this:
+
+. You have to add the URLs of the artifacts _sscc-bigquery-0.3_2.12-1.10.x_ and _simba-jdbc-bigquery-X.X.X_ artifacts in the 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` variable of _Stratio Command Center_.
+
+* *_Rocket extra jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-bigquery-0.3_2.12-1.10.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/simba-jdbc-bigquery-X.X.X.jar`.
++
+image::bigquery-rocket-conf.png[]
+
+. You also have to upload the access credentials for _workflows_ and for _Stratio Rocket_ to _Stratio KMS_.
+
+==== Managing secrets
+
+Upload the access credentials for the _workflows_ and for _Stratio Rocket_ to _Stratio KMS_ as described in the prerequisites.
+
+[#rocket-configuration]
+
+==== Configuration management: quality rules and lineage
+
+Access the _Stratio Rocket_ configuration in 'Settings' -> 'Governance Lineage' and make sure that the "Governance Lineage" option is enabled.
+
+The fields to be filled in are the following:
+
+* _Custom lineage and quality rules methods using JDBC driver_: `com.simba.googlebigquery.jdbc.Driver:com.stratio.connectors.ssccbigquery.BigQueryQualityRulesAndLineage:getMetadataPath`.
+** This option activates lineage for data flows using _datasource_ boxes that access the data store directly.
++
+IMPORTANT: For lineage to work properly, the discovery agent must have the value `googleapis.com` as its _Service Name_.
++
+* _Custom planned quality rules methods_: `com.stratio.connectors.ssccbigquery.BigQueryDriver:com.stratio.connectors.ssccbigquery.BigQueryQualityRulesAndLineage:getPlannedQRCreateTable`.
+** With this option, the planned quality rules that directly access tables in the data store will be supported.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+Restart _Stratio Rocket_ to apply the changes.
+
+NOTE: These variables are *not necessary* for the lineage and quality rules on virtualized tables in the catalog.
+
+=== _Stratio Intelligence_
+
+To correctly configure _Stratio Intelligence_, see the xref:bigquery:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_ section]. Remember to use the right format for the authentication mode for secrets.

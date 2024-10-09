@@ -1,0 +1,11 @@
+= _Troubleshooting_
+
+En esta sección aprenderás a resolver posibles errores o problemas que puedan ocurrir relacionados con el conector SSCC Oracle.
+
+* *Versión del _driver_:* al escoger un _driver_ de Oracle JDBC, es importante tener en cuenta que _Stratio Generative AI Data Fabric_ usa Java 8. Por esto, *debes utilizar el `ojdbc8.jar`*.
+
+* *Longitud de identificadores en Oracle Server anterior a 12.2*: cuando se accede al dato usando el conector nativo de _Stratio Crossdata_ sin _fallback_ a Apache Spark™, el uso de identificadores con longitud superior a 30 produce el error "ORA-00972: identifier is too long error". En la versión 12.2 y posteriores de Oracle, este límite se ha extendido a 128 caracteres evitando así este problema. Como solución alternativa, se deben truncar los identificadores hasta los 30 caracteres manteniendo la unicidad. Esto se puede gestionar de forma programática tal y como aparece descrito en la https://docs.oracle.com/en/database/oracle/oracle-database/21/odpnt/EFCoreIdentifier.html#GUID-FA43F1A1-EDA2-462F-8844-45D49EF67607[Guía de desarrollo de Oracle].
+
+* *javax.xml.parsers.ParserConfigurationException*: al incluir la biblioteca _xmlparserv2_ en la ruta de clases, establece la propiedad del sistema `javax.xml.parsers.SAXParserFactory en oracle.xml.jaxp.JXSAXParserFactory`, lo que hace que otros paquetes (como el inicio de sesión) use esto de forma predeterminada. La función SAX http://xml.org/sax/features/external-general-entities no es compatible. Para evitar este problema, se debe evitar que la biblioteca `xmlparserv2` de Oracle establezca esta propiedad incluyendo el archivo `META_INF/services/javax.xml.parsers.SAXParserFactory`. Esto se logra fácilmente reemplazando el artefacto `xmlparserv2` con `xmlparserv2_sans_jaxp_services`.
+
+* *"JDBC connection initiated but not exactly one connection provider found which can handle it. Found active providers"*. En versiones previas a la 1.2.1, es necesario incluir el artefacto `sscc-oracle-spark-0.3_2.12-1.x.y.jar` junto con el artefacto `sscc-oracle-0.3_2.12-1.x.y.jar` en aquellos módulos donde está integrado. De no ser así, el acceso al dato usando el modo de autenticación _Kerberos_ fallará con el mencionado error.

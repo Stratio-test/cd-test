@@ -1,0 +1,163 @@
+= Guía de operaciones
+
+== Descripción
+
+El conector SSCC AS400 te permite la integración de IBM Db2 iSeries AS400 en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:as400:compatibility-matrix.adoc[matriz de compatibilidad].
+
+=== Autenticación
+
+Actualmente, el conector SSCC AS400 solo soporta autenticación con *usuario y contraseña*.
+
+== Prerrequisitos
+
+. Instalar el xref:connectors-repository:operations-guide.adoc#_instalación[repositorio de conectores].
++
+IMPORTANT: En el repositorio de conectores se tendrán disponibles en la URL `http://connectors.tenant-my_namespace/v1/api/artifact/<nombre_artefacto>` los artefactos `sscc-db2-0.3_2.12-1.4.x` y `jt400-11.1.jar`, que se utilizan para un uso básico del conector SSCC AS400. Es necesario subir el artefacto _driver JDBC_ que se indica en la matriz de compatibilidad al repositorio de conectores. Este _driver_ no se disponibiliza.
+
+. Tener accesible la xref:ROOT:quick-start-guide.adoc[interfaz de usuario de _Stratio KMS_].
+
+. Tener una instancia de una base de datos de IBM Db2 iSeries AS400 accesible desde _Stratio Generative AI Data Fabric_ con el modo de autenticación elegido configurado.
++
+** Se recomienda usar cinco usuarios diferentes con usuario y contraseña:
++
+--
+*** user_governance_as400
+*** user_virtualizer_as400
+*** user_rocket_as400
+*** user_rocket_execution_as400
+*** user_virtualizer_as400
+--
++
+** No se recomienda el uso de usuarios con privilegios de administrador.
+** Una vez creados los usuarios, se necesitan permisos mínimos a la plataforma _Stratio Generative AI Data Fabric_.
+** Se recomienda la gestión de permisos usando *privilegios* sobre los esquemas. Los 5 tipos de usuario tienen que tener el privilegio *CREATEIN* sobre los esquemas correspondientes para poder realizar las operaciones requeridas por el conector.
+
+. Crear los secretos en _Stratio KMS_. Actualmente, el conector solo admite autenticación con usuario y contraseña.
++
+--
+El secreto que se va a subir consta de dos claves:
+
+** _user_ : <as400_user>.
+** _pass_ : <as400_pass>.
+--
++
+Este secreto se debe subir a los siguientes directorios de _Stratio KMS_:
+
+** *Agente de descubrimiento*: `userland/passwords/<nombre_agente>/<nombre_secreto>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<nombre_virtualizer>.<namespace_virtualizer>/<nombre_secreto>`.
+** *_Stratio Rocket_*: `userland/passwords/<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Workflows_ de _Stratio Rocket_*: `userland/passwords/execution-identity-<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Stratio Intelligence_*: `/people/passwords/<nombre_usuario_intelligence>/<nombre_secreto>`.
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento para IBM Db2 iSeries AS400 debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS'* el agente "AS400 Agent".
+
+Los campos a rellenar para la instalación son:
+
+* *_General_*
+** *_Service ID_*: identificador único del agente. Ejemplo: _dg-as400-agent_.
+** *_Name of the Service_*: nombre mostrado en _Stratio KEOS_. Ejemplo: _dg-as400-agent_.
+* *Metadata Datastore (PostgreSQL®)*
+** *_Host_*: instancia de PostgreSQL® que almacena los metadatos descubiertos. Ejemplo: _pgbouncer-postgreskeos-governance.keos-core_.
+* *Configuration of the Service to be Discovered*
+** *Service to be discovered:*
+*** *_Service name_*: nombre que se utilizará para identificar este almacén de datos en _Stratio Data Governance_. Es el que se mostrará en su interfaz de usuario. Ejemplo: _dg-as400-agent_.
+*** *_Root discovery path_*: las bases de datos de IBM Db2 iSeries AS400 que quieras que sean descubiertas. Deben estar separadas por comas, sin espacios y con una `/` al principio.
+
+** *Resource datastore connection configuration*
+*** *_Custom Service URL_*: URL JDBC usada para conectarse a IBM Db2 iSeries AS400. Ejemplo: `jdbc:as400://your.host.com/-db-;prompt=false;naming=sql;`.
++
+IMPORTANT: Para el correcto funcionamiento del agente es necesario que la URL JDBC contenga el sufijo `/-db-` y los parámetros `prompt=false` y `naming=sql`.
+*** *_Access credentials_*: nombre del secreto creado en xref:#_gestión_de_los_secretos[_Stratio KMS_]. Ejemplo: _as400-secret_.
+*** *_SSCC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC AS400. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar`.
+*** *_JDBC driver location_* URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del _driver JDBC_ elegido. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/jt400-11.1.jar`.
+
+El proceso de descubrimiento es asíncrono, una vez terminado el descubrimiento se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+=== Modos _legacy_ y _path_
+
+Existen dos modos de descubrimiento:
+
+* _Legacy_
+
+image::as400-mode-legacy-dictionary.png[]
+
+Selecciona el campo _Use legacy mode_ con el valor "true" para activar el modo _legacy_.
+
+image::as400-mode-legacy-conf.png[]
+
+* _Path_. Tiene 3 niveles: base de datos, esquema y tabla.
+
+image::as400-mode-sscc-dictionary.png[]
+
+Selecciona el campo _Use legacy mode_ con el valor "false" para activar el modo _path_.
+
+image::as400-mode-sscc-conf-basic.png[]
+
+== Virtualiza tus datos
+
+IMPORTANT: Ten en cuenta que para virtualizar las tablas descubiertas es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector SSCC AS400. Para ello basta con añadir la URL del repositorio de conectores del artefacto `sscc-as400-0.3_2.12-1.0.x` en la variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+TIP: Consulta aquí xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[más información acerca del procesamiento de datos con BDL].
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ soporta la interacción con IBM Db2 iSeries AS400 a través del conector SSCC AS400. Esta integración tiene ciertos requisitos:
+
+* Se deben modificar los siguientes campos del despliegue de _Stratio Virtualizer_ en _Stratio Command Center_:
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Integration'.
+*** *_JDBC Integration_*: `(True/False)`.
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Drivers URL List'.
+*** *_JDBC Drivers URL List_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/jt400-11.1.jar`.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+==== Gestión del _driver_
+
+Para el uso de _Stratio Rocket_ es necesario tener el conector SSCC AS400 configurado. Para ello:
+
+* Se debe añadir la URL del artefacto `sscc-db2-0.3_2.12-1.4.x` en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` de _Stratio Command Center_.
+** *_Rocket extra jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/jt400-11.1.jar`.
+
+==== Gestión de los secretos
+
+Sube las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_ tal como aparece descrito en los prerrequisitos.
+
+[#rocket-configuration]
+
+==== Gestión de la configuración: reglas de calidad y linaje
+
+Accede a la configuración de _Stratio Rocket_ en 'Settings' -> 'Governance Lineage' y asegúrate de que la opción "Governance Lineage" esté activada.
+
+Los campos a rellenar son los siguientes:
+
+* _Custom lineage and quality rules methods using JDBC driver_: `com.ibm.as400.access.AS400JDBCDriver:com.stratio.connectors.ssccas400.As400QualityRulesAndLineage:getMetadataPath`.
+** Con esta opción se activará el linaje para los flujos de datos usando cajas de tipo _datasource_ que accedan directamente al almacén de datos.
++
+IMPORTANT: Para que funcione correctamente el linaje, el agente de descubrimiento debe tener como _Service Name_ el valor `<host_url_jdbc_as400>.port.<port_url_jdbc_as400>`.
+
+* _Custom planned quality rules methods_: `com.stratio.connectors.ssccas400.As400DriverMD5:com.stratio.connectors.ssccas400.As400QualityRulesAndLineage:getPlannedQRCreateTable`.
+** Con esta opción se soportarán las reglas de calidad planificadas que accedan directamente a tablas del almacén de datos.
+
+NOTE: Recuerda que, si ya tienes más de una referencia en la lista, se deben añadir las siguientes separándolas por una coma.
+
+Reinicia _Stratio Rocket_ para aplicar los cambios.
+
+NOTE: Estas variables *no son necesarias* para el linaje y las reglas de calidad sobre tablas virtualizadas en el catálogo.
+
+=== _Stratio Intelligence_
+
+Para la configuración correcta de _Stratio Intelligence_ consulta la xref:as400:quick-start-guide.adoc#_stratio_intelligence[sección de _Stratio Intelligence_]. Para la integración con IBM Db2 iSeries AS400, solo es necesaria la subida de credenciales mostrada en los prerrequisitos.

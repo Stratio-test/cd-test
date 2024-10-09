@@ -1,0 +1,34 @@
+= Operations guide
+
+== Description
+
+The special IBM MQ connector allows you to integrate https://www.ibm.com/docs/en/ibm-mq[IBM MQ] into _Stratio Rocket_.
+
+=== Authentication
+
+Currently, the connector only supports *username and password* authentication.
+
+== Prerequisites
+
+* The xref:ROOT:quick-start-guide.adoc[_Stratio KMS_ UI] should be accessible to manage credentials.
+* Have an IBM MQ queue with a host and port. You can find more information about queue properties at https://www.ibm.com/docs/en/ibm-mq/8.0?topic=properties-mq-queue[the IBM MQ queue properties].
+* Create secrets in _Stratio KMS_. Currently, the connector only supports username and password authentication.
++
+--
+The secret to be uploaded consists of two keys:
+
+* _user_ : `<ibm_mq_user>`.
+* _pass_ : `<ibm_mq_password>`.
+--
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
++
+** _Stratio Rocket_: `userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>`.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+Visit the xref:ibm-mq:quick-start-guide.adoc#conf-secret[quick start guide] to see how to make the change to the _Stratio Rocket_ descriptor.
+
+NOTE: The name of the secret must match the creation name. Also, you will need to add it in the IBM MQ "input" box configuration.

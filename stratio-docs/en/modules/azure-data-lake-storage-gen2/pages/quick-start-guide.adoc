@@ -1,0 +1,54 @@
+﻿= Quick Start Guide
+
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+== Prerequisites
+
+The prerequisites needed to install the _Azure DataLake Gen2_ connector can be found in the xref:azure-data-lake-storage-gen2:operations-guide.adoc#_prerrequisitos[Operations Guide].
+
+== Discover your data
+
+=== Discovery agent
+
+When installing the discovery agent for _Azure DataLake Gen2_ you have to add the information corresponding to the _Azure DataLake Gen2_ project you want to discover. To do this:
+
+* Fill out the fields in the configuration.
++
+The most important fields to be filled in during installation are:
++
+** *_Default FS_*: _abfss://<container>@<account_name>.dfs.core.windows.net_.
+** *_Init path_*: _<path to discover>_.
+** *_Access credentials_*: _<secret_name>_.
+
+* Upload xref:azure-data-lake-storage-gen2:operations-guide.adoc#create-secret[the access credentials to _Stratio KMS_].
+
+For the rest of the configuration parameters please refer to the xref:azure-data-lake-storage-gen2:operations-guide.adoc#_agente_de_descubrimiento[Operations Guide].
+
+== Virtualize your data
+
+=== Eureka agent
+
+You don't need any specific configuration to use the BDL.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the _Azure DataLake Gen2_ connector must be configured. To do this:
+
+* Configure the integration with _Azure DataLake Gen2_ in *_Environment_* -> *_External datastores_* -> *_ Azure DataLake Gen2 Integration_*.
+
+* Upload xref:azure-data-lake-storage-gen2:operations-guide.adoc#create-secret[the access credentials to _Stratio KMS_].
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the _Azure DataLake Gen2_ connector must be configured. To do this:
+
+* Configure the integration with _Azure DataLake Gen2_ in *_General_* -> *_Networking_* -> *_External Services_* -> *_Azure DataLake Configuration_*.
+
+* Upload xref:azure-data-lake-storage-gen2:operations-guide.adoc#create-secret[the access credentials to _Stratio KMS_] for workflows and for _Stratio Rocket_.

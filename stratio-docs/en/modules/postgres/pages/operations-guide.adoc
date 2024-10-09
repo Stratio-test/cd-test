@@ -1,0 +1,269 @@
+﻿= Operations guide
+
+== Description
+
+The SSCC PostgreSQL® connector allows you to integrate PostgreSQL® into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:postgres:compatibility-matrix.adoc[compatibility matrix].
+
+=== Authentication
+
+The connector supports two authentication modes:
+
+* Username/password.
+* mTLS (mutual _Transport Layer Security_).
+
+As you'll see later, depending on the mode you choose, specific configuration values and credentials will have to be used in each of the _Stratio Generative AI Data Fabric_ services.
+
+== Prerequisites
+
+* If you want to use a PostgreSQL® installed in the _Stratio Augmented Data Fabric_ platform, you need:
+
+. The PostgreSQL® framework installed.
+
+* If you want to use a PostgreSQL® external to the platform, you need to:
+
+. Have an instance of a PostgreSQL® database accessible from the _Stratio Generative AI Data Fabric_ with the chosen authentication mode configured:
+** A user with the appropriate permissions and their password will be required for basic authentication.
+** To set up mutual TLS authentication on platform services, you'll need:
+*** The CA certificate.
+*** The certificate of the user who will be logging into PostgreSQL®.
+*** The private key of the user who will be logging into PostgreSQL®.
+
+. Have a JDBC URL for the connection to the PostgreSQL® database.
+. Install the xref:connectors-repository:operations-guide.adoc#_installation[connectors repository]:
++
+See the section of the xref:connectors-repository:operations-guide.adoc#_installation[operations guide] to find out how to install the repository.
++
+NOTE: In the connectors repository, the artifact used in this guide will be available at the URL `http://connectors.<tenant>-<namespace>/v1/api/artifact/<artifact_name>`: `sscc-postgresql-0.3_2.12-1.1.x.jar`.
++
+. The _Stratio KMS_ UI should be accessible to manage credentials:
++
+See the section on the xref:ROOT:quick-start-guide.adoc#access-kms-ui[_Stratio KMS_ UI] for the steps you need to take to make it available.
++
+. Create secrets in _Stratio KMS_. To do this, go to `https://<stratio_kms_ui_url>/ui/vault/secrets` and create a secret in the corresponding folder of the service with the following options, depending on the authentication mode:
++
+--
+** Username/Password
+*** *_user_*: <user_with_db_access_permissions>, corresponds to the user that will be used to access PostgreSQL®.
+*** *_password_*: <user_password>, corresponds to the password associated with the user.
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
++
+**** *Discovery agent*: `userland/passwords/<agent_name>/<secret_name>`.
+**** *_Stratio Virtualizer_*: `userland/passwords/<virtualizer_name>.<virtualizer_namespace>/<secret_name>`.
+**** *_Stratio Rocket_*: `userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>`.
+**** *_Stratio Rocket_ workflows*: `userland/passwords/execution-identity-<rocket_name>.<rocket_namespace>/<secret_name>`.
+**** *_Stratio Intelligence_*: `/people/passwords/<intelligence_user_name>/<secret_name>`.
++
+NOTE: The name and values of the secret for all services must match the ones used to configure the discovery agent.
++
+--
+** Mutual TLS (mTLS)
+*** *<secret_name>.postgresql-client-rootcert*: `<postgresql_ca_certificate_pem>`, CA certificate.
+*** *<secret_name>.postgresql-client-cert*: `<postgresql_client_certificate_pem>`, certificate of the user to be connected.
+*** *<secret_name>.postgresql-client-key*: `<postgresql_client_key_pem>`, private key of the user to be connected.
++
+IMPORTANT: The username used in the connection is obtained from the _Common Name_ (CN) of the client certificate, *<secret_name>.postgresql-client-cert*. If the PEM certificate is a string of certificates, the first one is taken as the main one to obtain the connection username.
++
+IMPORTANT: The key *<secret_name>.postgresql-client-key* must be in PEM format. If you have an RSA key, use `openssl pkey -in postgres_rsa.key`.
++
+image::postgres-vault-tls-conf.png[]
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
++
+**** *Discovery agent*: `userland/certificates/<agent_name>`.
+**** *_Stratio Virtualizer_*: `userland/certificates/<virtualizer_name>.<virtualizer_namespace>`.
+**** *_Stratio Rocket_*: `userland/certificates/<rocket_name>.<rocket_namespace>`.
+**** *_Stratio Rocket_ workflows*: `userland/certificates/execution-identity-<rocket_name>.<rocket_namespace>`.
+**** *_Stratio Intelligence_*: `/people/certificates/<intelligence_user_name>`.
+
+== Discover your data
+
+=== Discovery agent
+
+* To install a _Stratio Data Governance_ discovery agent for an external PostgreSQL®, select "PostgreSQL® Agent (External)" in '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS'.
++
+The fields to be filled in for the installation are:
++
+** *General*:
+*** *_Service ID_*: agent's unique identifier.
+*** *_Name of the Service_*: name displayed in _Stratio KEOS_.
+** *Metadata Data store (PostgreSQL®)*
+*** *_Host_*: the PostgreSQL® instance that stores the discovered metadata. Example: _pgbouncer-postgreskeos-governance.keos-core_.
+** *Configuration of the Service to be Discovered*
+*** *_Service name_*: name of the service. Example: _dg-postgresql-agent_.
+*** *_Root discovery path_*: databases that will be discovered. Example: _/db1,/db2_.
+*** *_Custom Service URL_*: JDBC URL used to connect to PostgreSQL®. Example: _jdbc:postgresql://dbsqa.labs.stratio.com:5432/-db-_.
+*** *_Custom datastore service security_*: type of authentication used for the connection: MD5 (username/password) or mutual TLS.
+*** *_Access credentials_*: name of the secret created in xref:#create-secret[_Stratio KMS_]. Example: _postgresql-secret_.
+*** *_SSCC driver location_*: URL where the artifact that will contain the JAR of the SSCC PostgreSQL® connector is located in the connectors repository. Example: _http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-postgresql-0.3_2.12-1.1.x.jar_.
++
+image::postgres-cct-deployment.png[]
++
+*** *Vault password retrieval*
+**** *_Vault credentials_*: enables SSL or username/password for authentication.
+**** *_Access credentials_*: path where the credentials are stored in _Stratio KMS_; used for user/password authentication.
++
+image::postgres-cct-deployment2.png[]
++
+*** *_Enable optimization engine_*: enables/disables the automatic optimization of the PostgreSQL® data source.
+**** *_Granularity Optimizer Level_*: defines the level of granularity/depth of the optimization. Possible values are "1" and "2":
+***** *Level 1*: optimization is performed using only metadata and statistics from the data warehouse. This is the default level.
+***** *Level 2*: in addition to the level 1 analysis, it performs a deeper analysis of the distribution of the data in the tables using inference and sampling techniques.
++
+IMPORTANT: For level 2* it is necessary to have access permissions to the data in the tables to be optimized. This level may slow down the discovery process.
++
+**** *_Force create statistics_*: enables/disables the forced creation of statistics required for optimization. By default it is disabled, assuming that the statistics are already created.
++
+NOTE: It is recommended that the database administrator first generate the statistics from the PostgreSQL® data warehouse for those tables to be optimized.
++
+**** *_Sampling Percent_*: sampling percentage for level 2 optimization. This variable only appears when the _Granularity optimization engine_ is set to "2".
++
+The value is the percentage in percent per 1. By default, it is set to "0.65", which corresponds to 65% sampling.
++
+**** *_Optimizer Parallelism Level_*: number of threads to be used for optimization.
++
+image::postgres-optimizer-sscc-conf-operations.png[]
+
+* To install a _Stratio Data Governance_ discovery agent for an internal PostgreSQL®, select "PostgreSQL® Agent (Internal)" in '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS'.
++
+The fields to be filled in for the installation are:
++
+** *Pre-deployment*:
+*** *_Define a namespace_*: select the namespace where you want to install the discovery agent.
+*** *_PostgreSQL® to be discovered_*: select the PostgreSQL® service you want to discover.
+*** *_PostgreSQL® used for policy creation_*: select the PostgreSQL® used for policy creation.
++
+image::postgres-internal-cct-deployment.png[]
+
+** *General*:
+*** *_Service ID_*: agent's unique identifier.
+*** *_Name of the Service_*: name displayed in _Stratio KEOS_.
+** *Metadata Datastore (PostgreSQL®)*
+*** *_Host_*: the PostgreSQL® instance that stores the discovered metadata. Example: _pgbouncer-postgreskeos-governance.keos-core_.
+*** *_Database_*: PostgreSQL® database that stores the discovered metadata. Example: _postgreskeos_.
+** *Configuration of the Service to be Discovered*
+*** *_Port_*: port of the PostgreSQL® service. Example: _5432_.
+*** *_Init path_*: databases that will be discovered. Example: _/db1,/db2_.
+*** *_Vault credentials_*: type of authentication used for the connection. Example: Mutual TLS.
++
+image::postgres-internal-cct-deployment2.png[]
+
+The discovery process is asynchronous. Once completed, it can be viewed from the _Stratio Data Governance_ UI.
+
+image::postgres-discover-metadata.png[]
+
+NOTE: Views in PostgreSQL® are supported, but are shown as tables in the _Stratio Data Governance_ UI.
+
+== Virtualize your data
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+=== _Legacy_ and _path_ modes
+
+There are two discovery modes:
+
+* _Legacy_ (no longer used)
+
+Set the _Use legacy mode_ field to "true" to activate it.
+
+image::postgres-mode-legacy-conf.png[]
+
+* _Path_
+
+Set the _Use legacy mode_ field to "false" to activate it.
+
+image::postgres-mode-sscc-conf.png[]
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the PostgreSQL® connector. To do this, just add the URL of the required artifact to the `Additional jars` variable in the service modification form in _Stratio Command Center_:
+
+* 'Customized deployment' -> 'Settings' -> `Additional jars`: _http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-postgresql-0.3_2.12-1.1.x.jar_.
++
+image::postgres-bdl-conf.png[]
++
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the PostgreSQL® connector needs to be configured. To do this, you have to upload the access credentials to _Stratio KMS_ and add the URLs of the required artifacts to the `JDBC Drivers URL List` variable in the _Stratio Virtualizer_ service modification form in _Stratio Command Center_:
+
+* 'Customized deployment' -> 'Environment'
++
+--
+** *_Use default Native Connectors plugin_*: disabled (Disable to use the native dialect of the installed connector itself and not the default one).
+** *_JDBC Integration_*: enabled.
+** *_JDBC Drivers URL List_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-postgresql-0.3_2.12-1.1.x.jar`.
+--
++
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
++
+image::postgres-virtualizer-conf.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+==== Managing the driver
+
+To use _Stratio Rocket_, the PostgreSQL® connector needs to be configured. To do this, you have to upload the access credentials to _Stratio KMS_ for workflows and for _Stratio Rocket_ and also add the URLs of the required artifacts to the `Rocket extra jars` variable in the _Stratio Rocket_ service modification form in _Stratio Command Center_:
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath'
++
+--
+** *_Include Crossdata native connector library_*: disabled (Disable to use the native dialect of the installed connector itself and not the default one).
+** *_Include Crossdata native engine library_*: enabled.
+** *_Rocket extra jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-postgresql-0.3_2.12-1.1.x.jar`.
+--
++
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
++
+image::postgres-rocket-conf.png[]
+
+==== Managing secrets
+
+Upload the access credentials for the workflows and for _Stratio Rocket_ to _Stratio KMS_ as described in the prerequisites.
+
+[#rocket-configuration]
+
+==== Configuration management: quality rules and lineage
+
+Go to the _Stratio Rocket_ configuration in 'Settings' -> 'Governance Lineage' and make sure that the "Governance Lineage" option is activated.
+
+The fields to be filled in are the following:
+
+* _Custom lineage and quality rules methods using JDBC driver_: `org.postgresql.Driver:com.stratio.connectors.ssccpostgresql.PostgreSQLQualityRulesAndLineage:getMetadataPath`.
+** This option activates lineage for data flows using _datasource_ boxes that access the data store directly.
++
+IMPORTANT: For lineage to work properly, the discovery agent must have the value `<host_url_jdbc_postgres>.port.<port_url_jdbc_postgres>` as its _Service Name_.
++
+* _Custom planned quality rules methods_: `com.stratio.connectors.ssccpostgresql.PostgreSQLDriverMD5:com.stratio.connectors.ssccpostgresql.PostgreSQLQualityRulesAndLineage:getPlannedQRCreateTable`.
+** With this option, the planned quality rules that directly access tables in the data store will be supported.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+Restart _Stratio Rocket_ to apply the changes.
+
+NOTE: These variables are *not necessary* for the lineage and quality rules on virtualized tables in the catalog.
+
+=== _Stratio Intelligence_
+
+To correctly configure _Stratio Intelligence_, see the xref:postgres:quick-start-guide.adoc#_stratio_intelligence[Stratio Intelligence_] section; remember that you have to use the right format for the authentication mode for secrets.
+
+=== Notes _include/skip databases/schema/tables_
+
+These are the methods for filtering or including tables and/or schemas:
+
+* _Included/Skipped resource paths regular expression (databases/schemas)_
++
+The example shows how, in this case, that database/schema will be skipped.
+
+* _Included/Skipped resource names regular expression (tables)_
++
+The example also shows how, in this case, that table will be skipped.
+
+image::postgres-discover-metadata-skip-conf.png[]
+
+image::postgres-discover-metadata-skip.png[]

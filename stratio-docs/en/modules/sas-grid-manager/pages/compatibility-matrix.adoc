@@ -1,0 +1,31 @@
+= Compatibility matrix
+
+The modules that are compatible with the SSCC SAS® Grid Manager connector along with the different options that are supported starting with the version of the specified artifact are as follows:
+
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| ≥ sscc-sas-0.3_2.12-1.1.x
+
+| _Stratio BDL_
+| Virtualization
+| ≥ sscc-sas-0.3_2.12-1.1.x
+
+| _Stratio Virtualizer_
+| Read/Write/Native access
+| ≥ sscc-sas-0.3_2.12-1.1.x
+
+| _Stratio Rocket_
+| Read/Virtualized write/Native access
+| ≥ sscc-sas-0.3_2.12-1.1.x
+
+|_Stratio Intelligence_
+| Virtualized read/write
+| >= sscc-sas-0.3_2.12-1.1.x
+|===
+
+== Compatibility with SAS® versions
+
+Connector compatibility has been validated for `SAS7BDAT` type files generadted by SAS® Grid Manager 9.4.

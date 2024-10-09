@@ -1,0 +1,28 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector de Apache Hadoop® (HDFS), junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| Integrado
+
+| _Stratio BDL_
+| Virtualización
+| Integrado
+
+| _Stratio Virtualizer_
+| Lectura/Escritura
+| Integrado
+
+| _Stratio Rocket_
+| Lectura/Escritura/Escritura virtualizada
+| Integrado
+
+| _Stratio Intelligence_
+| Lectura/Escritura/Escritura virtualizada
+| Integrado
+|=== 

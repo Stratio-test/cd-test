@@ -1,0 +1,47 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with the SSCC SAP HANA connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| >= sscc-saphana-0.3_2.12-1.1.x
+
+| _Stratio BDL_
+| Virtualization
+| >= sscc-saphana-0.3_2.12-1.1.x
+
+| _Stratio Virtualizer_
+| Read/Write/Native access
+| >= sscc-saphana-0.3_2.12-1.1.x
+
+| _Stratio Rocket_
+| Read/Virtualized write
+| >= sscc-saphana-0.3_2.12-1.1.x
+
+| _Stratio Intelligence_
+| Read/Virtualized write
+| >= sscc-saphana-0.3_2.12-1.1.x
+|===
+
+== Compatibility with SAP HANA versions
+
+Connector compatibility has been validated for hanaexpress:2.00.045.00.20200121.1.
+
+== SSCC SAP HANA versions in the platform
+
+The connector needs to be coupled with an artifact with the SAP HANA JDBC driver. Since it's decoupled, you can use the same connector with different versions.
+
+The current version of the connector supports the following JDBC driver versions:
+
+|===
+| JDBC driver version | Artifact from the connectors repository
+
+| 2.15.10
+| _ngdbc-2.15.10.jar_
+|===
+
+The different drivers can be downloaded from https://search.maven.org/artifact/com.sap.cloud.db.jdbc/ngdbc[this link].

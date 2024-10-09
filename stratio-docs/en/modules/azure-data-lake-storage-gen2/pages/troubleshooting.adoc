@@ -1,0 +1,34 @@
+﻿= Troubleshooting
+
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+== Connecting multiple instances of Azure DataLake Gen2 in _Stratio Rocket_
+
+You may need to perform ETLs using _Stratio Rocket_ workflows which, for example, read and write from different Azure DataLake Gen2 instances that are accessible from the same configured _Azure_ account.
+
+To do this, you need to have access to the _Stratio Rocket_ ``deployment`` (``.yaml`` configuration file) where you can add the following variables (for each different instance):
+
+* ``SPARK_SECURITY_ADLS2_ACCOUNT_NAME_<REF> = <account_name>``
+* ``SPARK_HADOOP_ADLS2_DIRECTORY_NAME_<ACCOUNT_NAME> = <directory_id>``
+
+Where
+
+* ``<account_name>``: Azure storage account.
+* ``<directory_id>``: Azure ID directory.
+* ``<REF>``: Reference suffix. This is arbitrary and serves to distinguish the different configurations for each instance that you added.
+
+[TIP]
+====
+``SPARK_SECURITY_ADLS2_ACCOUNT_NAME_ref1`` = *stratiospk*
+``SPARK_HADOOP_ADLS2_DIRECTORY_NAME_STRATIOSPK`` = *7c2f8eb6-5b-45464568*
+
+``SPARK_SECURITY_ADLS2_ACCOUNT_NAME_ref2`` = *conn-dl1-test*
+``SPARK_HADOOP_ADLS2_DIRECTORY_NAME_CONN-DL1-TEST`` = *4f8eb6-1h-5hd5216g0*
+====
+
+When it comes to secrets, since the _Azure DataLake Gen2_ instances included in this new configuration are managed from the same _Azure_ account, you only need to configure the secret in _Stratio KMS_ as indicated in the xref:azure-data-lake-storage-gen2:operations-guide.adoc#create-secret[Operations Guide].

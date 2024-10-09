@@ -1,0 +1,3 @@
+= Guía de inicio rápido
+
+La Guía Rápida del conector SSCC MongoDB coincide con la xref:ROOT:quick-start-guide.adoc[guía de inicio rápido general].

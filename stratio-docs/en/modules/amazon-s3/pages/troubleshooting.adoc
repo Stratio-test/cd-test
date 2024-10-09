@@ -1,0 +1,15 @@
+﻿= Troubleshooting
+
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+In this section you'll learn how to troubleshoot possible errors or problems related to _AWS S3_ metadata discovery.
+
+* _Stratio Spark_ only allows you to store a single secret for S3. This means that the same _Stratio Spark_ job can't be securely connected to two _AWS S3_ accounts at the same time.
+* Parquet, CSV JSON and ORC file formats are supported. XML and Avro formats are supported by Spark, but you need to add certain dependencies that are not included in _Stratio Spark_. Partitioning with Parquet files has also been tested.
+* The _Stratio Command Center_ descriptor includes support for this data store as of version 2.22.0. You have to deploy a _Stratio Virtualizer_ and then change some environment variables for older versions.
+* Problem deploying the secret in _Stratio Virtualizer_. Even if you're in Kubernetes, the secret has to start with /v1/, and that causes problems when restarting _Stratio Virtualizer_.

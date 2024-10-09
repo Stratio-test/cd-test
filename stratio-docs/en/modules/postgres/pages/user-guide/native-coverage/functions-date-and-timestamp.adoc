@@ -1,0 +1,177 @@
+= _DATE_ and _TIMESTAMP_ functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| add_months(start_date, num_months)
+| SELECT add_months('2016-08-31', 1),age FROM coverage_postgres.coverage_table
+| Yes
+
+| current_date()
+| SELECT current_date(),age FROM coverage_postgres.coverage_table
+| Yes
+
+| current_timestamp()
+| SELECT current_timestamp(),age FROM coverage_postgres.coverage_table
+| Yes
+
+| current_timezone()
+| SELECT current_timezone(),age FROM coverage_postgres.coverage_table
+| Yes
+
+| date_add(start_date, num_days)
+| SELECT date_add('2016-07-30', 1),age FROM coverage_postgres.coverage_table
+| Yes
+
+| date_format(timestamp, fmt)
+| SELECT date_format('2016-04-08', 'y'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| date_from_unix_date(days)
+| SELECT date_from_unix_date(1),age FROM coverage_postgres.coverage_table
+| Yes
+
+| date_part(field, source)
+| SELECT date_part('YEAR', TIMESTAMP '2019-08-12 01:00:00.123456'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| date_sub(start_date, num_days)
+| SELECT date_sub('2016-07-30', 1) ,age FROM coverage_postgres.coverage_table
+| Yes
+
+| date_trunc(fmt, ts)
+| SELECT date_trunc('YEAR', '2015-03-05T09:32:05.359'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| datediff(endDate, startDate)
+| SELECT datediff('2009-07-31', '2009-07-30'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| dayofweek(date)
+| SELECT dayofweek('2009-07-30'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| dayofyear(date)
+| SELECT dayofyear('2016-04-09'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| from_unixtime(unix_time[, fmt])
+| SELECT from_unixtime(0, 'yyyy-MM-dd HH:mm:ss'),age FROM coverage_postgres.coverage_table
+| No
+
+| from_utc_timestamp(timestamp, timezone)
+| SELECT from_utc_timestamp('2016-08-31', 'Asia/Seoul'),age FROM coverage_postgres.coverage_table
+| No
+
+| hour(timestamp)
+| SELECT hour('2009-07-30 12:58:59'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| last_day(date)
+| SELECT last_day('2009-01-12'),age FROM coverage_postgres.coverage_table
+| No
+
+| make_date(year, month, day)
+| SELECT make_date(2013, 7, 15),age FROM coverage_postgres.coverage_table
+| Yes
+
+| make_timestamp(year, month, day, hour, min, sec[, timezone])
+| SELECT make_timestamp(2014, 12, 28, 6, 30, 45.887),age FROM coverage_postgres.coverage_table
+| Yes
+
+| minute(timestamp)
+| SELECT minute('2009-07-30 12:58:59'),age FROM coverage_postgres.coverage_table
+| No
+
+| month(date)
+| SELECT month('2016-07-30'),age FROM coverage_postgres.coverage_table
+| No
+
+| months_between(timestamp1, timestamp2[, roundOff])
+| SELECT months_between('1997-02-28 10:30:00', '1996-10-30'),age FROM coverage_postgres.coverage_table
+| No
+
+| next_day(start_date, day_of_week)
+| SELECT next_day('2015-01-14', 'TU'),age FROM coverage_postgres.coverage_table
+| No
+
+| now()
+| SELECT now(),age FROM coverage_postgres.coverage_table
+| Yes
+
+| quarter(date)
+| SELECT quarter('2016-08-31'),age FROM coverage_postgres.coverage_table
+| No
+
+| second(timestamp)
+| SELECT second('2009-07-30 12:58:59'),age FROM coverage_postgres.coverage_table
+| No
+
+| timestamp_micros(microseconds)
+| SELECT timestamp_micros(1230219000123123),age FROM coverage_postgres.coverage_table
+| No
+
+| timestamp_millis(milliseconds)
+| SELECT timestamp_millis(1230219000123),age FROM coverage_postgres.coverage_table
+| No
+
+| timestamp_seconds(seconds)
+| SELECT timestamp_seconds(1230219000),age FROM coverage_postgres.coverage_table
+| No
+
+| to_date(date_str[, fmt])
+| SELECT to_date('2009-07-30 04:17:52'),age FROM coverage_postgres.coverage_table
+| No
+
+| to_timestamp(timestamp_str[, fmt])
+| SELECT to_timestamp('2016-12-31 00:12:00'),age FROM coverage_postgres.coverage_table
+| No
+
+| to_unix_timestamp(timeExp[, fmt])
+| SELECT to_unix_timestamp('2016-04-08', 'yyyy-MM-dd'),age FROM coverage_postgres.coverage_table
+| No
+
+| to_utc_timestamp(timestamp, timezone)
+| SELECT to_utc_timestamp('2016-08-31', 'Asia/Seoul'),age FROM coverage_postgres.coverage_table
+| No
+
+| trunc(date, fmt)
+| SELECT trunc('2019-08-04', 'week'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| unix_date(date)
+| SELECT unix_date(DATE(1970-01-02)),age FROM coverage_postgres.coverage_table
+| No
+
+| unix_micros(timestamp)
+| SELECT unix_micros(TIMESTAMP('1970-01-01 00:00:01Z')),age FROM coverage_postgres.coverage_table
+| No
+
+| unix_millis(timestamp)
+| SELECT unix_millis(TIMESTAMP('1970-01-01 00:00:01Z')),age FROM coverage_postgres.coverage_table
+| No
+
+| unix_seconds(timestamp)
+| SELECT unix_seconds(TIMESTAMP('1970-01-01 00:00:01Z')),age FROM coverage_postgres.coverage_table
+| No
+
+| unix_timestamp([timeExp[, fmt]])
+| SELECT unix_timestamp(),age FROM coverage_postgres.coverage_table
+| No
+
+| weekday(date)
+| SELECT weekday('2009-07-30'),age FROM coverage_postgres.coverage_table
+| No
+
+| weekofyear(date)
+| SELECT weekofyear('2008-02-20'),age FROM coverage_postgres.coverage_table
+| No
+
+| year(date)
+| SELECT year('2016-07-30'),age FROM coverage_postgres.coverage_table
+| No
+
+|===

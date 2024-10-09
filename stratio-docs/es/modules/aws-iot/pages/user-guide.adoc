@@ -1,0 +1,117 @@
+= Guía de usuario
+
+== Descripción
+
+El conector AWS IoT te permite la integración de AWS IoT en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:aws-iot:compatibility-matrix.adoc[matriz de compatibilidad].
+
+NOTE: La integración se realiza mediante _workflows_ de _Stratio Rocket_.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para que AWS IoT esté disponible, el conector se tiene que subir como extensión al proyecto de _Stratio Rocket_. Para ello, se debe seleccionar el proyecto donde se quiere disponibilizar. Ve a 'Admin project' -> 'Extensions' -> 'Add extension' -> 'Insert URI' e incluye la información necesaria, en este caso:
+
+* _URI_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/custom-aws-iot-1.0.x.jar`.
+* _Type_: JAR.
+* _Name_: nombre que se quiere dar a la extensión. Ejemplo: _Aws-input_.
+* _Description_: descripción de la extensión.
+* _Custom classes_: `com.stratio.connectors.aws.mqtt.MqttAwsInputStepStreaming`.
+* _Custom classes_: `com.stratio.connectors.aws.mqtt.MqttAwsInputStepHybrid`.
+* _Custom classes_: `com.stratio.connectors.aws.mqtt.MqttAwsOutputStepHybrid`.
+
+NOTE: Para más información sobre las extensiones, consulta la xref:stratio-rocket:developer-guide:using-plugins-to-customize-workflow-components.adoc#[documentación de _Stratio Rocket_].
+
+Una vez hayas añadido la extensión y configurado sus parámetros, podrás usar la caja "Input" de _streaming_.
+
+image::mqtt-add-extension-project.png[]
+
+image::mqtt-add-extension-wf.png[]
+
+Para su configuración, tienes que añadir las siguientes opciones con valores tal y como se muestra en la imagen de ejemplo:
+
+* mqtt.aws.endpoint: _endpoint_ utilizado -> a3o77g1ouqz6u-ats.iot.eu-west-3.amazonaws.com
+* mqtt.aws.port: puerto utilizado -> 8883
+* mqtt.aws.topic: nombre del _topic_ utilizado -> sdk/test/java
+* mqtt.aws.clientid: nombre del _clientId_ utilizado -> sdk-java
+* mqtt.aws.secret.name: nombre del secreto almacenado en Vault (contiene el certificado y la clave privada) -> mqtt
+
+image::mqtt-customlitexd-streaming.png[]
+
+image::mqtt-conf-optional-properties.png[]
+
+En caso de necesitar una configuración avanzada:
+
+* mqtt.aws.conf.pingTimeoutMs: anula el intervalo de tiempo de espera después de enviar un _PINGREQ_ para que llegue un _PINGRESP_. Si uno no llega, el cliente cerrará la conexión actual.
+* mqtt.aws.conf.ackTimeoutSeconds: anula el intervalo de tiempo para esperar un acuse de recibo después de enviar _QoS 1+ PUBLISH, SUBSCRIBE_ o _UNSUBSCRIBE_ antes fallando la operación. El valor predeterminado es sin tiempo de espera.
+* mqtt.aws.conf.minReconnectDelayMs: anula la cantidad mínima de tiempo de espera para volver a conectarse después de una desconexión.
+* mqtt.aws.conf.maxReconnectDelayMs: anula la cantidad máxima de tiempo de espera para volver a conectarse después de una desconexión.
+* mqtt.aws.conf.minConnectedTimeToResetReconnectDelayMs: anula la cantidad de tiempo que debe transcurrir con una conexión establecida antes de que finalice el retraso de reconexión, restablecer al mínimo. Esto ayuda a aliviar el desperdicio de ancho de banda en ciclos de reconexión rápidos debido al permiso de fallas en las operaciones.
+* mqtt.aws.conf.connackTimeoutMs: anula el intervalo de tiempo de espera después de enviar una solicitud de CONEXIÓN para que llegue un _CONNACK_. Si uno no llega, la conexión se cerrará.
+* mqtt.aws.conf.keepAliveIntervalSeconds: establece el intervalo de tiempo máximo, en segundos, que se permite que transcurra entre el momento en que el cliente termina de transmitir un paquete MQTT y el punto en que comienza a enviar el siguiente.
+* mqtt.aws.conf.willDelayIntervalSeconds: establece el intervalo de tiempo, en segundos, que el servidor debe esperar (para una reconexión de sesión) antes de enviar el mensaje asociado con la sesión de la conexión.
+
+TIP: Para saber más, consulta
+https://github.com/aws/aws-iot-device-sdk-java-v2/blob/b138173bde9c8a644e84de3c08e0e46fe4a3f186/sdk/src/main/java/software/amazon/awssdk/iot/AwsIotMqtt5ClientBuilder.java[AwsIotMqtt5ClientBuilder] y
+https://github.com/awslabs/aws-crt-java/blob/main/src/main/java/software/amazon/awssdk/crt/mqtt5/packets/ConnectPacket.java[ConnectPacket].
+
+En caso de necesitar ir por _socket_:
+
+* mqtt.aws.conf.socket.option.enable: tiene que estar a _true_ para habilitar la opción de _socket_.
+* mqtt.aws.conf.socket.option.domain: establece el dominio del _socket_ (`IPV4`, `IPv6`, `LOCAL`).
+* mqtt.aws.conf.socket.option.type: tipo de _socket_ (`STREAM`, `DGRAM`).
+* mqtt.aws.conf.socket.option.connectTimeoutMs: establece el número de milisegundos antes de que una conexión se considere agotada.
+* mqtt.aws.conf.socket.option.keepAliveIntervalSecs: establece la cantidad de segundos entre los paquetes de mantenimiento de TCP que se envían al par, 0 deshabilita _keepalive_.
+* mqtt.aws.conf.socket.option.keepAliveTimeoutSecs: establece la cantidad de segundos para esperar una respuesta de mantenimiento antes de considerar que se agotó el tiempo de conexión, 0 deshabilita _keepalive_.
+
+TIP: Consulta este enlace para saber más sobre https://github.com/awslabs/aws-crt-java/blob/main/src/main/java/software/amazon/awssdk/crt/io/SocketOptions.java[SocketOptions].
+
+IMPORTANT: La variable `mqtt.aws.conf.keepAliveIntervalSeconds` es importante. Si el cliente se desconecta, una posible solución es poner esa variable con valor relativamente pequeño, por ejemplo, `60` (el valor es en segundos).
+
+=== _Streaming_
+
+* *_Classes to run_*: `com.stratio.connectors.aws.mqtt.MqttAwsInputStepStreaming`.
+
+IMPORTANT: Tienes que configurar al menos dos _executor cores_. Para más información, visita la https://spark.apache.org/docs/latest/streaming-programming-guide.html#points-to-remember-1[documentación oficial].
+
+image::mqtt-num-executor-conf.png[]
+
+=== _Hybrid input_
+
+* *_Classes to run_*: `com.stratio.connectors.aws.mqtt.MqttAwsInputStepHybrid`.
+
+Una vez hayas añadido la extensión y configurado sus parámetros podrás usar la caja "Input" de _hybrid_.
+
+Debes añadir la siguiente configuración de Apache Spark™:
+
+image::mqtt-add-extension-property-hybrid.png[]
+
+[source,properties]
+----
+spark.sql.adaptive.enabled false
+----
+
+IMPORTANT: Lo que ves en SparkUI son los _batch_, no son los registros que se han leído. Para poder confirmar la lectura de registros debes escribir en un _topic_ de Apache Kafka® o en un fichero de Apache Hadoop® (HDFS).
+
+image::mqtt-structured-streaming-batches.png[]
+
+=== _Hybrid output_
+
+* *_Classes to run_*: `com.stratio.connectors.aws.mqtt.MqttAwsOutputStepHybrid`.
+
+Para poder configurar necesitas las variables como en el _input Hybrid_, tanto las obligatorias como las adicionales. Además, puedes utilizar la opción de un separador por si tienes varias columnas, ya que se devuelve solamente una columna. Esta es la variable del separador:
+
+[cols="1,1"]
+|===
+| Propiedad
+| Valor ejemplo
+
+| mqtt.aws.output.separator
+| ;
+|===
+
+Como se puede observar en la última propiedad de la siguiente imagen:
+
+image::mqtt-example-separator.png[]

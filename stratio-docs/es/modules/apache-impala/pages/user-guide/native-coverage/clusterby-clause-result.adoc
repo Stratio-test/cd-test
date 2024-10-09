@@ -1,0 +1,20 @@
+= _CLUSTER BY_ clause
+
+== Syntax
+
+[source,sql]
+----
+CLUSTER BY { expression [ , ... ] }
+----
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| Produces rows clustered by age. Persons of the same age are clustered together.
+| SELECT age, name FROM coverage_impala.person_clusterby CLUSTER BY age;
+| No
+
+|===

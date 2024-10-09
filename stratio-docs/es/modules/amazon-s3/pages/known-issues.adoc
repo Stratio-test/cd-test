@@ -1,0 +1,7 @@
+= Problemas conocidos
+
+En la integración de Apache Spark™ con interfaces de tipo Amazon S3 existe la siguiente limitación:
+
+* Si la entidad certificadora de los certificados TLS no está incluida en el sistema operativo, no se realiza el TLS _handshake_.
++
+Añadiendo la variable de entorno `JAVA_OPTS: -Dcom.amazonaws.sdk.disableCertChecking=true` se evita la autenticación del cliente al servidor al no comprobar las firmas de los certificados. Sí que se ejecuta el cifrado de las comunicaciones.

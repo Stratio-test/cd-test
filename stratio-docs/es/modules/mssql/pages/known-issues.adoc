@@ -1,0 +1,19 @@
+= Problemas conocidos
+
+== Dialecto nativo
+
+En el dialecto nativo del connector SSCC Microsoft SQL Server existen las siguientes limitaciones:
+
+* _Cast_: cuando se realiza una conversión a *VARCHAR*, se rellena el valor con _NULL_ hasta alcanzar el tamaño del tipo _VARCHAR_ (actualmente definido como _VARCHAR(MAX)_). Este hecho puede provocar resultados no deseados al utilizar los datos ya que estrictamente no representan el mismo valor.
++
+Uno de los puntos problemáticos detectados es cuando se realiza una conversión entre *BINARY* y *VARCHAR*, ya que el resultado obtenido es diferente. Para solucionar este problema, en el dialecto nativo se implementa un proceso de limpieza en las funciones de *_CAST_* entre los tipos *BINARY* -> *VARCHAR* y *VARCHAR* -> *BINARY*, eliminando los valores _NULL_ de la cadena de texto.
++
+De esta manera, se asegura que las conversiones entre *BINARY* y *VARCHAR* sean consistentes y se evitan resultados inesperados.
+* _BooleanType_: no existe el tipo *_BOOLEAN_*, en su lugar se utiliza el tipo *_BIT_* para representar valores binarios. Esto puede ocasionar algunas dificultades:
++
+** No se puede utilizar una columna de tipo *_BIT_* como una condición en una consulta, por ejemplo: `SELECT * FROM tabla WHERE bitColumn`.
+** No se pueden emplear funciones de comparación como parte de la cláusula _SELECT_, por ejemplo: `SELECT 1=1 FROM tabla`.
+* _ORDER BY_: no se permite el uso de la cláusula _ORDER BY_ en vistas, funciones _inline_, tablas derivadas o subconsultas. La cláusula _ORDER BY_ sólo se puede utilizar en la consulta principal, es decir, en el nivel más externo de la consulta.
+* _Subquery_: no se permite el uso de subconsultas sin alias. Cuando se utiliza una subconsulta en una consulta principal es necesario proporcionarlo. Por ejemplo: `SELECT * FROM (SELECT * FROM my_table)` no funcionaría pero `SELECT * FROM (SELECT * FROM my_table) AS my_alias` sí que lo haría.
+* _Regex_: no existen funciones para trabajar con expresiones regulares como `regexp_extract` y `rlike`, por lo que no están soportadas.
+* _LIMIT_: no existe la función _LIMIT_, aunque se pueden usar funciones similares. En el dialecto nativo se ha optado por usar en su lugar la función _TOP_. Esta limitación del SGBD ha llevado a que el uso del _LIMIT_ de seguridad (con un valor de 10000 por defecto) que añade _Stratio Crossdata_ automáticamente en las consultas no tenga efecto. Por tanto, tendrás que aplicar el _LIMIT_ en las consultas que pudieran ser problemáticas por su tamaño.

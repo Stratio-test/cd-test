@@ -1,0 +1,169 @@
+The purpose of this guide is to explain in a simple way how to integrate a database into the _Stratio Generative AI Data Fabric_ platform. As an example, we're going to integrate an instance of a MongoDB 4.1.2 database. Although each database may require specific processing, the basic steps described in this guide are the same for all databases.
+
+We'll show you how to configure each of the elements of _Stratio Generative AI Data Fabric_ in order to carry out the different phases of a data project: *data discovery* with a _Stratio Data Governance_ agent, *data virtualization* with _Stratio Virtualizer_, and *data access* with _Stratio Rocket_ and _Stratio Intelligence_.
+
+This will allow a basic, fast use of the data that's stored inside the database in _Stratio Generative AI Data Fabric_.
+
+As prerequisites to the connector configuration, you need the following:
+
+ * Have a MongoDB database instance installed and accessible from _Stratio Generative AI Data Fabric_.
++
+In the example the URL _mongodb://dbsqa.labs.stratio.com:27017_ is used with the _sample++_++mflix_ document collection for discovery.
+
+* xref:connectors-repository:operations-guide.adoc[Install the connector repository].
+
+* The _Stratio KMS_ UI should be accessible:
++
+To do this, carry out the following steps:
+
+. Create an Ingress to expose the UI of the _Stratio KMS_ service. To do this, simply create a _.yaml_ with the information included below:
++
+--
+* xref:attachment$/kms/kms-ingress.yaml[Ingress]
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/kms/kms-ingress.yaml[]
+----
+
+--
++
+Now, run:
++
+[source,bash]
+----
+kubectl apply -f <yaml_name>.yaml
+----
+
+. Once this has been executed you can access the URL that has been indicated in the "host" section in the _.yaml_.
+. Login is done with a token. This is obtained by executing this command:
++
+[source,bash]
+----
+kubectl get secret -n keos-core vault-unseal-keys -o jsonpath="{.data.vault-root}" | base64 -d
+----
+
+IMPORTANT: In the connector repository, the `sscc-mongodb-0.3_2.12-1.3.x.jar` artifact, which is the one used in this specific case, will be available at the URL `http://connectors.<tenant>-<namespace>/v1/api/artifact/<artifact_name>`.
+
+== Discover your data
+
+=== Discovery agent
+
+To install a discovery agent for MongoDB from _Stratio Command Center_, go to 'Deploy a Service' -> 'Connectors NoSQL' and select "MongoDB Agent".
+
+When installing the agent for MongoDB, the information corresponding to the MongoDB to be discovered must be added. In addition, you need to add the URL of the connector repository where the `sscc-mongodb-0.3_2.12-1.3.x.jar` artifact is stored and upload the access credentials to _Stratio KMS_.
+
+To upload the credentials, you must access `https://<stratio_kms_ui_url>/ui/vault/secrets` and, in the `userland/passwords/<agent_name>` directory, create a secret with the following keys:
+
+* _user_: <mongodb_user_name>
+* _password_: <mongodb_user_password>
++
+image::ejemplo-vault.png[]
+
+In the example, the agent installation looks like this:
+
+* _Root discovery path_: /sample_mflix
+* _Custom Service URL_: mongodb://dbsqa.labs.stratio.com:27017
+* _Access credentials_: mongo-agent
+* _DataStore driver location_: http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mongodb-0.3_2.12-1.3.x.jar
+
+Once the discovery agent is deployed in _Stratio Data Governance_ the following will appear:
+
+image::ejemplo-descubrimiento-mongo.png[]
+
+== Virtualize your data
+
+=== Eureka agent
+
+To use the BDL you need to configure the Eureka agent with the MongoDB connector. To do this, simply add the connector repository URL of the `sscc-mongodb-0.3_2.12-1.3.x.jar` artifact in the `Additional jars` variable.
+
+In the example being followed, the Eureka agent looks like this:
+
+* _Additional jars_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mongodb-0.3_2.12-1.3.x.jar`.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the MongoDB connector needs to be configured. To do this, you must add the URL of the `sscc-mongodb-0.3_2.12-1.3.x.jar` artifact in the `JDBC Drivers URL List` variable and also upload the access credentials to _Stratio KMS_.
+
+To upload the credentials, you must access https://<stratio_kms_ui_url>/ui/vault/secrets and, in the `userland/passwords/<virtualizer_name>.<virtualizer_namespace>` directory, create a secret with the following keys:
+
+* _user_: <mongodb_user_name>
+* _password_: <mongodb_user_password>
+
+In this example, this would look like this:
+
+* _JDBC Drivers URL List_: *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mongodb-0.3_2.12-1.3.x.jar*.
+
+To carry out MongoDB virtualization, you have to add technical tables included in a _Stratio Data Governance_ collection and give permissions for them to the appropriate user in _Stratio GoSec_.
+
+Once that is done the data is accessible in all other _Stratio Generative AI Data Fabric_ modules. They are shown in the following image:
+
+image::ejemplo-coleccion-mongo.png[]
+
+image::ejemplo-coleccion-rocket-mongo.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the MongoDB connector needs to be configured. To do this, you must add the URL of the `sscc-mongodb-0.3_2.12-1.3.x` artifact in the 'Customized deployment' -> 'Settings' -> 'Classpath' -> _Rocket extra jars_ variable and also upload the access credentials for workflows and for _Stratio Rocket_ to _Stratio KMS_.
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath' -> _Rocket extra jars_: http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mongodb-0.3_2.12-1.3.x.jar
+
+* To upload the credentials used in _Stratio Rocket_, go to `https:<stratio_kms_ui_url>/ui/vault/secrets` and, in the `userland/passwords/<rocket++_++name>.<rocket++_++namespace>` directory, create a secret with the following keys:
+** _user_: <mongodb_user_name>
+** _password_: <mongodb_user_password>
+
+* To upload the credentials used in _Stratio Rocket_ workflows, go to `https:<stratio_kms_ui_url>/ui/vault/secrets` and, in the `userland/passwords/execution-identity-<rocket++_++name>.<rocket++_++namespace>` directory, create a secret with the following keys:
+** _user_: <mongodb_user_name>
+** _password_: <mongodb_user_password>
+
+In _Stratio Rocket_, you can access the MongoDB virtualized collection directly with SQL queries or through a workflow. Examples of both are shown below:
+
+image::ejemplo-querie-coleccion-rocket-mongo.png[]
+
+image::ejemplo-workflow-coleccion-rocket-mongo.png[]
+
+TIP: More information on the other configuration parameters can be found in the xref:mongodb:operations-guide.adoc#rocket-configuration[operations guide].
+
+=== _Stratio Intelligence_
+
+You'll need to configure _Stratio Intelligence_ before integrating with the connector. To do this, you need to add the following properties:
+
+* `INTERPOLATED_ANALYTIC_ENV_CROSSDATA_CATALOG_SECRET_INSTANCE_NAME`: ${username}
+* `ANALYTIC_ENV_VAULT_PATH`: "people".
+* `ANALYTIC_ENV_REQUESTS_CA_BUNDLE`: /opt/sds/stratio_analytic/security/ca-bundle.pem
+* `ANALYTIC_ENV_HIDE_VAULT_TOKEN`: "false"
+
+Also, in the multiuser environment the "Allow artifact deployment" option needs to be activated and the path has to have the _artifacts_ value as shown in the following image:
+
+image::ejemplo-multiuser.png[]
+
+Once you have _Stratio Intelligence_ configured, you need to add the MongoDB connector to the _artifacts/spark++_++jars_ directory and upload the credentials to _Stratio KMS_.
+
+To upload the artifact, you have to download it from *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mongodb-0.3_2.12-1.3.x.jar* to the directory _artifacts/spark++_++jars_ in the _Stratio Intelligence_ workspace by issuing a cURL request. In this case, make the following request:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mongodb-0.3_2.12-1.3.x.jar --output mongo_connector_0.3_2.12-1.2.x.jar
+----
+
+The following image shows how it is stored in the directory.
+
+image::ejemplo-almacenaje-artefacto.png[]
+
+To upload the credentials, you must access https://<stratio_kms_ui_url>/ui/vault/secrets and, in the `/people/passwords/<intelligence_user_name>` directory, create a secret with the following keys:
+
+* _user_: <mongodb_user_name>
+* _password_: <mongodb_user_password>
+
+Once this is configured, in the example you can see how the tables that have been virtualized from the external MongoDB database can be accessed.
+
+image::ejemplo-acceso-intelligence-mongo.png[]

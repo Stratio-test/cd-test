@@ -1,0 +1,161 @@
+= _STRING_ functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| bin
+| SELECT bin(13),age FROM coverage_postgres.coverage_table
+| No
+
+| char
+| SELECT char(65),age FROM coverage_postgres.coverage_table
+| No
+
+| char_length
+| SELECT char_length('Spark SQL '),age FROM coverage_postgres.coverage_table
+| Yes
+
+| character_length
+| SELECT character_length('Spark SQL '),age FROM coverage_postgres.coverage_table
+| Yes
+
+| chr
+| SELECT chr(65),age FROM coverage_postgres.coverage_table
+| No
+
+| concat_ws
+| SELECT concat_ws(' ', 'Spark', 'SQL'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| format_string
+| SELECT format_string(Hello World %d %s, 100, days),age FROM coverage_postgres.coverage_table
+| No
+
+| initcap
+| SELECT initcap('sPark sql'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| instr
+| SELECT instr('SparkSQL', 'SQL'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| lcase
+| SELECT lcase('Spark sql'),age FROM coverage_postgres.coverage_table
+| No
+
+| left
+| SELECT left('Spark SQL', 3),age FROM coverage_postgres.coverage_table
+| Yes
+
+| length
+| SELECT length('Spark sql'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| levenshtein
+| SELECT levenshtein('kitten', 'sitting'),age FROM coverage_postgres.coverage_table
+| No
+
+| like
+| SELECT like('Spark', '_park'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| locate
+| SELECT locate('bar', 'foobarbar'),age FROM coverage_postgres.coverage_table
+| No
+
+| lower
+| SELECT lower('SparkSql'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| lpad
+| SELECT lpad('hi', 5, '??'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| ltrim
+| SELECT ltrim('    SparkSQL   '),age FROM coverage_postgres.coverage_table
+| Yes
+
+| octet_length
+| SELECT octet_length('Spark sql'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| overlay
+| SELECT overlay('Spark SQL' PLACING '_' FROM 6),age FROM coverage_postgres.coverage_table
+| Yes
+
+| parse_url
+| SELECT parse_url('http://spark.apache.org/path?query=1', 'HOST'),age FROM coverage_postgres.coverage_table
+| No
+
+| position
+| SELECT position('bar', 'foobarbar'),age FROM coverage_postgres.coverage_table
+| No
+
+| printf
+| SELECT printf(Hello World %d %s, 100, days),age FROM coverage_postgres.coverage_table
+| No
+
+| regexp_extract
+| SELECT regexp_extract('100-200', '(\d+)-(\d+)', 1),age FROM coverage_postgres.coverage_table
+| No
+
+| regexp_extract_all
+| SELECT regexp_extract_all('100-200, 300-400', '(\d+)-(\d+)', 1),age FROM coverage_postgres.coverage_table
+| No
+
+| regexp_replace
+| SELECT regexp_replace('100-200', '(\d+)', 'num'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| replace
+| SELECT replace('ABCabc', 'abc', 'DEF'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| right
+| SELECT right('Spark SQL', 3),age FROM coverage_postgres.coverage_table
+| Yes
+
+| rpad
+| SELECT rpad('hi', 5, '??'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| rtrim
+| SELECT rtrim('    SparkSQL   '),age FROM coverage_postgres.coverage_table
+| Yes
+
+| split
+| SELECT split('oneAtwoBthreeC', '[ABC]'),age FROM coverage_postgres.coverage_table
+| No
+
+| substr
+| SELECT substr('Spark SQL', 5),age FROM coverage_postgres.coverage_table
+| Yes
+
+| substring
+| SELECT substring('Spark SQL', 5),age FROM coverage_postgres.coverage_table
+| Yes
+
+| substring_index
+| SELECT substring_index('www.apache.org', '.', 2),age FROM coverage_postgres.coverage_table
+| No
+
+| translate
+| SELECT translate('AaBbCc', 'abc', '123'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| trim
+| SELECT trim('    SparkSQL   '),age FROM coverage_postgres.coverage_table
+| Yes
+
+| ucase
+| SELECT ucase('SparkSQL'),age FROM coverage_postgres.coverage_table
+| No
+
+| upper
+| SELECT upper('SparkSQL'),age FROM coverage_postgres.coverage_table
+| Yes
+
+|===

@@ -1,0 +1,72 @@
+﻿= Quick start guide
+
+The purpose of this guide is to briefly explain how to integrate ArangoDB into the _Stratio Generative AI Data Fabric_ platform.
+
+== Prerequisites
+
+You can find the prerequisites for installing the SSCC ArangoDB connector in the xref:arangodb:operations-guide.adoc#_prerrequisitos[operations guide].
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for ArangoDB you must go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors NoSQL' and select "ArangoDB Agent".
+
+The most important fields to fill in are:
+
+* *_Root discovery path_*: path from which you want to discover the metadata recursively.
+* *_Custom Service URL_*: URL used to connect to ArangoDB. Example: `arangodb.stratio.com:8529`.
+* *_Access credentials_*: name of the secret created in _Stratio KMS_. Example: `arangodb-secret`.
+* *_Data store driver location_*: URL where the artifact that will contain the JAR of the selected JDBC driver is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-arangodb-0.3_2.12-1.2.x.jar`.
+
+TIP: More information on the other configuration parameters can be found in the xref:arangodb:operations-guide.adoc#_discovery_agent[operations guide].
+
+Once the discovery process is completed, the data store will appear in the _Stratio Data Governance_ UI.
+
+== Virtualize your data
+
+=== Eureka Agent
+
+To use the BDL, you need to configure the Eureka agent with the the SSCC ArangoDB connector. To do this, simply add the URL of the connectors repository URL of the `sscc-arangodb-0.3_2.12-1.2.x` artifact in the 'Customized deployment' -> 'Settings' -> `Additional jars` variable.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+image::arangodb-bdl.png[]
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the SSCC ArangoDB connector needs to be configured. To do so, you need to add the URL of the `sscc-arangodb-0.3_2.12-1.2.x` artifact in the 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` variable and also upload the access credentials to _Stratio KMS_.
+
+image::arangodb-virtualizer-conf.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the SSCC ArangoDB connector needs to be configured. To do this, you must add the URL of the `sscc-arangodb-0.3_2.12-1.2.x` artifact in the 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` variable and also upload the access credentials for the _workflows_ and for _Stratio Rocket_ to _Stratio KMS_.
+
+image::arangodb-rocket-conf.png[]
+
+TIP: More information on the other configuration parameters can be found in the xref:arangodb:operations-guide.adoc#rocket-configuration[operations guide].
+
+=== _Stratio Intelligence_
+
+Prior to integration with the connector it is necessary to configure _Stratio Intelligence_. The following properties must be added:
+
+* `INTERPOLATED_ANALYTIC_ENV_CROSSDATA_CATALOG_SECRET_INSTANCE_NAME`: ${username}
+* `ANALYTIC_ENV_VAULT_PATH`: "people".
+* `ANALYTIC_ENV_REQUESTS_CA_BUNDLE`: /opt/sds/stratio_analytic/security/ca-bundle.pem
+* `ANALYTIC_ENV_HIDE_VAULT_TOKEN`: "false".
+
+In addition, in the multiuser environment it is necessary to have the "Allow artifact deployment" option enabled and to have the _artifacts_ value in the path.
+
+Once you've configured _Stratio Intelligence_, you have to add the SSCC ArangoDB connector to the _artifacts/spark++_++jars_ directory and upload the access credentials to _Stratio KMS_.
+
+To upload the artifact, you have to download it from *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-arangodb-0.3_2.12-1.2.x* to the _artifacts/spark++_++jars_ directory in the _Stratio Intelligence_ workspace by issuing a cURL request.
+
+In this case, you could make the following request:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-arangodb-0.3_2.12-1.2.x --output sscc-arangodb-0.3_2.12-1.2.x
+----

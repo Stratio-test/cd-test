@@ -1,0 +1,3 @@
+= Problemas conocidos
+
+* Las versiones oficiales del _driver_ de MongoDB y la fuente de datos de Apache Spark™ para MongoDB en sus versiones más recientes son incompatibles. Esto se debe a que la fuente de datos de Apache Spark™, a su vez, tiene como dependencia el _driver_ de MongoDB, teniendo este último una versión inferior a la última liberada. El conector está construido sobre la versión 4.1.2 del _driver_ de MongoDB y la versión 3.0.1 de la fuente de datos de Apache Spark™, con las cuales se ha probado compatibilidad.

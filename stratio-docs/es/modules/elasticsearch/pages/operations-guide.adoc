@@ -1,0 +1,223 @@
+= Guía de operaciones
+
+== Descripción
+
+El conector SSCC Elasticsearch te permite la integración de Elasticsearch en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:elasticsearch:compatibility-matrix.adoc[matriz de compatibilidad].
+
+=== Autenticación
+
+Actualmente, el conector SSCC Elasticsearch sólo soporta autenticación con *usuario y contraseña*.
+
+== Prerrequisitos
+
+* Instalar el xref:connectors-repository:operations-guide.adoc#_instalación[repositorio de conectores].
++
+IMPORTANT: En el repositorio de conectores estará disponible en la URL http://connectors.<tenant>-<namespace>/v1/api/artifact/<nombre_artefacto> el artefacto `sscc-elasticsearch-0.3_2.12-1.2.x`, que se utiliza un uso básico del conector SSCC Elasticsearch.
+
+* Tener accesible la xref:ROOT:quick-start-guide.adoc[interfaz de usuario de _Stratio KMS_].
+* Tener instalada y accesible desde _Stratio Generative AI Data Fabric_ una instancia de un _cluster_ de:
+** Elasticsearch.
+** OpenSearch. En este caso, es necesaria una de las dos opciones:
+*** Tener el _cluster_ configurado con la siguiente propiedad: *`compatibility.override_main_response_version: true`*.
+*** *Forzar la configuración de compatibilidad* durante la instalación del agente de descubrimiento tal y como se explica en xref:elasticsearch:operations-guide.adoc#_agente_de_descubrimiento[este apartado].
++
+NOTE: Para más información sobre esta configuración, consulta la sección de xref:elasticsearch:troubleshooting.adoc#_elasticsearch_opensearch_settings[_Troubleshooting_].
+
+* Tener un usuario con acceso al _cluster_ de Elasticsearch u OpenSearch instalado con los siguientes permisos básicos:
+** `cluster`
+*** `monitor`
+** `indices`
+*** `names`: aquellos índices que se quieran permitir gobernar. Se pueden asignar todos con la expresión `*`.
+*** `privileges`:
+**** `manage`
+**** `read`
+**** `write`: este último en caso de que se necesiten permisos de escritura, como puede ser para _workflows_ de _Stratio Rocket_.
++
+Un ejemplo de mínimos privilegios sería el siguiente:
+
+[source,json]
+----
+{
+  "cluster": [ "monitor" ],
+  "indices": [
+    {
+      "names": [ "*" ],
+      "privileges": [ "manage", "read", "write" ]
+    }
+  ]
+}
+----
+
+* Crear los secretos en _Stratio KMS_. Actualmente, el conector solo admite autenticación con usuario y contraseña.
++
+--
+El secreto que se va a subir consta de dos claves:
+
+** _user_: `<elasticsearch_user>`.
+** _pass_: `<elasticsearch_password>`.
+--
++
+Habrá una imagen similar a esta:
++
+image::elasticsearch-vault-discovery-agent-user-pass.png[]
++
+Este secreto se debe subir a los siguientes directorios de _Stratio KMS_:
+
+** *Agente de descubrimiento*: `userland/passwords/<nombre_agente>/<nombre_secreto>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<nombre_virtualizer>.<namespace_virtualizer>/<nombre_secreto>`.
+** *_Stratio Rocket_*: `userland/passwords/<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Workflows_ de _Stratio Rocket_*: `userland/passwords/execution-identity-<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Stratio Intelligence_*: `/people/passwords/<nombre_usuario_intelligence>/<nombre_secreto>`.
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para Elasticsearch debes seleccionar en '_Stratio Command Center_' → 'Deploy a Service' → 'Connectors NoSQL' el agente "Elasticsearch Agent".
+
+Los campos a rellenar para la instalación son:
+
+* *_General_*:
+** *_Service ID_*: identificador único del agente. Ejemplo: _dg-elasticsearch-agent_.
+** *_Name of the Service_*: nombre mostrado en _Stratio KEOS_. Ejemplo: _dg-elasticsearch-agent_.
+* *_Metadata Data store (PostgreSQL®)_*
+** *_Host_*: instancia de PostgreSQL® que almacena los metadatos descubiertos.
+* *_Configuration of the service to be discovered_*
+** *_Service to be discovered_*
+*** *_Service name_*: nombre que se utilizará para identificar este almacén de datos en _Stratio Data Governance_. Es el que se mostrará en su interfaz de usuario. Ejemplo: _dg-elasticsearch-agent_.
+*** *_Root discovery path_*: esquema sobre el que se quieren descubrir los metadatos de forma recursiva. En el caso de Elasticsearch, se debe usar *`/root`*.
+** *_Resource data store connection configuration_*
+*** *_Custom Service URL_*: URL donde está alojada la instancia de Elasticsearch.
+*** *_Custom data store service security_*: método de autenticación para la instancia de Elasticsearch.
+*** *_Access credentials_*: nombre del _stratiocredentials_ o ruta de _Stratio KMS_ con las credenciales de autorización.
+* *_SSCC driver location_*: URL donde se encuentra el JAR del conector SSCC Elasticsearch.
+* *_Elasticsearch & OpenSearch Settings_*
+** *_Elasticsearch & OpenSearch InferSchema Option_*: una opción que mejora la forma de obtener el esquema de los índices haciendo inferencia de valores.
+** *_Elasticsearch & OpenSearch Document Sample Size_*: número de muestras aleatorias que se tomarán para definir el esquema de los índices mediante inferencia de valores. Esta opción está *disponible únicamente si la anterior está activada*.
+** *_Force OpenSearch Cluster Settings_*: fuerza la compatibilidad del _cluster_ de OpenSearch para admitir operaciones de Elasticsearch.
+
+TIP: Para más información sobre esta configuración consulta la sección de xref:elasticsearch:troubleshooting.adoc#_elasticsearch_opensearch_settings[_Troubleshooting_].
+
+Debería quedar una configuración similar a esta para una instancia de Elasticsearch:
+
+* _Service ID_: `/dg-agent-elasticsearch-test_`.
+* _Name of the service_: `/dg-agent-elasticsearch-test`.
+* _Host_: `pgbouncer-postgreskeos-governance.keos-core`.
+* _Service Name_: `dg-agent-elasticsearch-test`.
+* _Root discovery_ path: `/root`.
+* _Custom Service URL_: `dbsqa.labs.stratio.com:9043`.
+* _Custom datastore service security_: `MD5`.
+* _Access credentials_: `elasticsearch-secrets`.
+* _SSCC driver location_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-elasticsearch-0.3_2.12-1.2.x.jar`.
+
+Tal como aparece en la siguiente imagen:
+
+image::elasticsearch-discovery-agent-settings.png[width=80%]
+
+*Elasticsearch Settings*
+
+* _Elasticsearch & OpenSearch InferSchema Option_: activado.
+* _Elasticsearch & OpenSearch Document Sample Size_: 100.
+* _Force OpenSearch Cluster Settings_: desactivado.
+
+image::elasticsearch-discovery-agent-settings-infer-schema.png[width=80%]
+
+*OpenSearch Settings*
+
+* _Elasticsearch & OpenSearch InferSchema Option_: activado.
+* _Elasticsearch & OpenSearch Document Sample Size_: 100.
+* _Force OpenSearch Cluster Settings_: activado.
+
+image::opensearch-discovery-agent-settings-infer-schema.png[width=80%]
+
+El proceso de descubrimiento es asíncrono, una vez terminado el descubrimiento se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+image::elasticsearch-governance-descubrimiento.png[]
+
+image::elasticsearch-governance-tabla.png[]
+
+image::elasticsearch-governance-columna.png[]
+
+== Virtualiza tus datos
+
+IMPORTANT: Ten en cuenta que para virtualizar las tablas descubiertas es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector SSCC Elasticsearch. Para ello basta con añadir la URL del repositorio de conectores del artefacto `sscc-elasticsearch-0.3_2.12-1.2.x` en la variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+* _Additional jars_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-elasticsearch-0.3_2.12-1.2.x.jar`.
+
+Tal como aparece en la siguiente imagen:
+
+image::elasticsearch-eureka-environment.png[]
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+TIP: Consulta aquí xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[más información acerca del procesamiento de datos con BDL].
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ soporta la interacción con Elasticsearch a través del conector SSCC Elasticsearch. Esta integración tiene ciertos requisitos:
+
+* Se deben modificar los siguientes campos del despliegue de _Stratio Virtualizer_ en _Stratio Command Center_:
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Integration'.
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Drivers URL List'.
+
+Debería quedar una configuración similar a esta:
+
+* _JDBC Integration_: habilitado.
+* _JDBC Drivers URL List_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-elasticsearch-0.3_2.12-1.1.0.jar`.
+
+Tal como aparece en siguiente imagen:
+
+image::elasticsearch-virtualizer-environment.png[]
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+==== Gestión del _driver_
+
+Para el uso de _Stratio Rocket_ es necesario tener el conector SSCC Elasticsearch configurado. Para ello:
+
+* Añade la URL del artefacto `sscc-elasticsearch-0.3_2.12-1.2.x` en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` de _Stratio Command Center_.
+** *_Rocket extra jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-elasticsearch-0.3_2.12-1.1.0.jar`.
+
+Tal como aparece en siguiente imagen:
+
+image::elasticsearch-rocket-environment.png[]
+
+==== Gestión de los secretos
+
+Sube las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_ tal como aparece descrito en los prerrequisitos.
+
+[#rocket-configuration]
+
+==== Gestión de la configuración: reglas de calidad y linaje
+
+Accede a la configuración de _Stratio Rocket_ en 'Settings' -> 'Governance Lineage' y asegúrate de que la opción "Governance Lineage" esté activada.
+
+Los campos a rellenar son los siguientes:
+
+* _Custom lineage and quality rules methods using Spark format_: `org.elasticsearch.spark.sql:com.stratio.connectors.ssccelasticsearch.ElasticSearchQualityRulesAndLineage:getMetadataPath`.
+** Con esta opción se activará el linaje para los flujos de datos usando cajas de tipo _datasource_ que accedan directamente al almacén de datos.
++
+IMPORTANT: Para que funcione correctamente el linaje, el agente de descubrimiento debe tener como _Service Name_ el valor `<host_url_elasticsearch>.port.<port_url_elasticsearch>`.
+
+* _Custom planned quality rules methods_: `com.stratio.connectors.ssccelasticsearch.ElasticSearchDriverMD5:com.stratio.connectors.ssccelasticsearch.ElasticSearchQualityRulesAndLineage:getPlannedQRCreateTable`.
+** Con esta opción se soportarán las reglas de calidad planificadas que accedan directamente a tablas del almacén de datos.
+
+NOTE: Recuerda que, si ya tienes más de una referencia en la lista, se deben añadir las siguientes separándolas por una coma.
+
+Reinicia _Stratio Rocket_ para aplicar los cambios.
+
+NOTE: Estas variables *no son necesarias* para el linaje y las reglas de calidad sobre tablas virtualizadas en el catálogo.
+
+=== _Stratio Intelligence_
+
+Para la configuración correcta de _Stratio Intelligence_ consulta la xref:elasticsearch:quick-start-guide.adoc#_stratio_intelligence[sección de _Stratio Intelligence_]. Para la integración con Elasticsearch, sólo es necesaria la subida de credenciales mostrada en los prerrequisitos.

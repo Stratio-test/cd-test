@@ -1,0 +1,28 @@
+= _MAP_ functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+| map_concat(map, ...)
+| SELECT map_concat(names,city) FROM functions.mapfunctions
+| No
+
+| map_entries(map)
+| SELECT map_entries(names) FROM functions.mapfunctions
+| No
+
+| map_keys(map)
+| SELECT map_keys(names) FROM functions.mapfunctions
+| No
+
+| map_values(map)
+| SELECT map_values(names) FROM functions.mapfunctions
+| No
+
+| map(map)
+| SELECT map(1.0, '2', 3.0, '4'),age FROM functions.mapfunctions
+| No
+
+|===

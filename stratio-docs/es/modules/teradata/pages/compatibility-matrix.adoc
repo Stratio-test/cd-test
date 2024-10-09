@@ -1,0 +1,46 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector SSCC Teradata, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-teradata-0.3_2.12-1.1.x
+
+| _Stratio BDL_
+| Virtualización y optimización
+| ≥ sscc-teradata-0.3_2.12-1.1.x
+
+| _Stratio Virtualizer_
+| Lectura y escritura
+| ≥ sscc-teradata-0.3_2.12-1.1.x
+
+| _Stratio Rocket_
+| Lectura y escritura virtualizada
+| ≥ sscc-teradata-0.3_2.12-1.1.x
+
+| _Stratio Intelligence_
+| Lectura y escritura virtualizada.
+| ≥ sscc-teradata-0.3_2.12-1.1.x
+|===
+
+== Compatibilidad con versiones de Teradata
+
+Se ha validado la compatibilidad del conector para Teradata express 16.20.
+
+== Versiones del _driver JDBC_ soportadas
+
+El conector necesita estar acompañado de un artefacto con el _driver JDBC_ de Teradata. Al estar desacoplado, se puede utilizar el mismo conector con diferentes versiones.
+
+La versión actual del conector está validada contra las siguientes versiones del _driver JDBC_:
+
+|===
+| Versión del _driver JDBC_ | Artefacto del repositorio de conectores
+
+| 20.00.00.06
+| _terajdbc.jar_
+|===
+
+En https://central.sonatype.com/artifact/com.teradata.jdbc/terajdbc[este enlace] se pueden descargar los distintos _drivers_ disponibles.

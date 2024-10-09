@@ -1,0 +1,61 @@
+﻿= Quick start guide
+
+The purpose of this guide is to briefly explain how to integrate an Apache Hadoop® (HDFS) database into the _Stratio Generative AI Data Fabric_ platform.
+
+== Prerequisites
+
+You can find the prerequisites for installing the Apache Hadoop® (HDFS) connector in the xref:apache-hadoop-hdfs:operations-guide.adoc#_prerequisites[operations guide].
+
+NOTE: Please note that the *Kerberos authentication mode* will be used in this quick start guide.
+
+== Discover your data
+
+=== Discovery agent (Apache Hadoop® (HDFS) internal)
+
+To install a _Stratio Data Governance_ discovery agent for Apache Hadoop® (HDFS) you must go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Governance' and select "Apache Hadoop® (HDFS) Agent (Internal)".
+
+In the installation, you must add the information corresponding to the Apache Hadoop® (HDFS) path to discover.
+
+The most important fields to fill in are:
+
+* *HDFS to be discovered*
+** *_HDFS ConfigMap_*: name of the _ConfigMap_ containing the _hdfs-site.xml_ and the _core-site.xml_.
+** *_Kerberos ConfigMap_*: name of the _ConfigMap_ containing the Kerberos configuration associated with Apache Hadoop® (HDFS). Example: _keos-kerberos-config_.
+** *_Init path_*: path from which you want to discover the metadata recursively. Example: _/path_.
+
+TIP: More information on the other configuration parameters can be found in the xref:apache-hadoop-hdfs:operations-guide.adoc#_discovery_agent_apache_hadoop_hdfs_internal[operations guide].
+
+=== Discovery agent (Apache Hadoop® (HDFS) external)
+
+To install a _Stratio Data Governance_ discovery agent for Apache Hadoop® (HDFS) you must go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Governance' and select "agent-hdfs-external-default".
+
+In the installation, you must add the information corresponding to the Apache Hadoop® (HDFS) path to discover.
+
+The most important fields to fill in are:
+
+* *HDFS to be discovered*
+** *_HDFS ConfigMap_*: name of the _ConfigMap_ containing the _hdfs-site.xml_ and the _core-site.xml_. Example: _hdfs-external-config_.
+** *_Kerberos ConfigMap_*: name of the _ConfigMap_ containing the Kerberos configuration associated with Apache Hadoop® (HDFS). Example: _kerberos-external-config_.
+** *_Init path_*: path from which you want to discover the metadata recursively. Example: _/path_.
+
+TIP: More information on the other configuration parameters can be found in the xref:apache-hadoop-hdfs:operations-guide.adoc#_discovery_agent_apache_hadoop_hdfs_external[operations guide].
+
+== Virtualize your data
+
+=== Eureka agent
+
+For BDL usage, no extra configuration needs to be applied.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_ you don't need to apply any special configuration, unless you want to work on an external Apache Hadoop® (HDFS) or configure Multi-HDFS. For more information on how to configure these last two options, go to the xref:apache-hadoop-hdfs:operations-guide.adoc#_stratio_virtualizer[operations guide].
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_ you don't need to apply any special configuration, unless you want to work on an external Apache Hadoop® (HDFS) or configure Multi-HDFS. For more information on how to configure these last two options, go to the xref:apache-hadoop-hdfs:operations-guide.adoc#_stratio_rocket[operations guide].
+
+=== _Stratio Intelligence_
+
+For the use of _Stratio Intelligence_ it is not necessary to apply any extra configuration.

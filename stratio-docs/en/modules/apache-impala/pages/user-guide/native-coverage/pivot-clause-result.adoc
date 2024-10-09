@@ -1,0 +1,22 @@
+= _PIVOT_ clause
+
+== Syntax
+
+[source,sql]
+----
+PIVOT ( { aggregate_expression [ AS aggregate_expression_alias ] } [ , ... ]
+    FOR column_list IN ( expression_list ) )
+----
+
+== Result
+
+[cols="1,1"]
+|===
+|Query |Implemented
+| SELECT * FROM coverage_impala.person_sort PIVOT (SUM(age) AS a, AVG(class) AS c FOR name IN ('John' AS john, 'Mike' AS mike) );
+| No
+
+| SELECT * FROM coverage_impala.person_sort PIVOT (SUM(age) AS a, AVG(class) AS c FOR (name, age) IN (('John', 30) AS c1, ('Mike', 40) AS c2) );
+| No
+
+|===

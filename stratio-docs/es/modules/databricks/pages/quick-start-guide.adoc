@@ -1,0 +1,77 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar brevemente cómo integrar un espacio de trabajo de https://www.databricks.com/product/databricks-sql/[Databricks] en la plataforma _Stratio Generative AI Data Fabric_.
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector de SSCC Databricks en la xref:databricks:operations-guide.adoc#_prerrequisitos[guía de operaciones].
+
+NOTE: Ten en cuenta que en esta guía de inicio rápido se usará el *modo de autenticación _Personal Access Token_ (PAT)*.
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para Databricks, debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' el agente `Databricks Agent`.
+
+En la instalación debes añadir la información correspondiente a la instancia de la base de datos a descubrir, además de las URL del repositorio de conectores donde se almacenan los artefactos necesarios y xref:databricks:operations-guide.adoc#create-secret[subir las credenciales de acceso a _Stratio KMS_].
+
+Los campos más importantes a rellenar son:
+
+* *_Root discovery path_*: ruta desde la cual quieres descubrir los metadatos de forma recursiva. Ejemplo: _/samples,/hive_metastore_.
+* *_Custom Service URL_*: URL JDBC usada para conectarse a Databricks. Ejemplo: _jdbc:databricks://adb-1234567890123456.7.azuredatabricks.net/-db-;httpPath=/sql/1.0/endpoints/abcdef1234567890_.
+* *_Access credentials_*: nombre del secreto creado en _Stratio KMS_. Ejemplo: _databricks-secret_.
+* *_SSCC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC Databricks. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:databricks:operations-guide.adoc#install-agent[guía de operaciones].
+
+Una vez terminado el proceso de descubrimiento, el almacén de datos aparecerá en la interfaz de usuario de _Stratio Data Governance_.
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de Databricks. Para ello, hay que añadir la URL del repositorio de conectores del artefacto `sscc-hive-0.3_2.12-1.5.x` en la variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+En el ejemplo que se está siguiendo, el agente de Eureka queda de esta manera:
+
+* _Additional jars_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+
+=== _Stratio Virtualizer_
+
+Para el uso de _Stratio Virtualizer_ es necesario tener configurado el conector de Databricks. Para ello, debes añadir las URL de los artefactos necesarios en la variable 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` y además xref:databricks:operations-guide.adoc#create-secret[subir las credenciales de acceso a _Stratio KMS_].
+
+En el ejemplo que se está siguiendo, _Stratio Virtualizer_ queda de esta manera:
+
+* _JDBC Drivers URL List_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener configurado el conector de Databricks. Para ello, debes añadir las URL de los artefactos necesarios en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` y además xref:databricks:operations-guide.adoc#create-secret[subir las credenciales de acceso a _Stratio KMS_] para _Stratio Rocket_ y sus _workflows_.
+
+En el ejemplo que se está siguiendo, _Stratio Rocket_ queda de esta manera:
+
+* _Rocket extra jars_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+
+Tras aplicar estos cambios, deberías poder acceder a la colección virtualizada de Databricks mediante consultas SQL directamente en el catálogo o mediante un _input_ de _Stratio Virtualizer_ en un _workflow_.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:databricks:operations-guide.adoc#rocket-configuration[guía de operaciones].
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_ tal y como aparece descrito en xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[la guía de inicio rápido general].
+
+Una vez esté configurado _Stratio Intelligence_, tienes que añadir el conector y el _driver JDBC_ de Databricks al directorio _artifacts/spark++_++jars_ y xref:databricks:operations-guide.adoc#create-secret[subir las credenciales de acceso a _Stratio KMS_].
+
+Para la subida de los artefactos, estos se deben descargar en el directorio _artifacts/spark++_++jars_ dentro del _workspace_ de _Stratio Intelligence_ realizando una petición cURL.
+
+En el caso que se está tratando, se debería realizar la siguiente petición:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar --output sscc-hive-0.3_2.12-1.5.x.jar
+----
+
+Una vez configurado esto, puedes ver en el ejemplo cómo acceder a las tablas que se han virtualizado de la base de datos Databricks externa.

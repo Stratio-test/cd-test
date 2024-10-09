@@ -1,0 +1,203 @@
+﻿= User guide
+
+== Description
+
+The SSCC Microsoft SQL Server connector allows you to completely integrate Microsoft SQL Server into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:mssql:compatibility-matrix.adoc[compatibility matrix].
+
+== Discover your data
+
+The discovery performed by the SSCC Microsoft SQL Server agent will make the data hierarchy in Microsoft SQL Server visible and navigable in _Stratio Data Governance_:
+
+* Schemas
+* Tables
+* Columns
+
+image::mssql-discover-metadata.png[]
+
+TIP: You can read more about using the data store in the xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc[_Stratio Data Governance_ user guide].
+
+The agent will also associate technical or system metadata to the levels of the data hierarchy:
+
+. *Data store*, accessible through the "System attributes" button:
+** General
++
+--
+*** _Version_: version of the connector that made the discovery.
+*** _URL_: JDBC URL used for connection with Microsoft SQL Server.
+*** _Security_: type of security used. Possible values: MD5 (username and password) or KRB (Kerberos).
+--
++
+image::mssql-governance-datastore-attrs.png[]
++
+** Data source attributes: name and version of the database and JDBC driver class used.
++
+image::mssql-governance-datastore-attrs2.png[]
++
+** Data source attributes: JDBC driver name and version
++
+image::mssql-governance-datastore-attrs3.png[]
+
+. *_Table_*, accessible using the "System attributes" button or the "Connector Attributes" link:
+** _database_: schema where the table is included.
+** _schema_: schema in Microsoft SQL Server.
+** _table_: table name.
+** _tableType_: table type. Possible values: "TABLE" and "VIEW".
++
+image::mssql-governance-table-attrs.png[]
+
+. *_Column_*, accessible using the "System attributes" button or the "Connector Attributes" link, after selecting it from the list.
+** Properties (only in _System attributes_): precision, scale and whether the type has a sign.
+** Connector attributes: data store type (type of data conversion to the _Stratio Generative AI Data Fabric_ platform) and name of the original data type in Microsoft SQL Server (_SourceType_).
++
+image::mssql-governance-column-attrs.png[]
+
+The data conversion used by _Stratio Generative AI Data Fabric_ for Microsoft SQL Server is as follows:
+
+|===
+|Microsoft SQL Server type |Stratio type |Microsoft SQL Server type |Stratio type |Microsoft SQL Server type |Stratio type
+
+|BINARY
+|BINARY
+|IMAGE
+|BINARY
+|VARBINARY
+|BINARY
+
+|DATE
+|TIMESTAMP
+|DATETIME
+|TIMESTAMP
+|DATETIME2
+|TIMESTAMP
+
+|DATETIMEOFFSET
+|STRING
+|SMALLDATETIME
+|TIMESTAMP
+|TIME
+|TIMESTAMP
+
+|BIGINT
+|LONG
+|BIT
+|BOOLEAN
+|DECIMAL
+|DECIMAL
+
+|FLOAT
+|FLOAT
+|INT
+|INTEGER
+|MONEY
+|DECIMAL(19,4)
+
+|NUMERIC
+|DECIMAL(18,0)
+|REAL
+|FLOAT
+|SMALLINT
+|SMALLINT
+
+|SMALLMONEY
+|DECIMAL(10,4)
+|TINYINT
+|INTEGER
+|GEOMETRY
+|BINARY
+
+|GEOGRAPHY
+|BINARY
+|XML
+|STRING
+|CHAR
+|STRING
+
+|NCHAR
+|STRING
+|NTEXT
+|STRING
+|NVARCHAR
+|STRING
+
+|TEXT
+|STRING
+|VARCHAR
+|STRING
+|UNIQUEIDENTIFIER
+|STRING
+|===
+
+=== BDL virtualization
+
+The connector supports customization of data access in virtualized tables using xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_bdl_custom_attributes[advanced BDL attributes] from _Stratio Data Governance_. These can be modified from the UI.
+
+* *bdl.options.virtualizer.native*: the possible values are "True" and "False". "True" if the user wants to run queries with the _Stratio Virtualizer_ xref:stratio-virtualizer:user-guide:what-can-i-do-with-stratio-virtualizer.adoc#_supported_data_sources[native dialect]. If this attribute is configured, the default configuration will be overwritten (during deployment of the discovery agent in 'Stratio Command Center' -> 'General' -> 'Resource datastore connection configuration' -> 'Mssql Native Mode').
+* *bdl.options.native.filter*: filter applied on the table virtualization if you carried out discovery with native mode activated or set *bdl.options.virtualizer.native* to "True".
+* *bdl.options.filter*: filter applied on the virtualization of the table if discovery was performed without native mode enabled.
+
+TIP: For more details on the use of the BDL, see the xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[BDL data processing documentation].
+
+== Virtualize your data
+
+After tables have been discovered, you can add them to a technical view of a collection. All the configurable parameters of the discovery and those parameters modified from the _Stratio Data Governance_ UI are propagated in the collections where that table is added.
+
+TIP: You can read more about its features in its xref:stratio-virtualizer:user-guide:user-guide.adoc#_working_with_stratio_virtualizer[user guide].
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+To create a table directly in the _Stratio Virtualizer_ catalog, you can execute the following statements:
+
+* If you want to create the table without native mode:
+
+[source,sql]
+----
+CREATE TABLE mssql_table USING jdbc options (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<secret_name>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccmssql.MssqlDriverMD5',
+    `driver` 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+    `url` 'jdbc:sqlserver://<mssql_host>:<mssql_port>;dataBase=<mssql_database>',
+    `dbtable` '<table_name>'
+)
+----
+
+* If you want to create the table with native mode:
+
+[source,sql]
+----
+CREATE TABLE mssql_table USING com.stratio.crossdata.connector.mssql options (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<secret_name>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccmssql.MssqlDriverMD5',
+    `driver` 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+    `native` 'true',
+    `url` 'jdbc:sqlserver://<mssql_host>:<mssql_port>;dataBase=<mssql_database>',
+    `dbtable` '<table_name>'
+)
+----
+
+To use Kerberos authentication instead of username/password, replace `com.stratio.connectors.ssccoracle.MssqlDriverMD5` with `com.stratio.connectors.ssccoracle.MssqlDriverKRB`.
+
+NOTE: Remember that you need to use a different secret for Kerberos.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+After the data has been virtualized, you can access it from _Stratio Rocket_ using:
+
+* The catalog.
++
+image::mssql-rocket-catalog.png[]
+
+* In the workflows using the input from xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[_Stratio Virtualizer_]. You can force access through the native dialect by checking the "Force query execution with native connectors" box.
++
+image::mssql-rocket-virtualizer-input.png[]
+
+=== _Stratio Intelligence_
+
+You can see how the data is accessed from _Stratio Intelligence_ in the xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[general quick start guide].

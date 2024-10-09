@@ -1,0 +1,28 @@
+= _LIMIT_ clause
+
+== Syntax
+
+[source,sql]
+----
+LIMIT { ALL | integer_expression }
+----
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| Select the first two rows.
+| SELECT name, age FROM coverage_impala.person LIMIT 2;
+| Yes
+
+| Specifying the ALL option on LIMIT returns all the rows.
+| SELECT name, age FROM coverage_impala.person LIMIT ALL;
+| Yes
+
+| A function expression as an input to LIMIT.
+| SELECT name, age FROM coverage_impala.person LIMIT length('SPARK');
+| Yes
+
+|===

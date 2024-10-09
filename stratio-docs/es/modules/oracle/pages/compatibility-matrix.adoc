@@ -1,0 +1,54 @@
+= Matriz de compatibilidad
+
+NOTE: El _software_ de Oracle tiene licencia comercial, por lo que es necesario el registro y la aceptación de sus términos de licencia.
+
+Los módulos compatibles con el conector SSCC Oracle, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+|===
+|Módulo |Capacidad | Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-oracle-0.3_2.12-1.5.x
+
+| _Stratio BDL_
+| Virtualización
+| ≥ sscc-oracle-0.3_2.12-1.5.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura/Acceso nativo
+| ≥ sscc-oracle-0.3_2.12-1.5.x
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada/Acceso nativo
+| ≥ sscc-oracle-0.3_2.12-1.5.x
+
+| _Stratio Intelligence_
+| Lectura y escritura virtualizada.
+| >= sscc-oracle-0.3_2.12-1.5.x
+|===
+
+== Compatibilidad con versiones de Oracle
+
+Se ha validado la compatibilidad del conector para Oracle 12.2, 18.3 y 19.3.
+
+== Versiones del _driver JDBC_ soportadas
+
+El conector necesita estar acompañado de un artefacto con el _driver JDBC_ de Oracle. Al estar desacoplado, se puede utilizar el mismo conector con diferentes versiones.
+
+La versión actual del conector está validada contra las siguientes versiones del _driver JDBC_:
+
+|===
+| Versión del _driver JDBC_ | Artefacto del repositorio de conectores
+
+| ojdbc8
+| _ojdbc8.jar_
+|===
+
+En https://www.oracle.com/database/technologies/maven-central-guide.html[este enlace] se pueden descargar los distintos _drivers_ disponibles.
+
+TIP: Aquí puedes consultar https://docs.oracle.com/en/database/oracle/oracle-database/21/jjdbc/JDBC-getting-started.html#oracle-version-compatibility[la matriz de compatibilidad entre las versiones del _driver JDBC_ y Oracle].
+
+== Descubrimiento con optimización automática
+
+El conector SSCC Oracle incluye, desde la versión 0.3_2.12-1.5.x, mecanismos de optimización automática durante el proceso de descubrimiento.

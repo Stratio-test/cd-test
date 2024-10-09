@@ -1,0 +1,49 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with the SSCC IBM Db2 connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| >= sscc-db2-0.3_2.12-1.4.x
+
+| _Stratio BDL_
+| Virtualization
+| >= sscc-db2-0.3_2.12-1.4.x
+
+| _Stratio Virtualizer_
+| Read/Write/Native access
+| >= sscc-db2-0.3_2.12-1.4.x
+
+| _Stratio Rocket_
+| Read/Virtualized write/Native access
+| >= sscc-db2-0.3_2.12-1.4.x
+
+| _Stratio Intelligence_
+| Read/Virtualized write/Native access
+| >= sscc-db2-0.3_2.12-1.4.x
+|===
+
+== Compatibility with IBM Db2 versions
+
+Connector compatibility has been validated for IBM Db2 11.5.0.
+
+== Supported JDBC driver versions
+
+The connector needs to be coupled with an artifact with the IBM Db2 JDBC driver. Since it’s decoupled, you can use the same connector with different versions.
+
+The current version of the connector supports the following JDBC driver versions:
+
+|===
+| JDBC driver version | Artifact from the connectors repository
+
+| 11.5.0
+| _jcc-11.5.0.0.jar_
+|===
+
+The different drivers can be downloaded from https://search.maven.org/artifact/com.ibm.db2/jcc/11.5.0.0/jar[this link].
+
+TIP: Here you can check https://www.ibm.com/docs/en/db2-for-zos/11?topic=sqlj-jdbc-driver-database-version-compatibility[the compatibility matrix of the JDBC and IBM Db2 driver versions].

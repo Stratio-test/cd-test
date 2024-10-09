@@ -1,0 +1,44 @@
+= _JOIN_ clause
+
+== Syntax
+
+[source,sql]
+----
+relation { [ join_type ] JOIN relation [ join_criteria ] | NATURAL join_type JOIN relation }
+----
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| Use employee and department tables to demonstrate the inner join.
+| SELECT id, name, employee.deptno, deptname FROM coverage_postgres.employee INNER JOIN coverage_postgres.department ON employee.deptno = department.deptno;
+| Yes
+
+| Use employee and department tables to demonstrate the left join.
+| SELECT id, name, employee.deptno, deptname FROM coverage_postgres.employee LEFT JOIN coverage_postgres.department ON employee.deptno = department.deptno;
+| Yes
+
+| Use employee and department tables to demonstrate the right join.
+| SELECT id, name, employee.deptno, deptname FROM coverage_postgres.employee RIGHT JOIN coverage_postgres.department ON employee.deptno = department.deptno;
+| Yes
+
+| Use employee and department tables to demonstrate full join.
+| SELECT id, name, employee.deptno, deptname FROM coverage_postgres.employee FULL JOIN coverage_postgres.department ON employee.deptno = department.deptno;
+| Yes
+
+| Use employee and department tables to demonstrate cross-join.
+| SELECT id, name, employee.deptno, deptname FROM coverage_postgres.employee CROSS JOIN coverage_postgres.department;
+| Yes
+
+| Use employee and department tables to demonstrate semi-join.
+| SELECT * FROM coverage_postgres.employee SEMI JOIN coverage_postgres.department ON employee.deptno = department.deptno;
+| Yes
+
+| Use employee and department tables to demonstrate anti-join.
+| SELECT * FROM coverage_postgres.employee ANTI JOIN coverage_postgres.department ON employee.deptno = department.deptno;
+| Yes
+
+|===

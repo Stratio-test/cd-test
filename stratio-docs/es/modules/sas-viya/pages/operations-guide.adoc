@@ -1,0 +1,160 @@
+= Guía de operaciones
+
+== Descripción
+
+El conector SSCC SAS® Viya® te permite la integración de la plataforma SAS® Viya® en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:sas-viya:compatibility-matrix.adoc[matriz de compatibilidad].
+
+=== Autenticación
+
+Actualmente, el conector sólo soporta el modo de autenticación con *usuario y contraseña*.
+
+Como se verá más adelante, habrá que usar unos valores de configuración y credenciales específicas en cada uno de los servicios de _Stratio Generative AI Data Fabric_.
+
+== Prerrequisitos
+
+. Instalar el xref:connectors-repository:operations-guide.adoc#_instalación[repositorio de conectores].
++
+Visita la sección de la xref:connectors-repository:operations-guide.adoc#_instalación[Guía de operaciones] para averiguar cómo instalar el repositorio.
++
+IMPORTANT: En el repositorio de conectores se tendrá disponible en la URL `http://connectors.<tenant>-<namespace>/v1/api/artifact/<nombre_artefacto>` el artefacto `sscc-sas-0.3_2.12-1.1.x`, que se utiliza para un uso básico del conector de SSCC SAS® Viya®.
+
+. Tener accesible la interfaz de usuario de _Stratio KMS_ para la gestión de credenciales:
++
+Visita la sección de la xref:ROOT:quick-start-guide.adoc[interfaz de usuario de _Stratio KMS_] para consultar los pasos necesarios para tenerla disponible.
+
+. Tener una instancia de SAS® Viya® accesible desde la web y desde _Stratio Generative AI Data Fabric_ con el modo de autenticación configurado:
++
+** Para la autenticación básica hará falta un usuario por servicio con los permisos adecuados y su contraseña.
+** Deberás disponer un usuario en SAS® Viya® para cada servicio de _Stratio Generative AI Data Fabric_. Cada usuario deberá tener los siguientes permisos mínimos dependiendo del tipo de proveedor y del servicio.
++
+|===
+| Servicio | CAS (todos los recursos) | CAS (sólo tablas cargadas en memoria) | Cómputo
+
+| _Stratio Data Governance_
+| control total
+| control total
+| lectura
+
+| _Stratio Virtualizer_
+| control total
+| control total
+| lectura
+
+| _Stratio Rocket_
+| control total
+| control total
+| lectura
+
+| _Workflows_ de _Stratio Rocket_
+| control total
+| control total
+| lectura
+
+| _Stratio Intelligence_
+| control total
+| control total
+| lectura
+|===
+
+. Crear los secretos en _Stratio KMS_. Para ello debes acceder a `https://<stratio_kms_ui_url>/ui/vault/secrets` y crear un secreto diferente en la carpeta correspondiente del servicio con las siguientes opciones:
+
+** Usuario/contraseña
+*** *_user_*: `<sas_viya_user>`.
+*** *_pass_*: `<sas_viya_password>`.
++
+Cada secreto debe subirse a cada uno de los directorios de _Stratio KMS_:
+
+** *Agente de descubrimiento*: `userland/passwords/<nombre_agente>.<namespace>/<nombre_secreto_discovery>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<nombre_virtualizer>.<namespace_virtualizer>/<nombre_secreto_virtualizer>`.
+** *_Stratio Rocket_*: `userland/passwords/<nombre_rocket>.<namespace_rocket>/<nombre_secreto_rocket>`.
+** *_Workflows_ de _Stratio Rocket_*: `userland/passwords/<nombre_secreto_workflow_rocket>`.
++
+NOTE: El nombre del secreto para todos los servicios debe coincidir con los elegidos para configurar el agente de descubrimiento.
++
+--
+NOTE: Es necesario reiniciar el servicio tras modificar esta configuración para que tenga efecto.
+--
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para SAS® Viya® debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' el agente "SAS® Viya® Agent".
+
+Los campos a rellenar para la instalación son:
+
+* *_General_*
+** *_Service ID_*: identificador único del agente. Ejemplo: _dg-sasviya-agent_.
+** *_Service name_*: nombre mostrado en _Stratio KEOS_. Ejemplo: _dg-sasviya-agent_.
+* *Metadata Datastore (PostgreSQL®)*
+** *_Host_*: instancia de PostgreSQL® que almacena los metadatos descubiertos. Ejemplo: _pgbouncer-postgreskeos-governance.keos-core_.
+* *Configuration of the Service to be Discovered*
+** *Service to be discovered:*
+*** *_Service name_*: nombre que se utilizará para identificar este almacén de datos en _Stratio Data Governance_. Es el que se mostrará en su interfaz de usuario. Ejemplo: _dg-sasviya-agent_.
+*** *_Root discovery path_*: identificador del recurso SAS® Viya® que quieras que sea descubierto. Deben estar separados por comas, sin espacios y con una `/` al principio.
++
+NOTE: Dependiendo del tipo de proveedor SAS® Viya® utilizado, deberás introducir el campo *_Root discovery path_* adecuadamente. Si eliges el tipo `cas`, deberás introducir el nombre del servidor CAS a descubrir. Ejemplo: `/sas-shared-default`. Si eliges el tipo `Compute`, deberás introducir el ID del contexto de cómputo del servidor SPRE. Ejemplo: `/48013087-c73b-49d6-9f15-87da2183a3aa`.
++
+image::sas-viya-cct-deployment1.png[]
++
+** *Resource datastore connection configuration*
+*** *_Custom Service URL_*: URL JDBC usada para conectarse a SAS® Viya®. Ejemplo: `https://connectors.eastus.cloudapp.azure.com`.
+*** *_Custom data store service security_*: tipo de autenticación utilizada para la conexión: MD5 (usuario/contraseña).
+*** *_Access credentials_*: nombre del secreto creado en xref:#create-secret[_Stratio KMS_]. Ejemplo: _sasviya-secret_.
+*** *_SAS provider type_*: `cas` para descubrir una instancia de un servidor Cloud Analytic Server (CAS), `compute` para descubrir una instancia de un Servidor Programming Runtime Environment (SPRE).
+*** *_SSCC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC SAS® Viya®. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-sas-0.3_2.12-1.1.x.jar`.
+*** *_Should discover unloaded resources in CAS memory_*: _True_ si se deben descubrir tablas que no están cargadas en memoria CAS, _False_ si sólo se deben descubrir tablas que ya estén cargadas en memoria CAS. En cualquier caso, se descubrirán siempre las tablas que estén cargadas en memoria CAS.
++
+image::sas-viya-cct-deployment2.png[]
+
+El proceso de descubrimiento es asíncrono, una vez terminado el descubrimiento se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+image::sas-viya-discover-metadata.png[]
+
+== Virtualiza tus datos
+
+IMPORTANT: Ten en cuenta que para virtualizar las tablas descubiertas es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de SAS® Viya®. Para ello basta con añadir la URL del repositorio de conectores del artefacto `sscc-sas-0.3_2.12-1.1.x` en la variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+image::sas-viya-bdl.png[]
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+TIP: Consulta aquí xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[más información acerca del procesamiento de datos con BDL].
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ soporta la interacción con SAS® Viya® a través del conector SSCC SAS® Viya®. Esta integración tiene ciertos requisitos:
+
+* Se deben modificar los siguientes campos del despliegue de _Stratio Virtualizer_ en _Stratio Command Center_.
++
+--
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Integration'.
+*** *_JDBC Integration_*: `True`.
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Drivers URL List'.
+*** *_JDBC Drivers URL List_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-sas-0.3_2.12-1.1.x.jar`.
+--
++
+image::sas-viya-virtualizer-conf.png[Configuración _Virtualizer_ SAS® Viya®]
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener el conector SSCC SAS® Viya® configurado. Para ello:
+
+* Se debe añadir la URL del artefacto `sscc-sas-0.3_2.12-1.1.x` en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` de _Stratio Command Center_.
+** *_Rocket extra jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-sas-0.3_2.12-1.1.x.jar`.
++
+image::sas-viya-rocket-conf.png[]
+
+* Además, debes subir las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_.
+
+=== _Stratio Intelligence_
+
+Para la correcta configuración de _Stratio Intelligence_ consulta la xref:sas-viya:quick-start-guide.adoc#_stratio_intelligence[sección de _Stratio Intelligence_]. Para la integración con SAS® Viya®, sólo es necesaria la subida de credenciales mostrada en los prerrequisitos.
