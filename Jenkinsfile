@@ -1,4 +1,4 @@
-@Library('libpipelines@unstable_docchecks') _
+@Library('libpipelines') _
 
 hose {
     EMAIL = 'aassdd'
