@@ -1,0 +1,114 @@
+= User guide
+
+== Description
+
+The SSCC Snowflake connector allows you to fully integrate Snowflake into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:snowflake:compatibility-matrix.adoc[compatibility matrix].
+
+== Discover your data
+
+=== Know your data
+
+In addition to what xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tables_and_columns[_Stratio Data Governance_] shows, you can also find technical attributes extracted from Snowflake resources. All of the metadata provided by Snowflake is extracted and added to the _Stratio Data Governance_ UI in both table and column form.
+
+* The metadata extracted in discovery agent form are _databaseName_, _databaseVersion_, _jdbcDriver_, _jdbcDriverName_, _jdbcDriverVersion_, _proxyAddress_, _proxyAuthEnabled_, _proxyEnabled_ and _warehouse_.
+* The metadata extracted in table form are _tableType_, _table_, _schema_, _database_ and _description_.
++
+image:snowflake-table-metadata.png[]
++
+* The metadata extracted in column form are _type_, _nullable_, _ordinal_, _typedId_ and _properties_, which includes _description_.
++
+image:snowflake-column-metadata1.png[]
+
+=== BDL virtualization
+
+The discovery process is asynchronous. Once completed, it can be viewed from the _Stratio Data Governance_ UI.
+
+The connector supports customization of data access in virtualized tables using xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_bdl_custom_attributes[BDL custom attributes] from _Stratio Data Governance_. These can be modified from the UI.
+
+*_Stratio Data Governance_ custom attributes:
+
+* *bdl.options.snowflake.warehouse*: name of the warehouse on which the virtualization operations will be performed in each chosen table, being the chosen warehouse different from the default one for each user.
+* *bdl.options.virtualizer.native*: the possible values are "True" and "False". "True" if the user wants to access the data with the xref:stratio-virtualizer:user-guide:what-can-i-do-with-stratio-virtualizer.adoc#_native_queries[native dialect] of _Stratio Virtualizer_. If this attribute is set, the default setting ("True") will be overwritten.
+* *bdl.options.native.filter*: generic filter applied inside a `where` SQL clause in case the data access mode is with the _Stratio Virtualizer_ native dialect.
+* *bdl.options.time.travel*: date applied on a `time travel` SQL clause in case the data access mode is with the _Stratio Virtualizer_ native dialect. Example: `Fri, 01 May 2015 16:20:00 -0700`.
+
+NOTE: In the `time.travel` attribute you can only select an exact instant in time of the state the table was in. You can put a date in _Datetime_ format.
+
+The user configured for each module must have a warehouse configured by default. If you want to configure a specific one for a concrete table (read/write process), add the previous tag to the table in the catalog.
+
+NOTE: You can consult how to create attributes in the xref:stratio-data-governance:user-manual:addition-of-metadata[_Stratio Data Governance_ user guide].
+
+TIP: For more details on the use of the BDL, see the xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[BDL data processing documentation].
+
+== Virtualize your data
+
+After tables have been discovered, you can add them to a technical view of a collection. All the configurable parameters of the discovery and those parameters modified from the _Stratio Data Governance_ UI are propagated in the collections where that table is added.
+
+TIP: To learn more about how to manage collections you can consult the xref:stratio-data-governance:user-manual:collections.adoc[_Stratio Data Governance_ user guide].
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+To create a table directly in the _Stratio Virtualizer_ catalog, you can execute the following statements:
+
+* If you want to create the table *with native mode*:
+
+[source,sql]
+----
+CREATE TABLE snowflake_table USING com.stratio.crossdata.connector.snowflake OPTIONS (
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiosecurity` 'true',
+    `url` 'jdbc:snowflake://asd1234.us-east-1.snowflakecomputing.com/?db=SNOWFLAKE_DB',
+    `stratiossccdriver` 'com.stratio.connectors.ssccsnowflake.SnowflakeDriverMD5',
+    `driver` 'net.snowflake.client.jdbc.SnowflakeDriver',
+    `dbtable` '<nombre_tabla>',
+    `stratiosecuritymode` 'custom_sscc',
+)
+----
+
+* If you want to create the table *without native mode*:
+
+[source,sql]
+----
+CREATE TABLE snowflake_table USING jdbc OPTIONS (
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiosecurity` 'true',
+    `url` 'jdbc:snowflake://asd1234.us-east-1.snowflakecomputing.com/?db=SNOWFLAKE_DB',
+    `stratiossccdriver` 'com.stratio.connectors.ssccsnowflake.SnowflakeDriverMD5',
+    `driver` 'net.snowflake.client.jdbc.SnowflakeDriver',
+    `dbtable` '<nombre_tabla>',
+    `stratiosecuritymode` 'custom_sscc',
+)
+----
+
+To use Key pair authentication instead of username and password, replace `com.stratio.connectors.ssccsnowflake.SnowflakeDriverMD5` with `com.stratio.connectors.ssccsnowflake.SnowflakeDriverKeyPair`.
+
+If you want to make a connection to a warehouse and following the example above, add to the `url` parameter the warehouse as follows:
+`jdbc:snowflake://asd1234.us-east-1.snowflakecomputing.com/?db=SNOWFLAKE_DB&warehouse=<your_warehouse>`.
+
+If you want to make a connection to a proxy (without authentication), add the following configuration to the `url` parameter:
+`jdbc:snowflake://asd1234.us-east-1.snowflakecomputing.com/?db=SNOWFLAKE_DB&useProxy=true&proxyHost=<your_host>&proxyPort=<your_port>`.
+
+If you want to make a connection to a proxy (with authentication), add the following configuration to the `url` parameter:
+`jdbc:snowflake://asd1234.us-east-1.snowflakecomputing.com/?db=SNOWFLAKE_DB&useProxy=true&proxyHost=<your_host>&proxyPort=<your_port>&proxyUser=<proxy_user>&proxyPassword=<proxyPassword>`.
+
+NOTE: For the above example configuration you can interchange the use of warehouse and proxy.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+After the data has been virtualized, you can access it from _Stratio Rocket_ using:
+
+* The catalog.
++
+image:snowflake-rocket-catalog.png[]
+
+* In the workflows using the input from xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[_Stratio Virtualizer_]. You can force access through the native dialect by checking the "Force query execution with native connectors" box.
++
+image:snowflake-rocket-virtualizer-input.png[]
+
+=== _Stratio Intelligence_
+
+You can see how the data is accessed from _Stratio Intelligence_ in the xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[general quick start guide].

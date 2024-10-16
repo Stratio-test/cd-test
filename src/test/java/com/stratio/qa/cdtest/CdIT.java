@@ -10,8 +10,8 @@ public class CdIT {
         String[] args = new String[2];
         CdTest.main(args);
         try {
-            System.out.println("Waiting for 1 second");
-            Thread.sleep(1000);
+            System.out.println("Waiting for 10 seconds");
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

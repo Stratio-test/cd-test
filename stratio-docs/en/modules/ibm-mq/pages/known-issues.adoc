@@ -1,0 +1,5 @@
+﻿= Known issues
+
+* Only username/password authentication method is supported.
+* Only queues are supported. Topics are not supported.
+* There is no IBM MQ producer (output).

@@ -1,0 +1,87 @@
+= What's new in the latest version
+
+The most important changes are shown below.
+
+== New connectors
+
+* sscc-redshift, with which the Amazon Redshift data source can be integrated into _Stratio Generative AI Data Fabric_.
+
+== New features
+
+* sscc-adls2:
+** User can xref:azure-data-lake-storage-gen2:operations-guide.adoc#hadoop-config[add general Apache Hadoop® properties] to all virtualized tables from the discovery agent.
+** Added support for _Stratio Spark_ version 3.1.1-4.0.0.0.
+** Added support for partitioning of tables created in the _Stratio Virtualizer_ catalog.
++
+IMPORTANT: This support requires some additional steps to work properly. You can find them in their xref:ROOT:dfs-partitioning-migrations-guide.adoc[specific migration guide].
+
+* sscc-s3:
+** User can xref:amazon-s3:operations-guide.adoc#hadoop-config[add general Apache Hadoop® properties] to all virtualized tables from the discovery agent.
+** Support has been added in the discovery agent for the following Apache Hadoop® properties:
+*** `fs.s3a.path.style.access`
+*** `fs.s3a.force.global.bucket.access`
+*** `fs.s3a.accelerate.mode`
+*** `fs.s3a.dual.stack.enabled`
+* sscc-postgresql:
+** Added automatic optimizer for Apache Spark™ JDBC data source.
+** Added support for user-defined types using the native _Stratio Virtualizer_ dialect.
+
+== Fixes
+
+* sscc-s3:
+** The agent has been prevented from throwing an error when an Amazon S3 compatible API returns null values in certain fields such as _bucket owner_.
+* sscc-adls2:
+** Virtualized tables on CSV format files include the appropriate header option.
+* sscc-oracle
+** The automatic optimizer takes into account columns of type `Date` and `Timestamp`.
+
+== Warnings about deprecated components
+
+Since the release of Universe 14.1, the cloud agent of type `ADLS1` has been deprecated and is planned to be removed for Universe 14.4.
+
+== Updating
+
+Before you update any connector or module where the connector is integrated, check the compatibility notes of the connector or module.
+
+[IMPORTANT]
+====
+To install or update Universe 14.0 services in an environment with _Core_ 13.2, you need to have version 0.8.5 or higher of _Stratio KEOS_ (which includes _cct-paas-services:0.6.6_) and you have to uncheck the "Using Core >= R4 in the cluster. (WARNING: if you check this parameter using a Core prior to R4 the deployment may fail)" box in the 'General' section of the service form. If this is left checked, the service deployment will fail.
+
+image::r4_warning_cct.png[]
+
+====
+
+== Breaking changes of Universe 14.0
+
+* The connector repository now requires authentication in its REST API when the repository's contents are changed.
+* SSCC connectors that use the JDBC interface now discover schemas and tables hierarchically.
+
+IMPORTANT: Upgrading from the previous discovery mode may lead to loss of metadata when changing _Stratio Data Governance_ _assets_ identifiers. To avoid this, it is necessary to perform a xref:ROOT:migrations-guide.adoc[migration-specific] process.
+
+=== Maintaining the behavior of the Universe 13.2
+
+To do this, carry out the following actions:
+
+- Explicitly configure the deprecated mode in the agent deployment. In the 'General' tab, in the 'Filter discovered resources' section, set the `Use legacy mode` parameter to "true".
+- _Stratio Rocket_ processes that use JDBC or repository-specific inputs/outputs must add the following configuration:
++
+[source,bash]
+----
+lineageMode = legacy
+----
+
+== Breaking changes from Universe 13.2
+
+* Change to Scala version 2.12 of the connectors. This change affects metadata discovery agents.
+* Forward compatibility breaking.
+
+=== Forward compatibility breaking since Universe 13.2
+
+Connectors versions prior to Universe 13.2 are not compatible with _Stratio Data Governance_, _Stratio Virtualizer_ and _Stratio Rocket_ in Universe 13.2. *Backward compatibility* is guaranteed.
+
+For example:
+
+* The `sscc-bigquery-0.3_2.12-1.6.0` connector is *not* compatible with _Stratio Rocket_ 3.1
+* The `sscc-bigquery-0.3_2.12-1.8.0` connector is compatible with _Stratio Rocket_ 3.0 and 3.1.
+
+IMPORTANT: This change forces you to update the connectors when upgrading to Universe 13.2.

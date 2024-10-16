@@ -1,0 +1,183 @@
+= Guía de usuario
+
+== Descripción
+
+El conector SSCC BigQuery te permite la integración completa de BigQuery en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:bigquery:compatibility-matrix.adoc[matriz de compatibilidad].
+
+== Descubre tus datos
+
+=== Conoce tus datos
+
+Además de lo que se muestra en xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tablas_y_columnas[_Stratio Data Governance_], también puedes encontrar los atributos técnicos extraídos de los recursos de BigQuery. Se extraen todos los metadatos que proporciona BigQuery y se añaden a la interfaz de usuario de _Stratio Data Governance_ tanto en tabla como en columna.
+
+* Los metadatos extraídos en tabla son:
++
+image:bigquery-table-metadata.png[]
+
+* Los metadatos extraídos en columna son:
++
+image:bigquery-column-metadata1.png[]
++
+image:bigquery-column-metadata2.png[]
+
+NOTE: Las vistas en BigQuery están soportadas pero se muestran como tablas en la interfaz de usuario de _Stratio Data Governance_.
+
+=== Virtualización de la BDL
+
+El proceso de descubrimiento es asíncrono. Una vez terminado, se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+Adicionalmente a los xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_atributos_personalizados_de_bdl[atributos personalizados de BDL], es posible personalizar el acceso a las tablas mediante atributos modificables desde la interfaz de usuario. Estos son:
+
+* *bdl.options.virtualizer.native*: los posibles valores son "True" y "False". "True" si el usuario quiere ejecutar consultas con el xref:stratio-virtualizer:user-guide:what-can-i-do-with-stratio-virtualizer.adoc#_fuentes_de_datos_soportadas[dialecto nativo] de _Stratio Virtualizer_. Si se configura este atributo, se sobrescribirá la configuración por defecto (en el despliegue del agente de descubrimiento en '_Stratio Command Center_' -> 'General' -> 'Resource datastore connection configuration' -> 'BigQuery Native Mode').
+* *bdl.options.native.filter*: filtro aplicado sobre la virtualización de la tabla en caso de haber realizado un descubrimiento con el modo nativo activado o haber informado *bdl.options.virtualizer.native* a "True".
+* *bdl.options.filter*: filtro aplicado sobre la virtualización de la tabla en caso de haber realizado un descubrimiento sin el modo nativo activado.
+* *bdl.options.time.travel*: filtro aplicado sobre la tabla que permite seleccionar datos entre intervalos de tiempo. En la xref:https://cloud.google.com/bigquery/docs/time-travel[documentación oficial de Google] se encuentra la información completa de la funcionalidad de BigQuery integrada.
+
+NOTE: Si hay algún atributo que no está creado, puedes consultar cómo se crean en la sección de xref:stratio-data-governance:user-manual:addition-of-metadata[metadatado adicional] de _Stratio Data Governance_.
+
+TIP: Para más detalles del uso de la BDL consulta la xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[documentación de procesamiento de datos con BDL].
+
+== Virtualiza tus datos
+
+Una vez descubiertas las tablas, es posible añadirlas a una vista técnica de una colección. Todos los parámetros configurables del descubrimiento y los modificados desde la interfaz de usuario de _Stratio Data Governance_ se propagan en las colecciones donde se añada esa tabla.
+
+TIP: Para saber más sobre cómo gestionar las colecciones puedes consultar xref:stratio-data-governance:user-manual:collections.adoc[la guía de usuario de _Stratio Data Governance_].
+
+IMPORTANT: Ten en cuenta que, para virtualizar las tablas descubiertas, es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+Para crear una tabla directamente en el catálogo de _Stratio Virtualizer_ puedes ejecutar las siguientes sentencias:
+
+* Si quieres crear la tabla con el modo nativo:
+** Normal.
++
+[source,sql]
+----
+CREATE TABLE bigquery_table_nativo USING com.stratio.crossdata.connector.bigquery OPTIONS (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccbigquery.BigQueryDriver',
+    `url` 'jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=<project_id>;enableSession=1;',
+    `dbtable` '<nombre_schema>.<nombre_tabla>'
+)
+----
+
+** _Proxy_ sin autenticación.
++
+[source,sql]
+----
+CREATE TABLE bigquery_table_nativo_proxy_no_auth USING com.stratio.crossdata.connector.bigquery OPTIONS (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccbigquery.BigQueryDriver',
+    `url` 'jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=<project_id>;enableSession=1;ProxyHost=<proxy_host>;ProxyPort=<proxy_port>;',
+    `proxyEnabled` 'true',
+    `proxyAddress` 'http://<host>:<port>',
+    `project` '<project_id>',
+    `dbtable` '<nombre_schema>.<nombre_tabla>',
+    `OAuthType` '0',
+    `OAuthServiceAcctEmail` '<service_account_name>[@<project_id>.iam.gserviceaccount.com]',
+    `OAuthPvtKey` '<json_private_key>'
+)
+----
+
+** _Proxy_ con autenticación.
++
+NOTE: En _Stratio Virtualizer_ debes añadir *obligatoriamente* un secreto con nombre `bigquery-proxy-secret` con el usuario y la contraseña de la autenticación del _proxy_. No hace falta que sea en Base64. Ejemplo: _user: root, pass:1234_.
++
+[source,sql]
+----
+CREATE TABLE bigquery_table_nativo_proxy_auth USING com.stratio.crossdata.connector.bigquery OPTIONS (
+    `stratiosecurity` 'false',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccbigquery.BigQueryDriver',
+    `url` 'jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=<project_id>;enableSession=1;ProxyHost=<proxy_host>;ProxyPort=<proxy_port>;ProxyUid=<proxy_user_auth>;ProxyPwd=<proxy_pass_auth>',
+    `proxyEnabled` 'true',
+    `proxyAuthEnabled` 'true',
+    `proxyAddress` 'http://<host>:<port>',
+    `project` '<project_id>',
+    `dbtable` '<nombre_schema>.<nombre_tabla>',
+    `OAuthType` '0',
+    `OAuthServiceAcctEmail` '<service_account_name>[@<project_id>.iam.gserviceaccount.com]',
+    `OAuthPvtKey` '<json_private_key>'
+)
+----
+
+* Si quieres crear la tabla sin el modo nativo:
+** Normal.
++
+[source,sql]
+----
+CREATE TABLE bigquery_table USING bigquery OPTIONS (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccbigquery.BigQueryDriver',
+    `project` '<project_id>',
+    `table` '<nombre_schema>.<nombre_tabla>'
+)
+----
+
+** _Proxy_ sin autenticación.
++
+[source,sql]
+----
+CREATE TABLE bigquery_table USING bigquery OPTIONS (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccbigquery.BigQueryDriver',
+    `proxyAddress` 'http://<host>:<port>',
+    `project` '<project_id>',
+    `table` '<nombre_schema>.<nombre_tabla>'
+)
+----
+
+** _Proxy_ con autenticación.
++
+NOTE: En _Stratio Virtualizer_ debes añadir *obligatoriamente* un secreto con nombre `bigquery-proxy-secret` con el usuario y la contraseña de la autenticación del _proxy_. No hace falta que sea en Base64. Ejemplo: _user: root, pass:1234_.
++
+[source,sql]
+----
+CREATE TABLE bigquery_table_proxy_auth USING bigquery OPTIONS (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccbigquery.BigQueryDriver',
+    `proxyEnabled` 'true',
+    `proxyAuthEnabled` 'true',
+    `proxyAddress` 'http://<host>:<port>',
+    `project` '<project_id>',
+    `table` '<nombre_schema>.<nombre_tabla>'
+)
+----
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Una vez virtualizados los datos, es posible acceder desde _Stratio Rocket_ mediante:
+
+* El catálogo.
++
+image:bigquery-rocket-catalog.png[]
+
+* Dentro de los _workflows_, haciendo uso del _input_ de xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[_Stratio Virtualizer_]. Es posible forzar el acceso mediante el dialecto nativo marcando la casilla "Force query execution with native connectors".
++
+image:bigquery-rocket-virtualizer-input.png[]
++
+A la hora de configurar un _workflow_ de _Stratio Rocket_ usando una caja de tipo _datasource_, deberás rellenar las siguientes opciones:
+
+* _credentials_: `<credentials_bigquery>`.
+* _parentProject_: `<parentproject_bigquery>`.
+* _dataset_: `<dataset_bigquery>`.
+* _table_: `<table_bigquery>`.
+* _project_: `<project_bigquery>`.
+
+=== _Stratio Intelligence_
+
+Se puede comprobar cómo se accede a los datos desde _Stratio Intelligence_ en la xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[guía de inicio rápido].

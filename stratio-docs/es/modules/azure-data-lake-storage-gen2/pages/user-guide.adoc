@@ -1,0 +1,178 @@
+= Guía de usuario
+
+El propósito de esta guía es explicar el funcionamiento particular del conector SSCC Azure Data Lake Storage Gen2 para un usuario en la plataforma _Stratio Generative AI Data Fabric_.
+
+== Descripción
+
+Azure Data Lake Storage Gen2 es un almacenamiento externo incluido en Microsoft Azure que se puede emplear para almacenar cualquier tipo de objeto que permita usos como el almacenamiento para aplicaciones de Internet, _backup_ y _restore_, recuperación ante desastres, archivos de datos, lagos de datos para análisis y almacenamiento híbrido en la nube.
+
+_Stratio Generative AI Data Fabric_ puede realizar tareas de descubrimiento de los metadatos de Azure Data Lake Storage Gen2. La jerarquía soportada por el conector es:
+
+. Cuenta de Azure Data Lake Storage Gen2.
+. _Container_.
+. Uno o varios directorios.
+. Fichero.
+
+TIP: Consulta la https://learn.microsoft.com/es-es/azure/storage/blobs/data-lake-storage-introduction[guía oficial de Azure Data Lake Storage Gen2] para más información.
+
+== Descubre tus datos
+
+Para que el conector pueda acceder a tus datos deberás tener un usuario creado, como se muestra en los xref:azure-data-lake-storage-gen2:operations-guide.adoc#_prerrequisitos[prerrequisitos] de la guía de operaciones, con el que _Stratio Generative AI Data Fabric_ realice el descubrimiento. Si la cuenta no tiene los permisos suficientes, el proceso de descubrimiento fallará.
+
+Estas son las vistas en el descubrimiento:
+
+*Cuentas*
+
+image::vista_general_storage_account_adls2.png[]
+
+Atributos:
+
+- _type_: tipo de almacén de datos Azure Data Lake Storage Gen2.
+
+*Container*
+
+image::vista_general_container_adls2.png[]
+
+Atributos:
+
+- _type_: tipo de almacén de datos Azure Data Lake Storage Gen2.
+- _CreationDate_: fecha de creación del _container_.
+- _Name_: nombre del _container_.
+- _Owner_: usuario propietario del _container_.
+
+*Directorios*
+
+image::vista_general_dir_adls2.png[]
+
+Atributos:
+
+- _type_: tipo de almacén de datos Azure Data Lake Storage Gen2.
+- _accountName_: nombre de la cuenta a la que pertenece.
+- _containerName_: nombre del _container_ al que pertenece.
+- _key_: nombre del directorio.
+
+*Tabla*
+
+image::vista_general_tabla_adls2.png[]
+
+Atributos:
+
+- _accountName_: nombre de la cuenta a la que pertenece.
+- _containerName_: nombre del _container_ al que pertenece.
+- _eTag_: _tag_ interno de Azure Data Lake Storage Gen2.
+- _format_: formato del fichero.
+- _key_: ruta relativa del fichero.
+- _lastModified_: fecha de última modificación.
+- _size_: tamaño del fichero en _bytes_.
+- _storageClass_: clase de almacenamiento utilizada en Azure Data Lake Storage Gen2.
+
+*Columnas*
+
+image::vista_columna_adls2.png[]
+
+Atributos:
+
+- _type_: tipo de almacén de datos Azure Data Lake Storage Gen2.
+- _sourceType_: tipo original de la columna en el almacén de datos.
+
+El agente _Cloud_ funciona de la siguiente manera:
+
+* Es capaz de identificar sistemas de ficheros de N profundidad a partir de la raíz identificada a primer nivel en un _container_ Azure Data Lake Storage Gen2.
+* Si dentro de cualquier directorio encuentra xref:azure-data-lake-storage-gen2:compatibility-matrix.adoc#_formatos_soportados[un fichero soportado], es capaz de obtener los metadatos y representarlo como si fuese una tabla de tipo SQL.
+
+== Virtualiza tus datos
+
+Una vez descubiertas las tablas, puedes añadirlas a la vista técnica de una colección. Todos los parámetros configurables del descubrimiento y los modificados desde la interfaz de usuario de _Stratio Data Governance_ se propagan en las colecciones donde se añada esa tabla.
+
+TIP: Puedes leer más acerca de sus características en la xref:stratio-virtualizer:user-guide:user-guide.adoc#_trabajar_con_stratio_virtualizer[guía de usuario de _Stratio Virtualizer_].
+
+IMPORTANT: Ten en cuenta que, para virtualizar las tablas descubiertas, es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+Para crear una tabla directamente en el catálogo de _Stratio Virtualizer_ puedes ejecutar una de las siguientes sentencias:
+
+* Usando una credencial global tal y como se describe en xref:azure-data-lake-storage-gen2:operations-guide.adoc#direct-access-to-resources[la guía de operaciones].
++
+[source,sql]
+----
+CREATE TABLE `adls2_table` USING parquet LOCATION 'abfss://<container>@<storage-account>.dfs.core.windows.net/path/to/my/file.parquet'
+----
+
+* Usando una credencial específica para la tabla.
+** Con autenticación _Shared Key_.
++
+[source,sql]
+----
+CREATE TABLE `adls2_table`
+USING parquet
+OPTIONS (
+  `stratiocredentials` 'adls2-sk-secret',
+  `stratiosecurity` 'true',
+  `stratiossccdriver` 'com.stratio.connectors.ssccadls2.ADLS2DriverSharedKey',
+  `stratiosecuritymode` 'custom_sscc',
+  `accountName` '<storage-account>'
+) LOCATION 'abfss://<container>@<storage-account>.dfs.core.windows.net/path/to/my/file.parquet'
+----
+
+** Con autenticación OAuth2.0.
++
+[source,sql]
+----
+CREATE TABLE `adls2_table`
+USING parquet
+OPTIONS (
+  `stratiocredentials` 'adls2-oauth2-secret',
+  `stratiosecurity` 'true',
+  `stratiossccdriver` 'com.stratio.connectors.ssccadls2.ADLS2DriverOAuth2',
+  `stratiosecuritymode` 'custom_sscc',
+  `accountName` '<storage-account>'
+) LOCATION 'abfss://<container>@<storage-account>.dfs.core.windows.net/path/to/my/file.parquet'
+----
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+En _Stratio Rocket_ puedes utilizar cualquier _workflow_ para realizar tus operaciones con los datos de Azure Data Lake Storage Gen2. Utiliza cajas de _Stratio Crossdata_ o de tipo SQL como entrada de tus _workflows_:
+
+image::rocket_workflow_1.png[Rocket Workflow Crossdata Box]
+
+image::rocket_workflow_2.png[Rocket Workflow]
+
+También puedes acceder directamente mediante el catálogo:
+
+[source,sql]
+----
+SELECT * FROM adls2_collection.all_types_orc
+----
+
+image::rocket_catalog.png[Rocket Catalog]
+
+La escritura en Azure Data Lake Storage Gen2 está soportada. Utiliza una caja de _Stratio Crossdata_ para realizar escrituras directamente sobre otro fichero. En este caso, debes realizar escrituras sobre un fichero concreto.
+
+El conector puede trabajar con reglas de calidad para realizar comprobaciones sobre los datos de Azure Data Lake Storage Gen2.
+
+Cuando un _workflow_ de _Stratio Rocket_ se haya ejecutado puedes visualizar su linaje técnico accediendo sobre la tabla en la colección técnica, como se muestra en la imagen:
+
+image::linage_adls2.png[Linaje]
+
+=== _Stratio Intelligence_
+
+Puedes utilizar una sesión de _Stratio Virtualizer_ en _Stratio Intelligence_ para acceder rápidamente a tus datos mediante un Jupyter Notebook (utiliza una sesión de PySpark). Un ejemplo para que puedas hacerlo:
+
+[source,python]
+----
+from pystratio.xd.xdsession import XDSession
+xd = XDSession(sc)
+xd
+----
+
+image::intelligence_virtualized_table_1.png[Intelligence virtualized table 1]
+
+[source,python]
+----
+xd.sql("SELECT * FROM adls2_collection.all_types_orc").show(10, False)
+----
+
+image::intelligence_virtualized_table_2.png[Intelligence virtualized table 2]
+
+TIP: Para más información acerca de la consistencia de datos desde _Stratio Intelligence_ ve al documento de xref:ROOT:commiters.adoc[integración].

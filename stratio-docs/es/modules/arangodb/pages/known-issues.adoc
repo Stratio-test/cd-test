@@ -1,0 +1,12 @@
+= Problemas conocidos
+
+* Actualmente, el conector no descubre documentos que contengan _arrays_ con valores de distintos tipos. En caso de encontrarlo, aparecerá un error como el siguiente: "Expected the same types in ARRAY and found [LONG,STRING]".
+
+* En la https://central.sonatype.com/artifact/com.arangodb/arangodb-spark-datasource-3.1_2.12/1.4.2?smo=true[versión 1.4.2] de la fuente de datos de ArangoDB, que es la que utiliza el conector SSCC ArangoDB, no se puede utilizar un fichero _TrustStore_ para generar las conexiones mediante SSL. El servicio de soporte de ArangoDB recoge este problema en https://github.com/arangodb/arangodb-spark-datasource/issues/41[ArangoDB _issues_].
++
+Esta limitación no permite añadir el certificado para la conexión SSL en las rutas de Vault `secrets/ca-trust/certificates/` y `secrets/ca-trust/bundle` ni tampoco que se añada al _TrustStore_ que se crea en cada unos de los servicios y usar estos _truststores_ para la conexión:
++
+. Agente de descubrimiento: `AGENT_SSL_TRUSTSTORE=/home/governance/.extract/truststore.jks` (_'secrets/ca-trust/certificates/'_).
+. Eureka: `BDL_SSL_TRUSTSTORE=/home/bdl-agent/.ssl/truststore.jks` (_'secrets/ca-trust/certificates/'_).
+. _Stratio Virtualizer_: `/tmp/spark-secrets/ca-trust/trustStore.jks` (_'secrets/ca-trust/bundle'_), `/tmp/spark-secrets/DATASTORE/trustStore.jks` (_'secrets/ca-trust/bundle'_) o `/etc/virtualizer/.secrets/.trust/truststore.jks` (_'secrets/ca-trust/certificates/'_).
+. _Stratio Rocket_: `/tmp/secrets/ca-trust/trustStore.jks_ (_'secrets/ca-trust/bundle'_)`, `/tmp/secrets/DATASTORE/trustStore.jks` (_'secrets/ca-trust/bundle'_) o `/security/truststore.jks` (_'secrets/ca-trust/certificates/'_).

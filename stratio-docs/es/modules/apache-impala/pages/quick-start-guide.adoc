@@ -1,0 +1,86 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar de forma sencilla cómo integrar cualquier instancia de base de datos Apache Impala® en la plataforma _Stratio Generative AI Data Fabric_.
+
+Para más información sobre el proceso de instalación, consulta la xref:stratio-connectors:ROOT:quick-start-guide.adoc#[Guía de inicio rápido general].
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector de SSCC Apache Impala® en la xref:apache-impala:operations-guide.adoc#_prerrequisitos[Guía de operaciones].
+
+NOTE: Ten en cuenta que en esta guía de inicio rápido se utilizará el *modo de autenticación Kerberos*.
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para Apache Impala®, debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' el agente `Cloudera Impala Agent`.
+
+En la instalación debes añadir la información correspondiente a la instancia de la base de datos a descubrir, además de las URL del repositorio de conectores donde se almacenen los artefactos necesarios y xref:apache-impala:operations-guide.adoc[subir las credenciales de acceso a _Stratio KMS_].
+
+Los campos más importantes a rellenar son:
+
+* _Root discovery path_: ruta desde la cual quieres descubrir los metadatos de forma recursiva. Ejemplo: `/connectors_test`.
+* _Custom Service URL_: URL JDBC usada para conectarse a Apache Impala®. Ejemplo: `jdbc:hive2://impala.labs.stratio.com:21050/default`.
+* _Custom datastore service security_: solo está soportado el método KRB (autenticación Kerberos).
+* _SSCC driver location_: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC Apache Impala®. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+* _JDBC driver location_: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del _driver JDBC_ elegido. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-3.1.2-1.0.x.jar`.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:apache-impala:operations-guide.adoc[guía de operaciones].
+
+Si toda la configuración es correcta, el agente de descubrimiento se habrá desplegado correctamente. Accede a _Stratio Data Governance_ para comprobarlo.
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector SSCC Apache Impala®. Para ello, hay que añadir la URL del repositorio de conectores del artefacto `sscc-hive-0.3_2.12-1.5.x.jar` en la variable `Additional jars`.
+
+En el ejemplo que se está siguiendo queda de esta manera:
+
+* _Additional jars_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+=== _Stratio Virtualizer_
+
+Para el uso de _Stratio Virtualizer_ es necesario tener configurado el conector de Apache Impala®. Para ello, debes añadir las URL de los artefactos necesarios en la variable `JDBC Drivers URL List` y xref:apache-impala:operations-guide.adoc#create-secret[subir las credenciales de acceso a _Stratio KMS_].
+
+* 'Customized deployment' -> 'Environment' -> 'External datastores'
+** `JDBC Drivers URL List`: *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-3.1.2-1.0.x.jar*.
+
+== Accede a tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener configurado el conector SSCC Apache Impala®. Para ello, debes añadir las URL de los artefactos necesarios en la variable `Rocket extra jars` y xref:apache-impala:operations-guide.adoc#create-secret[subir las credenciales de acceso a _Stratio KMS_] para _Stratio Rocket_ y sus _workflows_.
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath'
+** `Rocket extra jars`: *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-3.1.2-1.0.0-47b3295.jar*
+** `Spark classpath extra jars`: *http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-3.1.2-1.0.x.jar*
+
+=== _Stratio Intelligence_
+
+Para ver cómo preparar _Stratio Intelligence_ consulta la sección xref:stratio-connectors:ROOT:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_] de la guía de inicio rápido general.
+
+Una vez esté configurado, tienes que añadir el conector SSCC Apache Impala® al directorio _artifacts/spark++_++jars_ (si no existe, créalo) y subir las credenciales a _Stratio KMS_.
+
+Para la subida de los artefactos, estos se deben descargar desde *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar* y *http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-3.1.2-1.0.x* en el directorio _artifacts/spark++_++jars_ dentro del _workspace_ de _Stratio Intelligence_ realizando una petición cURL.
+
+En el caso que se está tratando, se debería realizar la siguiente petición:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar --output sscc-hive-0.3_2.12-1.5.x.jar
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-3.1.2-1.0.0-47b3295.jar --output hive-jdbc-3.1.2-1.0.0-47b3295.jar
+----
+
+En la siguiente imagen se ve cómo queda almacenado en la carpeta:
+
+image::paquetes_impala_intelligence.png[]
+
+Ahora, tienes que xref:apache-impala:operations-guide.adoc#create-secret[subir las credenciales de acceso a _Stratio KMS_].
+
+En la siguiente imagen puedes ver cómo, una vez esté configurado, puedes acceder a las tablas virtualizadas de la base de datos Apache Impala® externa.
+
+image::intelligence_impala_vista.png[]

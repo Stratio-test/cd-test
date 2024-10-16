@@ -1,0 +1,8 @@
+﻿= Known issues
+
+* The Apache Cassandra® API has a silent mode that does not report errors when it cannot connect to a certain project. If an empty datastore appears in _Stratio Data Governance_ (or does not appear at all), it may be because you do not have the necessary permissions in the account settings.
+* Apache Cassandra® views are supported, but are shown as tables in the _Stratio Data Governance_ UI.
+* Not all Apache Cassandra® data types and tables are allowed for all access modes:
+** Provider `sscc-cassandra`:
+*** *Read*: supports all data types, simple and complex.
+*** *Write*: supports all data types, simple and complex, except for _StructType_ and others containing it.

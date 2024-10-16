@@ -1,0 +1,47 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with Teradata along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| ≥ sscc-teradata-0.3_2.12-1.1.x
+
+| _Stratio BDL_
+| Virtualization and optimization
+| ≥ sscc-teradata-0.3_2.12-1.1.x
+
+| _Stratio Virtualizer_
+| Read and write
+| ≥ sscc-teradata-0.3_2.12-1.1.x
+
+| _Stratio Rocket_
+| Virtualized read and write
+| ≥ sscc-teradata-0.3_2.12-1.1.x
+
+| _Stratio Intelligence_
+| Virtualized read and write
+| ≥ sscc-teradata-0.3_2.12-1.1.x
+|===
+
+== Compatibility with Teradata versions
+
+The compatibility of the connector has been validated for Teradata express 16.20.
+
+== Supported JDBC driver versions
+
+The connector needs to be coupled with an artifact with the Teradata JDBC driver. Since it's decoupled, you can use the same connector with different versions.
+
+The current version of the connector supports the following JDBC driver versions:
+
+|===
+| JDBC driver version | Artifact from the connectors repository
+
+| 20.00.00.06
+| _terajdbc.jar_
+|===
+
+The different drivers can be downloaded from https://central.sonatype.com/artifact/com.teradata.jdbc/terajdbc[this link].

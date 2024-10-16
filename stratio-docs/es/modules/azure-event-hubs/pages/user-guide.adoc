@@ -1,0 +1,45 @@
+= Guía de usuario
+
+== Descripción
+
+El conector Azure Event Hubs te permite la integración de Azure Event Hubs en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:azure-event-hubs:compatibility-matrix.adoc[matriz de compatibilidad].
+
+NOTE: La integración se realiza mediante _workflows_ de _Stratio Rocket_.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+El conector Azure Event Hubs está integrado en _Stratio Rocket_ en _assets_ de tipo:
+
+* _batch_ como un "output".
+* _streaming_ como "input" y "output".
+
+Para su configuración se deben rellenar los siguientes campos:
+
+* Caja de tipo _input_:
+** *Configuration*
+*** *Event Hub connection details*
+**** *Host*: _host_ del _namespace_ Event Hubs. En caso de querer conectarte con _privatelink_, deberás indicar el _host_ adecuado. Ejemplo: `<your_namespace>.privatelink.servicebus.windows.net`.
+*** *Topics*
+**** *Topic*: nombre del _topic_ de tu espacio Event Hubs.
+** *Security*
+*** *Auth method*: método de autenticación, puede ser _shared key_ o OAuth2.
+*** *Vault db name*: nombre del secreto.
++
+image::azure-event-hubs-rocket-asset2.png[]
+
+* Caja de tipo _output_:
+* *Configuration*
+** *Event Hub connection details*
+*** *Host*: _host_ del _namespace_ Event Hubs. En caso de querer conectarte con _privatelink_, deberás indicar el _host_ adecuado. Ejemplo: `<your_namespace>.privatelink.servicebus.windows.net`.
+** *Event Hub properties*
+*** *Kafka property*: _topic_ de Apache Kafka®.
+*** *Value*: nombre del _topic_ de tu espacio Event Hubs.
+* *Security*
+** *Auth method*: método de autenticación, puede ser _shared key_ o OAuth2.
+** *Vault db name*: nombre del secreto.
+
+TIP: Consulta más información acerca de los xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_event_hubs[_assets_ de _Stratio Rocket_ relacionados con Azure Event Hubs].

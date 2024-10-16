@@ -1,0 +1,323 @@
+﻿= Operations guide
+
+== Description
+
+The SSCC Oracle connector allows you to integrate Oracle into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:oracle:compatibility-matrix.adoc[compatibility matrix].
+
+=== Authentication
+
+The connector supports two authentication modes:
+
+* Username/password.
+* https://kerberos.org/[Kerberos].
+
+As you'll see later, depending on the mode you choose, specific configuration values and credentials will have to be used in each of the _Stratio Generative AI Data Fabric_ services.
+
+== Prerequisites
+
+. Install the xref:connectors-repository:operations-guide.adoc#_installation[connectors repository].
++
+See the section of the xref:connectors-repository:operations-guide.adoc#_installation[operations guide] to find out how to install the repository.
++
+IMPORTANT: In the connectors repository, the `sscc-oracle-0.3_2.12-1.5.x` artifact, which will be used for basic use of the Oracle connector, will be available at the URL `http://connectors.<tenant>-<namespace>/v1/api/artifact/<artifact_name>`. You need to upload the JDBC driver artifact indicated in the compatibility matrix to the connectors repository. This driver isn't made available.
+
+. The _Stratio KMS_ UI should be accessible to manage credentials:
++
+See the section on the xref:ROOT:quick-start-guide.adoc[_Stratio KMS_ UI] for the steps you need to take to make it available.
+
+. Have an instance of a Oracle database accessible from the _Stratio Generative AI Data Fabric_ with the chosen authentication mode configured:
++
+** A user with the appropriate permissions and their password will be required for basic authentication.
+** To configure authentication with https://web.mit.edu/kerberos/kfw-4.1/kfw-4.1/kfw-4.1-help/html/kerberos_terminology.htm[Kerberos] in the platform services, you'll need:
+*** The name of the https://web.mit.edu/kerberos/krb5-1.5/krb5-1.5.4/doc/krb5-user/What-is-a-Kerberos-Principal_003f.html[*_service principal_*] and its associated *_realm_*.
+*** The *_keytab_* with the encrypted keys encoded in Base64 associated with the *_service principal_* or the *password*.
+*** The URLs of the *Admin* and *KDC* servers used.
+*** The JDBC connection string. By default, the connector retrieves Oracle comments at the table and column levels. If you don't want to retrieve them, you can add the `remarksReporting=false` attribute to the JDBC connection string.
++
+IMPORTANT: The Kerberos keytab must be encoded in Base64. To convert a keytab file to Base64 using unix console: `base64 -w 0 /path/to/file.keytab`.
+
+. Create secrets in _Stratio KMS_. To do this, go to `https://<stratio_kms_ui_url>/ui/vault/secrets` and create a secret in the corresponding folder of the service with the following options, depending on the authentication mode:
++
+** Username/Password
+*** *_user_*: `<oracle_user>`.
+*** *_pass_*: `<oracle_password>`.
+** Kerberos principal/keytab
+*** *_principal_*: `<oracle_service_principal_name>`.
+*** *_keytab_*: `<oracle_keytab_base64>`.
+
+** Kerberos principal/pass
+*** *_principal_*: `<oracle_service_principal_name>`.
+*** *_pass_*: `<oracle_pass>`.
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
++
+** *Discovery agent*: `userland/passwords/<agent_name>.<namespace>/<secret_name>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<virtualizer_name>.<virtualizer_namespace>/<secret_name>`.
+** *_Stratio Rocket_*: `userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>`.
+** *_Stratio Rocket_ workflows*: `userland/passwords/<secret_name>`.
++
+NOTE: The name and values of the secret for all services must match the ones used to configure the discovery agent.
++
+. Change the Kerberos configuration in the services.
++
+For authentication with Kerberos, you need to modify the configuration file used in the service from which authentication is to be initiated and include the Kerberos information used in Oracle.
++
+To modify it, you have to get the name of the Kerberos _ConfigMap_, which can be found in the service configuration view in _Stratio Command Center_, in the _Kerberos configmap name_ field. Once you get the ConfigMap name, you can edit it with a Kubernetes cluster management tool, for example, _kubectl_:
+
+[source,bash]
+----
+kubectl edit configmap <configmap_name>
+----
+
+The file already contains previous information, specific to the service, to which you have to add the Kerberos configuration to access Oracle.
+
+For example, if you have the following configuration of access with Kerberos to Oracle:
+
+. *_Service Principal_*: `myprincipal/oracle.mycompany.com`.
+. *_Realm_*: `MYCOMPANY.COM`.
+. *_KDC host_*: `oracle.mycompany.com:88`.
+. *_Admin host_*: `oracle.mycompany.com:749`.
+
+And the https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html[_krb5.conf_] file of the _Configmap_ with the service's previous Kerberos configuration is:
+
+[source,bash]
+----
+[libdefaults]
+ default_realm=ZULU.INT
+ dns_lookup_realm=false
+ dns_lookup_kdc=false
+ renew_lifetime=7d
+ ticket_lifetime=24h
+ rdns=false
+ forwardable=true
+ renewable=true
+ default_ccache_name=/tmp/krb5cc_%{uid}
+ udp_preference_limit=1
+[realms]
+ ZULU.INT={
+   kdc=kerberos.keos-idp:88
+   admin_server=kerberos.keos-idp:749
+ }
+----
+
+By modifying it to accept Oracle's configuration, it would look like this:
+
+[source,bash]
+----
+[libdefaults]
+ default_realm=ZULU.INT
+ dns_lookup_realm=false
+ dns_lookup_kdc=false
+ renew_lifetime=7d
+ ticket_lifetime=24h
+ rdns=false
+ forwardable=true
+ renewable=true
+ default_ccache_name=/tmp/krb5cc_%{uid}
+ udp_preference_limit=1
+[realms]
+  ZULU.INT={
+   kdc=kerberos.keos-idp:88
+   admin_server=kerberos.keos-idp:749
+  }
+  MYCOMPANY.COM={
+   kdc=oracle.mycompany.com:88
+   admin_server = oracle.mycompany.com:749
+  }
+[domain_realm]
+ .mycompany.com = MYCOMPANY.COM
+ mycompany.com = MYCOMPANY.COM
+----
+
+NOTE: You need to restart the service for changes to this configuration to take effect.
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for Oracle you must select "Oracle Agent" in '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS'.
+
+The fields to be filled in for the installation are:
+
+* *_General_*
+** *_Service ID_*: agent's unique identifier. Example: _dg-oracle-agent_.
+** *_Service name_*: name displayed in _Stratio KEOS_. Example: _dg-oracle-agent_.
+* *Metadata Datastore (PostgreSQL®)*
+** *_Host_*: the PostgreSQL® instance that stores the discovered metadata. Example: _pgbouncer-postgreskeos-governance.keos-core_.
+* *Configuration of the Service to be Discovered*
+** *Service to be discovered:*
+*** *_Service name_*: name that will be used to identify this data store in _Stratio Data Governance_. It's the one that will be displayed in the UI. Example: _dg-oracle-agent_.
+*** *_Root discovery path_*: the Oracle databases you want to be discovered. These should be separated by commas, without spaces and with a slash `/` at the beginning.
++
+image::oracle-cct-deployment1.png[]
++
+** *Resource datastore connection configuration*
+*** *_Custom Service URL_*: JDBC URL used to connect to Oracle. Example: `jdbc:oracle:thin:@oracle.stratio.com:1921/-db-.
+*** *_Custom data store service security_*: type of authentication used for the connection: MD5 (username/password) or KRB (Kerberos).
+*** *_Access credentials_*: name of the secret created in xref:#create-secret[_Stratio KMS_]. Example: _oracle-secret_.
+*** *_SSCC driver location_*: URL where the artifact that will contain the JAR of the SSCC Oracle connector is located in the connectors repository. Example: _http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-oracle-0.3_2.12-1.5.x.jar_.
+*** *_JDBC driver location_*: URL where the artifact that will contain the JAR of the selected JDBC driver is located in the connectors repository. Example: _http://connectors.<tenant>-<namespace>/v1/api/artifact/ojdbc8-21.7.0.0.jar_.
++
+image::oracle-cct-deployment2.png[]
++
+image::oracle-cct-deployment3.png[]
+
+*** *_Enable optimization engine_*: enables/disables the automatic optimization of the Oracle data store.
+**** *_Granularity Optimizer Level_*: the level of granularity/depth of the optimization is defined. Possible values are "1" and "2":
+***** *Level 1*: optimization is performed using only metadata and statistics from the data store. By default it is at this level.
+***** *Level 2*: in addition to the analysis of level 1, it performs a deeper analysis of the distribution of the data in the tables using inference and sampling techniques.
++
+IMPORTANT: For *Level 2* it is necessary to have access permissions to the data in the tables to be optimized. This level may slow down the discovery process.
++
+**** *_Force create statistics_*: enables/disables the forced creation of statistics required for optimization. By default it is disabled, assuming that the statistics are already created.
++
+NOTE: It is recommended that the database administrator first generate the statistics from the Oracle data store for those tables to be optimized.
++
+**** *_Sampling Percent_*: sampling percentage for level 2 optimization. This variable only appears when the _Granularity optimization engine_ is set to "2".
++
+The value is the percentage out of 1. By default, it's set to "0.65", which corresponds to a sampling of 65%.
++
+**** *_Optimizer Parallelism Level_*: number of threads to be used for optimization.
++
+image::oracle-optimizer-sscc-conf-operations.png[]
+
+The discovery process is asynchronous. Once the discovery is finished you can view it from the _Stratio Data Governance_ UI.
+
+image::oracle-discover-metadata.png[]
+
+== Virtualize your data
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+=== _Legacy_ and _path_ modes
+
+There are two discovery modes:
+
+* _Legacy_
+
+image::oracle-mode-legacy-dictionary.png[]
+
+Set the _Use legacy mode_ field to "true" to activate _legacy_ mode. In this case, the following schemas have been skipped, as shown in the image:
+
+[source,bash]
+----
+^(ANONYMOUS|APEX|APEX_050000|APPQOSSYS|AUDSYS|CROSSDATA|CTXSYS|DBSFWUSER|DBSNMP|DIP|DVF|DVSYS|FLOWS_FILES|GGSYS|GSMADMIN_INTERNAL|GSMCATUSER|GSMUSER|HR|LBACSYS|MDSYS|OJVMSYS|OLAPSYS|ORDDATA|ORDSYS|OUTLN|PDBADMIN|REMOTE_SCHEDULER_AGENT|SYS|SYSTEM|WMSYS|XDB|XS).*$
+----
+
+image::oracle-mode-legacy-conf.png[]
+
+* _Path_. It has 3 levels: database, schema and table.
+
+image::oracle-mode-sscc-dictionary.png[]
+
+Set the _Use legacy mode_ field to "false" to activate _path_ mode.
+
+image::oracle-mode-sscc-skip.png[]
+
+The image illustrates how to skip a resource and the _paths_ of the database itself.
+
+To speed up discovery, a regular expression has been added to skip the following schemas:
+
+[source,bash]
+----
+^(ANONYMOUS|APEX|APEX_050000|APPQOSSYS|AUDSYS|CROSSDATA|CTXSYS|DBSFWUSER|DBSNMP|DIP|DVF|DVSYS|FLOWS_FILES|GGSYS|GSMADMIN_INTERNAL|GSMCATUSER|GSMUSER|HR|LBACSYS|MDSYS|OJVMSYS|OLAPSYS|ORDDATA|ORDSYS|OUTLN|PDBADMIN|REMOTE_SCHEDULER_AGENT|SYS|SYSTEM|WMSYS|XDB|XS).*$
+----
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the Oracle connector. To do this, simply add the URL of the connectors repository of the `sscc-oracle-0.3_2.12-1.5.x` artifact in the 'Customized deployment' -> 'Settings' -> `Additional jars` variable.
+
+image::oracle-bdl.png[]
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+TIP: See here for xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[more information about data processing with BDL].
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ supports interaction with Oracle through the SSCC Oracle connector. This integration has certain requirements:
+
+* The following _Stratio Virtualizer_ deployment fields must be modified in _Stratio Command Center_. In addition to the URL of the `sscc-oracle-0.3_2.12-1.5.x` artifact, you need to add the URL of the *_ojdbc8_* driver:
++
+--
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Integration'.
+*** *_JDBC Integration_*: `True`.
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Drivers URL List'.
+*** *_JDBC Drivers URL List_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-oracle-0.3_2.12-1.5.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/ojdbc8.jar`.
+--
++
+To support special types such as XMLType, you must add additional libraries to _classpath_: *_xdb_* and *_xmlparserv2_*. In this case, the variable with all the necessary JARs would look like this:
+
+** *_JDBC Drivers URL List_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-oracle-0.3_2.12-1.5.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/ojdbc8.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/xmlparserv2_sans_jaxp_services-21.7.0.0.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/xdb-21.7.0.0.jar`.
++
+image::oracle-virtualizer-conf.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+==== Managing the driver
+
+For the connector to work, Oracle's proprietary libraries must be added to the _classpath_.
+
+In addition to the URL of the `sscc-oracle-0.3_2.12-1.5.x` artifact, you need to add the URL of the *_ojdbc8_* driver: _Stratio Rocket_ has to be configured like this:
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath' -> 'Rocket extra jars': `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-oracle-0.3_2.12-1.5.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/ojdbc8.jar`.
+
+To support special types such as XMLType, you must add additional libraries to _classpath_: *_xdb_* and *_xmlparserv2_*. In this case, the variable with all the necessary JARs would look like this:
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath' -> 'Rocket extra jars': `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-oracle-0.3_2.12-1.5.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/ojdbc8.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/xmlparserv2_sans_jaxp_services-21.7.0.0.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/xdb-21.7.0.0.jar`.
++
+image::oracle-rocket-conf.png[]
+
+* You also have to upload the access credentials for workflows and for _Stratio Rocket_ to _Stratio KMS_.
+
+IMPORTANT: When using *_legacy_ mode*, you have to add the `lineageMode` variable to "legacy" in the workflows for the old functions to work correctly: quality rules and lineage.
+
+==== Managing secrets
+
+Upload the access credentials for the workflows and for _Stratio Rocket_ to _Stratio KMS_ as described in the prerequisites.
+
+[#rocket-configuration]
+
+==== Configuration management: quality rules and lineage
+
+Go to the _Stratio Rocket_ configuration in 'Settings' -> 'Governance Lineage' and make sure that the "Governance Lineage" option is activated.
+
+The fields to be filled in are the following:
+
+* _Custom lineage and quality rules methods using JDBC driver_: `oracle.jdbc.OracleDriver:com.stratio.connectors.ssccoracle.OracleQualityRulesAndLineage:getMetadataPath`.
+** This option activates lineage for data flows using _datasource_ boxes that access the data store directly.
++
+IMPORTANT: For lineage to work properly, the discovery agent must have the value `<host_url_jdbc_oracle>.port.<port_url_jdbc_oracle>` as its _Service Name_.
++
+* _Custom planned quality rules methods_: `com.stratio.connectors.ssccoracle.OracleDriverMD5:com.stratio.connectors.ssccoracle.OracleQualityRulesAndLineage:getPlannedQRCreateTable`.
+** With this option, the planned quality rules that directly access tables in the data store will be supported.
+
+NOTE: Remember, if you already have more than one reference in the list, you need to add the following ones, separated by a comma.
+
+Restart _Stratio Rocket_ to apply the changes.
+
+NOTE: These variables are *not necessary* for the lineage and quality rules on virtualized tables in the catalog.
+
+=== _Stratio Intelligence_
+
+To correctly configure _Stratio Intelligence_, see the xref:oracle:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_ section]. For integration with Oracle, you only need to upload the credentials shown in the prerequisites.
+
+=== Notes _include/skip databases/schema/tables_
+
+These are the methods for filtering or including tables and/or schemas:
+
+* _Included/Skipped resource paths regular expression (databases/schemas)_
++
+The example shows how, in this case, those paths will be skipped.
++
+image::oracle-mode-sscc-conf-filter-skip.png[]
+
+* _Included/Skipped resource names regular expression (tables)_
++
+The example shows how, in this case, that resource and those paths will be skipped.
++
+image::oracle-mode-sscc-conf-filter-skip-resource.png[]

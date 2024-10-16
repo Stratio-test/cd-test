@@ -1,0 +1,27 @@
+= _TABLESAMPLE_ clause
+
+== Syntax
+
+[source,sql]
+----
+TABLESAMPLE ({ integer_expression | decimal_expression } PERCENT)
+    | TABLESAMPLE ( integer_expression ROWS )
+    | TABLESAMPLE ( BUCKET integer_expression OUT OF integer_expression )
+----
+
+== Result
+
+[cols="1,1"]
+|===
+|Query |Implemented
+
+| SELECT * FROM coverage_impala.test TABLESAMPLE (50 PERCENT);
+| No
+
+| SELECT * FROM coverage_impala.test TABLESAMPLE (5 ROWS);
+| Yes
+
+| SELECT * FROM coverage_impala.test TABLESAMPLE (BUCKET 4 OUT OF 10);
+| No
+
+|===

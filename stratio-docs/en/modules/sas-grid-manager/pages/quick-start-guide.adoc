@@ -1,0 +1,66 @@
+= Quick start guide
+
+The purpose of this guide is to briefly explain how to integrate the SAS® Grid Manager platform data model into the _Stratio Generative AI Data Fabric_ platform.
+
+== Prerequisites
+
+You can find the prerequisites for installing the SSCC SAS® Grid Manager connector in the xref:sas-grid-manager:operations-guide.adoc#_prerrequisitos[operations guide].
+
+NOTE: Please note that the *MD5 authentication mode* will be used in this quick start guide.
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for SAS® Grid Manager go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors FS' and select "SAS® Grid Manager Agent".
+
+When installing, you must add the URLs of the connector repository where the necessary artifacts are stored and upload the access credentials to _Stratio KMS_.
+
+The most important fields to fill in are:
+
+* *_Root discovery path_*: path from which you want to discover the metadata recursively.
+* *_Custom Service URL_*: JDBC URL used to connect to the SAS® Grid Manager file system. Example: `sasgrid.stratio.com[:22]`.
+* *_Access credentials_*: name of the secret created in _Stratio KMS_. Example: `sasgrid-secret`.
+* *_SSCC driver location_*: URL where the artifact that will contain the JAR of the SSCC SAS® Grid Manager connector is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-sas-0.3_2.12-1.1.x.jar`.
+* *_GLOB filter_*. Example: `stratioarchitecture/test++_++data/`.
+
+TIP: More information on the other configuration parameters can be found in the xref:sas-grid-manager:operations-guide.adoc[operations guide].
+
+Once the discovery process is completed, the data store will appear in the _Stratio Data Governance_ UI.
+
+== Virtualize your data
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the SSCC SAS® Grid Manager connector. To do this, simply add the URL of the connectors repository of the `sscc-sas-0.3_2.12-1.1.x` artifact in the 'Customized deployment' -> 'Settings' -> `Additional jars` variable.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the SSCC SAS® Grid Manager connector needs to be configured. To do so, you need to add the URL of the `sscc-sas-0.3_2.12-1.1.x` artifact in the 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` variable and also upload the access credentials to _Stratio KMS_.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the SSCC SAS® Grid Manager connector needs to be configured. To do this, you must add the URL of the `sscc-sas-0.3_2.12-1.1.x` artifact in the `Rocket extra jars` variable and also upload the access credentials for the _workflows_ and for _Stratio Rocket_ to _Stratio KMS_.
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath configuration' -> `Rocket extra jars`: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-sas-0.3_2.12-1.1.x.jar`.
+
+=== _Stratio Intelligence_
+
+Prior to integration with the connector, it is necessary to configure _Stratio Intelligence_, as described in the xref:ROOT:quick-start-guide#_stratio_intelligence[general quick start guide].
+
+To access and exploit SAS® Grid Manager data it is necessary to configure _Stratio Intelligence_ as follows:
+
+* Add the SSCC SAS® Grid Manager connector to the _Stratio Intelligence_ instance:
+** Go to '_Stratio Command Center_' -> 'Services' -> '<Your Namespace>' -> 'intelligence' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Analytic Environment Settings' -> 'Extra jars to Spark Context Configuration'.
+** Add to the _Spark classpath extra jars_ field the URL of the connector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-s3-0.3_2.12-1.0.x.jar`.
+** Add that same URL to the Apache Spark™ classpath.
++
+IMPORTANT: Because _Stratio Intelligence_ needs to have the connector available at Apache Spark™ initialization time, the connector needs to be on the classpath when starting the _Notebook_. Currently, the way to do this is to edit the corresponding _Stratio Intelligence_ descriptor in Kubernetes and add the connector URL to the `ANALYTIC_ENV_SPARK_HOME_EXTRA_JARS` environment variable.
+
+* Upload the access credentials to xref:sas-grid-manager:operations-guide.adoc#_prerequisites[__Stratio KMS__].
+
+Once this changes are applied, you should be able to access the SAS® Grid Manager virtualized collection via SparkSQL through the catalog. See more information and available access modes in the xref:sas-grid-manager:operations-guide.adoc#_stratio_intelligence[operations guide].

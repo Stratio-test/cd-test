@@ -1,0 +1,54 @@
+﻿= Compatibility matrix
+
+NOTE: Oracle software is commercially licensed, so registration and acceptance of its license terms is required.
+
+The modules that are compatible with the SSCC Oracle connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+|===
+|Module |Capacity | Connector
+
+| _Stratio Data Governance_
+| Discovery
+| ≥ sscc-oracle-0.3_2.12-1.5.x
+
+| _Stratio BDL_
+| Virtualization
+| ≥ sscc-oracle-0.3_2.12-1.5.x
+
+| _Stratio Virtualizer_
+| Read/Write/Native Access
+| ≥ sscc-oracle-0.3_2.12-1.5.x
+
+| _Stratio Rocket_
+| Virtualized Read/Write/Native Access
+| ≥ sscc-oracle-0.3_2.12-1.5.x
+
+| _Stratio Intelligence_
+| Virtualized Read/Write
+| >= sscc-oracle-0.3_2.12-1.5.x
+|===
+
+== Compatibility with Oracle versions
+
+Connector compatibility has been validated for Oracle 12.2, 18.3 and 19.3.
+
+== Supported JDBC driver versions
+
+The connector needs to be coupled with an artifact with the Oracle JDBC driver. Since it's decoupled, you can use the same connector with different versions.
+
+The current version of the connector supports the following JDBC driver versions:
+
+|===
+| JDBC driver version | Artifact from the connectors repository
+
+| ojdbc8
+| _ojdbc8.jar_
+|===
+
+The different drivers can be downloaded from https://www.oracle.com/database/technologies/maven-central-guide.html[this link].
+
+TIP: Here you can see https://docs.oracle.com/en/database/oracle/oracle-database/21/jjdbc/JDBC-getting-started.html#oracle-version-compatibility[the compatibility matrix for the different versions of the JDBC driver and Oracle].
+
+== Discovery with automatic optimization
+
+The Oracle SSCC connector includes, since version 0.3_2.12-1.5.x, automatic optimization mechanisms during the discovery process.

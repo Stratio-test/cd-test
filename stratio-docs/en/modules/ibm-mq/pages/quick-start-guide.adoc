@@ -1,0 +1,31 @@
+= Quick start guide
+
+The purpose of this guide is to briefly explain how to integrate any IBM MQ box into _Stratio Rocket_.
+
+TIP: For more information on the installation process access the xref:stratio-connectors:ROOT:quick-start-guide.adoc[general quick start guide].
+
+== Prerequisites
+
+You can find the prerequisites for installing the IBM MQ connector in the xref:ibm-mq:operations-guide.adoc#_prerequisites[operations guide].
+
+NOTE: Please note that the *username and password authentication mode* will be used in this quick start guide.
+
+The special IBM MQ connector *only includes* implementation for _Stratio Rocket_ boxes.
+
+== Access your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, you need to change a configuration parameter of the xref:operations-manual:Stratio-Rocket/Installing-upgrading/Deployment/[_Stratio Rocket_ descriptor] and also upload the access credentials for the _workflows_ and for _Stratio Rocket_ to _Stratio KMS_.
+
+TIP: Visit the xref:ibm-mq:operations-guide.adoc#_prerequisites[creating secrets] section in the operations guide.
+
+In the example being followed, you must change the following in the _Stratio Rocket_ descriptor:
+
+[#secret-conf]
+
+* *Security* -> *Datastore credential retrieval from Vault*.
+** *Credential retrieval configuration enabled*: enabled.
+** *Credentials absolute vault path (access and secret key)*: `/v1/userland/passwords/s000002-rocket.rocket.s000002.marathon/ibmmq`.
+
+image::ibm_mq_conf.png[BDL]

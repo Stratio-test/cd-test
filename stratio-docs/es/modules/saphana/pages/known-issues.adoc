@@ -1,0 +1,7 @@
+= Problemas conocidos
+
+* El JDBC de SAP HANA no es compatible con _arrays_, por lo que es necesario habilitar el _check_ en el descriptor de _Stratio Command Center_ para visualizar las columnas de tipo _array_ en el diccionario de datos de _Stratio Data Governance_.
+* Los _arrays_ no están soportados en la virtualización.
+* Los tipos de datos _spatial_, como _st++_++geometry_ y _st++_++point_ son considerados como tipo _binary_ para permitir la virtualización.
+* Las escrituras de los tipos _spatial_ (_st++_++geometry_ y _st++_++point_), _arrays_, _date_, _time_, _seconddate_ y _timestamp_ no están permitidas.
+* Las vistas de tipo _COLUMN_ no están soportadas y no son descubiertas.

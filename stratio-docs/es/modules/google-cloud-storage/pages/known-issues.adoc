@@ -1,0 +1,10 @@
+= Problemas conocidos
+
+* Actualmente, aunque es posible descubrir más de una cuenta de Google Cloud Storage en cada agente de descubrimiento, sólo se pueden usar unas credenciales comunes para todas ellas.
+
+* No se ha subido el secreto a Vault para el servicio indicado.
++
+[source,bash]
+----
+Error: It was impossible to execute the DESCRIBE TABLE query. [GCS][ServiceAccount] Malformed secret: "json" key not found. Vault path: "userland/passwords/rocket.s000001-rocket/gcs-secret" Vault secret for "Service Account" authorization must follow
+----

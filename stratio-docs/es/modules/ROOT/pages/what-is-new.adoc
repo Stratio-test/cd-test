@@ -1,0 +1,101 @@
+= Novedades de la última versión
+
+A continuación se muestran los cambios más relevantes.
+
+== Nuevos conectores
+
+* xref:amazon-redshift:operations-guide.adoc[sscc-redshift], con el que se puede integrar la fuente de datos Amazon Redshift en _Stratio Generative AI Data Fabric_.
+
+== Nuevas características
+
+* sscc-adls2, sscc-gcs y sscc-s3:
+** El usuario puede xref:ROOT:advanced-configuration.adoc#hadoop-config-sscc[añadir propiedades generales de Apache Hadoop®] a todas las tablas virtualizadas desde el agente de descubrimiento.
+** Se ha añadido soporte para el particionado de las tablas creadas en el catálogo de _Stratio Virtualizer_.
++
+IMPORTANT: Este soporte requiere ciertos pasos adicionales para su correcto funcionamiento. Puedes encontrarlos en su xref:ROOT:dfs-partitioning-migrations-guide.adoc[guía de migración específica].
+
+* sscc-adls2:
+** Se ha añadido soporte para _Stratio Spark_ versión 3.1.1-4.0.0.
+
+* sscc-s3:
+** Se ha añadido soporte en el agente de descubrimiento para las siguientes propiedades de la API de Amazon S3:
+*** `S3_CLIENT_FORCE_GLOBAL_BUCKET_ACCESS_ENABLED`.
+*** `S3_CLIENT_PATH_STYLE_ACCESS_ENABLED`.
+*** `S3_CLIENT_ACCELERATE_MODE_ENABLED`.
+*** `S3_CLIENT_DUAL_STACK_ENABLED`.
+
+* sscc-postgresql:
+** Se ha añadido un optimizador automático para la fuente de datos de Apache Spark™ JDBC.
+** Se ha añadido soporte para tipos definidos por el usuario usando el dialecto nativo de _Stratio Virtualizer_.
+
+* sscc-db2 y sscc-as400:
+** Se ha añadido soporte para tipos definidos por el usuario usando el dialecto nativo de _Stratio Virtualizer_.
+
+* sscc-oracle:
+** Se ha añadido soporte para los tipos `BFILE` y `TIMESTAMP_WITH_LOCAL_TIMEZONE`.
+
+== Correcciones
+
+* sscc-s3:
+** Se ha evitado que el agente lance un error cuando una API compatible con la de Amazon S3 devuelve valores nulos en determinados campos como el _bucket owner_.
+* sscc-gcs
+** Se ha arreglado la escritura sobre tabla con formato `delta`.
+* sscc-s3, sscc-gcs y sscc-adls2:
+** Las tablas virtualizadas sobre ficheros de formato CSV incluyen la opción de cabecera apropiada.
+* sscc-oracle y sscc-mssql:
+** El optimizador automático tiene en cuenta columnas de tipo `Date` y `Timestamp`.
+* sscc-as400:
+** Se ha corregido el tratamiento de números decimales que exceden el tamaño máximo soportado por _Stratio Spark_.
+* sscc-mssql:
+** Se ha corregido la virtualización de tablas con nombres que contienen caracteres especiales.
+
+== Avisos sobre componentes declarados en desuso
+
+Desde la versión del Universo 14.1, el agente _cloud_ de tipo `ADLS1` quedó declarado en desuso, planeándose su eliminación para el Universo 14.4.
+
+== Actualización
+
+Antes de actualizar cualquier conector o módulo donde está integrado el conector revisa las notas de compatibilidad del conector o del módulo.
+
+[IMPORTANT]
+====
+Para instalar o actualizar servicios de Universos mayores o iguales a 14.0 en un entorno con _Core_ 13.2 es necesario tener la versión 0.8.5 o superior de _Stratio KEOS_ (que incluye _cct-paas-services:0.6.6_) y se debe desmarcar la casilla "Using Core >= R4 in the cluster. (WARNING: if you check this parameter using a Core prior to R4 the deployment may fail)" de la sección 'General' en el formulario del servicio. Si se deja marcada, fallará el despliegue del servicio.
+
+image::r4_warning_cct.png[]
+
+====
+
+== Cambios con ruptura del Universo 14.0
+
+* El repositorio de conectores ahora requiere autenticación en su API REST cuando se modifica el contenido del repositorio.
+* Los conectores SSCC que utilizan la interfaz JDBC ahora descubren de forma jerárquica esquemas y tablas.
++
+IMPORTANT: La actualización desde el modo anterior de descubrimiento puede conllevar pérdida de metadatos al cambiar los identificadores de los _assets_ de _Stratio Data Governance_. Para evitarlo, es necesario realizar un xref:ROOT:sscc-legacy-to-sscc-migrations-guide.adoc[proceso de migración específico].
+
+=== Mantener el comportamiento del Universo 13.2
+
+Para ello es necesario realizar las siguientes acciones:
+
+* Configurar el modo obsoleto de forma explícita en el despliegue del agente. En la pestaña 'General', en la sección 'Filter discovered resources' configurar el valor _true_ del parámetro `Use legacy mode`.
+* Los procesos de _Stratio Rocket_ que usen las entradas/salidas de tipo JDBC o el específico del repositorio tienen que añadir la siguiente configuración:
+
+[source,bash]
+----
+lineageMode = legacy
+----
+
+== Cambios con ruptura desde el Universo 13.2
+
+* Cambio a la versión 2.12 de Scala de los conectores. Este cambio afecta a los los agentes de descubrimiento de metadatos.
+* Ruptura de compatibilidad hacia adelante.
+
+=== Ruptura de compatibilidad hacia adelante desde el Universo 13.2
+
+Las versiones de los conectores anteriores al Universo 13.2 no son compatibles con _Stratio Data Governance_, _Stratio Virtualizer_ y _Stratio Rocket_ del Universo 13.2. *La compatibilidad hacia atrás* está garantizada.
+
+Por ejemplo:
+
+* El conector `sscc-bigquery-0.3_2.12-1.6.0` no es compatible con _Stratio Rocket_ 3.1.
+* El conector `sscc-bigquery-0.3_2.12-1.8.0` es compatible con _Stratio Rocket_ 3.0 y 3.1.
+
+IMPORTANT: Este cambio obliga a actualizar los conectores en la actualización al Universo 13.2.

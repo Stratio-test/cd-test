@@ -1,0 +1,6 @@
+= Problemas conocidos
+
+* La lectura de ficheros de tipo _sas7bvew_ y _sas7bcat_ no está soportada.
+* La fuente de datos de Apache Spark™ de SAS® Grid Manager (proveedor `com.stratio.connectors.sasgrid`) tiene las siguientes limitaciones:
+** *Escritura*: no está soportada.
+** Las particiones no pueden ser menores de 1MB.

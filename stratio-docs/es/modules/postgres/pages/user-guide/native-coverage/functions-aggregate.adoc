@@ -1,0 +1,177 @@
+= Aggregation functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| any(expr)
+| SELECT any(bool) FROM coverage_postgres.coverage_table
+| No
+
+| approx_count_distinct(expr[, relativeSD])
+| SELECT approx_count_distinct(age) FROM coverage_postgres.coverage_table
+| No
+
+| approx_percentile(col, percentage [, accuracy])
+| SELECT approx_percentile(age, array(0.5, 0.4, 0.1), 100) FROM coverage_postgres.coverage_table
+| No
+
+| avg(expr)
+| SELECT avg(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| bit_and(expr)
+| SELECT bit_and(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| bit_or(expr)
+| SELECT bit_or(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| bit_xor(expr)
+| SELECT bit_xor(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| bool_and(expr)
+| SELECT bool_and(bool) FROM coverage_postgres.coverage_table
+| Yes
+
+| bool_or(expr)
+| SELECT bool_or(bool) FROM coverage_postgres.coverage_table
+| Yes
+
+| collect_list(expr)
+| SELECT collect_list(bool) FROM coverage_postgres.coverage_table
+| No
+
+| collect_set(expr)
+| SELECT collect_set(bool) FROM coverage_postgres.coverage_table
+| No
+
+| corr(expr1, expr2)
+| SELECT coor(age,bool) FROM coverage_postgres.coverage_table
+| No
+
+| count(*)
+| SELECT count(*) FROM coverage_postgres.coverage_table
+| Yes
+
+| count(expr[, expr...])
+| SELECT count(age)  FROM coverage_postgres.coverage_table
+| Yes
+
+| count(DISTINCT expr[, expr...])
+| SELECT count(DISTINCT age) FROM coverage_postgres.coverage_table
+| Yes
+
+| count_if(expr)
+| SELECT count(age % 2 = 0) FROM coverage_postgres.coverage_table
+| Yes
+
+| count_min_sketch(col, eps, confidence, seed)
+| SELECT hex(count_min_sketch(age, 0.5d, 0.5d, 1)) FROM coverage_postgres.coverage_table
+| No
+
+| covar_pop(expr1, expr2)
+| SELECT covar_pop(age,age) FROM coverage_postgres.coverage_table
+| Yes
+
+| covar_samp(expr1, expr2)
+| SELECT covar_samp(age,age) FROM coverage_postgres.coverage_table
+| Yes
+
+| every(expr)
+| SELECT every(bool) FROM coverage_postgres.coverage_table
+| No
+
+| first(expr[, isIgnoreNull])
+| SELECT first(bool) FROM coverage_postgres.coverage_table
+| No
+
+| first_value(expr[, isIgnoreNull])
+| SELECT first_value(bool) FROM coverage_postgres.coverage_table
+| No
+
+| kurtosis(expr)
+| SELECT kurtosis(age) FROM coverage_postgres.coverage_table
+| No
+
+| last(expr[, isIgnoreNull])
+| SELECT last(age) FROM coverage_postgres.coverage_table
+| No
+
+| last_value(expr[, isIgnoreNull])
+| SELECT last_value(age) FROM coverage_postgres.coverage_table
+| No
+
+| max(expr)
+| SELECT max(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| max_by(x, y)
+| SELECT max_by(age,bool) FROM coverage_postgres.coverage_table
+| No
+
+| mean(expr)
+| SELECT mean(age) FROM coverage_postgres.coverage_table
+| No
+
+| min(expr)
+| SELECT min(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| min_by(x, y)
+| SELECT min_by(age,bool) FROM coverage_postgres.coverage_table
+| No
+
+| percentile(col, percentage [, frequency])
+| SELECT percentile(age,0.3) FROM coverage_postgres.coverage_table
+| No
+
+| percentile_approx(col, percentage [, accuracy])
+| SELECT percentile_approx(age, 0.5, 100) FROM coverage_postgres.coverage_table
+| No
+
+| skewness(expr)
+| SELECT skewness(age) FROM coverage_postgres.coverage_table
+| No
+
+| some(expr)
+| SELECT some (bool) FROM coverage_postgres.coverage_table
+| No
+
+| std(expr)
+| SELECT std(age) FROM coverage_postgres.coverage_table
+| No
+
+| stddev(expr)
+| SELECT stddev(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| stddev_pop(expr)
+| SELECT stddev_pop(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| stddev_samp(expr)
+| SELECT stddev_samp(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| sum(expr)
+| SELECT sum(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| var_pop(expr)
+| SELECT var_pop(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| var_samp(expr)
+| SELECT var_samp(age) FROM coverage_postgres.coverage_table
+| Yes
+
+| variance(expr)
+| SELECT variance(age) FROM coverage_postgres.coverage_table
+| Yes
+
+|===

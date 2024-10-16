@@ -1,0 +1,5 @@
+= Problemas conocidos
+
+* El límite de filas soportadas en la lectura de una tabla es de 50 millones. Si la tabla tiene más registros, deberás utilizar la función _limit_ para fijar el número de registros de lectura.
+* Proveedor `com.stratio.connectors.sas`:
+** *Escritura*: no está soportada para recursos de tipo _Compute_ (SPRE).

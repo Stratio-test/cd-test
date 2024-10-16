@@ -1,0 +1,3 @@
+﻿= Known issues
+
+* Currently, the connector does not support the _ARRAY, INTERVAL, [TD_ANYTYPE, VARIANT_TYPE, (Structured)] AVRO_ and _JSON_ data types.

@@ -1,0 +1,15 @@
+= Quick start guide
+
+The purpose of this guide is to briefly explain how to integrate an Apache Kafka® database into _Stratio Rocket_.
+
+== Prerequisites
+
+You can find the prerequisites for installing the SSCC Apache Kafka® connector in the xref:apache-kafka:operations-guide.adoc#_prerrequisitos[operations guide].
+
+== Access your data
+
+=== _Stratio Rocket_
+
+For integration with _Stratio Rocket_, it is necessary to enable the Apache Kafka® connector in the _Stratio Rocket_ deployment. To do this, you must check the box "Include Kafka connector" in 'Customized deployment' -> 'Settings' -> 'Classpath':
+
+image::kafka_conf.png[]

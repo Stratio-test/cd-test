@@ -1,0 +1,39 @@
+= _SORT BY_ clause
+
+== Syntax
+
+[source,sql]
+----
+SORT BY { expression [ sort_direction | nulls_sort_order ] [ , ... ] }
+----
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+| Sort rows by 'name'.
+| SELECT  name, age, zip_code FROM coverage_impala.person_sort SORT BY name;
+| No
+
+| Sort rows within each partition using column position.
+| SELECT name, age, zip_code FROM coverage_impala.person_sort SORT BY 1;
+| No
+
+| Sort rows within the partition in an ascending manner keeping null values to be last.
+| SELECT age, name, zip_code FROM coverage_impala.person_sort SORT BY age NULLS LAST;
+| No
+
+| Sort rows by age within each partition in a descending manner, which defaults to NULL LAST.
+| SELECT age, name, zip_code FROM coverage_impala.person_sort SORT BY age DESC;
+| No
+
+| Sort rows by age within each partition in a descending manner keeping null values to be first.
+| SELECT age, name, zip_code FROM coverage_impala.person_sort SORT BY age DESC NULLS FIRST;
+| No
+
+| Sort rows within each partition based on more than one column with each column having a different sort direction.
+| SELECT name, age, zip_code FROM coverage_impala.person_sort SORT BY name ASC, age DESC;
+| No
+
+|===

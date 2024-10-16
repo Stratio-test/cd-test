@@ -1,0 +1,75 @@
+= Quick start guide
+
+The purpose of this guide is to briefly explain how to integrate the SAS® Viya® platform data model into the _Stratio Generative AI Data Fabric_ platform.
+
+== Prerequisites
+
+You can find the prerequisites for installing the SSCC SAS® Viya® connector in the xref:sas-viya:operations-guide.adoc#_prerequisites[operations guide].
+
+NOTE: Please note that the *MD5 authentication mode* will be used in this quick start guide.
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for SAS® Viya® go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' and select "SAS Agent".
+
+When installing, you have to add the information corresponding to the type of resource to de discovered, as described below:
+
+. SAS Cloud Analytic Server (CAS). You must select the CAS server name of the SAS® Viya® instance. Example: `sas-shared-default`.
+. SAS Programming Runtime Environment Server (SPRE). You must select the compute context ID of the SAS® Viya® SPRE server. Example: `48013087-c73b-49d6-9f15-87da2183a3aa`.
+
+In addition, you must add the URLs of the connector repository where the necessary artifacts are stored and upload the access credentials to _Stratio KMS_.
+
+The most important fields to fill in are:
+
+* *_Root discovery path_*: path from which you want to discover the metadata recursively.
+* *_Custom Service URL_*: JDBC URL used to connect to SAS® Viya®. Example: `https://connectors.westeurope.cloudapp.azure.com`.
+* *_Access credentials_*: name of the secret created in _Stratio KMS_. Example: `sas-secret`.
+* *_SAS provider type_*: type of resource to discover. It can be `CAS` or `Compute`.
+* *_SSCC driver location_*: URL where the artifact that will contain the JAR of the SSCC SAS® Viya® connector is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-sas-0.3_2.12-1.1.x.jar`.
+* *_Should discover unloaded resources in CAS memory_*: "True" if tables not loaded in CAS memory should be discovered and "False" if only tables already loaded in CAS memory should be discovered.
+
+TIP: More information on the other configuration parameters can be found in the xref:sas-viya:operations-guide.adoc[operations guide].
+
+Once the discovery process is completed, the data store will appear in the _Stratio Data Governance_ UI.
+
+== Virtualize your data
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the SSCC SAS® Viya® SSCC connector. To do this, simply add the URL of the connectors repository of the artifact in the 'Customized deployment' -> 'Settings' -> `Additional jars` variable.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the SAS® Viya® connector needs to be configured. To do so, you need to add the URL of the `sscc-sas-0.3_2.12-1.1.x` artifact in the 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` variable and also upload the access credentials to _Stratio KMS_.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the SSCC SAS® Viya® connector needs to be configured. To do this, you must add the URL of the `sscc-sas-0.3_2.12-1.1.x` artifact in the `Rocket extra jars` variable and also upload the access credentials for the _workflows_ and for _Stratio Rocket_ to _Stratio KMS_.
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath configuration' -> `Rocket extra jars`: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-sas-0.3_2.12-1.1.x.jar`.
+
+=== _Stratio Intelligence_
+
+Prior to integration with the connector it is necessary to configure _Stratio Intelligence_. The following properties must be added:
+
+* `INTERPOLATED_ANALYTIC_ENV_CROSSDATA_CATALOG_SECRET_INSTANCE_NAME`: "${username}".
+* `ANALYTIC_ENV_VAULT_PATH`: "people".
+* `ANALYTIC_ENV_REQUESTS_CA_BUNDLE`: "/opt/sds/stratio_analytic/security/ca-bundle.pem".
+* `ANALYTIC_ENV_HIDE_VAULT_TOKEN`: "false".
+
+In addition, in the multiuser environment it is necessary to have the "Allow artifact deployment" option enabled and to have the _artifacts_ value in the path.
+
+Once you've configured _Stratio Intelligence_, you have to add the SSCC SAS® Viya® connector to the _artifacts/spark++_++jars_ directory and upload the access credentials to _Stratio KMS_.
+
+To upload the artifact, you have to download it from `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-sas-0.3_2.12-1.1.x` to the _artifacts/spark++_++jars_ directory in the _Stratio Intelligence_ workspace by issuing a cURL request. In this case, you could make the following request:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-sas-0.3_2.12-1.1.x --output sscc-sas-0.3_2.12-1.1.x
+----

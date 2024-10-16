@@ -1,0 +1,137 @@
+﻿= User guide
+
+== Description
+
+The SSCC Oracle connector allows you to fully integrate Oracle into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:oracle:compatibility-matrix.adoc[compatibility matrix].
+
+== Discover your data
+
+=== Know your data
+
+In addition to what xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tables_and_columns[_Stratio Data Governance_] shows, you can also find technical attributes extracted from Oracle resources. All metadata provided by Oracle is extracted and added to the _Stratio Data Governance_ UI in both table and column form.
+
+* The metadata extracted in table form are _tableType_, _insertable_, _typed_, and _schema_.
++
+image:oracle-table-metadata.png[]
+
+* The metadata extracted in column form are _type_, _nullable_, _ordinal_, _typedId_, and _properties_, which includes _description_.
++
+image:oracle-column-metadata1.png[]
+
+=== Automatic optimization discovery
+
+Optimization performed by the Oracle SSCC agent occurs concurrently with the discovery within the same Oracle data hierarchy, provided that the automatic optimization option has been enabled during the discovery agent setup process.
+
+In addition to the attributes added during the discovery process, the agent will associate technical or system metadata with data hierarchy levels related to table optimization:
+
+. *_Table_*, accessible via the "System attributes" button or the "Connector Attributes" link:
+** _sscc.optimizer.partitionColumn_: column used for table partitioning.
+** _sscc.optimizer.lowerBound_: lower boundary of the partition.
+** _sscc.optimizer.upperBound_: upper boundary of the partition.
+** _sscc.optimizer.numPartitions_: number of partitions to be used for table partitioning.
+** _sscc.optimizer.count_: number of rows in the table.
++
+image::oracle-optimizer-table-attrs.png[]
+
+. *_Column_*, accessible via the "System attributes" button or the "Connector Attributes" link, after selecting it from the list.
+** _DensityRatio_: column density ratio. It calculates how well the values in the column are distributed. A value close to 1 or greater indicates poorly distributed values, while a value close to 0 indicates well-distributed values.
+** _MaxValue_: maximum value of the column.
+** _MinValue_: minimum value of the column.
+** _NullValues_: number of null values in the column.
+** _DistinctValues_: number of distinct values in the column.
++
+image::oracle-optimizer-column-attrs.png[]
++
+NOTE: Not all column optimization metadata is available in the _Stratio Data Governance_ UI. This is due to the _Granularity optimization level_ chosen during the discovery agent setup process.
+
+=== Manual optimization
+
+This functionality allows manually optimizing discovered tables. Manual optimization can be performed regardless of whether the automatic optimization option has been enabled during the discovery agent setup process.
+
+To manually optimize a table, you can add the following attributes to the table in the BDL during the virtualization process in the creation of the _Data Collections_:
+
+* *bdl.options.partitionColumn*: column used for table partitioning.
+* *bdl.options.lowerBound*: lower boundary of the partition
+* *bdl.options.upperBound*: upper boundary of the partition
+* *bdl.options.numPartitions*: number of partitions to be used for table partitioning.
+
+NOTE: Table optimization attributes through manual optimization will prevail and take precedence over attributes from the discovered table optimization.
+
+TIP: You can read more about its features in the xref:stratio-virtualizer:user-guide:user-guide.adoc#_working_with_stratio_virtualizer[user guide].
+
+=== BDL virtualization
+
+The discovery process is asynchronous. Once completed, it can be viewed from the _Stratio Data Governance_ UI.
+
+The connector supports customization of data access in virtualized tables using xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_bdl_custom_attributes[advanced BDL attributes] from _Stratio Data Governance_. These can be modified from the UI.
+
+* *bdl.options.virtualizer.native*: the possible values are "True" and "False". "True" if the user wants to access the data with the xref:stratio-virtualizer:user-guide:what-can-i-do-with-stratio-virtualizer.adoc#_native_queries[native dialect] of _Stratio Virtualizer_. If this attribute is set, the default setting ("True") will be overwritten.
+* *bdl.options.native.filter*: filter applied to the virtualization of the table if the data access mode is with the _Stratio Virtualizer_ native dialect.
+
+NOTE: You can consult how to create attributes in the xref:stratio-data-governance:user-manual:addition-of-metadata[_Stratio Data Governance_ user guide].
+
+TIP: For more details on the use of the BDL, see the xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[BDL data processing documentation].
+
+== Virtualize your data
+
+After tables have been discovered, you can add them to a technical view of a collection. All the configurable parameters of the discovery and those parameters modified from the _Stratio Data Governance_ UI are propagated in the collections where that table is added.
+
+TIP: To learn more about how to manage collections you can consult the xref:stratio-data-governance:user-manual:collections.adoc[_Stratio Data Governance_ user guide].
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+To create a table directly in the _Stratio Virtualizer_ catalog, you can execute the following statements:
+
+* If you want to create the table with native mode:
+
+[source,sql]
+----
+CREATE TABLE oracle_table USING com.stratio.crossdata.connector.oracle OPTIONS (
+    `stratiocredentials` '<secret_name>',
+    `stratiosecurity` 'true',
+    `url` 'jdbc:oracle:thin:@<oracle_host>:<oracle_port>/<oracle_database>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccoracle.OracleDriverMD5',
+    `driver` 'oracle.jdbc.driver.OracleDriver',
+    `dbtable` '<table_name>',
+    `stratiosecuritymode` 'custom_sscc'
+)
+----
+
+* If you want to create the table without native mode:
+
+[source,sql]
+----
+CREATE TABLE oracle_table USING jdbc OPTIONS (
+    `stratiocredentials` '<secret_name>',
+    `stratiosecurity` 'true',
+    `url` 'jdbc:oracle:thin:@<oracle_host>:<oracle_port>/<oracle_database>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccoracle.OracleDriverMD5',
+    `driver` 'oracle.jdbc.driver.OracleDriver',
+    `dbtable` '<table_name>',
+    `stratiosecuritymode` 'custom_sscc',
+)
+----
+
+To use Kerberos authentication instead of username/password replace `com.stratio.connectors.ssccoracle.OracleDriverMD5` with `com.stratio.connectors.ssccoracle.OracleDriverKRB`.
+
+NOTE: Remember that you need to use a different secret for Kerberos.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+After the data has been virtualized, you can access it from _Stratio Rocket_ using:
+
+* The catalog.
++
+image:oracle-rocket-catalog.png[]
+
+* In the workflows using the input from xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[__Stratio Virtualizer__]. You can force access through the native dialect by checking the "Force query execution with native connectors" box.
++
+image:oracle-rocket-virtualizer-input.png[]
+
+=== _Stratio Intelligence_
+
+You can see how the data is accessed from _Stratio Intelligence_ in the xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[general quick start guide].

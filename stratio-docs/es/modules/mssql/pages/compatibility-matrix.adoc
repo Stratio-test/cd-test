@@ -1,0 +1,53 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector SSCC Microsoft SQL Server, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-mssql-0.3_2.12-1.5.x
+
+| _Stratio BDL_
+| Virtualización
+| ≥ sscc-mssql-0.3_2.12-1.5.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura/Acceso nativo
+| ≥ sscc-mssql-0.3_2.12-1.5.x
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada/Acceso nativo
+| ≥ sscc-mssql-0.3_2.12-1.5.x
+
+| _Stratio Intelligence_
+| Lectura/Escritura virtualizada/Acceso nativo
+| ≥ sscc-mssql-0.3_2.12-1.5.x
+|===
+
+== Compatibilidad con versiones de Microsoft SQL Server
+
+Se ha validado la compatibilidad del conector para Microsoft SQL Server 2017 y 2019.
+
+== Versiones del _driver JDBC_ soportadas
+
+El conector necesita estar acompañado de un artefacto con el _driver JDBC_ de Microsoft Server SQL. Al estar desacoplado, se puede utilizar el mismo conector con diferentes versiones.
+
+La versión actual del conector está validada contra las siguientes versiones del _driver JDBC_:
+
+|===
+| Versión del _driver JDBC_ | Artefacto del repositorio de conectores
+
+| 9.4.1
+| _mssql-jdbc-9.4.1.jre8.jar_
+|===
+
+En https://search.maven.org/artifact/com.microsoft.sqlserver/mssql-jdbc/9.4.1.jre8/jar[este enlace] se pueden descargar los distintos _drivers_ disponibles.
+
+TIP: Aquí puedes consultar https://learn.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server-support-matrix?view=sql-server-ver15#sql-version-compatibility[la matriz de compatibilidad entre las versiones del _driver JDBC_ y Microsoft SQL Server].
+
+== Descubrimiento con optimización automática
+
+El conector SSCC Microsoft SQL Server con versión 0.3_2.12-1.5.x disponibiliza mecanismos de optimización automática durante el proceso de descubrimiento.

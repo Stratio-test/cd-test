@@ -1,0 +1,49 @@
+= Matriz de compatibilidad
+
+NOTE: El _software_ de IBM Db2 for iSeries AS400 tiene licencia comercial, por lo que es necesario el registro y la aceptación de sus términos de licencia.
+
+Los módulos compatibles con el conector SSCC AS400, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad | Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| >= sscc-db2-0.3_2.12-1.4.x
+
+| _Stratio BDL_
+| Virtualización
+| >= sscc-db2-0.3_2.12-1.4.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura/Acceso nativo
+| >= sscc-db2-0.3_2.12-1.4.x
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada/Acceso nativo
+| >= sscc-db2-0.3_2.12-1.4.x
+
+| _Stratio Intelligence_
+| Lectura/Escritura virtualizada/Acceso nativo
+| >= sscc-db2-0.3_2.12-1.4.x
+|===
+
+== Compatibilidad con versiones de IBM Db2 iSeries AS400
+
+Se ha validado la compatibilidad del conector para la versión 7.5 del almacén de datos.
+
+== Versiones del _driver JDBC_ soportadas
+
+El conector necesita estar acompañado de un artefacto con el _driver JDBC_ de IBM Db2 iSeries AS400. Al estar desacoplado, se puede utilizar el mismo conector con diferentes versiones.
+
+La versión actual del conector está validada contra las siguientes versiones del _driver JDBC_:
+
+|===
+| Versión del _driver JDBC_ | Artefacto del repositorio de conectores
+
+| 11.1
+| _jt400-11.1.jar_
+|===
+
+En https://search.maven.org/artifact/net.sf.jt400/jt400[este enlace] se pueden descargar los distintos _drivers_ disponibles.

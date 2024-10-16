@@ -1,0 +1,5 @@
+= Known issues
+
+* _Custom_ type support:
+** If native mode and _custom_ type support is enabled in the discovery agent, it will not be possible to disable native mode using `bdl.options.virtualizer.native = false` for technical tables that have _custom_ types. If disabled, the table will not be synchronized by _Stratio Eureka_ in the catalog.
+** Writing on tables with _custom_ types is not supported.

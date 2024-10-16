@@ -1,0 +1,79 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar brevemente cómo integrar una base de datos Teradata en la plataforma _Stratio Generative AI Data Fabric_.
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector de SSCC Teradata en la xref:teradata:operations-guide.adoc#_prerrequisitos[Guía de operaciones].
+
+NOTE: Ten en cuenta que en esta guía de inicio rápido se utilizará el *modo de autenticación usuario/contraseña*.
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para Teradata, debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' el agente `Teradata Agent`.
+
+En la instalación debes añadir la información correspondiente al proyecto de Teradata que se quiere descubrir, además de la URL del repositorio de conectores donde se almacene el artefacto `terajdbc-20.00.00.x.jar` y subir las credenciales de acceso a _Stratio KMS_.
+
+Los campos más importantes a rellenar son:
+
+* *_Resource datastore connection configuration_*
+** *_Custom Service URL_*: propiedades de la URL JDBC. El _placeholder_ -db- se reemplazará con el nombre de la base de datos _"init path"_. Ejemplo: `jdbc:teradata@10.200.0.3/-db-,DBS_PORT=1025`.
+** *_Custom database service security_*: solo está soportado el método MD5 (usuario/contraseña).
+** *_Access credentials_*: nombre del secreto creado en _Stratio KMS_. Por ejemplo: _teradata-secret_.
+** *_SSCC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC Teradata. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-teradata-0.3_2.12-1.1.x.jar`.
+** *_JDBC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del _driver JDBC_ elegido. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/terajdbc-20.00.00.06.jar`.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:teradata:operations-guide.adoc[guía de operaciones].
+
+Una vez terminado el proceso de descubrimiento, el almacén de datos aparecerá en la interfaz de usuario de _Stratio Data Governance_.
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de Teradata. Para ello, hay que añadir la URL del repositorio de conectores del artefacto `sscc-teradata-0.3_2.12-1.1.x` en la variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+image::teradata-bdl-conf.png[]
+
+=== _Stratio Virtualizer_
+
+Para el uso de _Stratio Virtualizer_ es necesario tener configurado el conector de Teradata. Para ello, debes añadir la URL de los artefactos `sscc-teradata-0.3_2.12-1.1.x` y `terajdbc-20.00.00.x.jar` en la variable 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` y además subir las credenciales de acceso a _Stratio KMS_.
+
+image::teradata-virtualizer-conf.png[]
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener configurado el conector de Teradata. Para ello, debes añadir la URL de los artefactos `sscc-teradata-0.3_2.12-1.1.x.jar` y `terajdbc-20.00.00.x.jar` en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` y además subir las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_.
+
+image::teradata-rocket-conf.png[]
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:teradata:operations-guide.adoc#rocket-configuration[guía de operaciones].
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_. Se deben añadir las siguientes propiedades:
+
+* `INTERPOLATED_ANALYTIC_ENV_CROSSDATA_CATALOG_SECRET_INSTANCE_NAME`: ${username}
+* `ANALYTIC_ENV_VAULT_PATH`: "people".
+* `ANALYTIC_ENV_REQUESTS_CA_BUNDLE`: /opt/sds/stratio_analytic/security/ca-bundle.pem
+* `ANALYTIC_ENV_HIDE_VAULT_TOKEN`: "false"
+
+Además, en el entorno multiusuario es necesario tener activada la opción "Allow artifact deployment" y tener en la ruta el valor _artifacts_.
+
+Una vez esté configurado _Stratio Intelligence_, tienes que añadir los artefactos del conector de Teradata y `terajdbc-20.00.00.x.jar` en el directorio _artifacts/spark++_++jars_ y subir las credenciales a _Stratio KMS_.
+
+Para la subida de los artefactos, estos se deben descargar desde *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-teradata-0.3_2.12-1.1.x* en el directorio _artifacts/spark++_++jars_ dentro del _workspace_ de _Stratio Intelligence_ realizando una petición cURL.
+
+En el caso que se está tratando, se debería realizar la siguiente petición:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-teradata-0.3_2.12-1.1.x --output sscc-teradata-0.3_2.12-1.1.x
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/terajdbc-20.00.00.x.jar --output terajdbc-20.00.00.x.jar
+----

@@ -1,0 +1,15 @@
+= Guía de inicio rápido
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector de AWS IoT en la xref:aws-iot:operations-guide.adoc#_prerrequisitos[Guía de operaciones].
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener configurado el conector de AWS IoT. Para ello:
+
+* Configura la integración con AWS IoT en _Stratio Rocket_ subiendo el artefacto a la extensión del proyecto como se indica en la xref:aws-iot:user-guide.adoc#_stratio_rocket[Guía de usuario].
+
+* Sube las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_.

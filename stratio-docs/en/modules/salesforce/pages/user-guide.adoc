@@ -1,0 +1,225 @@
+﻿= User guide
+
+== Description
+
+The Salesforce connector allows you to discover, read and write data from the Salesforce platform to the _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:salesforce:compatibility-matrix.adoc[compatibility matrix].
+
+== Discover your data
+
+=== Know your data
+
+In addition to what xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tables_and_columns[__Stratio Data Governance__] shows, you can also find technical attributes extracted from Salesforce resources. All metadata provided by Salesforce is extracted and added to the _Stratio Data Governance_ UI in both tables and columns.
+
+The hierarchy supported by the connector is:
+
+* Namespace
+* Tables
+* Columns
+
+Below are a series of views during the metadata discovery process following the above hierarchy:
+
+image::salesfoce-governance-discovery.png[]
+
+image::salesfoce-governance-discovery-2.png[]
+
+image::salesfoce-governance-discovery-3.png[]
+
+image::salesfoce-governance-discovery-4.png[]
+
+=== BDL virtualization
+
+The discovery process is asynchronous. Once completed, it can be viewed from the _Stratio Data Governance_ UI.
+
+NOTE: You can consult how to create attributes in the xref:stratio-data-governance:user-manual:addition-of-metadata[_Stratio Data Governance_ user guide].
+
+TIP: For more details on the use of the BDL, see the xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[BDL data processing documentation].
+
+== Virtualize your data
+
+After tables have been discovered, you can add them to a technical view of a collection. All the configurable parameters of the discovery and those parameters modified from the _Stratio Data Governance_ UI are propagated in the collections where that table is added.
+
+TIP: To learn more about how to manage collections you can consult the xref:stratio-data-governance:user-manual:collections.adoc[_Stratio Data Governance_ user guide].
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+To create a table directly in the _Stratio Virtualizer_ catalog, you can execute the following statement:
+
+* Normal.
+** Without schema:
++
+[source,sql]
+----
+CREATE TABLE `salesforce_table` USING salesforce OPTIONS (
+  `stratiosecurity` 'true',
+  `stratiocredentials` '<secret_name>',
+  `stratiosecuritymode` 'custom_sscc',
+  `stratiossccdriver` 'com.stratio.connectors.ssccsalesforce.SalesforceDriverMD5',
+  `sfobject` '<salesforce_object>'
+)
+----
+
+** With schema:
++
+[source,sql]
+----
+CREATE TABLE `salesforce_table_with_schema` (
+  `field1` TYPE1,
+  `field2` TYPE2,
+  `field3` TYPE3
+) USING salesforce OPTIONS (
+  `stratiosecurity` 'true',
+  `stratiocredentials` '<secret_name>',
+  `stratiosecuritymode` 'custom_sscc',
+  `stratiossccdriver` 'com.stratio.connectors.ssccsalesforce.SalesforceDriverMD5',
+  `sfobject` '<salesforce_object>'
+)
+----
+
+* Proxy without authentication.
+** Without schema:
++
+[source,sql]
+----
+CREATE TABLE `salesforce_poxy_table` USING salesforce OPTIONS (
+  `stratiosecurity` 'true',
+  `stratiocredentials` '<secret_name>',
+  `stratiosecuritymode` 'custom_sscc',
+  `stratiossccdriver` 'com.stratio.connectors.ssccsalesforce.SalesforceDriverMD5',
+  `proxyEnabled` 'true',
+  `proxyHost` '<proxy_host>',
+  `proxyPort` '<proxy_port>',
+  `httpTransport` 'com.stratio.connectors.ssccsalesforce.connection.transport.SalesforceHttpClientTransport',
+  `sfobject` '<salesforce_object>'
+)
+----
+
+** With schema:
++
+[source,sql]
+----
+CREATE TABLE `salesforce_proxy_table_with_schema` (
+  `field1` TYPE1,
+  `field2` TYPE2,
+  `field3` TYPE3
+) USING salesforce OPTIONS (
+  `stratiosecurity` 'true',
+  `stratiocredentials` '<secret_name>',
+  `stratiosecuritymode` 'custom_sscc',
+  `stratiossccdriver` 'com.stratio.connectors.ssccsalesforce.SalesforceDriverMD5',
+  `proxyEnabled` 'true',
+  `proxyHost` '<proxy_host>',
+  `proxyPort` '<proxy_port>',
+  `httpTransport` 'com.stratio.connectors.ssccsalesforce.connection.transport.SalesforceHttpClientTransport',
+  `sfobject` '<salesforce_object>'
+)
+----
+
+* Proxy with authentication.
+** Without schema:
++
+[source,sql]
+----
+CREATE TABLE `salesforce_auth_poxy_table` USING salesforce OPTIONS (
+  `stratiosecurity` 'true',
+  `stratiocredentials` '<secret_name>',
+  `stratiosecuritymode` 'custom_sscc',
+  `stratiossccdriver` 'com.stratio.connectors.ssccsalesforce.SalesforceDriverMD5',
+  `proxyEnabled` 'true',
+  `proxyAuthEnabled` 'true',
+  `proxyHost` '<proxy_host>',
+  `proxyPort` '<proxy_port>',
+  `httpTransport` 'com.stratio.connectors.ssccsalesforce.connection.transport.SalesforceHttpClientTransport',
+  `sfobject` '<salesforce_object>'
+)
+----
+
+** With schema:
++
+[source,sql]
+----
+CREATE TABLE `salesforce_auth_proxy_table_with_schema` (
+  `field1` TYPE1,
+  `field2` TYPE2,
+  `field3` TYPE3
+) USING salesforce OPTIONS (
+  `stratiosecurity` 'true',
+  `stratiocredentials` '<secret_name>',
+  `stratiosecuritymode` 'custom_sscc',
+  `stratiossccdriver` 'com.stratio.connectors.ssccsalesforce.SalesforceDriverMD5',
+  `proxyEnabled` 'true',
+  `proxyAuthEnabled` 'true',
+  `proxyHost` '<proxy_host>',
+  `proxyPort` '<proxy_port>',
+  `httpTransport` 'com.stratio.connectors.ssccsalesforce.connection.transport.SalesforceHttpClientTransport',
+  `sfobject` '<salesforce_object>'
+)
+----
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+After the data has been virtualized, you can access it from _Stratio Rocket_ using:
+
+* The catalog.
++
+image::salesforce-rocket-catalog.png[]
+
+* In the workflows using the input from xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[__Stratio Virtualizer__].
++
+image::salesforce-rocket-workflow-0.png[]
+
+** Using the _input Crossdata_.
++
+image::salesforce-rocket-workflow-1.png[]
++
+image::salesforce-rocket-workflow-2.png[]
++
+IMPORTANT: The use of this asset _input Crossdata_ is recommended at all times.
+
+** Using the _input Datasource_.
++
+image::salesforce-rocket-workflow-3.png[]
++
+image::salesforce-rocket-workflow-4.png[]
++
+The options for the reading configuration in the asset of the _input Datasource_ are as follows:
++
+*** _username_: Salesforce user.
+*** _password_: password to connect to Salesforce.
+*** _sfobject_: Salesforce object name.
+*** _proxyHost_ (optional): address of the proxy instance.
+*** _proxyPort_ (optional): port of the proxy instance.
+*** _proxyUsername_ (optional): proxy user name. If proxy authorization is not required, do not configure this option.
+*** _proxyPassword_ (optional): proxy password. If proxy authorization is not required, do not configure this option.
+
+Once the data has been virtualized, it is possible to *write from _Stratio Rocket_* using:
+
+* The _workflows_, using the output from xref:stratio-rocket:user-guide:workflow-asset/data-outputs.adoc#_data_source[__Data Source__].
++
+image::salesforce-rocket-workflow-output-1.png[]
++
+image::salesforce-rocket-workflow-output-2.png[]
++
+IMPORTANT: Discovered tables must be changed by removing those system columns auto-generated by Salesforce in a pre-write step. Columns such as: _Id_, _LastModifiedDate_, _IsDeleted_, etc.
++
+The options for the writing configuration in the asset of the _output Datasource_ are as follows:
++
+** _username_: Salesforce user.
+** _password_: password to connect to Salesforce.
+** _sfobject_: Salesforce object name.
+** _proxyHost_ (optional): address of the proxy instance.
+** _proxyPort_ (optional): port of the proxy instance.
+** _proxyUsername_ (optional): proxy user name. If proxy authorization is not required, do not configure this option.
+** _proxyPassword_ (optional): proxy password. If proxy authorization is not required, do not configure this option.
+** _bulk_ (optional): flag to enable bulk query. This is the preferred method when loading large data sets. Salesforce will process the batches in the background. The default value is "false".
+** _pkChunking_ (optional): flag to enable automatic primary key splitting for bulk query work. This splits bulk queries into separate batches of the size defined by the _chunkSize_ option. The default value is "false".
+** _chunkSize_ (optional): the size of the number of records to be included in each batch. The default value is 100,000. This option can only be used when _pkChunking_ is true. The maximum size is 250,000.
+** _timeout_ (optional): maximum time allowed for write processing when _bulk_ is on.
+** _maxCharsPerColumn_ (optional): defines the maximum number of characters allowed for any value to be written. The default value is 4096. This option can only be used when _bulk_ is enabled. The maximum size is 250,000.
+
+=== _Stratio Intelligence_
+
+You can see how the data is accessed from _Stratio Intelligence_ in the xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[general quick start guide].

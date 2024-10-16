@@ -1,0 +1,8 @@
+= _Troubleshooting_
+
+En esta sección aprenderás a resolver posibles errores o problemas que puedan ocurrir relacionados con el conector de Amazon S3.
+
+* _Stratio Virtualizer_ permite almacenar un único secreto para Amazon S3. Esto significa que el mismo _job_ de _Stratio Virtualizer_ no puede conectarse de forma segura a dos cuentas de Amazon S3 al mismo tiempo.
+* El conector soporta los formatos de archivo Parquet, CSV, JSON y ORC. Los formatos XML y Avro son compatibles con Apache Spark™ pero es necesario añadir algunas dependencias que no están incluidas en _Stratio Virtualizer_. También se ha probado a crear particiones con archivos Parquet.
+* El descriptor de _Stratio Command Center_ incluye soporte para este almacén de datos desde la versión 2.22.0. Para versiones anteriores, debes desplegar un _Stratio Virtualizer_ y después cambiar algunas variables de entorno.
+* Al desplegar el secreto en _Stratio Virtualizer_, este debe de empezar por _/v1/_ aunque se esté en Kubernetes y eso causa problemas a la hora de reiniciar _Stratio Virtualizer_.

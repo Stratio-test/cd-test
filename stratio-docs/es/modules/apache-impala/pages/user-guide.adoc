@@ -1,0 +1,171 @@
+= Guía de usuario
+
+El propósito de esta guía es explicar el funcionamiento particular del conector SSCC Apache Impala® para un usuario en la plataforma _Stratio Generative AI Data Fabric_.
+
+== Descripción
+
+El conector SSCC Apache Impala® te permite la integración completa de Apache Impala® en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:apache-impala:compatibility-matrix.adoc[matriz de compatibilidad].
+
+== Descubre tus datos
+
+_Stratio Generative AI Data Fabric_ puede realizar tareas de descubrimiento de los metadatos de Apache Impala®. La jerarquía soportada por el conector es:
+
+* Esquemas
+* Tablas
+* Columnas
+
+Para descubrir correctamente los datos, la base de datos Apache Impala® debe estar organizada conforme a la estructura anterior. También tienes que proporcionar al agente de descubrimiento el nombre de las bases de datos a las que quieres que se conecte.
+
+TIP: Consulta la https://docs.cloudera.com/documentation/enterprise/latest/PDF/cloudera-impala.pdf[Guía oficial de Apache Impala®] para más información.
+
+Estas son las vistas en el descubrimiento:
+
+* *Esquemas*
++
+image::db_impala_vista.png[]
++
+Atributos:
++
+** type: IMPALA
+
+* *Tablas*
++
+image::tablas_impala_vista.png[]
++
+Atributos:
++
+** _format_: cómo se guarda la tabla. Ej: parquet.
+** _location_: dónde se guarda la tabla.
+** _database_: nombre de la base de datos.
+** _table_: nombre de la tabla.
+** _table type_: puede ser "TABLE" o "VIEW".
+
+* *Columnas*
++
+image::columnas_impala_vista.png[]
++
+Atributos:
++
+** _type_: tipo de conversión del dato a la plataforma _Stratio Generative AI Data Fabric_.
+** _nullable_: si el campo admite nulos.
+** _ordinal_: el número de columna.
+** _precision + scale_: el tamaño del campo.
+** _isSigned_: si está verificado.
+
+Ahora puedes crear tus colecciones técnicas.
+
+La conversión de datos utilizada por _Stratio Generative AI Data Fabric_ para Apache Impala® es la siguiente:
+
+|===
+|Tipo Apache Impala® |Tipo Stratio |Tipo Apache Impala® |Tipo Stratio
+
+|BIGINT
+|LONG
+|BOOLEAN
+|BOOLEAN
+
+|CHAR
+|STRING
+|DECIMAL
+|DECIMAL
+
+|DOUBLE
+|DOUBLE
+|FLOAT
+|Column 4, row 3
+
+|INT
+|INTEGER
+|REAL
+|Column 4, row 4
+
+|SMALLINT
+|INTEGER
+|STRING
+|STRING
+
+|TIMESTAMP
+|TIMESTAMP
+|TINYINT
+|INTEGER
+
+|VARCHAR
+|STRING
+|DATETIME
+|TIMESTAMP
+|===
+
+Formatos de fichero externos soportados (para tablas Apache Impala® externas):
+
+- Texto (CSV)
+- Avro
+- Parquet
+
+=== Virtualización de la BDL
+
+El conector soporta la personalización del acceso al dato en las tablas virtualizadas mediante xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_atributos_personalizados_de_bdl[atributos avanzados de BDL] de _Stratio Data Governance_, modificables desde la interfaz de usuario:
+
+* *bdl.options.virtualizer.native*: los posibles valores son "True" y "False". "True" si el usuario quiere acceder al dato con el xref:stratio-virtualizer:user-guide:what-can-i-do-with-stratio-virtualizer.adoc#_consultas_nativas[dialecto nativo] de _Stratio Virtualizer_. Si se configura este atributo, se sobrescribirá la configuración por defecto ("True").
+* *bdl.options.native.filter*: filtro aplicado sobre la virtualización de la tabla en caso de que el modo de acceso al dato sea con el dialecto nativo de _Stratio Virtualizer_. El filtro solo será efectivo si el atributo *bdl.options.virtualizer.native* está puesto a "True".
+
+TIP: Para más detalles del uso de la BDL consulta la xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[documentación de procesamiento de datos con BDL].
+
+== Virtualiza tus datos
+
+Una vez descubiertas las tablas, es posible añadirlas a una vista técnica de una colección. Todos los parámetros configurables del descubrimiento y los modificados desde la interfaz de usuario de _Stratio Data Governance_ se propagan en las colecciones donde se añada esa tabla.
+
+TIP: Puedes leer más acerca de sus características en su xref:stratio-virtualizer:user-guide:user-guide.adoc#_trabajar_con_stratio_virtualizer[guía de usuario]
+
+_Stratio Virtualizer_ solo podrá realizar consultas sobre tablas/vistas de Apache Impala®, no sobre ficheros externos, por lo que deberás construir en Apache Impala® una tabla externa para que pueda acceder a sus datos.
+
+IMPORTANT: Ten en cuenta que, para virtualizar las tablas descubiertas, es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+Para crear una tabla directamente en el catálogo de _Stratio Virtualizer_ puedes ejecutar la siguiente sentencia:
+
+[source,sql]
+----
+CREATE TABLE impala_table USING com.stratio.crossdata.connector.hive OPTIONS (
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiosecurity` 'true',
+    `url` 'jdbc:hive2://<impala_host>:<impala_port>/',
+    `stratiossccdriver` 'com.stratio.connectors.ssccimpala.ImpalaDriverKRB',
+    `driver` 'org.apache.hive312.jdbc.HiveDriver',
+    `dbtable` '<nombre_tabla>',
+    `stratiosecuritymode` 'custom_sscc'
+)
+----
+
+=== Acceso nativo a Apache Impala®
+
+El conector incluye una implementación del xref:stratio-virtualizer:architecture:features.adoc#_acceso_nativo_a_los_almacenes_de_datos[dialecto nativo de _Stratio Virtualizer_]. Puedes consultar cómo configurarlo globalmente en su xref:stratio-virtualizer:operations-guide:configuration/processing-configuration.adoc#_mejoras_de_stratio_virtualizer_al_push_down_de_spark[guía de operaciones].
+
+TIP: Para comprobar si una tabla del catálogo soporta el dialecto nativo, puedes comprobar su `provider`: el resultado de la sentencia `show create table my_table` debe contener `using com.stratio.crossdata.connector.hive`.
+
+El dialecto nativo soporta un subconjunto del https://archive.apache.org/dist/spark/docs/3.1.1/sql-ref.html[dialecto SQL de Apache Spark™]. Las sentencias no soportadas podrían ejecutarse igualmente pero sin realizar el _full push-down_ que proporciona el dialecto nativo, por lo que el rendimiento puede verse afectado para tablas con un gran número de filas.
+
+TIP: Puedes consultar el subconjunto del dialecto SQL soportado en xref:apache-impala:user-guide/native-coverage.adoc[la referencia de cobertura del dialecto nativo].
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+En _Stratio Rocket_ puedes utilizar cualquier _workflow_ para realizar tus operaciones con los datos de Apache Impala®. Utiliza cajas de _Crossdata_ o de tipo SQL como entrada de tus _workflows_.
+
+La mejor forma de comprobar el acceso al dato es mediante *el catálogo*. El conector puede trabajar con reglas de calidad para realizar comprobaciones sobre los datos de Apache Impala®.
+
+Cuando se haya ejecutado un _workflow_ de _Stratio Rocket_, puedes visualizar su linaje técnico accediendo sobre la tabla en la colección técnica.
+
+=== _Stratio Intelligence_
+
+Puedes utilizar una sesión de _Stratio Crossdata_ en _Stratio Intelligence_ para acceder rápidamente a tus datos mediante un Jupyter Notebook (utiliza una sesión de PySpark). A continuación se muestra un ejemplo para que puedas hacerlo.
+
+Usa siempre la referencia de tu colección anexa a punto con tu tabla.
+
+[source,python]
+----
+from pystratio.xd.xdsession import XDSession
+xd = XDSession(sc)
+xd.sql("SELECT * FROM impala_col.YOUR_TABLE LIMIT 3").show()
+----

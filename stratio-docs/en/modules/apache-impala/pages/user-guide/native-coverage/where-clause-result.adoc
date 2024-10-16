@@ -1,0 +1,43 @@
+= _WHERE_ clause
+
+== Syntax
+
+[source,sql]
+----
+WHERE boolean_expression
+----
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+| Comparison operator in 'WHERE' clause.
+| SELECT * FROM coverage_impala.person WHERE id > 200 ORDER BY id;
+| Yes
+
+| Comparison and logical operators in the 'WHERE' clause.
+| SELECT * FROM coverage_impala.person WHERE id = 200 OR id = 300 ORDER BY id;
+| Yes
+
+| 'IS NULL' expression in the 'WHERE' clause.
+| SELECT * FROM coverage_impala.person WHERE id > 300 OR age IS NULL ORDER BY id;
+| Yes
+
+| Function expression in 'WHERE' clause.
+| SELECT * FROM coverage_impala.person WHERE length(name) > 3 ORDER BY id;
+| Yes
+
+| 'BETWEEN' expression in 'WHERE' clause.
+| SELECT * FROM coverage_impala.person WHERE id BETWEEN 200 AND 300 ORDER BY id;
+| Yes
+
+| Scalar Subquery in 'WHERE' clause.
+| SELECT * FROM coverage_impala.person WHERE age > (SELECT avg(age) FROM coverage_impala.person);
+| Yes
+
+| Correlated Subquery in 'WHERE' clause.
+| SELECT * FROM coverage_impala.person AS parent WHERE EXISTS (SELECT 1 FROM coverage_impala.person AS child WHERE parent.id = child.id AND child.age IS NULL );
+| Yes
+
+|===

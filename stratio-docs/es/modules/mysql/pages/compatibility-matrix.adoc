@@ -1,0 +1,52 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector SSCC MySQL, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-mysql-0.3_2.12-3.1.x
+
+| _Stratio BDL_
+| Virtualización
+| ≥ sscc-mysql-0.3_2.12-3.1.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura
+| ≥ sscc-mysql-0.3_2.12-3.1.x
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada
+| ≥ sscc-mysql-0.3_2.12-3.1.x
+
+| _Stratio Intelligence_
+| Lectura/Escritura virtualizada
+| ≥ sscc-mysql-0.3_2.12-3.1.x
+|===
+
+== Compatibilidad con versiones de MySQL
+
+Se ha validado la compatibilidad del conector para los siguientes almacenes de datos:
+
+* *MySQL:* versiones iguales o anteriores a MySQL 5.7 y para MySQL 8.
+* *MariaDB:* versión 10.3. No se ha validado para el resto de versiones de MariaDB.
+
+NOTE: Si vas a instalar el conector para MariaDB, ten en cuenta que en la guía se indica MySQL pero es válido igualmente para MariaDB.
+
+== Versiones del _driver JDBC_ soportadas
+
+El conector necesita estar acompañado de un artefacto con el _driver JDBC_ de MySQL. Al estar desacoplado, se puede utilizar el mismo conector con diferentes versiones.
+
+La versión actual del conector está validada contra las siguientes versiones del _driver JDBC_:
+
+|===
+| Versión del _driver JDBC_ | Artefacto del repositorio de conectores
+| 8.0.30
+| _mysql-jdbc-8.0.30-1.0.0.jar_
+
+| 5.1.42
+| _mysql-jdbc-5.1.42-1.0.0.jar_
+|===

@@ -1,0 +1,5 @@
+= Problemas conocidos
+
+* Soporte para tipos _custom_:
+** Si se activa el modo nativo y el soporte de tipos _custom_ en el agente de descubrimiento, no se podrá desactivar el modo nativo usando `bdl.options.virtualizer.native = false` para tablas técnicas que tengan tipos _custom_. Si se desactiva, la tabla no será sincronizada por _Stratio Eureka_ en el catálogo.
+** La escritura sobre tablas con tipos _custom_ no esta soportada.

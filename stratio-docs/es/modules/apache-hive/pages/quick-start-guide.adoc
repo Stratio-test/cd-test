@@ -1,0 +1,73 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar brevemente cómo integrar una base de datos Apache Hive™ en la plataforma _Stratio Generative AI Data Fabric_.
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector de SSCC Apache Hive™ en la xref:apache-hive:operations-guide.adoc#_prerrequisitos[Guía de operaciones].
+
+NOTE: Ten en cuenta que en esta guía de inicio rápido se utilizará el *modo de autenticación Kerberos*.
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para Apache Hive™ debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS' el agente `Hive Agent`.
+
+En la instalación debes añadir la información correspondiente a la instancia de la base de datos a descubrir, además de las URL del repositorio de conectores donde se almacenan los artefactos necesarios y subir las credenciales de acceso a _Stratio KMS_.
+
+Los campos más importantes a rellenar son:
+
+* *_Root discovery path_*: ruta desde la cual quieres descubrir los metadatos de forma recursiva. Deben estar separados por comas, sin espacios, y con una `/` barra al principio. Ejemplo: `/schema_to_be_discovered,/schema_to_be_discovered2`.
+* *_Custom Service URL_*: URL JDBC usada para conectarse a Apache Hive™. Ejemplo: `jdbc:hive2://hiveserver.labs.stratio.com:10000/default;principal=myprincipal/hive.mycompany.com@MYCOMPANY.COM;kerberosAuthType=fromSubject`.
+* *_Access credentials_*: nombre del secreto creado en xref:#create-secret[_Stratio KMS_]. Ejemplo: `hive-secret`.
+* *_SSCC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC Apache Hive™. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+* *_JDBC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del _driver JDBC_ elegido. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-2.2.0-1.0.x.jar`.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:apache-hive:operations-guide.adoc[guía de operaciones].
+
+Una vez terminado el proceso de descubrimiento, el almacén de datos aparecerá en la interfaz de usuario de _Stratio Data Governance_.
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de Apache Hive™. Para ello, hay que añadir la URL del repositorio de conectores de los artefactos necesarios en la variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+En el ejemplo que se está siguiendo, el agente de Eureka queda de esta manera:
+
+* _Additional jars_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+
+=== _Stratio Virtualizer_
+
+Para el uso de _Stratio Virtualizer_ es necesario tener configurado el conector de Apache Hive™. Para ello, debes añadir las URL de los artefactos necesarios en la variable 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` y además xref:apache-hive:operations-guide.adoc[subir las credenciales de acceso a _Stratio KMS_].
+
+* _JDBC Drivers URL List_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-2.2.0-1.0.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener configurado el conector de Apache Hive™. Para ello, debes añadir las URL de los artefactos necesarios en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` y xref:apache-hive:operations-guide.adoc[subir las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_].
+
+En el ejemplo que se está siguiendo, _Stratio Rocket_ quedaría de esta manera:
+
+* *_Rocket extra jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-2.2.0-1.0.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+
+Tras aplicar estos cambios, deberías poder acceder a la colección virtualizada de Apache Hive™ mediante consultas SQL directamente en el catálogo o mediante un _input_ de _Stratio Virtualizer_ en un _workflow_.
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_, tal y como aparece descrito en xref:ROOT:quick-start-guide#_stratio_intelligence[la guía de inicio rápido general].
+
+Una vez esté configurado _Stratio Intelligence_, tienes que añadir el conector y el _driver JDBC_ de Apache Hive™ al directorio _artifacts/spark++_++jars_ y xref:apache-hive:operations-guide.adoc[subir las credenciales de acceso a _Stratio KMS_].
+
+Para la subida del artefacto, debes descargarlo en el directorio _artifacts/spark++_++jars_ dentro del _workspace_ de _Stratio Intelligence_ realizando una petición cURL. En el caso que se está tratando, se podría realizar la siguiente petición:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar --output sscc-hive-0.3_2.12-1.5.x.jar
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-2.2.0-1.0.x.jar --output hive-jdbc-2.2.0-1.0.x.jar
+----
+
+Una vez realizada esta configuración, podrás acceder a las tablas que se han virtualizado de la base de datos Apache Hive™ externa.

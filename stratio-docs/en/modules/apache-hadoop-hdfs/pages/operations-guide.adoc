@@ -1,0 +1,185 @@
+﻿= Operations guide
+
+== Description
+
+The Apache Hadoop® (HDFS) connector allows you to integrate Apache Hadoop® (HDFS) into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:apache-hadoop-hdfs:compatibility-matrix.adoc[compatibility matrix].
+
+=== Authentication
+
+Currently, the connector only supports https://kerberos.org/[*Kerberos*] authentication.
+
+== Prerequisites
+
+* In case you want to use an Apache Hadoop® (HDFS) installed within the _Stratio Generative AI Data Fabric_ platform, you need:
++
+. The Apache Hadoop® (HDFS) framework installed.
+
+* In case you want to use an Apache Hadoop® (HDFS) external to the platform, you need:
++
+. A _ConfigMap_ containing the _hdfs-site.xml_ and the _core-site.xml_ .
+. A _ConfigMap_ containing the configured _krb5.conf_ .
+. The _Stratio KMS_ UI should be accessible to manage credentials:
++
+See the section of xref:ROOT:quick-start-guide.adoc[general quick start guide] for the steps you need to take to make it available.
++
+. Create secrets in _Stratio KMS_. To do this, access `https://<stratioo_kms_ui_url>/ui/vault/secrets` and create a secret in the corresponding folder of the service with the following options:
++
+--
+** _<ServiceId>.<Tenant>-<Namespace>_keytab_: _keytab_ encoded in Base64.
+** _<ServiceId>.<Tenant>-<Namespace>_principal_: _principal_ with which to login in Apache Hadoop® (HDFS) associated to the _keytab_.
++
+To perform the Base64 encoding of the _keytab_ you can use the following command:
++
+[source,bash]
+----
+cat /tmp/hdfsExternal.keytab | base64 -w 0 > base64KeytabHdfsExternal
+----
++
+IMPORTANT: Please note that this secret must be uploaded in the path `/userland/kerberos/` with the name `<ServiceId>.<Tenant>-<Namespace>`.
+
+* In case you want to connect to several HDFS (multi-HDFS), you need:
++
+--
+. Two HDFS deployed.
+. Deploy one HDFS agent for each HDFS.
++
+NOTE: For the extra HDFS, in the agent deployment the _Enable Stratio Multi-HDFS_ field must be enabled and the HDFS name must be specified. Example: _hdfs2.stratio-datastores_.
+--
+
+== Discover your data
+
+=== Discovery agent (Apache Hadoop® (HDFS) internal)
+
+To install a _Stratio Data Governance_ discovery agent for Apache Hadoop® (HDFS), go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Governance' and select the agent "Apache Hadoop® (HDFS) Agent (Internal)".
+
+In the 'Pre-deployment' section:
+
+* *_HDFS used for connection_*: Apache Hadoop® (HDFS) to be discovered. Example: _hdfs.s000001-datastores_.
++
+image::hdfs-cct-deployment2.png[]
+
+The fields to be filled in for the installation are:
+
+* *General*:
+** *_Service ID_*: agent's unique identifier. Example: _dg-hdfs-agent_.
+** *_Name of the Service_*: name displayed. Example: _dg-hdfs-agent_.
+** *_Execute prerequisites_*: check to create the _Stratio Generative AI Data Fabric_ internal Apache Hadoop® (HDFS) access policies.
+* *Metadata Data store (PostgreSQL®)*
+** *_Host_*: the PostgreSQL® instance that stores the Apache Hadoop® (HDFS) metadata. Example: _pgbouncer-postgreskeos-governance.keos-core_.
+* *Configuration of the service to be discovered*
+** *HDFS to be discovered*
+*** *_HDFS ConfigMap_*: name of the _ConfigMap_ containing the _hdfs-site.xml_ and the _core-site.xml_.
+*** *_Kerberos ConfigMap_*: name of the _ConfigMap_ containing the Kerberos configuration associated with Apache Hadoop® (HDFS). Example: _keos-kerberos-config_.
+*** *_Init path_*: path from which you want to discover the metadata recursively. Example: _/path_.
++
+image::hdfs-cct-deployment1.png[]
++
+image::hdfs-cct-deployment3.png[]
+
+The discovery process is asynchronous. Once the discovery is finished you can view it from the _Stratio Data Governance_ UI.
+
+image::hdfs-discover-metadata.png[]
+
+=== Discovery agent (Apache Hadoop® (HDFS) external)
+
+To install a _Stratio Data Governance_ discovery agent for Apache Hadoop® (HDFS), go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Governance' and select the agent "Apache Hadoop® (HDFS) Agent (External)".
+
+The fields to be filled in for the installation are:
+
+* *General*:
+** *_Service ID_*: agent's unique identifier. Example: _dg-hdfs-agent-external_.
+** *_Name of the Service_*: name displayed. Example: _dg-hdfs-agent-external_.
+* *Metadata Data store (PostgreSQL®)*
+** *_Host_*: the PostgreSQL® instance that stores the Apache Hadoop® (HDFS) metadata. Example: _pgbouncer-postgreskeos-governance.keos-core_.
+* *Configuration of the service to be discovered*
+** *HDFS to be discovered*
+*** *_HDFS ConfigMap_*: name of the _ConfigMap_ containing the _hdfs-site.xml_ and the _core-site.xml_. Example: _hdfs-external-config_.
+*** *_Kerberos ConfigMap_*: name of the _ConfigMap_ containing the Kerberos configuration associated with Apache Hadoop® (HDFS). Example: _kerberos-external-config_.
+*** *_Init path_*: path from which you want to discover the metadata recursively. Example: _/path_.
++
+image::hdfs-external-cct-deployment1.png[]
+
+== Virtualize your data
+
+=== Eureka agent
+
+To use the BDL it is necessary to install the Eureka agent. No additional configuration is required.
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ supports interaction with Apache Hadoop® (HDFS). It is possible to configure _Stratio Virtualizer_ in three different ways:
+
+* Apache Hadoop® (HDFS) internal.
++
+You must leave the whole Apache Hadoop® (HDFS) section by default and select, in the 'Service Discovery/HDFS user for connection' section, the Apache Hadoop® (HDFS) to be configured.
++
+image::hdfs-virtualizer-deployment.png[]
+
+* Apache Hadoop® (HDFS) external.
++
+You must follow these steps:
++
+* Have a _ConfigMap_ containing the _hdfs-site.xml_ and the _core-site.xml_.
+* Have a _ConfigMap_ containing the _krb5.conf_ configured.
+* Create the secrets in _Stratio KMS_. In this case, the authentication method by Kerberos will be used.
++
+--
+The secret you must upload consists of two keys:
+
+** _{ServiceID Virtualizer}.{Tenant}-{Namespace}_keytab_: corresponds to the Base64 encoded _keytab_.
+** _{ServiceID Virtualizer}.{Tenant}-{Namespace}_principal_: corresponds to the _principal_ with which you are going to login in Apache Hadoop® (HDFS) associated to the _keytab_.
+--
++
+NOTE: In this case, it is not necessary to select any Apache Hadoop® (HDFS) in the _Service discovery_ section.
+
+* Multi-HDFS.
++
+_Stratio Virtualizer_ allows you to have multiple HDFS configured. To do this, you must go to the 'Environment' section of the _Stratio Virtualizer_ configuration and, after activating the general option "Enable multiple HDFS", several similar sections will be displayed, one for each HDFS you want to access. You will be able to enable each of these sections by completing these three options:
++
+** _External hdfs name_: name identifying the external Apache Hadoop® (HDFS). It must follow the format `{HDFS_name}.{Namespace}`. Example: _hdfs2.stratio-datastores_.
+** External hdfs configuration URI_: path where _core-site.xml_ and _hdfs-site.xml_ files are located.
+** _External hdfs Keytab Vault path_: _Stratio KMS_ path where the _principal_ data and the _keytab_ encoded in Base64 are located. If it is an internal Apache Hadoop® (HDFS), the _Stratio Virtualizer_ _keytab_ can be used by specifying in this field that path. Example: _/v1/userland/kerberos/virtualizer.stratio-apps_.
++
+image::hdfs-multi-virtualizer-deployment.png[]
++
+NOTE: For the _External hdfs configuration URI_ it is necessary to have a web server or similar from where the _core-site.xml_ and _hdfs.site.xml_ files will be downloaded.
++
+[NOTE]
+====
+In case the second Apache Hadoop® (HDFS) is external, the secret you must upload will consist of two keys:
+
+* _keytab_: corresponds to the _keytab_ encoded in Base64.
+* _main_ : corresponds to the _principal_ with which the _keytab_ will be login in Apache Hadoop® (HDFS) associated to the _keytab_.
+====
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To configure an HDFS in _Stratio Rocket_, you must leave the entire Apache Hadoop® (HDFS) section default and select, in the 'Service Discovery/HDFS user for connection' section, the Apache Hadoop® (HDFS) to be configured.
+
+image::hdfs-rocket-cct-deployment.png[]
+
+* Multi-HDFS
++
+_Stratio Rocket_ allows to have several HDFS configured. To do this, you must go to the 'External Services' section of the _Stratio Rocket_ configuration and, after activating the general option "Enable multiple HDFS", several similar sections will be displayed, one for each HDFS you want to access. You will be able to enable each of these sections by completing these three options:
++
+** _External hdfs name_: external Apache Hadoop® (HDFS) identifier name. It must follow the format `{HDFS_name}.{Namespace}`. Example: _hdfs2.stratio-datastores_.
+** External hdfs configuration URI_: path where _core-site.xml_ and _hdfs-site.xml_ files are located.
+** _External hdfs Keytab Vault path_: _Stratio KMS_ path where the _principal_ data and the _keytab_ encoded in Base64 are located. If it is an internal Apache Hadoop® (HDFS), the _Stratio Virtualizer_ _keytab_ can be used by specifying in this field that path. Example: _/v1/userland/kerberos/virtualizer.stratio-apps_.
++
+image::hdfs-multi-rocket-cct-deployment.png[]
++
+[NOTE]
+====
+In case the second Apache Hadoop® (HDFS) is external, the secret you must upload will consist of two keys:
+
+* _keytab_: corresponds to the _keytab_ encoded in Base64.
+* _principal_: corresponds to the _principal_ with which you will login in the Apache Hadoop® (HDFS) associated to the _keytab_.
+====
+
+=== _Stratio Intelligence_
+
+For the use of _Stratio Intelligence_ it is not necessary to apply any extra configuration.

@@ -1,0 +1,32 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with the SSCC MongoDB connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| ≥ sscc-mongodb-0.3_2.11-1.1.x
+
+| _Stratio BDL_
+| Virtualization
+| ≥ sscc-mongodb-0.3_2.12-1.1.x
+
+| _Stratio Virtualizer_
+| Read/write/update/overwrite
+| ≥ sscc-mongodb-0.3_2.12-1.1.x
+
+| _Stratio Rocket_
+| Read/Virtualized write/Virtualized update/Virtualized overwrite
+| ≥ sscc-mongodb-0.3_2.12-1.1.x
+
+| _Stratio Intelligence_
+| Read/Virtualized write/Virtualized update/Virtualized overwrite
+| ≥ sscc-mongodb-0.3_2.12-1.1.x
+|===
+
+== Compatibility with MongoDB versions
+
+Connector compatibility has been validated for MongoDB 4.1.2.

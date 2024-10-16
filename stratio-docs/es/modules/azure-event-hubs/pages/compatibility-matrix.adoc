@@ -1,0 +1,28 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector Azure Event Hubs, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| -
+| -
+
+| _Stratio BDL_
+| -
+| -
+
+| _Stratio Virtualizer_
+| -
+| -
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada
+| Integrado
+
+| _Stratio Intelligence_
+| -
+| -
+|===

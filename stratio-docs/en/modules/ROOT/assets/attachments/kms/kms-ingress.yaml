@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vault
+  namespace: keos-core
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    nginx.ingress.kubernetes.io/proxy-ssl-vault: /userland/certificates/client-cert.keos-ingress/ingress-nginx.keos-ingress
+    nginx.ingress.kubernetes.io/schema: https
+spec:
+  ingressClassName: default-ingress-class
+  rules:
+    - host: <stratio_kms_ui_url>
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vault
+                port:
+                  number: 8200

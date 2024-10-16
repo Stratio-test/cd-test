@@ -1,0 +1,8 @@
+= Problemas conocidos
+
+* La API de Apache Cassandra® tiene un modo silencioso que no informa de los errores cuando no puede conectarse a un determinado proyecto. Si aparece un almacén de datos vacío en _Stratio Data Governance_ (o no aparece en absoluto), puede deberse a que no tiene los permisos necesarios en la configuración de la cuenta.
+* Las vistas de Apache Cassandra® son compatibles, pero se muestran como tablas en la interfaz de usuario de _Stratio Data Governance_.
+* No están permitidos todos los tipos de datos y tablas de Apache Cassandra® para todos los modos de acceso:
+** Provider `sscc-cassandra`:
+*** *Lectura*: soporta todos los tipos de datos, simples y complejos.
+*** *Escritura*: soporta todos los tipos de datos, simples y complejos, a excepción de los _StructType_ y otros que lo contengan.

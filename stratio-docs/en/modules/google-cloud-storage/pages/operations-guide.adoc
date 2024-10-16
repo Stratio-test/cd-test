@@ -1,0 +1,225 @@
+﻿= Operations Guide
+
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+== Description
+
+The _GCS_ connector enables full integration of the _Google Cloud Storage_ bucket into _Stratio Augmented Data Fabric_.
+
+=== Authentication
+
+The connector supports the *_Access key_* authentication method.
+
+To see how to create IAM role authentication in Google Cloud, have a look at https://cloud.google.com/iam/docs/service-accounts?hl=es-419[IAM authentication]. +
+
+== Prerequisites
+
+. Have a _GCS_ bucket installed and accessible from _Stratio Augmented Data Fabric_ with username/password authentication (ACCESS KEY).
++
+image::gcs-vista-bucket.png[Bucket GCS]
++
+** Have a Google Cloud service access account.
++
+. Install the connector repository:
++
+See the xref:ROOT:quick-start-guide.adoc#conns-repository-install[general Quick Guide] section to learn how to install the repository.
++
+. Have the _Stratio KMS_ UI accessible for credential management:
++
+Visit the xref:ROOT:quick-start-guide.adoc#access-kms-ui[general Quick Guide] section for the steps required to make the _Stratio KMS_ UI available.
++
+[#create-secret]
+. Create secrets in _Stratio KMS_. To do this, go to https://<stratio_kms_ui_url>/ui/vault/secrets and create a secret in the corresponding service folder with the following options depending on the authentication mode:
++
+--
+** Username/password
+*** *_user_*: _<gcs_private_key_id>_
+*** *_pass_*: _<gcs_private_key>_
+--
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
+
+** *Discovery agent*: _userland/passwords/<agent_name>.<agent_namespace>/<secret_name>_
+** *_Stratio Virtualizer_*: _userland/passwords/<virtualizer_name>.<virtualizer_namespace>/<secret_name>_
+** *_Stratio Rocket_*: _userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>_
+** *_Stratio Rocket_ workflows*: _userland/passwords/execution-identity-<rocket_name>.<rocket_namespace>/<secret_name>_
+** *_Stratio Intelligence_*: _/people/passwords/<intelligence_user_name>/<secret_name>_
++
+NOTE: The name and values of the secret for all services must match those chosen to configure the discovery agent.
++
+Make sure you have a connection to the _GCS bucket_ you want to connect to.
+Make sure you have a connection to Google Cloud Storage.
++
+NOTE: As for the *agent-cloud-external* connector, when integrating with _Stratio Virtualizer_, you have to create the secret in _Stratio KMS_ on your own, so pay attention to the URL indicated.
++
+You'll also need to create unique passwords for each user to ensure the security of data access for the service account. An example might be:
++
+--
+* user_governance_gcs
+* user_virtualizer_gcs
+* user_rocket_gcs
+* user_rocket_execution_gcs
+* user_virtualizer_gcs
+--
++
+The *user_governance_gcs* account has to have the following access role to the _Cloud Storage bucket_: *Storage object viewer*.
+The rest of the accounts must have the previous role, except if you're going to perform a write operation. In that case, you must have the following role: *Storage object creator*.
+
+== Discover your data
+
+=== Discovery agent
+
+The _GCS_ connector is a set of configurable parameters on the *agent-cloud-external* descriptor, which deploys an instance of the `dg-hdfs-agent-1.10.2-ebc0ba4` artifact. +
+The steps required for the installation and configuration of the _Stratio Data Governance_ discovery agent for Google Cloud Storage in _Stratio Command Center_ are:
+
+. xref:create-secret[*Check that the secrets have been created*]
+. Start the installer
+.. Go to the service catalog and choose the _Stratio Data Governance_ package
+.. Choose the _agent-cloud-external_ service in the service selector
++
+[#install-agent]
+. Install the _Stratio Data Governance_ discovery agent for _GCS_ in the _Stratio Command Center_ dashboard:
++
+.. The most important fields to be filled in during installation are:
++
+image::gcs-cct-descriptor-1.png[Governance,450,100]
++
+image::gcs-cct-descriptor-2.png[Governance,450,100]
++
+--
+* *_Service ID_* (NAME_ID): The discovery agent's unique identifier.
+* *_Name of the Service_*: The service name.
+* *_Datastore type_* (COMM_SERVICE_TYPE): You should always select GCS.
+* *_Default FS_* (HDFS_SERVICE_CUSTOM_PROPERTY_fs_defaultFS): You have to enter the bucket connection URL. It should be in this format: `gs://<your_bucket>/`.
+* *_Inith path_* (COMM_SERVICE_INIT_PATH): You have to enter the root directory of the bucket on which you want the discovery to be performed. If there are no directories, simply enter: `/`.
+* *_Google project id_* (HDFS_SERVICE_CUSTOM_PROPERTY_fs_gs_project_id). The Google project to which the bucket belongs.
+* *_Google service account_* (HDFS_SERVICE_CUSTOM_PROPERTY_fs_gs_auth_service_account_email). The email address of the Google service account to log into.
+* *_Access credentials_* (FS_STRATIO_CREDENTIALS): The name of the secret. You have to create it in the `/userland/passwords/<Name of the Service>.<agent_namespace>/gcs-secret` directory.
+* *_Discovered namespaces_*: Select the namespace where you want to install the discovery agent.
+--
+If everything is set up correctly, the discovery agent will be successfully deployed.
++
+.. Log in to _Stratio Data Governance_ to check that the deployment was successful. +
+… Log in to _Stratio Data Governance_. +
+… Go to the "Data catalog" section. +
+The deployed agents are displayed in the "Data Dictionary" section. The "Sources" section allows you to visualize if the agent has been deployed, as shown in the following image:
++
+image::gcs-vista-agente.png[Agente de descubrimiento,]
+
+==== Connection by proxy
+
+If you want to connect via a proxy, you will need to insert the following variables into the deployment:
+
+[source,]
+----
+HDFS_SERVICE_CUSTOM_PROPERTY_fs_gs_proxy_address = <your_proxy_host>
+HDFS_SERVICE_CUSTOM_PROPERTY_fs_gs_proxy_username = <your_proxy_username>
+HDFS_SERVICE_CUSTOM_PROPERTY_fs_gs_proxy_password = <your_proxy_password>
+----
+
+== Virtualize your data
+
+IMPORTANT: Note that in order to virtualize the discovered tables, the xref:stratio-gosec:operations-guide:manage-policies:manage-domains-policies.adoc[domain policies] need to be managed through _Stratio Gosec_.
+
+=== Eureka agent
+
+This section does not apply to the _GCS_ connector.
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ supports interaction with Google Cloud Storage via the _GCS_ connector. This integration has certain requirements:
+
+* The following _Stratio Virtualizer_ deployment fields must be modified in _Stratio Command Center_:
++
+image::gcs-conf-virtualizer.png[Governance,450,100]
++
+* *_Customized deployment_* -> *_Environment_*
+** *_Google Cloud Storage Integration_*: ``Enabled``.
+** *_Google project name_*: The name of the Google project where the bucket is hosted.
+** *_Service account name_*:  The email address of the Google service account to log into.
+** *_Vault path_*: The _Vault_ path where the secret is stored. This must be preceded by /v1/ and followed by the name of the secret.
+
+==== Connection by proxy
+
+If you want to connect via a proxy, you will need to insert the following variables into the deployment:
+
+[source,]
+----
+XD_CUSTOM_SPARK_spark_hadoop_fs_gs_proxy_address = <your_proxy_host>
+XD_CUSTOM_SPARK_spark_hadoop_fs_gs_proxy_username = <your_proxy_username>
+XD_CUSTOM_SPARK_spark_hadoop_fs_gs_proxy_password = <your_proxy_password>
+----
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the _GCS_ connector needs to be configured. To do this, you must xref:create-secret[upload the access credentials to _Stratio KMS_] for workflows and for _Stratio Rocket_ and configure the following variables in the _Stratio Rocket_ service modification form in _Stratio Command Center_:
+
+* *Customized deployment* -> *General* -> *External services* -> *Google cloud storage configuration*
++
+--
+** *_GCS configuration enabled_*: ``Enabled``.
+** *_Service account in Google Cloud Storage_*: The name of the Google project where the bucket is hosted.
+** *_Project id in Google Cloud Storage_*:  The email address of the Google service account to log into.
+** *_Credentials absolute vault path (only used on local deployment)_*: The _Stratio KMS_ path where the secret is stored. This must be preceded by /v1/ and followed by the name of the secret.
+--
+
+==== Connection by proxy
+
+If you want to connect via a proxy, you will need to insert the following variables into the deployment:
+
+[source,]
+----
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_gs_proxy_address = <your_proxy_host>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_gs_proxy_username = <your_proxy_username>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_gs_proxy_password = <your_proxy_password>
+WORKFLOWS_SPARK_EXTRA_CONFIG_spark_hadoop_fs_gs_proxy_address = <your_proxy_host>
+WORKFLOWS_SPARK_EXTRA_CONFIG_spark_hadoop_fs_gs_proxy_username = <your_proxy_username>
+WORKFLOWS_SPARK_EXTRA_CONFIG_spark_hadoop_fs_gs_proxy_password = <your_proxy_password>
+----
+
+=== _Stratio Intelligence_
+
+To correctly configure _Stratio Intelligence_ with the _GCS_ connector, we recommend referring to the xref:google-cloud-storage:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_] section; remember that you have to use the right format for the authentication mode for secrets.
+
+To avoid problems with data consistency, add the `fs.gs.cooperative.locking.expiration.timeout.ms` variable with the `true` value in the HDFS _ConfigMap_ and restart the service.
+
+[source,bash]
+----
+<configuration>
+  <property>
+    <name>fs.gs.cooperative.locking.enable</name>
+    <value>true</value>
+  </property>
+</configuration>
+----
+
+For more information about data consistency, have a look at the xref:ROOT:commiters.adoc[Integration] document.
+
+==== Connection by proxy
+
+If you want to connect via a proxy, you will need to insert the following variables of Haddop Spark into the *core-site.xml* of the deployment of _Stratio Intelligence_:
+
+[source,xml]
+----
+    <property>
+      <name>fs.gs.proxy.host</name>
+      <value>your_host</value>
+    </property>
+    <property>
+      <name>fs.gs.proxy.username</name>
+      <value>your_username</value>
+    </property>
+    <property>
+      <name>fs.gs.proxy.password</name>
+      <value>your_password</value>
+    </property>
+----
+
+NOTE: If your proxy has no authentication, you only need to set the host variable.

@@ -1,0 +1,3 @@
+﻿= Quick start guide
+
+The SSCC MongoDB connector quick start guide matches the general xref:ROOT:quick-start-guide.adoc[quick start guide].

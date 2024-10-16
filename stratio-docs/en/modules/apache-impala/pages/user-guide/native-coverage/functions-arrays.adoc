@@ -1,0 +1,152 @@
+= _ARRAYS_ functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+| array_contains(array, value)
+| SELECT array_contains(numbers,1) FROM functions.arraysfunctions
+| No
+
+| array_distinct(array)
+| SELECT array_distinct(numbers) FROM functions.arraysfunctions
+| No
+
+| array_except(array1, array2)
+| SELECT array_except(numbers, numbers) FROM functions.arraysfunctions
+| No
+
+| array_intersect(array1, array2)
+| SELECT array_intersect(numbers, numbers) FROM functions.arraysfunctions
+| No
+
+| array_join(array, delimiter[, nullReplacement])
+| SELECT array_join(names,' ') FROM functions.arraysfunctions
+| No
+
+| array_max(array)
+| SELECT array_max(numbers) FROM functions.arraysfunctions
+| No
+
+| array_min(array)
+| SELECT array_min(numbers) FROM functions.arraysfunctions
+| No
+
+| array_position(array, element)
+| SELECT array_position(numbers) FROM functions.arraysfunctions
+| No
+
+| array_remove(array, element)
+| SELECT array_remove(numbers) FROM functions.arraysfunctions
+| No
+
+| array_repeat(element, count)
+| SELECT array_repeat(city,2) FROM functions.arraysfunctions
+| No
+
+| array_union(array1, array2)
+| SELECT array_union(names,names) FROM functions.arraysfunctions
+| No
+
+| arrays_overlap(a1, a2)
+| SELECT arrays_overlap(names,names) FROM functions.arraysfunctions
+| No
+
+| arrays_zip(a1, a2, ...)
+| SELECT arrays_zip(numbers,numbers) FROM functions.arraysfunctions
+| No
+
+| concat(col1, col2, ..., colN)
+| SELECT concat(id,id) FROM functions.arraysfunctions
+| No
+
+| flatten(arrayOfArrays)
+| SELECT flatten(array(numbers)) FROM functions.arraysfunctions
+| No
+
+| reverse(array)
+| SELECT reverse(city) FROM functions.arraysfunctions
+| No
+
+| sequence(start, stop, step)
+| SELECT sequence(id,10) FROM functions.arraysfunctions
+| No
+
+| shuffle(array)
+| SELECT shuffle(numbers) FROM functions.arraysfunctions
+| No
+
+| slice(x, start, length)
+| SELECT slice(numbers,-1,3) FROM functions.arraysfunctions
+| No
+
+| sort_array(array[, ascendingOrder])
+| SELECT sort_array(numbers,true) FROM functions.arraysfunctions
+| No
+
+| array
+| SELECT array(1, 2, 3) ,age FROM functions.aggregate
+| No
+
+| array_sort
+| SELECT array_sort(array(5, 6, 1), (left, right) -> case when left < right then -1 when left > right then 1 else 0 end),age FROM functions.aggregate
+| No
+
+| element_at
+| SELECT element_at(array(1, 2, 3), 2),age FROM functions.aggregate
+| No
+
+| elt
+| SELECT elt(1, 'scala', 'java'),age FROM functions.aggregate
+| No
+
+| exists
+| SELECT elt(1, 'scala', 'java'),age FROM functions.aggregate
+| No
+
+| explode
+| SELECT explode(array(10, 20)),age FROM functions.aggregate
+| No
+
+| explode_outer
+| SELECT explode_outer(array(10, 20)),age FROM functions.aggregate
+| No
+
+| filter
+| SELECT filter(array(1, 2, 3), x -> x % 2 == 1),age FROM functions.aggregate
+| No
+
+| find_in_set
+| SELECT find_in_set('ab','abc,b,ab,c,def'),age FROM functions.aggregate
+| No
+
+| forall
+| SELECT forall(array(1, 2, 3), x -> x % 2 == 0),age FROM functions.aggregate
+| No
+
+| nvl
+| SELECT nvl(NULL, array('2')),age FROM functions.aggregate
+| No
+
+| nvl2
+| SELECT nvl2(NULL, 2, 1)),age FROM functions.aggregate
+| No
+
+| shuffle
+| SELECT shuffle(array(1, 20, 3, 5)),age FROM functions.aggregate
+| No
+
+| size
+| SELECT size(array('b', 'd', 'c', 'a')),age FROM functions.aggregate
+| No
+
+| slice
+| SELECT slice(array(1, 2, 3, 4), 2, 2),age FROM functions.aggregate
+| No
+
+| transform
+| SELECT transform(array(1, 2, 3), x -> x + 1),age FROM functions.aggregate
+| No
+
+|===

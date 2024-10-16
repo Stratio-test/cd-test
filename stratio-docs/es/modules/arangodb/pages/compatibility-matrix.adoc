@@ -1,0 +1,32 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector SSCC ArangoDB, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-arangodb-0.3_2.12-1.2.x
+
+| _Stratio BDL_
+| Virtualización
+| ≥ sscc-arangodb-0.3_2.12-1.2.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura/Actualización/Sobrescritura
+| ≥ sscc-arangodb-0.3_2.12-1.2.x
+
+| _Stratio Rocket_
+| Lectura/escritura/actualización/sobrescritura virtualizadas
+| ≥ sscc-arangodb-0.3_2.12-1.2.x
+
+| _Stratio Intelligence_
+| Lectura/escritura/actualización/sobrescritura virtualizadas
+| ≥ sscc-arangodb-0.3_2.12-1.2.x
+|===
+
+== Compatibilidad con versiones de ArangoDB
+
+Se ha validado la compatibilidad del conector para ArangoDB 3.4.1 y 3.10.2.

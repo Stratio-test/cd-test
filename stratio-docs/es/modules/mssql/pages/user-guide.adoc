@@ -1,0 +1,244 @@
+= Guía de usuario
+
+== Descripción
+
+El conector SSCC Microsoft SQL Server te permite la integración completa de Microsoft SQL Server en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades que se soportan, junto con las versiones, se encuentran en la xref:mssql:compatibility-matrix.adoc[matriz de compatibilidad].
+
+== Descubre tus datos
+
+El descubrimiento realizado por el agente SSCC Microsoft SQL Server hará visible y navegable en _Stratio Data Governance_ la jerarquía de datos en Microsoft SQL Server:
+
+* Esquemas
+* Tablas
+* Columnas
+
+image::mssql-discover-metadata.png[]
+
+TIP: Puedes leer más acerca del uso del almacén de datos en la xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc[Guía de usuario de _Stratio Data Governance_].
+
+El agente también asociará metadatos técnicos o de sistema a los niveles de la jerarquía de datos:
+
+. *Almacén de datos*, accesible a través del botón "System attributes":
+** Generales
++
+--
+*** _Version_: versión del conector que realizó el descubrimiento.
+*** _URL_: URL JDBC usada para la conexión con Microsoft SQL Server.
+*** _Security_: tipo de seguridad utilizado. Posibles valores: MD5 (usuario y contraseña) o KRB (Kerberos).
+--
++
+image::mssql-governance-datastore-attrs.png[]
++
+** Atributos del origen de datos: nombre y versión de la base de datos y clase del _driver JDBC_ utilizada.
++
+image::mssql-governance-datastore-attrs2.png[]
++
+** Atributos del origen de datos: nombre del _driver JDBC_ y versión.
++
+image::mssql-governance-datastore-attrs3.png[]
+
+. *_Tabla_*, accesible a través del botón "System attributes" o del enlace "Connector Attributes":
+** _database_: esquema donde está incluida la tabla.
+** _schema_: esquema en Microsoft SQL Server.
+** _table_: nombre de la tabla.
+** _tableType_: tipo de tabla. Posibles valores: "TABLE" y "VIEW".
++
+image::mssql-governance-table-attrs.png[]
+
+. *_Columna_*, accesible a través del botón "System attributes" o del enlace "Connector Attributes", tras seleccionarla en la lista.
+** Propiedades (sólo en _System attributes_): precisión, escala y si el tipo tiene signo.
+** Atributos del conector: tipo de almacén de datos (tipo de conversión del dato a la plataforma _Stratio Generative AI Data Fabric_) y nombre del tipo de datos original en Microsoft SQL Server (_SourceType_).
++
+image::mssql-governance-column-attrs.png[]
+
+La conversión de datos utilizada por _Stratio Generative AI Data Fabric_ para Microsoft SQL Server es la siguiente:
+
+|===
+|Tipo Microsoft SQL Server |Tipo Stratio |Tipo Microsoft SQL Server |Tipo Stratio  |Tipo Microsoft SQL Server |Tipo Stratio
+
+|BINARY
+|BINARY
+|IMAGE
+|BINARY
+|VARBINARY
+|BINARY
+
+|DATE
+|TIMESTAMP
+|DATETIME
+|TIMESTAMP
+|DATETIME2
+|TIMESTAMP
+
+|DATETIMEOFFSET
+|STRING
+|SMALLDATETIME
+|TIMESTAMP
+|TIME
+|TIMESTAMP
+
+|BIGINT
+|LONG
+|BIT
+|BOOLEAN
+|DECIMAL
+|DECIMAL
+
+|FLOAT
+|FLOAT
+|INT
+|INTEGER
+|MONEY
+|DECIMAL(19,4)
+
+|NUMERIC
+|DECIMAL(18,0)
+|REAL
+|FLOAT
+|SMALLINT
+|SMALLINT
+
+|SMALLMONEY
+|DECIMAL(10,4)
+|TINYINT
+|INTEGER
+|GEOMETRY
+|BINARY
+
+|GEOGRAPHY
+|BINARY
+|XML
+|STRING
+|CHAR
+|STRING
+
+|NCHAR
+|STRING
+|NTEXT
+|STRING
+|NVARCHAR
+|STRING
+
+|TEXT
+|STRING
+|VARCHAR
+|STRING
+|UNIQUEIDENTIFIER
+|STRING
+|===
+
+=== Descubrimiento con optimización automática
+
+La optimización realizada por el agente SSCC Microsoft SQL Server se realiza a la vez que el descubrimiento en la misma jerarquía de datos de Microsoft SQL Server, siempre y cuando se haya activado la opción de optimización automática durante el proceso de configuración del agente de descubrimiento.
+
+El agente, además de los añadidos durante el proceso de descubrimiento, asociará metadatos técnicos o de sistema a los niveles de la jerarquía de datos relacionados con la optimización de la tabla:
+
+. *_Tabla_*, accesible a través del botón "System attributes" o del enlace "Connector Attributes":
+** _sscc.optimizer.partitionColumn_: columna utilizada para particionar la tabla.
+** _sscc.optimizer.lowerBound_: límite inferior de la partición.
+** _sscc.optimizer.upperBound_: límite superior de la partición.
+** _sscc.optimizer.numPartitions_: número de particiones que se van a utilizar para particionar la tabla.
+** _sscc.optimizer.count_: número de filas de la tabla.
++
+image::mssql-optimizer-table-attrs.png[]
+
+. *_Columna_*, accesible a través del botón "System attributes" o del enlace "Connector Attributes", tras seleccionarla en la lista.
+** _DensityRatio_: relación de densidad de la columna. Calcula lo bien que se distribuyen los valores de la columna. Un valor cercano a 1 o mayor indica que los valores están mal distribuidos, mientras que un valor cercano a 0 indica que los valores están bien distribuidos.
+** _MaxValue_: valor máximo de la columna.
+** _MinValue_: valor mínimo de la columna.
+** _NullValues_: número de valores nulos de la columna.
+** _DistinctValues_: número de valores distintos de la columna.
++
+image::mssql-optimizer-column-attrs.png[]
++
+NOTE: No todos los metadatos de optimización de la columna se encuentran disponibles en la interfaz de usuario de _Stratio Data Governance_. Esto es debido al _Granularity optimization level_ que se haya elegido durante el proceso de configuración del agente de descubrimiento.
+
+=== Optimización manual
+
+Esta funcionalidad permite optimizar manualmente las tablas descubiertas. La optimización manual se puede realizar independientemente de si se ha activado o no la opción de optimización automática durante el proceso de configuración del agente de descubrimiento.
+
+Para optimizar una tabla manualmente, puedes añadir los siguientes atributos a la tabla en la BDL durante el proceso de virtualización en la creación de las _Data Collections_:
+
+* *bdl.options.partitionColumn*: columna utilizada para particionar la tabla.
+* *bdl.options.lowerBound*: límite inferior de la partición.
+* *bdl.options.upperBound*: límite superior de la partición.
+* *bdl.options.numPartitions*: número de particiones que se van a utilizar para particionar la tabla.
+
+NOTE: Los atributos de optimización de la tabla mediante la optimización manual prevalecerán y tendrán prioridad sobre los atributos de optimización de la tabla descubierta.
+
+TIP: Puedes leer más acerca de sus características en su xref:stratio-virtualizer:user-guide:user-guide.adoc#_trabajar_con_stratio_virtualizer[guía de usuario].
+
+=== Virtualización de la BDL
+
+El conector soporta la personalización del acceso al dato en las tablas virtualizadas mediante xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_atributos_personalizados_de_bdl[atributos avanzados de BDL] de _Stratio Data Governance_, modificables desde la interfaz de usuario:
+
+* *bdl.options.virtualizer.native*: los posibles valores son "True" y "False". "True" si el usuario quiere ejecutar consultas con el xref:stratio-virtualizer:user-guide:what-can-i-do-with-stratio-virtualizer.adoc#_fuentes_de_datos_soportadas[dialecto nativo] de _Stratio Virtualizer_. Si se configura este atributo, se sobrescribirá la configuración por defecto (en el despliegue del agente de descubrimiento en 'Stratio Command Center' -> 'General' -> 'Resource datastore connection configuration' -> 'Mssql Native Mode').
+* *bdl.options.native.filter*: filtro aplicado sobre la virtualización de la tabla en caso de haber realizado un descubrimiento con el modo nativo activado o haber informado *bdl.options.virtualizer.native* a "True".
+* *bdl.options.filter*: filtro aplicado sobre la virtualización de la tabla en caso de haber realizado un descubrimiento sin el modo nativo activado.
+
+TIP: Para más detalles del uso de la BDL consulta la xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[documentación de procesamiento de datos con BDL].
+
+== Virtualiza tus datos
+
+Una vez descubiertas las tablas, es posible añadirlas a una vista técnica de una colección. Todos los parámetros configurables del descubrimiento y los modificados desde la interfaz de usuario de _Stratio Data Governance_ se propagan en las colecciones donde se añada esa tabla.
+
+TIP: Puedes leer más acerca de sus características en su xref:stratio-virtualizer:user-guide:user-guide.adoc#_trabajar_con_stratio_virtualizer[guía de usuario].
+
+IMPORTANT: Ten en cuenta que, para virtualizar las tablas descubiertas, es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+Para crear una tabla directamente en el catálogo de _Stratio Virtualizer_ puedes ejecutar las siguientes sentencias:
+
+* Si se quiere crear la tabla sin el modo nativo:
+
+[source,sql]
+----
+CREATE TABLE mssql_table USING jdbc options (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccmssql.MssqlDriverMD5',
+    `driver` 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+    `url` 'jdbc:sqlserver://<mssql_host>:<mssql_port>;dataBase=<mssql_database>',
+    `dbtable` '<nombre_tabla>'
+)
+----
+
+* Si se quiere crear la tabla con el modo nativo:
+
+[source,sql]
+----
+CREATE TABLE mssql_table USING com.stratio.crossdata.connector.mssql options (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccmssql.MssqlDriverMD5',
+    `driver` 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+    `native` 'true',
+    `url` 'jdbc:sqlserver://<mssql_host>:<mssql_port>;dataBase=<mssql_database>',
+    `dbtable` '<nombre_tabla>'
+)
+----
+
+Para usar la autenticación Kerberos en lugar de usuario/contraseña, reemplaza `com.stratio.connectors.ssccoracle.MssqlDriverMD5` con `com.stratio.connectors.ssccoracle.MssqlDriverKRB`.
+
+NOTE: Recuerda que tienes que usar un secreto diferente para Kerberos.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Una vez virtualizados los datos, es posible acceder desde _Stratio Rocket_ mediante:
+
+* El catálogo.
++
+image::mssql-rocket-catalog.png[]
+
+* Dentro de los _workflows_, haciendo uso del _input_ de xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[_Stratio Virtualizer_]. Es posible forzar el acceso mediante el dialecto nativo marcando la casilla "Force query execution with native connectors".
++
+image::mssql-rocket-virtualizer-input.png[]
+
+=== _Stratio Intelligence_
+
+Puedes comprobar cómo se accede a los datos desde _Stratio Intelligence_ en la xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[guía de inicio rápido general].

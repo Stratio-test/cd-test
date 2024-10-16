@@ -1,0 +1,42 @@
+= Cobertura SQL del dialecto nativo
+
+A continuación se muestra una lista de https://archive.apache.org/dist/spark/docs/3.1.1/sql-ref.html[las características de Apache Spark™ SQL] probadas con el dialecto nativo de PostgreSQL®.
+
+Para cada característica se proporciona la consulta de Apache Spark™ SQL que ha ejecutado en la prueba y si el dialecto nativo la implementa o no.
+
+== Expresiones de recuperación de datos
+
+* xref:postgres:user-guide/native-coverage/clusterby-clause-result.adoc[Cláusula _CLUSTER BY_]
+* xref:postgres:user-guide/native-coverage/distributed-clause-result.adoc[Cláusula _DISTRIBUTED BY_]
+* xref:postgres:user-guide/native-coverage/groupby-clause-result.adoc[Cláusula _GROUP BY_]
+* xref:postgres:user-guide/native-coverage/having-clause-result.adoc[Cláusula _HAVING_]
+* xref:postgres:user-guide/native-coverage/join-clause-result.adoc[Cláusula _JOIN_]
+* xref:postgres:user-guide/native-coverage/like-clause-result.adoc[Predicado _LIKE_]
+* xref:postgres:user-guide/native-coverage/limit-clause-result.adoc[Cláusula _LIMIT_]
+* xref:postgres:user-guide/native-coverage/orderby-clause-result.adoc[Cláusula _ORDER BY_]
+* xref:postgres:user-guide/native-coverage/set-clause-result.adoc[Operadores conjunto: _EXCEPT, MINUS, INTERSECT, UNION_]
+* xref:postgres:user-guide/native-coverage/sortby-clause-result.adoc[Cláusula _SORT BY_]
+* xref:postgres:user-guide/native-coverage/tablesample-clause-result.adoc[Cláusula _TABLESAMPLE_]
+* xref:postgres:user-guide/native-coverage/where-clause-result.adoc[Cláusula _WHERE_]
+* xref:postgres:user-guide/native-coverage/window-clause-result.adoc[Funciones de ventana]
+* xref:postgres:user-guide/native-coverage/case-clause-result.adoc[Cláusula _CASE_]
+* xref:postgres:user-guide/native-coverage/pivot-clause-result.adoc[Cláusula _PIVOT_]
+* xref:postgres:user-guide/native-coverage/lateral-clause-result.adoc[Cláusula _LATERAL VIEW_]
+
+== Funciones
+
+=== Funciones escalares
+
+* xref:postgres:user-guide/native-coverage/functions-arrays.adoc[Funciones _ARRAY_]
+* xref:postgres:user-guide/native-coverage/functions-date-and-timestamp.adoc[Funciones _DATE_ y _TIMESTAMP_]
+* xref:postgres:user-guide/native-coverage/functions-hash.adoc[Funciones _HASH_]
+* xref:postgres:user-guide/native-coverage/functions-json.adoc[Funciones _JSON_]
+* xref:postgres:user-guide/native-coverage/functions-maps.adoc[Funciones _MAP_]
+* xref:postgres:user-guide/native-coverage/functions-math.adoc[Funciones matemáticas y lógicas]
+* xref:postgres:user-guide/native-coverage/functions-string.adoc[Funciones _STRING_]
+* xref:postgres:user-guide/native-coverage/functions-xpath.adoc[Funciones _XPATH_]
+* xref:postgres:user-guide/native-coverage/functions-others.adoc[Otras funciones]
+
+=== Funciones relacionadas con la agregación
+
+* xref:postgres:user-guide/native-coverage/functions-aggregate.adoc[Funciones de agregación]

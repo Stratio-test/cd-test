@@ -1,0 +1,76 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar brevemente cómo integrar una base de datos o _tenant_ de SAP HANA en la plataforma _Stratio Generative AI Data Fabric_.
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector de SSCC SAP HANA en la xref:saphana:operations-guide.adoc#_prerrequisitos[Guía de operaciones].
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para SAP HANA, debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' el agente `SAP HANA Agent`.
+
+En la instalación debes añadir la información correspondiente a la instancia de la base de datos a descubrir, además de las URL del repositorio de conectores donde se almacenan los artefactos necesarios y subir las credenciales de acceso a _Stratio KMS_.
+
+Los campos más importantes a rellenar son:
+
+* *_Root discovery path_*: ruta desde la cual quieres descubrir los metadatos de forma recursiva.
+* *_Custom Service URL_*: URL JDBC usada para conectarse a SAP HANA. Ejemplo: `jdbc:sap://sap.hana.stratio.com:39041/-db-`.
+* *_Access credentials_*: nombre del secreto creado en _Stratio KMS_. Ejemplo: `saphana-secret`.
+* *_SSCC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC SAP HANA. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-saphana-0.3_2.12-1.1.x.jar`.
+* *_JDBC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del _driver JDBC_ de SAP HANA. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/ngdbc-2.15.10.jar`.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:saphana:operations-guide.adoc[guía de operaciones].
+
+Una vez terminado el proceso de descubrimiento, el almacén de datos aparecerá en la interfaz de usuario de _Stratio Data Governance_.
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de SAP HANA. Para ello, hay que añadir la URL del repositorio de conectores del artefacto `sscc-saphana-0.3_2.12-1.1.x` en la variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+image::saphana-bdl.png[]
+
+=== _Stratio Virtualizer_
+
+Para el uso de _Stratio Virtualizer_ es necesario tener configurado el conector de SAP HANA. Para ello, debes añadir la URL del artefacto `sscc-saphana-0.3_2.12-1.1.x` en la variable 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` y además subir las credenciales de acceso a _Stratio KMS_.
+
+image::saphana-virtualizer-conf.png[]
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener configurado el conector de SAP HANA. Para ello, debes añadir la URL del artefacto `sscc-saphana-0.3_2.12-1.1.x` en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` y además subir las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_.
+
+image::saphana-rocket-conf.png[]
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:saphana:operations-guide.adoc#rocket-configuration[guía de operaciones].
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_. Se deben añadir las siguientes propiedades:
+
+* `INTERPOLATED_ANALYTIC_ENV_CROSSDATA_CATALOG_SECRET_INSTANCE_NAME`: ${username}
+* `ANALYTIC_ENV_VAULT_PATH`: "people".
+* `ANALYTIC_ENV_REQUESTS_CA_BUNDLE`: /opt/sds/stratio_analytic/security/ca-bundle.pem
+* `ANALYTIC_ENV_HIDE_VAULT_TOKEN`: "false"
+
+Además, en el entorno multiusuario se debe tener activada la opción "Allow artifact deployment" y tener en la ruta el valor _artifacts_.
+
+Una vez esté configurado _Stratio Intelligence_, tienes que añadir el conector de SAP HANA en el directorio _artifacts/spark++_++jars_ y subir las credenciales a _Stratio KMS_.
+
+Para la subida de los artefactos, estos se deben descargar desde *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-saphana-0.3_2.12-1.1.x* y *http://connectors.<tenant>-<namespace>/v1/api/artifact/ngdbc-2.15.10.jar* en el directorio _artifacts/spark++_++jars_ dentro del _workspace_ de _Stratio Intelligence_ realizando una petición cURL.
+
+En el caso que se está tratando, se debería realizar la siguiente petición:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-saphana-0.3_2.12-1.1.x --output sscc-saphana-0.3_2.12-1.1.x
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/ngdbc-2.15.10.jar --output ngdbc-2.15.10.jar
+----

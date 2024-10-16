@@ -1,0 +1,7 @@
+= _Troubleshooting_
+
+En esta sección aprenderás a resolver posibles errores o problemas que puedan ocurrir relacionados con el descubrimiento de metadatos de MySQL.
+
+== Problemas con el _MetadataPath_ relacionados con el linaje y las reglas de calidad
+
+Para la obtención del _MetadataPath_ es necesario conocer el nombre arbitrario del agente establecido en _Stratio Data Governance_. Actualmente, no existe un servicio estilo DNS que proporcione el dicho nombre. Por tanto, y como convención temporal hasta que este servicio sea desarrollado, si se quiere utilizar el linaje y/o las reglas de calidad generadas desde el conector, se debe establecer como nombre del mismo en _Stratio Data Governance_ (_COMM++_++SERVICE++_++ID_) el *nombre de _host_ del almacén de datos a explotar*.

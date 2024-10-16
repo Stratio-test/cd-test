@@ -1,0 +1,44 @@
+﻿= User guide
+
+== Description
+
+The Azure Event Hubs connector allows you to fully integrate Azure Event Hubs into _Stratio Rocket_.
+
+Both the supported features and the different versions are found in the xref:azure-event-hubs:compatibility-matrix.adoc[compatibility matrix].
+
+NOTE: The integration is done through _Stratio Rocket_ _workflows_.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+The Azure Event Hubs connector is integrated into _Stratio Rocket_ in assets of type:
+
+* _batch_ as an "output".
+* _streaming_ as an "input" and "output".
+
+For its configuration, the following fields must be filled in:
+
+* _Input_ type box:
+** *Configuration*
+*** *Event Hub connection details*
+**** *Host*: host of the Event Hubs namespace. In case you want to connect with privatelink, you must indicate the appropriate host. Example: `<your_namespace>.privatelink.servicebus.windows.net`.
+*** *Topics*
+**** *Topic*: name of the topic of your Event Hubs space.
+** *Security*
+*** *Auth method*: authentication method, it can be shared key or OAuth2.
+*** *Vault db name*: name of the secret.
++
+image::azure-event-hubs-rocket-asset2.png[]
+
+* _Output_ type box:
+* *Configuration*
+** *Event Hub connection details*
+*** *Host*: host of the Event Hubs namespace.
+** *Topics*
+*** *Topic*: name of the topic of your Event Hubs namespace. In case you want to connect with privatelink, you must indicate the appropriate host. Example: `<your_namespace>.privatelink.servicebus.windows.net`.
+* *Security*
+** *Auth method*: authentication method, it can be shared key or OAuth2.
+** *Vault db name*: name of the secret.
+
+TIP: See more information about the xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_event_hubs[assets from _Stratio Rocket_ related to Azure Event Hubs].

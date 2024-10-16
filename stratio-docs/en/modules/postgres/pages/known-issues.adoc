@@ -1,0 +1,12 @@
+﻿= Known issues
+
+* Multidimensional array data types are not supported because they cannot be differentiated from one-dimensional arrays in discovery.
+* The money data type will be treated as a double, since there are money values that cannot be read as double due to the format. The double type is used to maintain compatibility with the previous connector.
+* _Stratio Rocket_ boxes for PostgreSQL® cannot make mutual TLS connections because they cannot use the connector's embedded driver.
+* _Stratio Rocket_ boxes for JDBC can use the embedded driver of the SSCC PostgreSQL® connector but cannot currently obtain Vault secrets.
+
+== Native dialect
+
+The native dialect of the SSCC PostgreSQL® connector has the following limitations:
+
+* _ArrayType_: the functions _array++_++max_, _array++_++min_, _filter_ and _exists_ are not supported since they don't exist in PostgreSQL®.

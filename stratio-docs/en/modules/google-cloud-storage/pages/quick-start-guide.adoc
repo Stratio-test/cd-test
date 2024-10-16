@@ -1,0 +1,100 @@
+﻿= Quick Start Guide
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+The purpose of this guide is to explain in a simple way how to integrate any Google Cloud Storage instance into the _Stratio Augmented Data Fabric_ platform. For more information on the installation process, please refer to the general xref:stratio-connectors:ROOT:quick-start-guide.adoc#_guía_rápida[Quick Guide] section for more detailed, basic installation steps. +
+
+== Prerequisites
+
+You can find the prerequisites for installing the _GCS_ connector in the xref:google-cloud-storage:operations-guide.adoc#_prerrequisitos[Operations Guide].
+
+Note that we will use the _user/password (ACCESS KEY)_ authentication mode in this Quick Guide.
+
+== Discover your data
+
+=== Discovery agent
+
+image::ROOT:governance-logo.png[Governance, 100]
+
+When installing the discovery agent for Google Cloud Storage you have to add the information corresponding to the Cloud Storage bucket you want to discover and upload the access credentials to _Stratio KMS_.
+
+[#secreto-quick]
+To upload credentials, access https://<stratio_kms_ui_url>/ui/vault/secrets and in the `userland/passwords/<agent_name>` folder create a secret with the following options:
+
+* _user_: <private_key_id-gcs>
+* _pass_: <private_key-gcs>
+
+image::gcs-vault.png[]
+
+In the example, the *agent-cloud-default* agent installation looks like this:
+
+--
+* *_Datastore type_* (COMM_SERVICE_TYPE): You always have to select ``GCS``.
+* *_Default FS_*: ``gs://connectors-bucket-test``
+* *_Inith path_*: ``/tmp``
+* *_Google project id_*: ``connectorsproject``
+* *_Google service account_*: ``connectors-test@ui-google.com``
+--
+
+If everything is set up correctly, the discovery agent will be successfully deployed.
+
+Log in to _Stratio Data Governance_.
+
+Go to the "Data catalog" section.
+
+The deployed agents are displayed in the "Data Dictionary" section. The "Sources" section allows you to visualize if the agent has been deployed, as shown in the following image: +
+
+image::gcs-vista-agente.png[Agente de descubrimiento,]
+
+If everything went well, the discovery agent installation is complete.
+
+== Virtualize your data
+
+=== Eureka agent
+
+No action on the BDL agent is required.
+
+=== _Stratio Virtualizer_
+
+image::ROOT:virt-logo.png[BDL]
+
+To use _Stratio Virtualizer_ with _GCS_ integration, you'll need to change certain configuration parameters of the _Stratio Virtualizer_ descriptor and also upload the access credentials to _Stratio KMS_.
+
+In the example you're following, you have to modify the _Stratio Virtualizer_ descriptor in the _Environment_ section:
+
+** *_Google Cloud Storage Integration_*: ``Enabled``.
+** *_Google project name_*: The name of the Google project where the bucket is hosted.
+** *_Service account name_*:  The email address of the Google service account to log into.
+** *_Vault path_*: The _Stratio KMS_ path where the secret is stored. This must be preceded by /v1/ and followed by the name of the secret.
+
+To virtualize the _GCS_ connector you have to add some of the tables it contains in a _Stratio Data Governance_ collection and grant permissions in _Stratio GoSec_. Once that is done, the data is accessible in all other _Stratio Data Centric_ modules. You can see how they appear in the following image:
+
+image::gcs-coleccion-tecnica.png[BDL]
+
+== Access your data
+
+=== _Stratio Rocket_
+
+image::ROOT:rocket-logo.png[BDL]
+
+You'll have to change certain configuration parameters of the _Stratio Rocket_ descriptor if you want to use _Stratio Rocket_. In addition, you must upload the access credentials for workflows and for _Stratio Rocket_ to _Stratio KMS_.
+
+In the example you're following, you have to change the following in the _Stratio Rocket_ descriptor:
+
+* *Customized deployment* -> *General* -> *External services* -> *Google cloud storage configuration*
+** *_GCS configuration enabled_*: ``Enabled``.
+** *_Service account in Google Cloud Storage_*: The name of the Google project where the bucket is hosted.
+** *_Project id in Google Cloud Storage_*:  The email address of the Google service account to log into.
+** *_Credentials absolute vault path (only used on local deployment)_*: The _Stratio KMS_ path where the secret is stored. This must be preceded by /v1/ and followed by the name of the secret.
+
+=== _Stratio Intelligence_
+
+image::ROOT:intelligence-logo.png[BDL]
+
+You'll need to configure _Stratio Intelligence_ as described in the xref:ROOT:quick-start#_stratio_intelligence[general Quick Guide] before integrating with the connector.
+
+Once you've set this up, you'll be able to access the _Google Cloud Storage_ bucket tables that have been virtualized.

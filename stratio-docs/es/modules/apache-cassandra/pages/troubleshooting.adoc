@@ -1,0 +1,19 @@
+= _Troubleshooting_
+
+== Conector SSCC Apache Cassandra®
+
+El comportamiento natural del `datasource` utilizado en el conector SSCC Apache Cassandra® es trabajar con consultas de forma nativa en la propia instancia de Apache Cassandra®, lo que se define como `full-pushdown`.
+
+TIP: Para más detalles sobre los distintos modos de ejecución de consultas, visita la xref:stratio-virtualizer:ROOT:introduction.adoc[documentación de _Stratio Virtualizer_].
+
+Esto quiere decir que se estaría delegando todo el procesamiento de consultas a la base de datos de Apache Cassandra®. Por eso, se han realizado mejoras para la integración con _Stratio Generative AI Data Fabric_. A continuación se muestran las *funcionalidades añadidas*:
+
+* Se permite registrar las tablas en el catálogo de _Stratio Virtualizer_ en vez de trabajar de forma nativa en la base de datos de Apache Cassandra®.
+* Es posible trabajar con las tablas registradas en el catálogo de _Stratio Virtualizer_ haciendo _pushdown_ en las condiciones de filtros.
+* Se pueden realizar sentencias de tipo `INSERT INTO` de manera nativa utilizando SQL y no CQL, como está definido por defecto.
+
+== `StructTypes` en Apache Cassandra®
+
+Por cómo está definido el conector SSCC Apache Cassandra® y cómo se integra con la base de datos, un *tipo definido por usuario* (UDT) en la base de datos de Apache Cassandra® se interpreta como `StructType` en _Stratio Virtualizer_, por lo que es posible hacer una lectura de estos tipos.
+
+Sin embargo, la fuente de datos utilizada para el conector no permite la escritura desde _Stratio Virtualizer_ con tipos `StructType`. Por ese motivo, *la escritura de tipos `StructTypes` no está soportada*.

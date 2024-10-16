@@ -1,0 +1,71 @@
+= Quick Start Guide
+
+The purpose of this guide is to provide a simple explanation of how to integrate any S3 bucket instance into the _Stratio Aumented Data Fabric_ platform. For more information on the installation process, please refer to the general xref:stratio-connectors:ROOT:quick-start-guide.adoc#_guía_rápida[Quick Guide] section for more detailed, basic installation steps. +
+
+== Prerequisites
+
+You can find the prerequisites for installing the _AWS-S3_ connector in the xref:amazon-s3:operations-guide.adoc#_prerrequisitos[Operations Guide].
+
+Note that we will use the _user/password (ACCESS KEY)_ authentication mode in this Quick Guide.
+
+== Discover your data
+
+=== Discovery agent
+
+To install a discovery agent for _AWS S3_ you have to go to *_Stratio Command Center_ -> `Deploy a Service` -> `Governance`* and select the `Agent-cloud-external` agent.
+
+When installing the discovery agent for _AWS S3_ you have to add the information corresponding to the _AWS S3_ bucket you want to discover and upload the access credentials to _Stratio KMS_. See the section on xref:amazon-s3:operations-guide.adoc#create-secret[creating secrets] in the Operations Guide.
+
+In the example, the *agent-cloud-default* agent installation looks like this:
+
+. Service ID: `/dg-cloud-agent`.
+. Name of the Service: `dg-cloud-agent`.
+. Datastore type: `S3`
+. Default FS: `s3a://stratio-connectors/`
+. Init path: `/connectors`
+. S3 Authorization Method: `ACCESS_KEY`
+. S3 Assumed Role Endpoint Region: `eu-west-1`
+. S3 Assumed Role ARN: `arn:aws:s3:::stratio-connectors`
+. Access credentials. Ex: `s3-credentials`.
+. Discovered namespaces: Select the namespace where you want to install the discovery agent.
+
+== Virtualize your data
+
+=== Eureka agent
+
+No action on the BDL agent is required.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_ with _AWS-S3_ integration, you'll need to change certain configuration parameters of the _Stratio Virtualizer_ descriptor as well as upload the access credentials to _Stratio KMS_.
+
+See the section on xref:amazon-s3:operations-guide.adoc#create-secret[creating secrets] in the Operations Guide.
+
+In the example you're following, you have to modify the _Stratio Virtualizer_ descriptor by accessing *"Customized deployment"* -> *"Environment"*:
+
+* AWS S3 Integration (IAM Role Auth.): `True`
+* Vault path: `/v1/userland/passwords/virtualizer.s000001-apps/s000001-aws-s3`
+* Assumed role sts endpoint region: `eu-west-1`
+* Assumed role ARN: `arn:aws:s3:::stratio-connectors`
+
+== Access your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, you'll need to change a few configuration parameters of the _Stratio Rocket_ descriptor. In addition, you will need to upload the access credentials to _Stratio KMS_ for workflows and for _Stratio Rocket_. See the section on xref:amazon-s3:operations-guide.adoc#create-secret[creating secrets] in the Operations Guide.
+
+In the example you're following, you have to change the info below in the *General > HDFS > S3 configuration* section of the _Stratio Rocket_ descriptor:
+
+* S3 configuration enabled: `True`
+* Credentials vault secret: `s3-secret` (the secret you created earlier).
+
+=== _Stratio Intelligence_
+
+You'll need to configure _Stratio Intelligence_ as described in the xref:ROOT:quick-start#_stratio_intelligence[general Quick Guide] before integrating with the connector.
+
+Moreover, it is necessary to add the following variables to the deployment of _Stratio Intelligence_:
+
+* INTERPOLATED_ANALYTIC_ENV_SPARK_SECURITY_S3_SECRETS_VAULT_PATH: "/v1/people/passwords/${username}/<secret_name>"
+* ANALYTIC_ENV_SPARK_SECURITY_S3_ENABLE:: "true"
+
+To avoid problems with data consistency, you'll have to configure _Stratio Intelligence_ as indicated in the xref:ROOT:commiters.adoc#_uso_con_stratio_intelligence[integration] document. Refer to this document for more information.

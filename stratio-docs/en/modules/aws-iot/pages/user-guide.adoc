@@ -1,0 +1,117 @@
+= User guide
+
+== Description
+
+The AWS IoT connector allows you to integrate AWS IoT into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:aws-iot:compatibility-matrix.adoc[compatibility matrix].
+
+NOTE: The integration is done through _Stratio Rocket_ _workflows_.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To make AWS IoT available, the connector must be uploaded as an extension to the _Stratio Rocket_ project. To do this, you have to select the project where you want to make it available. Go to 'Admin project' -> 'Extensions' -> 'Add extension' -> 'Insert URI' and include the necessary information, in this case:
+
+* _URI_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/custom-aws-iot-1.0.x.jar`.
+* _Type_: JAR.
+* _Name_: name you want to give to the extension. Example: _Aws-input_.
+* _Description_: extension description.
+* _Custom classes_: `com.stratio.connectors.aws.mqtt.MqttAwsInputStepStreaming`.
+* _Custom classes_: `com.stratio.connectors.aws.mqtt.MqttAwsInputStepHybrid`.
+* _Custom classes_: `com.stratio.connectors.aws.mqtt.MqttAwsOutputStepHybrid`.
+
+NOTE: For more information on extensions, see the xref:stratio-rocket:developer-guide:using-plugins-to-customize-workflow-components.adoc[_Stratio Rocket_ documentation].
+
+Once you have added the extension and configured its parameters, you can use the streaming "Input" box.
+
+image::mqtt-add-extension-project.png[]
+
+image::mqtt-add-extension-wf.png[]
+
+For its configuration, you have to add the following options with values as shown in the example image:
+
+* `mqtt.aws.endpoint`: endpoint used. Example: a3o77g1ouqz6u-ats.iot.eu-west-3.amazonaws.com.
+* `mqtt.aws.port`: port used. Example: 8883.
+* `mqtt.aws.topic`: name of the topic used. Example: sdk/test/java.
+* `mqtt.aws.clientid`: name of the _clientId_ used. Example: sdk-java.
+* `mqtt.aws.secret.name`: name of the secret stored in Vault (contains the certificate and the private key). Example: mqtt.
+
+image::mqtt-customlitexd-streaming.png[]
+
+image::mqtt-conf-optional-properties.png[]
+
+In case you need an advanced configuration:
+
+* `mqtt.aws.conf.pingTimeoutMs`: overrides the timeout interval after sending a _PINGREQ_ for a _PINGRESP_ to arrive. If one does not arrive, the client will close the current connection.
+* `mqtt.aws.conf.ackTimeoutSeconds`: overrides the time interval to wait for an acknowledgement after sending _QoS 1+ PUBLISH, SUBSCRIBE_ or _UNSUBSCRIBE_ before failing the operation. The default is no timeout.
+* `mqtt.aws.conf.minReconnectDelayMs`: overrides the minimum amount of time to wait to reconnect after a disconnection.
+* `mqtt.aws.conf.maxReconnectDelayMs`: overrides the maximum amount of time to wait to reconnect after a disconnection.
+* `mqtt.aws.conf.minConnectedTimeToResetReconnectDelayMs`: overrides the amount of time that must elapse with a connection established before the reconnect delay ends, reset to minimum. This helps alleviate wasted bandwidth on fast reconnect cycles due to allowance for failures in operations.
+* `mqtt.aws.conf.connackTimeoutMs`: overrides the timeout interval after sending a CONNECTION request for a _CONNACK_ to arrive. If one does not arrive, the connection will be closed.
+* `mqtt.aws.conf.keepAliveIntervalSeconds`: sets the maximum time interval, in seconds, that is allowed to elapse between the point at which the client finishes transmitting an MQTT packet and the point at which it starts sending the next one.
+* `mqtt.aws.conf.willDelayIntervalSeconds`: sets the time interval, in seconds, that the server must wait (for a session reconnection) before sending the message associated with the connection session.
+
+TIP: To learn more, see
+https://github.com/aws/aws-iot-device-sdk-java-v2/blob/b138173bde9c8a644e84de3c08e0e46fe4a3f186/sdk/src/main/java/software/amazon/awssdk/iot/AwsIotMqtt5ClientBuilder.java[AwsIotMqtt5ClientBuilder] and
+https://github.com/awslabs/aws-crt-java/blob/main/src/main/java/software/amazon/awssdk/crt/mqtt5/packets/ConnectPacket.java[ConnectPacket].
+
+In case you need to go by _socket_:
+
+* `mqtt.aws.conf.socket.option.enable`: must be set to _true_ to enable the _socket_ option.
+* `mqtt.aws.conf.socket.option.domain`: sets the _socket_ domain (`IPV4`, `IPv6`, `LOCAL`).
+* `mqtt.aws.conf.socket.option.type`: type of _socket_ (`STREAM`, `DGRAM`).
+* `mqtt.aws.conf.socket.option.connectTimeoutMs`: sets the number of milliseconds before a connection is considered timed out.
+* `mqtt.aws.conf.socket.option.keepAliveIntervalSecs`: sets the number of seconds between TCP keepalive packets sent to the peer, 0 disables _keepalive_.
+* `mqtt.aws.conf.socket.option.keepAliveTimeoutSecs`: sets the number of seconds to wait for a _keepalive_ response before considering the connection timeout, 0 disables _keepalive_.
+
+TIP: See this link to learn more about https://github.com/awslabs/aws-crt-java/blob/main/src/main/java/software/amazon/awssdk/crt/io/SocketOptions.java[SocketOptions].
+
+IMPORTANT: The `mqtt.aws.conf.keepAliveIntervalSeconds` variable is important. If the client disconnects, a possible solution is to set that variable with relatively small value, e.g. `60` (value in seconds).
+
+=== Streaming
+
+* *_Classes to run_*: `com.stratio.connectors.aws.mqtt.MqttAwsInputStepStreaming`.
+
+IMPORTANT: You have to configure at least two executor cores. For more information, see https://spark.apache.org/docs/latest/streaming-programming-guide.html#points-to-remember-1[official documentation].
+
+image::mqtt-num-executor-conf.png[]
+
+=== Hybrid Input
+
+* *_Classes to run_*: `com.stratio.connectors.aws.mqtt.MqttAwsInputStepHybrid`.
+
+Once you have added the extension and configured its parameters you can use the hybrid "Input" box.
+
+You must add the following Apache Spark™ configuration:
+
+image::mqtt-add-extension-property-hybrid.png[]
+
+[source,properties]
+----
+spark.sql.adaptive.enabled false
+----
+
+IMPORTANT: What you see in SparkUI are the batch, not the records that have been read. In order to commit reading records you must write to an Apache Kafka® topic or an Apache Hadoop® (HDFS).
+
+image::mqtt-structured-streaming-batches.png[]
+
+=== Hybrid Output
+
+* *_Classes to run_*: `com.stratio.connectors.aws.mqtt.MqttAwsOutputStepHybrid`.
+
+In order to configure, you need the variables as in the hybrid input, both mandatory and additional ones. In addition, you can use the option of a separator in case you have multiple columns, since only one column is returned. This is the separator variable:
+
+[cols="1,1"]
+|===
+| Property
+| Example value
+
+| mqtt.aws.output.separator
+| ;
+|===
+
+As can be seen in the last property of the following image:
+
+image::mqtt-example-separator.png[]

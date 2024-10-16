@@ -1,0 +1,13 @@
+﻿= Troubleshooting
+
+In this section, you'll learn how to troubleshoot potential errors or problems related to IBM Db2 metadata discovery.
+
+* Make sure you have a direct connection to the IBM Db2 server.
+* There might be user-created types, which will be converted to _STRING_ type.
+* Make sure you have the right versions of _Stratio Data Governance_.
+* Tables, columns, schemas and databases are capitalized.
+* You may have problems changing the _Stratio Intelligence_ configuration. Make sure to restart the Kernel.
+
+*Problems with the _MetadataPath_ related to lineage and quality rules*:
+
+To obtain the _MetadataPath_, you need to know the arbitrary name of the agent established in _Stratio Data Governance_. Currently, there is no DNS-style service that provides such a name. Consequently, and as a temporary arrangement until this service is developed, if you want to use the lineage and/or quality rules created by the connector, you have to set its name in _Stratio Data Governance_ (COMM_SERVICE_ID) to the host name of the data store to be exploited.

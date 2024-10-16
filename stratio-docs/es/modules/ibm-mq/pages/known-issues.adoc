@@ -1,0 +1,5 @@
+= Problemas conocidos
+
+* Solo se soporta el método de autenticación con usuario/contraseña.
+* Solo se soportan colas. No están soportados los _topics_.
+* No existe un IBM MQ _producer_ (salida).

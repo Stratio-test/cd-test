@@ -1,0 +1,387 @@
+= Guía de operaciones
+
+== ¿Qué es Google Cloud Storage?
+
+Es un servicio de almacenamiento de objetos distribuido que ofrece escalabilidad, disponibilidad de datos, seguridad y rendimiento. Se puede utilizar por clientes de cualquier tamaño o sector para almacenar y proteger cualquier cantidad de datos para una variedad de casos de uso, como pueden ser lagos de datos, sitios web, aplicaciones móviles, _backup_ y _restore_, archivado, aplicaciones empresariales, dispositivos IoT y analítica _Big Data_.
+
+El conector Google Cloud Storage permite la integración completa de una o varias cuentas de almacenamiento en _Stratio Generative AI Data Fabric_.
+
+== Autenticación
+
+El método de autenticación soportado por el conector es _Service Account_, que permite la autenticación permanente de una cuenta de servicio mediante _accessKey_ y _secretKey_.
+
+=== Autenticación mediante _Service Account_
+
+https://cloud.google.com/iam/docs/service-account-overview?hl=es-419[Una cuenta de servicio] es un tipo especial de cuenta que suele usar una aplicación o carga de trabajo de procesamiento, como una instancia de Compute Engine, en lugar de una persona. Se identifica por su dirección de correo electrónico.
+
+[source,json]
+----
+{
+  "type":           "service_account",
+  "project_id":     "<GCS-PROJECT-ID>",
+  "private_key_id": "<GCS-PRIVATE-KEY-ID>",
+  "private_key":    "<GCS-PRIVATE-KEY>",
+  "client_email":   "<GCS-CLIENT-EMAIL>",
+  "client_id":      "<GCS-CLIENT-ID>",
+  "auth_uri":       "https://accounts.google.com/o/oauth2/auth",
+  "token_uri":      "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url":        "<GCS-URL-PUBLIC-x509-CERTIFICATE>"
+}
+----
+
+[#direct-access-to-resources]
+
+=== Configuración de acceso directo con varias cuentas
+
+Es posible configurar múltiples cuentas de servicio de Google Cloud Storage (con diferentes credenciales) para su uso en _Stratio Virtualizer_, _Stratio Rocket_ y _Stratio Intelligence_.
+
+Aunque la *manera recomendada* de acceder a los datos es mediante el *catálogo de _Stratio Virtualizer_*, pueden existir situaciones en las que sea necesario utilizar directamente SparkSQL. Si este es el caso, el conector de Google Cloud Storage permite definir credenciales tanto a *nivel global* como a *nivel de _bucket_*.
+
+==== Credencial global
+
+Para definir una *credencial global* debes añadir la variable de entorno `SSCC_GCS_GLOBAL_CREDENTIALS` en el módulo donde se desee utilizar y establecer como valor el nombre del secreto almacenado en _Stratio KMS_.
+
+El conector se encargará de ubicar el secreto en función del módulo donde se esté ejecutando, por lo que *no debes incluir la ruta completa*, sólo el nombre. Ejemplo:
+
+[source,bash]
+----
+SSCC_GCS_GLOBAL_CREDENTIALS=gcs-secret-2
+----
+
+==== Credenciales por _bucket_
+
+Para definir estas credenciales debes añadir la variable de entorno `SSCC_GCS_CREDENTIALS_BY_BUCKET` en el módulo donde se desee utilizar y establecer como valor una lista con la siguiente forma:
+
+[source,bash]
+----
+<bucket-name1>:<secret_name1>;<bucket-name2>:<secret_name2>;...
+----
+
+Donde se definen pares _bucket:secret_ separados por `;`.
+
+El conector se encargará de ubicar los secretos en función del módulo donde se esté ejecutando, por lo que no debes incluir la ruta completa, sólo el nombre. Ejemplo:
+
+[source,bash]
+----
+SSCC_GCS_CREDENTIALS_BY_BUCKET=bucket_sales:gcs-sales-secret;bucket_forecast:gcs-forecast-secret
+----
+
+Esta configuración te permitiría acceder mediante SparkSQL a todas las tablas de Google Cloud Storage pertenecientes a los _buckets_ _bucket++_++sales_ y _bucket++_++forecast_ sin indicar opciones adicionales.
+
+[#setting-spark-config]
+
+==== ¿Cómo configurar las credenciales en cada módulo?
+
+* _Stratio Virtualizer_
++
+** A nivel global de servicio.
++
+Se pueden usar las variables de entorno tal cual aparecen descritas más arriba: `SSCC_GCS_GLOBAL_CREDENTIALS` y `SSCC_GCS_CREDENTIALS_BY_BUCKET`.
+
+* _Stratio Rocket_
++
+** A nivel de _Workflow_.
++
+Se puede establecer usando las siguientes propiedades de Apache Spark™:
++
+[source,bash]
+----
+spark.orchestrator.driverEnv.SSCC_GCS_GLOBAL_CREDENTIALS=gcs-secret-2
+spark.orchestrator.driverEnv.SSCC_GCS_CREDENTIALS_BY_BUCKET=bucket_sales:gcs-sales-secret;bucket_forecast:gcs-forecast-secret
+----
++
+Dentro de un _Workflow_, puedes definir propiedades de Apache Spark™ navegando hasta 'Edit settings' -> 'Spark' -> 'Spark Configuration' -> 'User properties'.
++
+** A nivel de proyecto.
++
+Se pueden usar las variables de entorno tal cual aparecen descritas más arriba: `SSCC_GCS_GLOBAL_CREDENTIALS` y `SSCC_GCS_CREDENTIALS_BY_BUCKET`.
++
+En un proyecto, puedes definir la variable de entorno navegando hasta 'Admin Project' -> 'Environment variables'.
++
+** A nivel global del servicio.
++
+Las variables de entorno deben ser prefijadas con `SPARTA_EXTRA_`: `SPARTA_EXTRA_SSCC_GCS_GLOBAL_CREDENTIALS` y `SPARTA_EXTRA_SSCC_GCS_CREDENTIALS_BY_BUCKET`.
+
+* _Stratio Intelligence_
++
+** A nivel de usuario.
++
+Se pueden usar las variables de entorno tal cual aparecen descritas más arriba: `SSCC_GCS_GLOBAL_CREDENTIALS` y `SSCC_GCS_CREDENTIALS_BY_BUCKET`.
++
+Dentro de la xref:stratio-intelligence:operations-guide:configuration-and-usage/create-and-configure-users/register-a-new-profile.adoc#_pestaña_general[configuración de los usuarios] puedes definir la variable de entorno navegando hasta 'Profiles' -> 'Edit' -> 'General' -> 'User-defined environment variables'.
++
+** A nivel global del servicio.
++
+Las variables de entorno deben ser prefijadas con `ANALYTIC_ENV_`: `ANALYTIC_ENV_SSCC_GCS_GLOBAL_CREDENTIALS` y `ANALYTIC_ENV_SSCC_GCS_CREDENTIALS_BY_BUCKET`.
+
+== Prerrequisitos
+
+. Disponer una cuenta de servicio de Google xref:https://developers.google.com/identity/protocols/oauth2/service-account[configurada] con los permisos mostrados a continuación:
+** Es necesario asignar el rol `bigquery.metadataViewer` a la cuenta de servicio usada para el agente de descubrimiento de BigQuery. Este rol contiene los siguientes permisos:
+*** bigquery.datasets.get
+*** bigquery.datasets.getIamPolicy
+*** bigquery.models.getMetadata
+*** bigquery.models.list
+*** bigquery.routines.get
+*** bigquery.routines.list
+*** bigquery.tables.get
+*** bigquery.tables.getIamPolicy
+*** bigquery.tables.list
+*** resourcemanager.projects.get
+*** resourcemanager.projects
+. Instalar el xref:connectors-repository:operations-guide.adoc#_instalación[repositorio de conectores].
+. Tener accesible la xref:ROOT:quick-start-guide.adoc#access-kms-ui[interfaz de usuario de _Stratio KMS_].
+. Crear los secretos en _Stratio KMS_. Para ello debes acceder a `https://<stratio_kms_ui_url>/ui/vault/secrets` y crear un secreto en la carpeta correspondiente del servicio con las siguientes opciones según el modo de autenticación:
++
+--
+* _Service Account_
++
+[source,json]
+----
+{
+  "json": "<gcs_json_service_account>",
+}
+----
+
+--
++
+Este secreto se debe subir a los siguientes directorios de _Stratio KMS_:
+
+** *Agente de descubrimiento*: `userland/passwords/<nombre_agente>.<namespace_agente>/<nombre_secreto>`.
+** *Agente de descubrimiento (Proxy usuario/contraseña)*: `userland/passwords/<nombre_agente>.<namespace_agente>/<nombre_secreto>-proxy`.
+** *_Stratio Virtualizer_*: `userland/passwords/<nombre_virtualizer>.<namespace_virtualizer>/<nombre_secreto>`.
+** *_Stratio Rocket_*: `userland/passwords/<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Workflows_ de _Stratio Rocket_*: `userland/passwords/execution-identity-<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Stratio Intelligence_*: `/people/passwords/<nombre_usuario_intelligence>/<nombre_secreto>`.
++
+NOTE: El nombre y los valores del secreto para todos los servicios deben coincidir con los elegidos para configurar el agente de descubrimiento.
+
+== Descubre tus datos
+
+Para instalar un agente de descubrimiento para Google Cloud Storage debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors DFS' el agente "Google GCS Agent".
+
+Los campos más importantes a rellenar en la instalación son:
+
+* General
+** *_Service ID_* (NAME_ID): identificador único del agente de descubrimiento.
+** *_Name of the Service_*: nombre del servicio.
++
+image::gcs-cct-descriptor-1.png[Governance,450,100]
+
+* *_Configuration of the Service to be Discovered_*
+** *_Service to be discovered_*
+*** *_Service name_*: `dg-gcs-agent`.
+*** *_Root discovery path_* (`COMM_SERVICE_INIT_PATH`). Proyectos de Google Cloud Storage que se desean descubrir precedidos de `/` y separados por `,`.
++
+Ejemplo: _/mygcsproject1,/mygcsproject2_.
++
+NOTE: Aunque se puede descubrir más de un proyecto, todos usarán el mismo secreto por lo que la identidad autenticada deberá poder acceder a todos ellos.
+** *_Resource datastore connection configuration_*
+*** *_Custom datastore service security_* (`CUSTOM_SERVICE_DS_SECURITY`): tipo de seguridad a utilizar: _ServiceAccount_.
+*** *_Access credentials_* (`CUSTOM_STRATIO_CREDENTIALS`): nombre del secreto que utilizará el agente. Ejemplo: _gcs-secret_.
+*** *_SSCC driver location (Scala 2.12)_* (`CUSTOM_SERVICE_SSCC_DRIVER_LOCATION`): URL del artefacto del conector. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-gcs-0.3_2.12-1.1.x.jar`.
++
+image::gcs-cct-descriptor-2.png[Governance,450,100]
+
+** *_DFS configuration parameters_*
+*** *_GLOB filter_* (`DFS_GLOB_FILTER`): https://en.wikipedia.org/wiki/Glob_(programming)[patrón GLOB] para filtrar directorios. La ruta tiene la forma `nombre_proyecto/nombre_bucket/directorio_1/directorio_N/fichero`. Pueden incluirse varios patrones separados por `;`.
++
+Ejemplo para filtrar todos los ficheros Parquet y CSV del _bucket_ _landing++_++bucket_ perteneciente al proyecto _mycgsproject_ (en cualquier subdirectorio):
++
+[source,bash]
+----
+/mycgsproject/landing_bucket/**.parquet;/mycgsproject/landing_bucket/**.csv
+----
++
+NOTE: Por *cuestiones de rendimiento*, es altamente recomendable indicar los *patrones GLOB* de los recursos a descubrir. Aunque es posible utilizar comodines en la posición del proyecto o del _bucket_, no se recomienda ya que esto expandiría todos los árboles de directorios generando un *excesivo consumo de recursos*.
++
+*** *_Parallelism Level_* (`DFS_PARALLELISM_LEVEL`): grado de paralelismo usado en el descubrimiento. Por defecto, se calcula automáticamente en función de la capacidad de CPU asignada al agente.
++
+image::conf_agente_gcs_dfs.png[DFSConfig]
+
+* *_Resources_*
+** *_Instances_*: número de instancias del agente a desplegar en el _cluster_.
+** *_CPUs Request_*: CPU asignada al agente al ser desplegado.
+** *_CPUs Limit_*: CPU máxima asignable al agente.
+** *_Memory (MB)_*: memoria asignada al agente al ser desplegado.
+** *_Memory limit (MB)_*: memoria máxima asignable al agente.
+
+image::conf_agente_gcs_resources.png[DFS Recursos]
+
+* *_Enable Google Cloud Storage Proxy_* (_GCS_ENABLE_PROXY_): permite habilitar el uso de un proxy (deshabilitado por defecto).
+** *_Proxy Address_* (_GCS_PROXY_ADDRESS_): esta opción sólo aparecerá si el proxy está habilitado. Dirección del proxy formada por: protocolo (opcional, _http://_ o _https://_, por defecto _https://_) + _host_ + puerto (opcional, _:3128_ por defecto).
+** *_Enable Google Cloud Storage Proxy Authentication_* (_GCS_ENABLE_PROXY_AUTH_): esta opción sólo aparecerá si el proxy está habilitado. Permite habilitar el uso de proxy con autenticación (deshabilitado por defecto).
+** *_Proxy Secret_* (_GCS_PROXY_SECRET_): esta opción sólo aparecerá si el proxy con autenticación está habilitado. Nombre del secreto que contiene las credenciales para autenticarse en el proxy. Si se deja en blanco, tomará el valor del secreto indicado en _Access credentials_ añadiéndole el sufijo `-proxy`. En caso contrario, se utilizará el secreto indicado para obtener las credenciales de autenticación en el proxy.
++
+image::gcs-cct-descriptor-proxy.png[Governance,450,100]
+
+El proceso de descubrimiento es asíncrono. Una vez terminado, se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+image::gcs-vista-agente.png[Agente de descubrimiento,450,100]
+
+== Virtualiza tus datos
+
+IMPORTANT: Ten en cuenta que para virtualizar las tablas descubiertas es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de Google Cloud Storage de la siguiente manera:
+
+* Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'eureka-agent' -> 'Edit' -> 'Customize deployment' -> 'Settings'.
+* Añade al campo _Additional jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-gcs-0.3_2.12-1.0.x.jar`.
+
+image::conf_eureka.png[Configuración de Eureka]
+
+=== _Stratio Virtualizer_
+
+Para virtualizar los datos de Google Cloud Storage es necesario configurar _Stratio Virtualizer_ de la siguiente manera:
+
+* Añade el conector de Google Cloud Storage a la instancia de _Stratio Virtualizer_:
+** Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'virtualizer' -> 'Edit' -> 'Customize deployment' -> 'Environment' -> 'JDBC Integration'.
+** Añade al campo _JDBC Drivers URL List_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-gcs-0.3_2.12-1.1.x.jar`.
+
+En la siguiente imagen verás que solamente hay que añadir el JAR (la parte tachada no corresponde al agente, es el agente antiguo).
+
+image::conf_virtualizer.png[Configuración de Virtualizer]
+
+==== Conexión por proxy
+
+En caso de querer realizar conexión por proxy necesitas insertar las siguientes variables en el despliegue:
+
+[source,bash]
+----
+XD_CUSTOM_SPARK_spark_hadoop_fs_gs_proxy_address = <your_proxy_host>
+XD_CUSTOM_SPARK_spark_hadoop_fs_gs_proxy_username = <your_proxy_username>
+XD_CUSTOM_SPARK_spark_hadoop_fs_gs_proxy_password = <your_proxy_password>
+----
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+==== Gestión del _driver_
+
+Para acceder y explotar los datos de Google Cloud Storage es necesario configurar _Stratio Rocket_ de la siguiente manera:
+
+* Añade el conector de Google Cloud Storage a la instancia de _Stratio Rocket_:
+** Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Classpath configuration'.
+** Añade al campo _Rocket extra jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-gcs-0.3_2.12-1.0.x.jar`.
+** Añade esa misma URL al campo _Spark classpath extra jars_ (_Stratio Rocket_ necesita disponer del conector en tiempo de inicialización de Apache Spark™).
+
+image::conf_rocket.png[Configuración de Rocket]
+
+==== Gestión de los secretos
+
+Sube las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_ tal como aparece descrito en los prerrequisitos.
+
+[#rocket-configuration]
+
+==== Gestión de la configuración
+
+* Puedes consultar cómo habilitar el acceso directo a recursos de Google Cloud Storage sin usar tablas del catálogo en xref:#direct-access-to-resources[el apartado específico de esta guía].
+* Conexión por proxy.
++
+En caso de querer realizar conexión por proxy necesitas insertar las siguientes variables en el despliegue:
++
+[source,]
+----
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_gs_proxy_address = <your_proxy_host>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_gs_proxy_username = <your_proxy_username>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_gs_proxy_password = <your_proxy_password>
+----
++
+* Linaje personalizado.
++
+_Stratio Rocket_ permite la personalización del linaje para conectores desacoplados. Para activarlo, sigue estos pasos:
++
+** Edita en _Stratio Command Center_ el descriptor de _Stratio Rocket_ para establecer las propiedades relativas al linaje personalizado. Existen varios modos de linaje personalizado. Para el caso de Google Cloud Storage, se pueden utilizar los modos _Spark Format_ y _Custom_.
++
+*** En el modo _Spark Format_ se puede configurar el linaje personalizado para un tipo concreto de fichero (por ejemplo CSV) estableciendo el valor `csv:com.stratio.connectors.ssccgcs.GCSQualityRulesAndLineage:getMetadataPath` en '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Governance Lineage' -> 'Custom lineage and quality rules methods using Spark format':
++
+image::lineage_custom_spark_format.png[Spark Format]
++
+[source,bash]
+----
+csv:com.stratio.connectors.ssccgcs.GCSQualityRulesAndLineage:getMetadataPath
+----
++
+IMPORTANT: El linaje personalizado de Google Cloud Storage se aplicará a *todos los _inputs_ y _outputs_* de un formato de archivo independientemente de su origen. Por lo tanto, si el archivo puede tener otro origen que Google Cloud Storage, será necesario usar una etiqueta personalizada como se describe a continuación.
++
+*** En el modo _Custom_ se puede configurar el linaje personalizado mediante una etiqueta personalizada (por ejemplo `gcs`) estableciendo el valor `gcs:com.stratio.connectors.ssccgcs.GCSQualityRulesAndLineage:getMetadataPath` en '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Governance Lineage' -> 'Custom lineage and quality rules methods':
++
+image::lineage_custom_custom_tag.png[Custom Tag]
++
+[source,bash]
+----
+gcs:com.stratio.connectors.ssccgcs.GCSQualityRulesAndLineage:getMetadataPath
+----
++
+*** En el modo _Custom_ se debe añadir la opción `accountName` con el nombre de la cuenta de Google Cloud Storage que se desee utilizar y la opción `lineage_custom` con el nombre de la etiqueta definida en el paso anterior:
++
+image::lineage_custom_workflow_custom_tag.png[Workflow Custom Tag]
+
+* Reglas de calidad personalizadas.
++
+_Stratio Rocket_ permite la personalización de reglas de calidad para conectores desacoplados. Para activarlas, sigue estos pasos:
++
+** Edita en _Stratio Command Center_ el descriptor de _Stratio Rocket_ para establecer la propiedad relativa a las reglas de calidad personalizadas.
++
+Estas reglas se pueden configurar estableciendo el valor del campo '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Governance Lineage' -> 'Custom planned quality rules methods'.
++
+image::qr_custom_service_account.png[QR Assume Role]
++
+[source,bash]
+----
+com.stratio.connectors.ssccgcs.GCSDriverServiceAccount:com.stratio.connectors.ssccgcs.GCSQualityRulesAndLineage:getPlannedQRCreateTable
+----
+
+NOTE: Esta configuración *no es necesaria* para el linaje y las reglas de calidad sobre tablas virtualizadas en el catálogo.
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_, tal y como aparece descrito en xref:ROOT:quick-start-guide#_stratio_intelligence[la guía de inicio rápido general].
+
+==== Gestión del _driver_
+
+Para acceder y explotar los datos de Google Cloud Storage es necesario configurar _Stratio Intelligence_ de la siguiente manera:
+
+* Añadir el conector de Google Cloud Storage a la instancia de _Stratio Intelligence_:
+** Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'intelligence' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Analytic Environment Settings' -> 'Extra jars to Spark Context Configuration'.
+** Añade al campo _Spark classpath extra jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-gcs-0.3_2.12-1.0.x.jar`.
++
+image::conf_intelligence.png[Intelligence]
+
+** Añade esa misma URL al _classpath_ de Apache Spark™.
++
+IMPORTANT: Debido a que _Stratio Intelligence_ necesita disponer del conector en tiempo de inicialización de Apache Spark™, es necesario que el conector se encuentre en el _classpath_ al arrancar el _Notebook_. Actualmente, la manera de hacerlo es editando el descriptor correspondiente a _Stratio Intelligence_ en Kubernetes y añadir la URL del conector a la variable de entorno `ANALYTIC_ENV_SPARK_HOME_EXTRA_JARS`.
++
+image::conf_intelligence_descriptor.png[Intelligence descriptor]
+
+==== Gestión de los secretos
+
+Sube las credenciales de acceso para los _workflows_ y para _Stratio Intelligence_ a _Stratio KMS_ tal como aparece descrito en los prerrequisitos.
+
+==== Gestión de la configuración
+
+* Para no tener problemas con la consistencia de datos se debe configurar _Stratio Intelligence_ como se indica en el documento de xref:ROOT:commiters.adoc#_uso_con_stratio_intelligence[integración].
+* Puedes consultar cómo habilitar el acceso directo a recursos de Google Cloud Storage sin usar tablas del catálogo en xref:#direct-access-to-resources[el apartado específico de esta guía].
+* Conexión por proxy.
++
+En caso de querer realizar conexión por proxy, necesitarás insertar las siguientes variables propias de Apache Spark™ en el _core-site.xml_ del despliegue de _Stratio Intelligence_:
++
+[source,xml]
+----
+    <property>
+      <name>fs.gs.proxy.host</name>
+      <value>your_host</value>
+    </property>
+    <property>
+      <name>fs.gs.proxy.username</name>
+      <value>your_username</value>
+    </property>
+    <property>
+      <name>fs.gs.proxy.password</name>
+      <value>your_password</value>
+    </property>
+----

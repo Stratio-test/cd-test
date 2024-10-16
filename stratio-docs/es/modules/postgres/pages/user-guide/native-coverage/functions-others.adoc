@@ -1,0 +1,73 @@
+= Other functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| ascii
+| SELECT ascii('222') ,age FROM coverage_postgres.coverage_table
+| Yes
+
+| cast
+| SELECT cast('10' as INT),age FROM coverage_postgres.coverage_table
+| Yes
+
+| coalesce
+| SELECT coalesce(NULL, 1, NULL) ,age FROM coverage_postgres.coverage_table
+| Yes
+
+| extract
+| SELECT extract(YEAR FROM TIMESTAMP '2019-08-12 01:00:00.123456'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| from_csv
+| SELECT from_csv('1, 0.8', 'a INT, b DOUBLE'),age FROM coverage_postgres.coverage_table
+| No
+
+| if
+| SELECT if(1 < 2, 'a', 'b'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| ifnull
+| SELECT ifnull(NULL, array('2')),age FROM coverage_postgres.coverage_table
+| No
+
+| in
+| SELECT 1 in(1, 2, 3),age FROM coverage_postgres.coverage_table
+| Yes
+
+| inline
+| SELECT inline(array(struct(1, 'a'), struct(2, 'b'))),age FROM coverage_postgres.coverage_table
+| No
+
+| inline_outer
+| SELECT inline_outer(array(struct(1, 'a'), struct(2, 'b'))),age FROM coverage_postgres.coverage_table
+| No
+
+| isnotnull
+| SELECT isnotnull(1),age FROM coverage_postgres.coverage_table
+| Yes
+
+| isnull
+| SELECT isnull(1),age FROM coverage_postgres.coverage_table
+| Yes
+
+| last
+| SELECT last(age) FROM coverage_postgres.coverage_table
+| No
+
+| nullif
+| SELECT nullif(2, 2) FROM coverage_postgres.coverage_table
+| Yes
+
+| or
+| SELECT true or false, age FROM coverage_postgres.coverage_table
+| Yes
+
+| uuid
+| SELECT uuid(),'UTF-8',age FROM coverage_postgres.coverage_table
+| No
+
+|===

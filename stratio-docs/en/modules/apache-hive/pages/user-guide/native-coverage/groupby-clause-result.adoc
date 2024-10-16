@@ -1,0 +1,64 @@
+= _GROUP BY_ clause
+
+== Syntax
+
+[source,sql]
+----
+GROUP BY group_expression [ , group_expression [ , ... ] ]
+    [ { WITH ROLLUP | WITH CUBE | GROUPING SETS (grouping_set [ , ...]) } ]
+
+
+GROUP BY GROUPING SETS (grouping_set [ , ...])
+----
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| Sum of quantity per dealership. Group by 'id'.
+| SELECT id, sum(quantity) FROM coverage.dealer GROUP BY id ORDER BY id;
+| Yes
+
+| Use column position in GROUP by clause.
+| SELECT id, sum(quantity) FROM coverage.dealer GROUP BY 1 ORDER BY 1;
+| Yes
+
+| Multiple aggregations.
+| SELECT id, sum(quantity) AS sum, max(quantity) AS max FROM coverage.dealer GROUP BY id ORDER BY id;
+| Yes
+
+| Count the number of distinct dealer cities per car_model.
+| SELECT car_model, count(DISTINCT city) AS count FROM coverage.dealer GROUP BY car_model;
+| Yes
+
+| Sum of only 'Honda Civic' and 'Honda CRV' quantities per dealership.
+| SELECT id, sum(quantity) FILTER (WHERE car_model IN ('Honda Civic', 'Honda CRV') ) AS sum_quantity FROM coverage.dealer GROUP BY id ORDER BY id;
+| No
+
+| Aggregations using multiple sets of grouping columns in a single statement.
+| SELECT city, car_model, sum(quantity) AS sum FROM coverage.dealer GROUP BY GROUPING SETS ((city, car_model), (city), (car_model), ()) ORDER BY city;
+| No
+
+| Alternate syntax for 'GROUPING SETS' in which both 'GROUP BY' and 'GROUPING SETS' specifications are present.
+| SELECT city, car_model, sum(quantity) AS sum FROM coverage.dealer GROUP BY city, car_model GROUPING SETS ((city, car_model), (city), (car_model), ()) ORDER BY city, car_model;
+| No
+
+| Group by processing with the 'ROLLUP' clause.
+| SELECT city, car_model, sum(quantity) AS sum FROM coverage.dealer GROUP BY city, car_model WITH ROLLUP ORDER BY city, car_model;
+| No
+
+| Group by processing with 'CUBE' clause.
+| SELECT city, car_model, sum(quantity) AS sum FROM coverage.dealer GROUP BY city, car_model WITH CUBE ORDER BY city, car_model;
+| No
+
+| Select the first row in the column age.
+| SELECT FIRST(age) FROM coverage.person;
+| No
+
+| Get the first row in column 'age' ignore nulls, the last row in column 'id' and the sum of column 'id'.
+| SELECT FIRST(age IGNORE NULLS), LAST(id), SUM(id) FROM coverage.person;
+| No
+
+|===

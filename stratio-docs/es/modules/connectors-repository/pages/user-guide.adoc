@@ -1,0 +1,96 @@
+= Guía de usuario
+
+El repositorio de conectores permite la gestión de los conectores, el versionado y las compatibilidades. Para más detalles sobre su uso puedes acceder al Swagger-UI `https://<serviceId>.<tenant>.<namespace>/<serviceId>/swagger`.
+
+== Autenticación
+
+Para poder operar con la API a los _endpoints_ protegidos es necesario obtener un _token_ mediante el _endpoint_ _/auth/signin_. Para ello, se debe hacer la petición con el nombre de usuario y contraseña en el _body_:
+
+[source,json]
+----
+{
+  "username": "{nombreusuario}",
+  "password": "{contraseña}"
+}
+----
+
+* `"{nombreusuario}"` nombre de usuario del servicio del repositorio de conectores. Puedes consultarlo en Vault en el servicio del repositorio de conectores.
+* `"{contraseña}"` contraseña de usuario del servicio del repositorio de conectores. Puedes consultarlo en Vault en el servicio del repositorio de conectores.
+
+image::connectors-repository-sigin-body.png[]
+
+La respuesta devuelve la información del usuario con su _accessToken_.
+
+image::connectors-repository-signin-response.png[]
+
+Para usarlo desde Swagger puedes presionar el botón "Authorize" en la esquina superior de la pantalla e introducir el _token_ para utilizar el resto de _endpoints_ de la API.
+
+=== Buscar un conector
+
+Puedes buscar un conector en el repositorio mediante el nombre del conector o mediante _tags_, obteniendo un listado de conectores con su información, versiones, compatibilidades, etc.
+
+*Buscar por nombre*
+
+Se pasarán como parámetro `name` tantos valores como se quiera y se obtendrán todos los conectores que contengan en su nombre alguno de los valores indicados.
+
+image::connectors-repository-find-connectors-by-name.png[]
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/connector/findByName?name=<connectorName1>&name=<connectorName2>&name=<connectorName3>' -i
+----
+
+*Buscar por _tags_*
+
+Se pasarán como parámetro `tags` tantos valores como se quiera y se obtendrán todos los conectores que contengan entre sus _tags_ alguno de los indicados.
+
+image::connectors-repository-find-connectors-by-tags.png[]
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/connector/findByTags?tags=<connectorTag1>&tags=<connectorTag2>' -i
+----
+
+=== Buscar un _driver_
+
+Puedes buscar un _driver_ en el repositorio mediante el nombre del _driver_, obteniendo un listado de ellos con toda su información. Se pasarán como parámetro `name` tantos valores como se quiera y se obtendrán todos los _drivers_ que contengan en su nombre alguno de los valores indicados.
+
+image::connectors-repository-find-drivers-by-name.png[]
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/driver/findByName?name=<connectorName1>&name=<connectorName2>&name=<connectorName3>' -i
+----
+
+=== Descargar un artefacto por nombre
+
+Para esto se necesita conocer el nombre con el que se ha creado dicho artefacto en el repositorio. Si no se conoce, se pueden utilizar las operaciones de búsqueda de conector y búsqueda de _driver_ para seleccionar el componente deseado y conocer el nombre del artefacto.
+
+image::connectors-repository-download-artifact.png[]
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/artifact/<artifactName>' -i
+----
+
+=== Descargar un conector por nombre, versión y versión de Scala*
+
+Para ello puedes ejecutar el siguiente comando:
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/connector?name=<connectorName>&version=<connectorVersion>&scala=<scalaVersion>' -i
+----
+
+image::connectors-repository-download-connector-artifact.png[]
+
+=== Descargar un _driver_ por nombre, versión y versión de Scala
+
+Para ello puedes ejecutar el siguiente comando:
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/driver?name=<driverName>&version=<driverVersion>' -i
+----
+
+image::connectors-repository-download-driver-artifact.png[]

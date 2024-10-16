@@ -1,0 +1,17 @@
+= Problemas conocidos
+
+* La API de Google BigQuery de Java tiene un modo silencioso que no informa de los errores cuando no puede conectarse a un determinado proyecto. Si aparece un almacén de datos vacío en _Stratio Data Governance_ (o no aparece en absoluto), puede deberse a que no tiene los permisos necesarios en la configuración de la cuenta de servicio de Google.
+* Para poder realizar operaciones de escritura, es necesario configurar un _bucket_ de Google Cloud Storage.
+* Si se crea una tabla que no existe en BigQuery, el catálogo de _Stratio Virtualizer_ devuelve un error "None.get". Consulta la xref:bigquery:troubleshooting.adoc[sección de _Troubleshooting_] para obtener más información sobre este problema.
+* Las vistas de BigQuery son compatibles pero se muestran como tablas en la interfaz de usuario de _Stratio Data Governance_.
+* El tipo de dato de Google BigQuery `BIGNUMERIC` se traslada como `STRING` en _Stratio Data Governance_ y _Stratio Virtualizer_, ya que excede la precisión máxima permitida en _Stratio Spark_.
+* Todos los tipos de datos y tablas de BigQuery no están permitidos por todos los modos de acceso:
+** _Spark datasource_ (_provider_ `spark`):
+*** Soporta todos los tipos de datos, simples y complejos.
+*** No soporta tablas externas o _snapshot_.
+** _Native dialect_ (_provider_ `com.stratio.crossdata.connector.bigquery`):
+*** Soporta todos los tipos de datos, simples y complejos.
+*** Soporta todos los tipos de tabla.
+** JDBC (_provider_ `jdbc`):
+*** Soporta todos los tipos simples excepto el tipo `TIME`. No soporta tipos complejos, _arrays_ o _structs_.
+*** Soporta todos los tipos de tablas.

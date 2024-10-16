@@ -1,0 +1,33 @@
+= Guía de usuario
+
+== Descripción
+
+El conector de Apache Kafka® te permite la integración de Apache Kafka® en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:apache-kafka:compatibility-matrix.adoc[matriz de compatibilidad].
+
+NOTE: La integración se realiza mediante _workflows_ de _Stratio Rocket_.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+El conector Apache Kafka® está integrado en _Stratio Rocket_ en _assets_ de tipo _streaming_ e _hybrid_, tanto en cajas de tipo "input" como "output". Para obtener más información, visita la xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc[documentación de _Stratio Rocket_].
+
+Los campos más importantes en la configuración del "input" son:
+
+* _Host_: _host_ de la instancia.
+* _Port_: puerto de la instancia.
+* _Consumer strategy_: estrategia de consumo de la cola Apache Kafka®.
+* _Topics_: nombre de la cola Apache Kafka®.
+
+image::kafka_conf_input.png[]
+
+Los campos más importantes en la configuración del "output" son:
+
+* _Host_: _host_ de la instancia.
+* _Port_: puerto de la instancia.
+
+image::kafka_conf_output.png[]
+
+Una vez configurado, puedes realizar _workflows_ donde utilices las cajas Apache Kafka® para consumir eventos de una cola.

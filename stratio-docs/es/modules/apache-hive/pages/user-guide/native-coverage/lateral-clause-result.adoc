@@ -1,0 +1,28 @@
+= _LATERAL VIEW_ clause
+
+== Syntax
+
+[source,sql]
+----
+LATERAL VIEW [ OUTER ] generator_function ( expression [ , ... ] ) [ table_alias ] AS column_alias [ , ... ]
+----
+
+== Result
+
+[cols="1,1"]
+|===
+|Query |Implemented
+
+| SELECT * FROM coverage.person LATERAL VIEW EXPLODE(ARRAY(30, 60)) tableName AS c_age LATERAL VIEW EXPLODE(ARRAY(40, 80)) AS d_age;
+| No
+
+| SELECT c_age, COUNT(1) FROM coverage.person LATERAL VIEW EXPLODE(ARRAY(30, 60)) AS c_age LATERAL VIEW EXPLODE(ARRAY(40, 80)) AS d_age GROUP BY c_age;
+| No
+
+| SELECT * FROM coverage.person LATERAL VIEW EXPLODE(ARRAY()) tableName AS c_age;
+| No
+
+| SELECT * FROM coverage.person LATERAL VIEW OUTER EXPLODE(ARRAY()) tableName AS c_age;
+| No
+
+|===

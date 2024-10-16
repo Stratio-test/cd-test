@@ -1,0 +1,203 @@
+= Operations guide
+
+The connectors repository contains the necessary artifacts and metadata to connect to a data source. It allows the automation of the management of connectors, modules, versioning and compatibilities.
+
+== Prerequisites
+
+. Have accessible the _Stratio KMS_ UI for credentials management. Visit the xref:ROOT:quick-start-guide.adoc[general quick start guide] section for making it available.
+
+== Installation and upgrade
+
+To install or upgrade the _Connectors Management_ service, fill in the following fields:
+
+* *_Service id_*: identifier of the service in _Stratio KEOS_.
+* *_Secret credentials_*: name of the secret that stores the user/password by default.
+* *Resource management*
+** *_Instances_*: number of instances of the service to be deployed.
+** *_CPUs_*: CPU assigned to the service when it is deployed.
+** *_CPUs Limit_*: maximum CPU that can be assigned to the service.
+** *_Memory (MB)_*: memory allocated to the service when it is deployed.
+** *_Memory limit (MB)_*: maximum memory that can be assigned to the service.
+* *Namespaces*
+** *_Discovered namespaces_*: namespace where the service will be deployed.
+
+image::connectors-repository-cct-deployment.png[]
+
+When installing or updating the service, the API default user credentials are generated if they did not exist previously:
+
+[source,json]
+----
+{
+  "user": "admin",
+  "pass": "changeit"
+}
+----
+
+The password must be modified by the user on installation or upgrade to meet the security criteria: have at least 8 characters, one lowercase letter, one uppercase letter, one number and one special character (excluding space).
+
+To modify it, you must access https://<stratio++_++kms++_++ui++_++url>/ui/vault/secrets_ and navigate to the credentials that correspond to the service:
+
+* `userland/passwords/<service_name>.<namespace_service>/<secret_name>`.
+
+Once there, you must modify the _pass_ key with a password that meets the requirements specified above. The user identifier can also be modified by changing the _user_ entry.
+
+If the service is running, the _Connectors Management_ service will need to be restarted for these changes to take effect.
+
+You can then check the status of the service in the _Stratio Command Center_ UI to verify that it is available.
+
+image::connectors-repository-cct-status.png[]
+
+[IMPORTANT]
+====
+To update the version of the service in _Stratio Command Center_ it is necessary to stop it beforehand or it may fail to start with the following error:
+
+[source,bash]
+----
+Volume is already used by pod(s) connectors-xxxxx
+----
+
+====
+
+== Automatic preloading
+
+To load the data and artifacts provided by _Stratio Generative AI Data Fabric_ into each universe, you need to run a K8s job.
+
+The auto-load job is idempotent, so running it one or more times will produce the same result.
+
+=== Create a data load job
+
+To create a job in K8s, run the following command, where _connectors-loader-job.yaml_ is the name of the file containing the job description.
+
+[source,bash]
+----
+kubectl create -f ~/connectors-loader-job.yaml -n {namespace}
+----
+
+The job contents are:
+
+[source,yaml]
+----
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: connectors-loader
+  labels:
+    app.kubernetes.io/name: connectors-loader
+    app.kubernetes.io/component: connectors-loader
+    cct.stratio.com/application_id: connectors-loader.{namespace}
+spec:
+  template:
+    spec:
+      containers:
+        - name: connectors-loader
+          imagePullPolicy: Always
+          image: ${eos.dockerRegistry}/connectors-loader:{universe_version}
+          env:
+            - name: CONNECTOR_MANAGEMENT_API_HOST
+              value: "{connectors-management-serviceId}"
+            - name: CONNECTOR_MANAGEMENT_API_PORT
+              value: "8080"
+            - name: CONNECTOR_MANAGEMENT_API_SCHEME
+              value: "http"
+            - name: CONNECTORS_LOADER_LOG_LEVEL
+              value: "INFO"
+            - name: VAULT_HOST
+              value: "vault.keos-core"
+            - name: VAULT_PORT
+              value: "8200"
+            - name: VAULT_ROLE
+              value: "{connectors-server-vault-role}"
+            - name: KEOS_MOUNT
+              value: "userland"
+      restartPolicy: OnFailure
+      serviceAccount: {connectors-server-service-account}
+  backoffLimit: 5
+----
+
+You must replace the following variables in the file:
+
+* `"{universe_version}"` with the version of the universe you want to upload.
+* `"{namespace}"` with the namespace where you create the job.
+* `"{connectors-management-serviceId}"` with the identifier of the service that was assigned to the connector repository.
+* `"{connectors-server-vault-role}"` by the value assigned to the _Secret Role_ of the connector repository.
+* `"{serviceAccount}"` by the account of the connector repository service that is normally the same as the _Service ID_.
+
+NOTE: If the job already exists from a previous upload and you need to recreate it to load data from a new version of the universe, you have to delete the existing job before recreating it.
+
+* *_General_*:
+** *_Service ID_*: agent's unique identifier.
+** *_Name of the Service_*: agent name.
+* *_Metadata Data store (PostgreSQL®)_*
+
+=== Deleting a connector upload job
+
+To delete a job in K8s, you can execute the following command, where _connectors-loader_ is the name of the job.
+
+[source,bash]
+----
+kubectl delete job connectors-loader -n <namespace>
+----
+
+=== Accessing the log of the executed K8s job
+
+To access the log of a job in K8s you can run the following command, where _connectors-loader_ is the name of the job:
+
+[source,bash]
+----
+kubectl logs job.batch/connectors-loader -n <namespace>
+----
+
+== Uploading data manually
+
+You can operate the connector maintenance service manually using a REST API.
+
+[source,bash]
+----
+https://connectors.tenant-my_namespace/v1/api
+----
+
+=== Creating a driver
+
+To do this, run the following command:
+
+[source,bash]
+----
+curl --request POST 'https://connectors.tenant-my_namespace/v1/api/driver' --header 'Content-Type: application/json' \
+--data-raw '{
+  "name": "jdbc-hive",
+  "version": "2.1.1-1.0.0",
+  "embedded": false,
+  "status": "available"
+}' -i
+----
+
+image::connectors-repository-create-driver-manual.png[]
+
+=== Uploading a driver artifact
+
+To do this, run the following command:
+
+[source,bash]
+----
+curl --request POST 'https://connectors.tenant-my_namespace/v1/api/artifact/<fileName>?artifactType=<Driver|Connector>&artifactId=<artifactId>' --form 'file=@"<localFileAbsolutePath>"' -i
+----
+
+image::connectors-repository-upload-artifact.png[]
+
+=== Downloading a driver artifact
+
+To do this, you can run the following commands:
+
+[source,bash]
+----
+curl --request GET 'https://connectors.tenant-my_namespace/v1/api/artifact/<fileName>' -i
+----
+
+image::connectors-repository-download-artifact.png[]
+
+[source,bash]
+----
+curl --request GET 'https://connectors.tenant-my_namespace/v1/api/driver?name=<driverName>&version=<driverVersion>' -i
+----
+
+image::connectors-repository-download-driver-artifact.png[]

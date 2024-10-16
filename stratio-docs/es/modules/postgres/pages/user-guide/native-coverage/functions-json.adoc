@@ -1,0 +1,37 @@
+= _JSON_ functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| from_json(jsonStr, schema[, options])
+| SELECT from_json('{a:1, b:0.8}', 'a INT, b DOUBLE'),age FROM coverage_postgres.coverage_table
+| No
+
+| get_json_object(json_txt, path)
+| SELECT get_json_object('{a:b}', '$.a'),age FROM coverage_postgres.coverage_table
+| No
+
+| json_array_length(jsonArray)
+| SELECT json_array_length('[1,2,3,4]'),age FROM coverage_postgres.coverage_table
+| Yes
+
+| json_object_keys(json_object)
+| SELECT json_object_keys('{f1:abc,f2:{f3:a, f4:b}}'),age FROM coverage_postgres.coverage_table
+| No
+
+| json_tuple(jsonStr, p1, p2, ..., pn)
+| SELECT json_tuple('{a:1, b:2}', 'a', 'b'),age FROM coverage_postgres.coverage_table
+| No
+
+| schema_of_json(json[, options])
+| SELECT schema_of_json('[{col:0}]'),age FROM coverage_postgres.coverage_table
+| No
+
+| to_json(expr[, options])
+| SELECT to_json(named_struct('a', 1, 'b', 2)),age FROM coverage_postgres.coverage_table
+| No
+
+|===

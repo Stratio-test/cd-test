@@ -1,0 +1,202 @@
+[
+  {
+    "check_id": "rules.missing-image-version",
+    "path": "Dockerfile",
+    "lines": "FROM qa.int.stratio.com/debezium/connect-base:2.1.1.Final"
+  },
+  {
+    "check_id": "rules.prefer-copy-over-add",
+    "path": "Dockerfile",
+    "lines": "ADD http://qa.int.stratio.com/repository/paas/kms_utils/${KMS_UTILS_VERSION}/kms_utils-${KMS_UTILS_VERSION}.sh /kms_utils.sh"
+  },
+  {
+    "check_id": "rules.prefer-copy-over-add",
+    "path": "Dockerfile",
+    "lines": "ADD http://qa.int.stratio.com/repository/paas/log_utils/${B_LOG_VERSION}/b-log-${B_LOG_VERSION}.sh /b-log.sh"
+  },
+  {
+    "check_id": "rules.prefer-copy-over-add",
+    "path": "Dockerfile",
+    "lines": "ADD http://qa.int.stratio.com/repository/public/io/prometheus/jmx/jmx_prometheus_javaagent/${JMX_AGENT_VERSION}/jmx_prometheus_javaagent-${JMX_AGENT_VERSION}.jar \\"
+  },
+  {
+    "check_id": "rules.android_logging",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/sink/JdbcSinkConfig.java",
+    "lines": "        System.out.println(CONFIG_DEF.toEnrichedRst());"
+  },
+  {
+    "check_id": "rules.android_logging",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/source/JdbcSourceConnectorConfig.java",
+    "lines": "        System.out.println(CONFIG_DEF.toEnrichedRst());"
+  },
+  {
+    "check_id": "rules.hardcoded_password",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    public static final String CONNECTION_PASSWORD_CONFIG = \"connection.password\";"
+  },
+  {
+    "check_id": "rules.hardcoded_password",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    private static final String CONNECTION_PASSWORD_DOC = \"JDBC connection password.\";"
+  },
+  {
+    "check_id": "rules.hardcoded_password",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    private static final String CONNECTION_PASSWORD_DISPLAY = \"JDBC Password\";"
+  },
+  {
+    "check_id": "rules.hardcoded_password",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/Db2DatabaseDialect.java",
+    "lines": "        return super.sanitizedUrl(url)\n            .replaceAll(\"(?i)([:;]password=)[^;]*\", \"$1****\");"
+  },
+  {
+    "check_id": "rules.hardcoded_password",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/DerbyDatabaseDialect.java",
+    "lines": "        return super.sanitizedUrl(url)\n            .replaceAll(\"(?i)(;password=)[^;]*\", \"$1****\");"
+  },
+  {
+    "check_id": "rules.hardcoded_password",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/GenericDatabaseDialect.java",
+    "lines": "        return url.replaceAll(\"(?i)([?&]password=)[^&]*\", \"$1****\");"
+  },
+  {
+    "check_id": "rules.hardcoded_password",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/MySqlDatabaseDialect.java",
+    "lines": "        return super.sanitizedUrl(url)\n            .replaceAll(\"(?i)([(,]password=)[^,)]*\", \"$1****\")\n            .replaceAll(\"(://[^:]*:)([^@]*)@\", \"$1****@\");"
+  },
+  {
+    "check_id": "rules.hardcoded_password",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/SqlServerDatabaseDialect.java",
+    "lines": "        return super.sanitizedUrl(url)\n            .replaceAll(\"(?i)(;password=)[^;]*\", \"$1****\")\n            .replaceAll(\"(?i)(;keyStoreSecret=)[^;]*\", \"$1****\")\n            .replaceAll(\"(?i)(;gsscredential=)[^;]*\", \"$1****\");"
+  },
+  {
+    "check_id": "rules.hardcoded_username",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    public static final String CONNECTION_USER_CONFIG = \"connection.user\";"
+  },
+  {
+    "check_id": "rules.hardcoded_username",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    private static final String CONNECTION_USER_DOC = \"JDBC connection user.\";"
+  },
+  {
+    "check_id": "rules.hardcoded_username",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    private static final String CONNECTION_USER_DISPLAY = \"JDBC User\";"
+  },
+  {
+    "check_id": "rules.hardcoded_api_key",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/SqlServerDatabaseDialect.java",
+    "lines": "        return super.sanitizedUrl(url)\n            .replaceAll(\"(?i)(;password=)[^;]*\", \"$1****\")\n            .replaceAll(\"(?i)(;keyStoreSecret=)[^;]*\", \"$1****\")\n            .replaceAll(\"(?i)(;gsscredential=)[^;]*\", \"$1****\");"
+  },
+  {
+    "check_id": "rules.hardcoded_api_key",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/source/JdbcSourceConnectorConstants.java",
+    "lines": "    public static final String TABLE_NAME_KEY = \"table\";"
+  },
+  {
+    "check_id": "rules.hardcoded_api_key",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/source/JdbcSourceConnectorConstants.java",
+    "lines": "    public static final String QUERY_NAME_KEY = \"query\";"
+  },
+  {
+    "check_id": "rules.hardcoded_api_key",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/source/JdbcSourceConnectorConstants.java",
+    "lines": "    public static final String OFFSET_PROTOCOL_VERSION_KEY = \"protocol\";"
+  },
+  {
+    "check_id": "rules.hardcoded_secret",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/SqlServerDatabaseDialect.java",
+    "lines": "        return super.sanitizedUrl(url)\n            .replaceAll(\"(?i)(;password=)[^;]*\", \"$1****\")\n            .replaceAll(\"(?i)(;keyStoreSecret=)[^;]*\", \"$1****\")\n            .replaceAll(\"(?i)(;gsscredential=)[^;]*\", \"$1****\");"
+  },
+  {
+    "check_id": "rules.owasp.java.ssrf.possible.import.statements",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/GenericDatabaseDialect.java",
+    "lines": "import java.net.URL;"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.HARD_CODE_KEY-2",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    public static final String CONNECTION_PASSWORD_CONFIG = \"connection.password\";"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.HARD_CODE_KEY-2",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    private static final String CONNECTION_PASSWORD_DOC = \"JDBC connection password.\";"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.HARD_CODE_KEY-2",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    private static final String CONNECTION_PASSWORD_DISPLAY = \"JDBC Password\";"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.HARD_CODE_KEY-2",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/source/JdbcSourceConnectorConstants.java",
+    "lines": "    public static final String TABLE_NAME_KEY = \"table\";"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.HARD_CODE_KEY-2",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/source/JdbcSourceConnectorConstants.java",
+    "lines": "    public static final String QUERY_NAME_KEY = \"query\";"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.HARD_CODE_KEY-2",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/source/JdbcSourceConnectorConstants.java",
+    "lines": "    public static final String OFFSET_PROTOCOL_VERSION_KEY = \"protocol\";"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.HARD_CODE_KEY-3",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    public static final String CONNECTION_PASSWORD_CONFIG = \"connection.password\";"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.HARD_CODE_KEY-3",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    private static final String CONNECTION_PASSWORD_DOC = \"JDBC connection password.\";"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.HARD_CODE_KEY-3",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/config/JdbcConfig.java",
+    "lines": "    private static final String CONNECTION_PASSWORD_DISPLAY = \"JDBC Password\";"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.CUSTOM_INJECTION-2",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/sink/BufferedRecords.java",
+    "lines": "                    throw new ConnectException(String.format(\n                            \"Update count (%d) did not sum up to total number of records inserted (%d)\",\n                            totalUpdateCount,\n                            records.size()\n                    ));"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.SQL_INJECTION_SPRING_JDBC-1.SQL_INJECTION_JPA-1.SQL_INJECTION_JDO-1.SQL_INJECTION_JDBC-1.SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE-1",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/GenericDatabaseDialect.java",
+    "lines": "        final PreparedStatement stmt = db.prepareStatement(query);"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.SQL_INJECTION_SPRING_JDBC-1.SQL_INJECTION_JPA-1.SQL_INJECTION_JDO-1.SQL_INJECTION_JDBC-1.SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE-1",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/GenericDatabaseDialect.java",
+    "lines": "                statement.executeUpdate(ddlStatement);"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.SQL_INJECTION_SPRING_JDBC-1.SQL_INJECTION_JPA-1.SQL_INJECTION_JDO-1.SQL_INJECTION_JDBC-1.SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE-1",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/dialect/SybaseDatabaseDialect.java",
+    "lines": "                statement.executeUpdate(ddlStatement);"
+  },
+  {
+    "check_id": "rules.find_sec_bugs.SQL_INJECTION_SPRING_JDBC-1.SQL_INJECTION_JPA-1.SQL_INJECTION_JDO-1.SQL_INJECTION_JDBC-1.SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE-1",
+    "path": "aiven-kafka-connect-jdbc/src/main/java/io/aiven/connect/jdbc/sink/BufferedRecords.java",
+    "lines": "            preparedStatement = connection.prepareStatement(sql);"
+  },
+  {
+    "check_id": "rules.tainted-sql-string",
+    "path": "kafka-connect-secret-provider/src/main/scala/io/lenses/connect/secrets/package.scala",
+    "lines": "          s\"Failed to create file [${file.getAbsolutePath}]  for key [$key]\","
+  },
+  {
+    "check_id": "rules.tainted-sql-string",
+    "path": "kafka-connect-secret-provider/src/main/scala/io/lenses/connect/secrets/package.scala",
+    "lines": "          s\"Failed to create file [${file.getAbsolutePath}]  for key [$key]\","
+  },
+  {
+    "check_id": "rules.tainted-sql-string",
+    "path": "kafka-connect-secret-provider/src/main/scala/io/lenses/connect/secrets/package.scala",
+    "lines": "          s\"Failed to create file [${file.getAbsolutePath}]  for key [$key]\","
+  }
+]

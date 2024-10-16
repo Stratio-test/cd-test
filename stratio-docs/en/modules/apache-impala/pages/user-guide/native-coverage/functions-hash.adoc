@@ -1,0 +1,60 @@
+= _HASH_ functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+| base64
+| SELECT base64('Spark SQL') ,age FROM coverage_impala.hash
+| No
+
+| decode
+| SELECT decode(encode('abc', 'utf-8'), 'utf-8') ,age FROM coverage_impala.hash
+| No
+
+| encode
+| SELECT exists(array(1, 2, 3), x -> x % 2 == 0),age FROM coverage_impala.hash
+| No
+
+| hash
+| SELECT hash('Spark', array(123), 2),age FROM coverage_impala.hash
+| No
+
+| md5
+| SELECT md5('SparkSql'),age FROM coverage_impala.hash
+| No
+
+| sha
+| SELECT sha('SparkSql'),age FROM coverage_impala.hash
+| No
+
+| sha1
+| SELECT sha1('SparkSql'),age FROM coverage_impala.hash
+| No
+
+| sha2
+| SELECT sha2('SparkSql'),age FROM coverage_impala.hash
+| No
+
+| shiftleft
+| SELECT shiftleft(2, 1),age FROM coverage_impala.hash
+| Yes
+
+| shiftright
+| SELECT shiftright(4, 1),age FROM coverage_impala.hash
+| Yes
+
+| shiftrightunsigned
+| SELECT shiftrightunsigned(4, 1),age FROM coverage_impala.hash
+| No
+
+| unbase64
+| SELECT unbase64('U3BhcmsgU1FM'),age FROM coverage_impala.hash
+| No
+
+| unhex
+| SELECT decode(unhex('537061726B2053514C'), 'UTF-8'),age FROM coverage_impala.hash
+| No
+
+|===

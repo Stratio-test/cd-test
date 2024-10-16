@@ -1,0 +1,65 @@
+﻿= Quick start guide
+
+== Prerequisites
+
+You can find the prerequisites for installing the SSCC Elasticsearch connector in the xref:elasticsearch:operations-guide.adoc#_prerequisites[operations guide].
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for Elasticsearch you must go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors NoSQL' and select "Elasticsearch Agent".
+
+When installing, you have to add the information corresponding to the Elasticsearch project to be discovered, in addition to the URL of the connectors repository where the `sscc-elasticsearch-0.3_2.12-1.2.x` artifact is stored and upload the access credentials to _Stratio KMS_.
+
+The most important fields to fill in are:
+
+** *_Root discovery path_*: path from which you want to discover metadata recursively. They must be separated by commas, without spaces, and with a `/` slash at the beginning. Example: `/root`.
+** *_Access credentials_*: name of the secret created in _Stratio KMS_. Example: `<secret_name>`.
+** *_Data store driver location_*: URL where the artifact that will contain the JAR of the SSCC Elasticsearch connector is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-elasticsearch-0.3_2.12-1.2.x.jar`.
+
+TIP: More information on the other configuration parameters can be found in the xref:elasticsearch:operations-guide.adoc#_discovery_agent[operations guide].
+
+== Virtualize your data
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the SSCC Elasticsearch connector. To do this, simply add the URL of the connectors repository of the required artifact inthe 'Customized deployment' -> 'Settings' -> `Additional jars` variable.
+
+In the example being followed, the Eureka agent looks like this:
+
+* _Additional jars_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-elasticsearch-0.3_2.12-1.2.x.jar`.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the SSCC Elasticsearch connector needs to be configured. To do so, you need to add the URL of the `sscc-elasticsearch-0.3_2.12-1.2.x` artifact in the 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` variable and also upload the access credentials to _Stratio KMS_.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the SSCC Elasticsearch connector needs to be configured. To do this, you must add the URL of the `sscc-elasticsearch-0.3_2.12-1.2.x` artifact in the 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` variable and also upload the access credentials for the _workflows_ and for _Stratio Rocket_ to _Stratio KMS_.
+
+TIP: More information on the other configuration parameters can be found in the xref:elasticsearch:operations-guide.adoc#rocket-configuration[operations guide].
+
+=== _Stratio Intelligence_
+
+Prior to integration with the connector it is necessary to configure _Stratio Intelligence_. The following properties must be added:
+
+* `INTERPOLATED_ANALYTIC_ENV_CROSSDATA_CATALOG_SECRET_INSTANCE_NAME`: ${username}.
+* `ANALYTIC_ENV_VAULT_PATH`: "people"..
+* `ANALYTIC_ENV_REQUESTS_CA_BUNDLE`: /opt/sds/stratio_analytic/security/ca-bundle.pem.
+* `ANALYTIC_ENV_HIDE_VAULT_TOKEN`: "false".
+
+In addition, in the multiuser environment it is necessary to have the "Allow artifact deployment" option enabled and to have the _artifacts_ value in the path.
+
+Once you've configured _Stratio Intelligence_, you have to add the SSCC Elasticsearch connector to the _artifacts/spark++_++jars_ directory and upload the access credentials to _Stratio KMS_.
+
+To upload the artifact, you have to download it to the _artifacts/spark++_++jars_ directory in the _Stratio Intelligence_ workspace by issuing a cURL request. In this case, you could make the following request:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-elasticsearch-0.3_2.12-1.2.x --output sscc-elasticsearch-0.3_2.12-1.2.x
+----

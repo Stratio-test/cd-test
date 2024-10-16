@@ -1,0 +1,15 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar de forma sencilla cómo se integra Apache Kafka® en _Stratio Rocket_.
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector especial de Apache Kafka® en la xref:apache-kafka:operations-guide.adoc#_prerrequisitos[Guía de operaciones].
+
+== Accede a tus datos
+
+=== _Stratio Rocket_
+
+Para la integración con _Stratio Rocket_ es necesario activar el conector de Apache Kafka® en el despliegue de _Stratio Rocket_. Para ello, debes marcar la casilla "Include Kafka connector" en 'Customized deployment' -> 'Settings' -> 'Classpath':
+
+image::kafka_conf.png[]

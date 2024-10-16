@@ -1,0 +1,42 @@
+= Introducción
+
+Un conector está compuesto por uno o varios artefactos que permiten acceder a datos de fuentes externas a la plataforma _Stratio Generative AI Data Fabric_, de forma que el acceso de todos los módulos de la plataforma a esas fuentes externas esté completamente integrado y sea trasparente al usuario.
+
+En la siguiente imagen se ve un esquema de los distintos módulos donde se usan los artefactos para conectarse a fuentes de datos externas.
+
+image::arquitectura-conectores.png[]
+
+Estos artefactos deben configurarse en cada módulo. Más adelante se verá cómo se configura de manera concreta cada base de datos externa a las que se quiera acceder.
+
+== Gestión de secretos
+
+Todos los conectores externos están integrados con _Stratio KMS_ (_Key Management System_), el repositorio de gestión de claves centralizado de Stratio.
+
+Para cada base de datos externa que se quiera integrar se deben subir a _Stratio KMS_ los secretos asociados a los módulos que van a usar los datos externos:
+
+* Agente de descubrimiento.
+* _Stratio Virtualizer_.
+* _Stratio Rocket_.
+* _Workflows_ de _Stratio Rocket_.
+* _Stratio Intelligence_.
+
+En función de la base de datos a la que se quiera conectar se soportan distintos tipos de secretos:
+
+* MD5 (usuario/contraseña).
+* Integración con Kerberos con autenticación usuario/contraseña o _keytab_.
+* Cuentas de servicio.
+* Etc.
+
+== Funcionamiento
+
+En xref:stratio-virtualizer:architecture:features.adoc#_acceso_nativo_a_los_almacenes_de_datos[__Stratio Virtualizer__] se pueden ver los distintos modos de funcionamiento.
+
+== Repositorios de datos soportados
+
+En cada uno de los repositorios integrados en _Stratio Generative AI Data Fabric_ se ha documentado una matriz de compatibilidad donde se indica:
+
+* Las versiones del repositorio con las que se certificó la integración del conector.
+* Las versiones del _driver_ con las que se certificó la integración del conector.
+* El enlace a la matriz de compatibilidad del fabricante de las versiones del _driver_.
+
+_Stratio Generative AI Data Fabric_ es compatible con las versiones certificadas del _driver_ así como con las versiones del repositorio de datos para las que el fabricante del _driver_ garantice la compatibilidad.

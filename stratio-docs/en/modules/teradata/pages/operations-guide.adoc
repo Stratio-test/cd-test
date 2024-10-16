@@ -1,0 +1,168 @@
+﻿= Operations guide
+
+== Description
+
+The SSCC Teradata connector allows you to integrate Teradata into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:teradata:compatibility-matrix.adoc[compatibility matrix].
+
+=== Authentication
+
+Currently, the connector only supports *username and password* authentication.
+
+== Prerequisites
+
+. Install the xref:connectors-repository:operations-guide.adoc#_installation[connectors repository].
++
+IMPORTANT: In the connectors repository, the `sscc-teradata-0.3_2.12-1.1.x` artifact, which will be used for basic use of the MySQL connector, will be available at the URL `http://connectors.tenant-my_namespace/v1/api/artifact/<artifact_name>`. You need to upload the JDBC driver artifact indicated in the compatibility matrix to the connectors repository as it isn't included by default.
+
+. The _Stratio KMS_ UI should be accessible to manage credentials:
++
+See the section of xref:ROOT:quick-start-guide.adoc#access-kms-ui[general quick start guide] for the steps you need to take to make it available.
+
+. Have an instance of a Teradata database accessible from the _Stratio Generative AI Data Fabric_ with the authentication mode configured:
+* It is not recommended to use users with administrator privileges.
+* It is recommended to manage authorization using *permissions as specific as possible* on the database.
+
+[#create-secret]
+
+. Create secrets in _Stratio KMS_. To do this, go to `https://<stratio_kms_ui_url>/ui/vault/secrets` and create a secret in the corresponding folder of the service with the following options, depending on the authentication mode:
++
+** Username/Password
+*** *_user_*: `usuario_teradata`.
+*** *_pass_*: `password_teradata`.
+
+This secret must be uploaded to the following _Stratio KMS_ directories:
+
+** *Discovery agent*: `userland/passwords/<agent_name>.<namespace>/<secret_name>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<virtualizer_name>.<virtualizer_namespace>/<secret_name>`.
+** *_Stratio Rocket_*: `userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>`.
+** *_Stratio Rocket_ workflows*: `userland/passwords/execution-identity-<rocket_name>.<rocket_namespace>/<secret_name>`.
+** *_Stratio Intelligence_*: `/people/passwords/<intelligence_user_name>/<secret_name>`.
++
+NOTE: The name and values of the secret for all services must match the ones used to configure the discovery agent.
+
+== Discover your data
+
+=== Discovery agent
+
+* To install a _Stratio Data Governance_ discovery agent for Teradata you must select "Teradata Agent" in '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS'.
++
+The fields to be filled in for the installation are:
++
+* *General*:
+** *_Service ID_*: agent's unique identifier. Example: _dg-teradata-agent_.
+* *_Metadata Data store (PostgreSQL®)_*
+** *_Host_*: the PostgreSQL® instance that stores the discovered metadata. Example: _poolpostgresgov_.
+* *_Configuration of the Service to be Discovered_*
+** *_Service to be discovered_*
+*** *_Service name_*: name that will be used to identify this data store in _Stratio Data Governance_. It’s the one that will be displayed in the _Stratio Data Governance_ UI. Example: _dg-teradata-agent_.
+*** *_Root discovery path_*: path from which you want to recursively discover the metadata. They should be separated by commas, without spaces, and with a slash `/` at the beginning.
++
+image::teradata-cct-deployment.png[]
+
+** *Resource datastore connection configuration*
+*** *_Custom Service URL_*: JDBC URL properties. The placeholder -db- will be replaced with the database name _"init path"_. Example: `jdbc:teradata@10.200.0.3/-db-,DBS_PORT=1025`.
+*** *_Custom data store service security_*: type of authentication used for the connection. Only supports username and password (MD5).
+*** *_Access credentials_*: name of the secret in xref:#create-secret[_Stratio KMS_], e.g.: _teradata-secret_.
+*** *_SSCC driver location_*: URL where the artifact that will contain the JAR of the SSCC Teradata connector is located in the connectors repository. Example: _http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-teradata-0.3_2.12-1.1.x.jar_.
+*** *_JDBC driver location_*: URL where the artifact that will contain the JAR of the selected JDBC driver is located in the connectors repository. Example: _http://connectors.<tenant>-<namespace>/v1/api/artifact/terajdbc-20.00.00.06.jar_.
++
+image::teradata-cct-deployment2.png[]
++
+image::teradata-cct-deployment3.png[]
+
+The discovery process is asynchronous. Once completed, it can be viewed from the _Stratio Data Governance_ UI.
+
+image::teradata-discover-metadata.png[]
+
+== Virtualize your data
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+=== _Legacy_ and _path_ modes
+
+There are two discovery modes:
+
+* _Legacy_ (no longer used)
+
+Set the _Use legacy mode_ field to "true" to activate it.
+
+image::teradata-mode-legacy-conf.png[]
+
+* _Path_
+
+Set the _Use legacy mode_ field to "false" to activate it.
+
+image::teradata-mode-sscc-conf.png[]
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the Teradata connector. To do this, simply add the URL of the connectors repository of the `sscc-teradata-0.3_2.12-1.1.x` artifact in the 'Customized deployment' -> 'Settings' -> `Additional jars` variable.
++
+image::teradata-bdl-conf.png[]
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+For more details on the use of the BDL, see the xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[BDL data processing documentation].
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ supports interaction with IBM Db2 through the SSCC Teradata connector. This integration has certain requirements:
+
+* The following _Stratio Virtualizer_ deployment fields must be modified in _Stratio Command Center_:
++
+--
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Integration'.
+** *_JDBC Integration_*: `True/False`.
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Drivers URL List'.
+*** *_JDBC Drivers URL List_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-teradata-0.3_2.12-1.1.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/terajdbc-20.00.00.x.jar`.
+--
++
+image::teradata-virtualizer-conf.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+==== Managing the driver
+
+To use _Stratio Rocket_, the MySQL connector needs to be configured. To do this:
+
+* You have to add the URL of the `sscc-teradata-0.3_2.12-0.x.jar` and `terajdbc-20.00.00.x.jar` artifacts in the 'Customized deployment' -> 'Settings' -> 'Classpath configuration' -> `Rocket extra jars` variable of _Stratio Command Center_.
+
+* *_Rocket extra jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-teradata-0.3_2.12-1.1.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/terajdbc-20.00.00.x.jar`.
+
+. You also have to upload the access credentials for workflows and for _Stratio Rocket_ to _Stratio KMS_.
++
+image::teradata-rocket-conf.png[]
+
+==== Managing secrets
+
+Upload the access credentials for the workflows and for _Stratio Rocket_ to _Stratio KMS_ as described in the prerequisites.
+
+[#rocket-configuration]
+
+==== Configuration management: quality rules and lineage
+
+Go to the _Stratio Rocket_ configuration in 'Settings' -> 'Governance Lineage' and make sure that the "Governance Lineage" option is enabled.
+
+The fields to be filled in are the following:
+
+* _Custom lineage and quality rules methods using JDBC driver_: `com.teradata.jdbc.TeraDriver:com.stratio.connectors.ssccteradata.TeradataQualityRulesAndLineage:getMetadataPath`.
+** This option activates lineage for data flows using _datasource_ boxes that access the data store directly.
++
+IMPORTANT: For lineage to work properly, the discovery agent must have the value `<host_url_jdbc_teradata>.port.<port_url_jdbc_teradata>` as its _Service Name_.
++
+* _Custom planned quality rules methods_: `com.stratio.connectors.ssccteradata.TeradataDriverMD5:com.stratio.connectors.ssccteradata.TeradataQualityRulesAndLineage:getPlannedQRCreateTable`.
+** With this option, the planned quality rules that directly access tables in the data store will be supported.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+Restart _Stratio Rocket_ to apply the changes.
+
+NOTE: These variables are *not necessary* for the lineage and quality rules on virtualized tables in the catalog.
+
+=== _Stratio Intelligence_
+
+To correctly configure _Stratio Intelligence_, see the xref:teradata:quick-start-guide.adoc#_stratio_intelligence[Stratio Intelligence_] section; remember that you have to use the right format for the authentication mode for secrets.

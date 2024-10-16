@@ -1,0 +1,77 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar de forma sencilla cómo integrar un _data warehouse_ Amazon Redshift en la plataforma _Stratio Generative AI Data Fabric_.
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector de SSCC Amazon Redshift en la xref:amazon-redshift:operations-guide.adoc#_prerrequisitos[guía de operaciones].
+
+NOTE: Ten en cuenta que en esta guía de inicio rápido se utilizará el *modo de autenticación _Service Account_*.
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para Amazon Redshift debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' el agente "Redshift Agent".
+
+En la instalación debes añadir la información correspondiente a la instancia de la base de datos a descubrir, además de las URL del repositorio de conectores donde se almacenen los artefactos necesarios y subir las credenciales de acceso a _Stratio KMS_.
+
+Los campos más importantes a rellenar son:
+
+* *_Root discovery path_*: los _workgroups/clusters_ de Amazon Redshift que quieras que sean descubiertos. Deben estar separados por comas, sin espacios y con una `/` al principio.
+* *_Access credentials_*: nombre del secreto creado en _Stratio KMS_. Ejemplo: _redshift-secret_.
+* *_Redshift custom endpoint region_*: región usada en el _endpoint_ por defecto.
+* *_SSCC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC Amazon Redshift. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-redshift-0.3_2.12-1.0.x.jar`.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:amazon-redshift:operations-guide.adoc[guía de operaciones].
+
+Una vez terminado el proceso de descubrimiento, el almacén de datos aparecerá en la interfaz de usuario de _Stratio Data Governance_.
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector SSCC Amazon Redshift. Para ello, hay que añadir la URL del repositorio de conectores del artefacto `sscc-redshift-0.3_2.12-1.0.x` en la variable `Additional jars`.
+
+En el ejemplo que se está siguiendo queda de esta manera:
+
+* _Additional jars_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-redshift-0.3_2.12-1.0.x.jar`.
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+image::redshift-bdl.png[]
+
+=== _Stratio Virtualizer_
+
+Para el uso de _Stratio Virtualizer_ es necesario tener configurado el conector de Amazon Redshift. Para ello, debes añadir la URL del artefacto `sscc-redshift-0.3_2.12-1.0.x` en la variable 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` y además subir las credenciales de acceso a _Stratio KMS_.
+
+image::redshift-virtualizer-conf.png[]
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener configurado el conector SSCC Amazon Redshift. Para ello, debes añadir la URL del artefacto `sscc-redshift-0.3_2.12-1.0.x` en la variable `Rocket extra jars` y además subir las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_.
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars`: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-redshift-0.3_2.12-1.0.x.jar`.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:amazon-redshift:operations-guide.adoc#rocket-configuration[guía de operaciones].
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_, tal y como aparece descrito en xref:ROOT:quick-start-guide#_stratio_intelligence[la guía de inicio rápido general].
+
+Para acceder y explotar los datos de Amazon Redshift es necesario configurar _Stratio Intelligence_ de la siguiente manera:
+
+* Añade el conector de SSCC Amazon Redshift a la instancia de _Stratio Intelligence_:
+** Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'intelligence' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Analytic Environment Settings' -> 'Extra jars to Spark Context Configuration'.
+** Añade al campo _Spark classpath extra jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-redshift-0.3_2.12-1.0.x.jar`.
+** Añade esa misma URL al _classpath_ de Apache Spark™.
++
+IMPORTANT: Debido a que _Stratio Intelligence_ necesita disponer del conector en tiempo de inicialización de Apache Spark™, es necesario que el conector se encuentre en el _classpath_ al arrancar el _Notebook_. Actualmente, la manera de hacerlo es editando el descriptor conrrespondiente a _Stratio Intelligence_ en Kubernetes y añadir la URL del conector a la variable de entorno `ANALYTIC_ENV_SPARK_HOME_EXTRA_JARS`.
+
+* xref:amazon-redshift:operations-guide.adoc#_prerrequisitos[Sube las credenciales de acceso a __Stratio KMS__].
+
+Tras aplicar estos cambios, deberías poder acceder a la colección virtualizada de Amazon Redshift mediante SparkSQL a través del catálogo. Consulta más información y los modos de acceso disponibles en la xref:amazon-redshift:operations-guide.adoc#_stratio_intelligence[guía de operaciones].
+
+TIP: Para no tener problemas con la consistencia de datos, se debe configurar _Stratio Intelligence_ como se indica en el documento de xref:ROOT:commiters.adoc#_uso_con_stratio_intelligence[integración]. Visita este mismo documento para tener más información.

@@ -1,0 +1,31 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector SSCC Snowflake, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+|===
+|Módulo |Capacidad | Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-snowflake-0.3_2.12-1.1.x
+
+| _Stratio BDL_
+| Virtualización
+| ≥ sscc-snowflake-0.3_2.12-1.1.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura/Acceso nativo
+| ≥ sscc-snowflake-0.3_2.12-1.1.x
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada/Acceso nativo
+| ≥ sscc-snowflake-0.3_2.12-1.1.x
+
+| _Stratio Intelligence_
+| Lectura y escritura virtualizada
+| ≥ sscc-snowflake-0.3_2.12-1.1.x
+|===
+
+== Compatibilidad con versiones de Snowflake
+
+Se ha validado la compatibilidad del conector para Snowflake 7.25.0.

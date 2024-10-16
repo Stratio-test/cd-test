@@ -1,0 +1,33 @@
+= Window functions
+
+== Syntax
+
+[source,sql]
+----
+window_function OVER
+( [  { PARTITION | DISTRIBUTE } BY partition_col_name = partition_col_val ( [ , ... ] ) ]
+  { ORDER | SORT } BY expression [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [ , ... ]
+  [ window_frame ] )
+----
+
+== Result
+
+[cols="1,1"]
+|===
+|Query |Implemented
+| SELECT name, dept, RANK() OVER (PARTITION BY dept ORDER BY salary) AS rank FROM coverage_impala.employees;
+| No
+
+| SELECT name, dept, DENSE_RANK() OVER (PARTITION BY dept ORDER BY salary ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS dense_rank FROM coverage_impala.employees;
+| No
+
+| SELECT name, dept, age, CUME_DIST() OVER (PARTITION BY dept ORDER BY age RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cume_dist FROM coverage_impala.employees;
+| No
+
+| SELECT name, dept, salary, MIN(salary) OVER (PARTITION BY dept ORDER BY salary) AS min FROM coverage_impala.employees;
+| No
+
+| SELECT name, salary, LAG(salary) OVER (PARTITION BY dept ORDER BY salary) AS lag, LEAD(salary, 1, 0) OVER (PARTITION BY dept ORDER BY salary) AS lead FROM coverage_impala.employees;
+| No
+
+|===

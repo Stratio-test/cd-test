@@ -1,0 +1,6 @@
+= Known issues
+
+* Reading files of type _sas7bvew_ and _sas7bcat_ is not supported.
+* Apache Spark™ data source from SAS® Grid Manager (provider `com.stratio.connectors.sasgrid`) has the following limitations:
+** *Write*: not supported.
+** Partitions cannot be smaller than 1MB.

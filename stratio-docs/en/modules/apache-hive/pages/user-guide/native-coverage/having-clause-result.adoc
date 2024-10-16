@@ -1,0 +1,40 @@
+= _HAVING_ clause
+
+== Syntax
+
+[source,sql]
+----
+HAVING boolean_expression
+----
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| 'HAVING' clause referring to a column in 'GROUP BY'.
+| SELECT city, sum(quantity) AS sum FROM coverage.dealer GROUP BY city HAVING city = 'Fremont';
+| Yes
+
+| 'HAVING' clause referring to the aggregate function.
+| SELECT city, sum(quantity) AS sum FROM coverage.dealer GROUP BY city HAVING sum(quantity) > 15;
+| Yes
+
+| 'HAVING' clause referring to aggregate function by its alias.
+| SELECT city, sum(quantity) AS sum FROM coverage.dealer GROUP BY city HAVING sum > 15;
+| Yes
+
+| 'HAVING' clause referring to a different aggregate function than what is present in the 'SELECT' list.
+| SELECT city, sum(quantity) AS sum FROM coverage.dealer GROUP BY city HAVING max(quantity) > 15;
+| Yes
+
+| 'HAVING' clause referring to constant expression.
+| SELECT city, sum(quantity) AS sum FROM coverage.dealer GROUP BY city HAVING 1 > 0 ORDER BY city;
+| Yes
+
+| 'HAVING' clause without a 'GROUP BY' clause.
+| SELECT sum(quantity) AS sum FROM coverage.dealer HAVING sum(quantity) > 10;
+| Yes
+
+|===

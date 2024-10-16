@@ -1,0 +1,212 @@
+﻿= Operations guide
+
+== Description
+
+The SSCC Databricks connector allows you to integrate https://www.databricks.com/product/databricks-sql[Databricks] workspace into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:databricks:compatibility-matrix.adoc[compatibility matrix].
+
+=== Authentication
+
+The connector supports two authentication modes:
+
+* _Personal Access Token_ (PAT).
+* Oauth2 token for Microsoft Azure provider.
+
+As you'll see later, depending on the mode you choose, specific configuration values and credentials will have to be used in each of the _Stratio Generative AI Data Fabric_ services.
+
+== Prerequisites
+
+. Have a workspace of Databricks installed and accessible from the _Stratio Generative AI Data Fabric_.
++
+The examples in this guide will assume that the workspace includes the example catalog https://docs.databricks.com/dbfs/databricks-datasets.html#sample-datasets[provided by Databricks]: _NYC Taxi Trip Analysis_.
++
+. Have a JDBC URL for the connection to the Databricks workspace.
++
+See how to get it in the https://docs.databricks.com/integrations/jdbc-odbc-bi.html#retrieve-the-connection-details[official Databricks documentation].
+
+The examples use the mock JDBC URL of a workspace _jdbc:databricks://adb-1234567890123456.7.azuredatabricks.net/-db-;httpPath=/sql/1.0/endpoints/abcdef1234567890_.
+
+. Have the necessary data for the chosen authentication mode:
+
+** _Personal Access Token_: see how to generate the token at https://docs.databricks.com/administration-guide/access-control/tokens.html[Databricks official documentation].
+** OAuth2 with Microsoft Azure: you will need the following data:
++
+--
+*** The initial authentication URL, typically `https://login.microsoftonline.com/<directory-id>`.
+*** _Service Principal_ (or _Application_) ID.
+*** The value of the _Service Principal_ secret.
+--
++
+TIP: You can read more about this authentication mode at https://learn.microsoft.com/en-us/azure/databricks/dev-tools/api/latest/aad/service-prin-aad-token#--provision-a-service-principal-in-azure-portal[the official Databricks documentation on Microsoft Azure].
+
+. Install the connectors repository.
++
+See the section of the xref:connectors-repository:operations-guide.adoc#_installation[operations guide] to find out how to install the repository.
++
+NOTE: In the connectors repository, the artifact used in this guide will be available at the URL `http://connectors.<tenant>-<namespace>/v1/api/artifact/<artifact_name>`, and the artifacts used in this guide are `sscc-hive-0.3_2.12-1.5.x.jar` and `hive-jdbc-3.1.2-1.0.0-47b3295.jar`.
++
+. The _Stratio KMS_ UI should be accessible to manage credentials:
++
+See the section of xref:ROOT:quick-start-guide.adoc#access-kms-ui[general quick start guide] for the steps you need to take to make it available.
++
+. Create secrets in _Stratio KMS_. To do this, go to `https://<stratio_kms_ui_url>/ui/vault/secrets` and create a secret in the corresponding folder of the service with the following options, depending on the authentication mode:
++
+--
+** _Personal Access Token_
+*** *_token_*: `<personal_access_token>`.
++
+image::databricks-pat-vault.png[]
++
+** OAuth2 with Microsoft Azure
+*** *_oauth2.client.id_*: `<client_id>`.
+*** *_oauth2.client.secret_*: `<client_secret_value>`.
+*** *_oauth2.endpoint_*: `<endpoint>`.
++
+image::databricks-oauth2-vault.png[]
++
+--
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
++
+**** *Discovery agent*: `userland/passwords/<agent_name>/<secret_name>`.
+**** *_Stratio Virtualizer_*: `userland/passwords/<virtualizer_name>.<virtualizer_namespace>/<secret_name>`.
+**** *_Stratio Rocket_*: `userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>`.
+**** *_Stratio Rocket_ workflows*: `userland/passwords/execution-identity-<rocket_name>.<rocket_namespace>/<secret_name>`.
+**** *_Stratio Intelligence_*: `/people/passwords/<intelligence_user_name>/<secret_name>`.
++
+NOTE: The name and values of the secret for all services must match the ones used to configure the discovery agent.
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for Databricks, go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' and select "Databricks Agent".
+
+The fields to be filled in for the installation are:
+
+* *_General_*
+** *_Service ID_*: agent's unique identifier. Example: _dg-databricks-agent_.
+** *_Service name_*: name displayed in _Stratio KEOS_. Example: _dg-databricks-agent_.
+* *Metadata Datastore (PostgreSQL®)*
+** *_Host_*: the PostgreSQL® instance that stores the discovered metadata. Example: _pgbouncer-postgreskeos-governance.keos-core_.
+* *Configuration of the Service to be Discovered*
+** *Service to be discovered:*
+*** *_Service name_*: name that will be used to identify this data store in _Stratio Data Governance_. It's the one that will be displayed in the UI. Example: _dg-databricks-agent_.
+*** *_Root discovery path_*: Databricks databases that you want to be discovered. For example: _/samples,/hive_metastore_. You can use `/` to discover all the available catalogs.
+* *_Resource datastore connection configuration_*
+** *_Custom Service URL_*: JDBC URL used to connect to Databricks. Example: `jdbc:databricks://adb-1234567890123456.7.azuredatabricks.net/-db-;httpPath=/sql/1.0/endpoints/abcdef1234567890`.
++
+NOTE: The JDBC URL needs to have the string *-db-* as a path, which must not be modified by the user. The string will be substituted for each of the catalogs reported in _Root discovery path_ in the corresponding metadata.
++
+** *_Custom data store service security_*: type of authentication used for the connection: PAT (Personal Access Token) or OAuth2.
+** *_Access credentials_*: name of the secret created in xref:#create-secret[_Stratio KMS_]. Example: _databricks-secret_.
+** *_SSCC driver location_*: URL where the artifact that will contain the JAR of the SSCC Databricks connector is located in the connectors repository. Example: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+** *_Databricks Native Mode_*: _(True/False)_. Use _True_ to virtualize using the native _Stratio Virtualizer_  connector mode and _False_ to virtualize without the native mode.
++
+image::databricks-cct-installation.png[]
+
+The discovery process is asynchronous. Once the discovery is finished you can view it from the _Stratio Data Governance_ UI.
+
+image::databricks-governance-datastore.png[]
+
+== Virtualize your data
+
+IMPORTANT: Note that, to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+=== _Legacy_ and _path_ modes
+
+There are two discovery modes:
+
+* _Legacy_
+
+image::databricks-mode-legacy-governance.png[]
+
+Set the _Use legacy mode_ field to "true" to activate it.
+
+image::databricks-mode-legacy-conf.png[]
+
+* _Path_. It has 3 levels: database, schema and table.
+
+image::databricks-mode-sscc-governance.png[]
+
+Set the _Use legacy mode_ field to "false" to activate it.
+
+image::databricks-mode-sscc-conf.png[]
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the Databricks connector. To do this, simply add the URL of the artifact in the `Additional jars` variable.
+
+* 'Customized deployment' -> 'Settings' -> `Additional jars`: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
++
+image::eureka-bdl.png[]
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+=== _Stratio Virtualizer_
+
+To use _Stratio Virtualizer_, the Databricks connector needs to be configured. To do this, you have to upload the access credentials to _Stratio KMS_ and add the URLs of the required artifacts to the `JDBC Drivers URL List` variable in the _Stratio Virtualizer_ service modification form in _Stratio Command Center_:
+
+* 'Customized deployment' -> 'Environment'
++
+--
+** *_JDBC Integration_*: enabled.
+** *_JDBC Drivers URL List_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+--
++
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
++
+image::databricks-virtualizer.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+==== Managing the driver
+
+To use _Stratio Rocket_, the Databricks connector needs to be configured. To do this, you have to upload the access credentials to _Stratio KMS_ for workflows and for _Stratio Rocket_ and also add the URLs of the required artifacts to the `Rocket extra jars` variable in the _Stratio Rocket_ service modification form in _Stratio Command Center_:
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath'
++
+--
+** *_Include Crossdata native connector library_*: enabled.
+** *_Include Crossdata native engine library_*: enabled.
+** *_Rocket extra jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar`.
+--
++
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
++
+image::databricks-rocket.png[]
+
+IMPORTANT: When using the *_legacy_ mode*, you must add in the workflows the variable `lineageMode`  to "legacy" for the old functionalities to work correctly: quality rules and lineage.
+
+==== Managing secrets
+
+Upload the access credentials for the _workflows_ and for _Stratio Rocket_ to _Stratio KMS_ as described in the prerequisites.
+
+[#rocket-configuration]
+
+==== Configuration management: quality rules and lineage
+
+Access the _Stratio Rocket_ configuration in 'Settings' -> 'Governance Lineage' and make sure that the "Governance Lineage" option is enabled.
+
+The fields to be filled in are the following:
+
+* _Custom lineage and quality rules methods using JDBC driver_: `com.databricks.client.jdbc.Driver:com.stratio.connectors.ssccdatabricks.DatabricksQualityRulesAndLineage:getMetadataPath`.
+** This option enables lineage for data flows using _datasource_ boxes that access the data store directly.
++
+IMPORTANT: For lineage to work properly, the discovery agent must have the value `<host_url_jdbc_databricks>.port.<port_url_jdbc_databricks>` as its _Service Name_.
++
+* _Custom planned quality rules methods_: `com.stratio.connectors.ssccdatabricks.DatabricksDriverOauth2:com.stratio.connectors.ssccdatabricks.DatabricksQualityRulesAndLineage:getPlannedQRCreateTable`.
+** With this option, the planned quality rules that directly access tables in the data store will be supported.
+
+NOTE: Remember that, if you already have more than one reference in the list, you have to add the following ones, separated with a comma.
+
+Restart _Stratio Rocket_ to apply the changes.
+
+NOTE: These variables are *not necessary* for lineage and quality rules on virtualized tables in the catalog.
+
+=== _Stratio Intelligence_
+
+To correctly configure _Stratio Intelligence_ with the Databricks connector, see the xref:databricks:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_ section], keeping in mind to use the appropriate authentication mode format for secrets.

@@ -1,0 +1,180 @@
+= Operations guide
+
+== Description
+
+The SSCC Snowflake connector allows you to integrate Snowflake into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:snowflake:compatibility-matrix.adoc[compatibility matrix].
+
+=== Authentication
+
+The connector supports two authentication modes:
+
+* Username/password.
+* https://docs.snowflake.com/en/user-guide/key-pair-auth[Key pair].
+
+As you'll see later, depending on the mode you choose, specific configuration values and credentials will have to be used in each of the _Stratio Generative AI Data Fabric_ services.
+
+== Prerequisites
+
+. Install the xref:connectors-repository:operations-guide.adoc#_installation[connectors repository].
++
+See the section of the xref:connectors-repository:operations-guide.adoc#_installation[operations guide] to find out how to install the repository.
++
+NOTE: In the connectors repository, the artifact used in this guide will be available at the URL `http://connectors.<tenant>-<namespace>/v1/api/artifact/<artifact_name>`: `sscc-snowflake-0.3_2.12-1.1.x`.
+
+. The _Stratio KMS_ UI should be accessible to manage credentials:
++
+See the section on the xref:ROOT:quick-start-guide.adoc#access-kms-ui[_Stratio KMS_ UI] for the steps you need to take to make it available.
+
+. Have an instance of a Snowflake database accessible from the _Stratio Generative AI Data Fabric_ with the chosen authentication mode configured:
++
+** A user with the appropriate permissions and their password will be required for basic authentication.
+** To set up authentication with https://docs.snowflake.com/en/user-guide/key-pair-auth[Key pair] you will need a user that has a security integration with a private key.
++
+IMPORTANT: The private key must be Base64 encoded. To convert a _.p8_ file to Base64 via unix console: `cat rsa_key.p8 | sed -e “s/-----BEGIN PRIVATE KEY-----///” -e “s/-----END PRIVATE KEY-----//” | tr -d '\n'`.
++
+** For each user created you must have a default warehouse configured.
+
+. Create secrets in _Stratio KMS_. To do this, go to `https://<stratio_kms_ui_url>/ui/vault/secrets` and create a secret in the corresponding folder of the service with the following options, depending on the authentication mode:
++
+** Username/password
+*** *_user_*: `<snowflake_user>`.
+*** *_password_*: `<snowflake_password>`.
+** Key pair
+*** *_user_*: `<snowflake_user>`.
+*** *_privateKey_*: `<snowflake_private_key_base64>`.
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
++
+** *Discovery agent*: `userland/passwords/<agent_name>.<namespace>/<secret_name>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<virtualizer_name>.<namespace_virtualizer>/<secret_name>`.
+** *_Stratio Rocket_*: `userland/passwords/<rocket_name>.<namespace_rocket>/<secret_name>`.
+** *_Stratio Rocket_ workflows*: `userland/passwords/execution-identity-<rocket_name>.<namespace_rocket>/<secret_name>`.
+** *_Stratio Intelligence_*: `people/certificates/<intelligence_user_name>`.
++
+NOTE: The name and values of the secret for all services must match the ones used to configure the discovery agent.
+
+. You need to have 5 different users (one for each module).
++
+The connection is made by database, so each user must have specific roles. It is recommended to use the _PUBLIC_ role for each user created.
+
+== Discover your data
+
+=== Discovery agent
+
+To install the _Stratio Data Governance_ discovery agent for Snowflake, you must select "Snowflake Agent" agent in '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse'.
+
+The fields to be filled in for the installation are:
+
+* *_General_*
+** *_Service ID_*: agent's unique identifier. Example: _dg-snowflake-agent_.
+** *_Service name_*: name displayed in _Stratio KEOS_. Example: _dg-snowflake-agent_.
+* *Metadata Datastore (PostgreSQL®)*
+** *_Host_*: the PostgreSQL® instance that stores the discovered metadata. Example: _pgbouncer-postgreskeos-governance.keos-core_.
+* *Configuration of the Service to be Discovered*
+** *Service to be discovered:*
+*** *_Service name_*: name that will be used to identify this data store in _Stratio Data Governance_. It's the one that will be displayed in the UI. Example: _dg-snowflake-agent_.
+*** *_Root discovery path_*: Snowflake schemas you want to be discovered. They should be separated by commas, without spaces, and with a slash `/` at the beginning.
++
+image::snowflake-cct-deployment1.png[]
++
+** *Resource datastore connection configuration*
+*** *_Custom Service URL_*: JDBC URL used to connect to Snowflake. Example: `jdbc:snowflake://asd1234.us-east-1.snowflakecomputing.com/-db`.
+*** *_Custom data store service security_*: type of authentication used for the connection: MD5 (username/password) or Key pair.
+*** *_Access credentials_*: name of the secret created in xref:#create-secret[_Stratio KMS_]. Example: _snowflake-secret_.
+*** *_Snowflake Native Mode_*: possible values are "True" and "False". "True" if the user wants to virtualize with the _Stratio Virtualizer_ native connector and "False" if the user wants to virtualize without native mode.
+*** *_Snowflake Warehouse_* (optional): name of the warehouse in which you want to perform the discovery, different from the one configured by default in the user.
+*** *_SSCC driver location_*: URL where the artifact that will contain the JAR of the Snowflake SSCC connector is located in the connectors repository. Example: _http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-snowflake-0.3_2.12-1.1.x.jar_.
+*** *_Enable connection through proxy_*: possible values are "True" and "False". Enable proxy connection..
+*** *_Proxy Address_*: if proxy connection is enabled, it is necessary to specify the host and port in the format `host:port`.
+*** *_Proxy authentication enabled_*: possible values are "True" and "False". If the proxy requires authentication. If it is set to "True", it is necessary to upload the secret in the service path with the name `snowflake-proxy-secret`.
++
+image::snowflake-cct-deployment2.png[]
++
+image::snowflake-cct-deployment3.png[]
+
+The discovery process is asynchronous. Once the discovery is finished you can view it from the _Stratio Data Governance_ UI.
+
+image::snowflake-discover-metadata.png[]
+
+== Virtualize your data
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the Snowflake connector. To do this, just add the URL of the connectors repository of the `sscc-snowflake-0.3_2.12-1.1.x` artifact in the variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+image::snowflake-bdl.png[]
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+TIP: See here for xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[more information about data processing with BDL].
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ supports interaction with Snowflake through the SSCC Snowflake connector. This integration has certain requirements:
+
+* The following _Stratio Virtualizer_ deployment fields must be modified in _Stratio Command Center_:
++
+--
+** Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Integration'.
+*** *_JDBC Integration_*: `True`.
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Drivers URL List'.
+*** *_JDBC Drivers URL List_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-snowflake-0.3_2.12-1.1.x.jar`.
+--
++
+image::snowflake-virtualizer-conf.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+==== Managing the driver
+
+For the connector to work, the Snowflake proprietary libraries must be added to the classpath.
+
+To use _Stratio Rocket_, it is necessary to have the SSCC Snowflake connector configured as follows:
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath'
++
+--
+** *_Include Crossdata native connector library_*: enabled.
+** *_Include Crossdata native engine library_*: enabled.
+** *_Rocket extra jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-snowflake-0.3_2.12-1.1.x.jar`.
+--
++
+image::snowflake-rocket-conf.png[]
+
+* Also, you need to upload the access credentials for the _workflows_ and for _Stratio Rocket_ to _Stratio KMS_ as described in the prerequisites.
+
+==== Managing secrets
+
+Upload the access credentials for the _workflows_ and for _Stratio Rocket_ to _Stratio KMS_ as described in the prerequisites.
+
+[#rocket-configuration]
+
+==== Configuration management: quality rules and lineage
+
+Go to the _Stratio Rocket_ configuration in 'Settings' -> 'Governance Lineage' and make sure that the "Governance Lineage" option is enabled.
+
+The fields to be filled in are the following:
+
+* _Custom lineage and quality rules methods using JDBC driver_: `net.snowflake.client.jdbc.SnowflakeDriver:com.stratio.connectors.ssccsnowflake.SnowflakeQualityRulesAndLineage:getMetadataPath`.
+** This option activates lineage for data flows using _datasource_ boxes that access the data store directly.
++
+IMPORTANT: For lineage to work properly, the discovery agent must have the value `<host_snowflake>` as its _Service Name_.
++
+* _Custom planned quality rules methods_: `com.stratio.connectors.ssccsnowflake.SnowflakeDriverMD5:com.stratio.connectors.ssccsnowflake.SnowflakeQualityRulesAndLineage:getPlannedQRCreateTable`.
+** With this option, the planned quality rules that directly access tables in the data store will be supported.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+Restart _Stratio Rocket_ to apply the changes.
+
+NOTE: These variables are *not necessary* for lineage and quality rules on virtualized tables in the catalog
+
+=== _Stratio Intelligence_
+
+To correctly configure _Stratio Intelligence_, see the xref:snowflake:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_ section]. For integration with Snowflake, only the credentials shown in the prerequisites need to be uploaded.

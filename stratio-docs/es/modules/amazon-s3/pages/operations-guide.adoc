@@ -1,0 +1,602 @@
+= Guía de operaciones
+
+== ¿Qué es Amazon S3?
+
+Es un servicio de almacenamiento de objetos distribuido líder en la industria que ofrece escalabilidad, disponibilidad de datos, seguridad y rendimiento. Se puede utilizar por clientes de cualquier tamaño o sector para almacenar y proteger cualquier cantidad de datos para una variedad de casos de uso, como pueden ser lagos de datos, sitios web, aplicaciones móviles, _backup_ y _restore_, archivado, aplicaciones empresariales, dispositivos IoT y analítica _Big Data_.
+
+El conector Amazon S3 permite la integración completa de una o varias cuentas de almacenamiento en _Stratio Generative AI Data Fabric_.
+
+== Autenticación
+
+Amazon S3 admite dos tipos de credenciales, las de seguridad a largo plazo y las de seguridad temporales.
+
+Las primeras pueden ser usuarios _Root_, usuarios IAM y claves de acceso, y tienen acceso permanente a la plataforma. Las segundas pueden ser roles de IAM, usuarios de AWS IAM Identity Center (sucesor de AWS Single Sign-On) y usuarios federados. Estos pueden tener acceso temporal.
+
+Los métodos de autenticación incluidos en el conector son:
+
+* _Service Account_ o _Access Key_ (credenciales básicas): permite la autenticación permanente de una cuenta de servicio mediante _accessKey_ y _secretKey_ (*no recomendado*).
+* https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html[AWS Security Token Service (STS)]: permite establecer credenciales temporales para un usuario o servicio. No necesitan una identidad de Amazon S3 asociada.
+
+=== Autenticación mediante _Assumed Role_
+
+Asumir un rol significa solicitar al Security Token Service (STS) que proporcione un conjunto de credenciales temporales específicas del rol que se desea asumir (específicamente, una nueva "sesión" con ese rol).
+
+De manera opcional, puedes incluir una política con esta solicitud que servirá para limitar los permisos de las credenciales temporales a sólo un subconjunto de lo que las políticas del rol habrían permitido.
+
+Luego utiliza estas credenciales para realizar más solicitudes. Estas credenciales son similares a las de usuario de IAM con un par _Access Key_ y _Secret Key_, pero la clave de acceso comienza con `+ASIA+` en lugar de `+AKIA+` y hay un tercer elemento, llamado _token_ de seguridad, que debe incluirse en las solicitudes firmadas con las credenciales temporales.
+
+Cuando realiza solicitudes con estas credenciales temporales, tiene los permisos asociados con el rol y no los suyos (si tiene uno) porque ha adoptado una nueva identidad.
+
+Este es el *método recomendado*, ya que permite un control de permisos más específico.
+
+Los pasos generales para crear una credencial con _Assumed Role_ son:
+
+. Accede a IAM en la consola de Amazon S3.
+. En la sección 'Users', crea o elige el usuario que va a asumir el rol.
+. En la sección 'Policies', crea una nueva política con los permisos que desees proveer al usuario.
+. En la sección 'Roles', crea un nuevo rol asociado con la política anterior y añádele una *relación de confianza* parecida a la siguiente:
++
+[source,json]
+----
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "<arn-de-tu-usuario>"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}
+----
+
+. Dentro de la sección 'Policies', crea una nueva parecida a la siguiente:
++
+[source,json]
+----
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "<arn-del-rol-creado>"
+        }
+    ]
+}
+----
+
+TIP: Para más información sobre los roles de IAM visita la https://docs.aws.amazon.com/es_es/IAM/latest/UserGuide/id_roles.html[documentación oficial].
+
+_Stratio Data Governance_ realiza lecturas sobre los _buckets_, por lo que es necesario que las políticas tengan los suficientes permisos. En _Stratio Rocket_, _Stratio Virtualizer_ y _Stratio Intelligence_ se recomienda tener políticas de lectura/escritura. Para más información sobre las políticas recomendadas consulta los xref:amazon-s3:operations-guide.adoc#_prerrequisitos[prerrequisitos] de Amazon S3 en la sección a continuación.
+
+[#direct-access-to-resources]
+
+=== Configuración acceso directo a los recursos de Amazon S3 (con soporte para multicuenta)
+
+Es posible configurar múltiples cuentas de servicio de Amazon S3 (con diferentes credenciales) para su uso en _Stratio Virtualizer_, _Stratio Rocket_ y _Stratio Intelligence_.
+
+Aunque la *manera recomendada* de acceder a los datos es mediante el *catálogo de _Stratio Virtualizer_* pueden existir situaciones en las que sea necesario utilizar directamente SparkSQL. Si este es el caso, el conector de Amazon S3 permite definir credenciales tanto a *nivel global* como a *nivel de _bucket_*.
+
+==== Credencial global
+
+Para definir una *credencial global* debes añadir la variable de entorno `SSCC_S3A_GLOBAL_CREDENTIALS` en el módulo donde se desee utilizar y establecer como valor el nombre del secreto almacenado en _Stratio KMS_.
+
+El conector se encargará de ubicar el secreto en función del módulo donde se esté ejecutando, por lo que *no debes incluir la ruta completa*, sólo el nombre. Ejemplo:
+
+[source,bash]
+----
+SSCC_S3A_GLOBAL_CREDENTIALS=s3-secret-2
+----
+
+==== Credenciales por _bucket_
+
+Para definir estas credenciales debes añadir la variable de entorno `SSCC_S3A_CREDENTIALS_BY_BUCKET` en el módulo donde se desee utilizar y establecer como valor una lista con la siguiente forma:
+
+[source,bash]
+----
+<bucket-name1>:<secret_name1>;<bucket-name2>:<secret_name2>;...
+----
+
+Donde se definen pares _bucket:secret_ separados por `;`.
+
+El conector se encargará de ubicar los secretos en función del módulo donde se esté ejecutando, por lo que no debes incluir la ruta completa, sólo el nombre. Ejemplo:
+
+[source,bash]
+----
+SSCC_S3A_CREDENTIALS_BY_BUCKET=bucket_sales:s3-sales-secret;bucket_forecast:s3-forecast-secret
+----
+
+Esta configuración te permitiría acceder mediante SparkSQL a todas las tablas de Amazon S3 pertenecientes a los _buckets_ _bucket++_++sales_ y _bucket++_++forecast_ sin indicar opciones adicionales.
+
+[#setting-spark-config]
+
+==== ¿Cómo configurar las credenciales en cada módulo?
+
+* _Stratio Virtualizer_
++
+** A nivel global de servicio.
++
+Se pueden usar las variables de entorno tal cual aparecen descritas más arriba: `SSCC_S3A_GLOBAL_CREDENTIALS` y `SSCC_S3A_CREDENTIALS_BY_BUCKET`.
+
+* _Stratio Rocket_
++
+** A nivel de _Workflow_.
++
+Se puede establecer usando las siguientes propiedades de Apache Spark™:
++
+[source,bash]
+----
+spark.orchestrator.driverEnv.SSCC_S3A_GLOBAL_CREDENTIALS=s3-secret-2
+spark.orchestrator.driverEnv.SSCC_S3A_CREDENTIALS_BY_BUCKET=bucket_sales:s3-sales-secret;bucket_forecast:s3-forecast-secret
+----
++
+Dentro de un _Workflow_, puedes definir propiedades de Apache Spark™ navegando hasta 'Edit settings' -> 'Spark' -> 'Spark Configuration' -> 'User properties'.
++
+** A nivel de proyecto.
++
+Se pueden usar las variables de entorno tal cual aparecen descritas más arriba: `SSCC_S3A_GLOBAL_CREDENTIALS` y `SSCC_S3A_CREDENTIALS_BY_BUCKET`.
++
+En un proyecto, puedes definir la variable de entorno navegando hasta 'Admin Project' -> 'Environment variables'.
++
+** A nivel global del servicio.
++
+Las variables de entorno deben ser prefijadas con `SPARTA_EXTRA_`: `SPARTA_EXTRA_SSCC_S3A_GLOBAL_CREDENTIALS` y `SPARTA_EXTRA_SSCC_S3A_CREDENTIALS_BY_BUCKET`.
+
+* _Stratio Intelligence_
++
+** A nivel de usuario.
++
+Se pueden usar las variables de entorno tal cual aparecen descritas más arriba: `SSCC_S3A_GLOBAL_CREDENTIALS` y `SSCC_S3A_CREDENTIALS_BY_BUCKET`.
++
+Dentro de la xref:stratio-intelligence:operations-guide:configuration-and-usage/create-and-configure-users/register-a-new-profile.adoc#_pestaña_general[configuración de los usuarios] puedes definir la variable de entorno navegando hasta 'Profiles' -> 'Edit' -> 'General' -> 'User-defined environment variables'.
++
+** A nivel global del servicio.
++
+Las variables de entorno deben ser prefijadas con `ANALYTIC_ENV_`: `ANALYTIC_ENV_SSCC_S3A_GLOBAL_CREDENTIALS` y `ANALYTIC_ENV_SSCC_S3A_CREDENTIALS_BY_BUCKET`.
+
+== Prerrequisitos
+
+. Disponer de credenciales a una cuenta de servicio de Amazon S3 accesible desde _Stratio Generative AI Data Fabric_ con xref:_autenticación[autenticación soportada].
++
+A continuación se muestran los permisos mínimos para dos _buckets_ existentes: _bucket++_++sales_ y _bucket++_++forecast_, teniendo acceso a dos directorios y sus contenidos, `/` con acceso de lectura y `/data` con acceso de escritura en ambos _buckets_.
++
+.Ver política
+
+[%collapsible]
+====
+
+[source,json]
+----
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucketMultipartUploads",
+                "s3:GetObjectRetention",
+                "s3:GetObjectVersionTagging",
+                "s3:ListBucketVersions",
+                "s3:GetObjectAttributes",
+                "s3:ListBucket",
+                "s3:GetBucketVersioning",
+                "s3:GetObjectVersionAttributes",
+                "s3:ListMultipartUploadParts",
+                "s3:GetObject",
+                "s3:GetEncryptionConfiguration",
+                "s3:GetObjectVersionAcl",
+                "s3:GetObjectTagging",
+                "s3:GetBucketLocation",
+                "s3:GetObjectVersion"
+            ],
+            "Resource": [
+                "arn:aws:s3:::bucket_sales/*",
+                "arn:aws:s3:::bucket_sales",
+                "arn:aws:s3:::bucket_forecast/*",
+                "arn:aws:s3:::bucket_forecast"
+            ]
+        },
+        {
+            "Sid": "VisualEditor3",
+            "Effect": "Allow",
+            "Action": "s3:ListAllMyBuckets",
+            "Resource": "arn:aws:s3:::*"
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": [
+              "s3:PutObject",
+              "s3:DeleteObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::bucket_sales/data/*",
+                "arn:aws:s3:::bucket_sales/data",
+                "arn:aws:s3:::bucket_forecast/data/*",
+                "arn:aws:s3:::bucket_forecast/data"
+            ]
+        },
+        {
+            "Sid": "VisualEditor2",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListJobs",
+                "s3:CreateJob"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+----
+
+====
++
+. Tener accesible la interfaz de usuario de _Stratio KMS_ para la gestión de credenciales. Visita la sección de la xref:ROOT:quick-start-guide.adoc[guía de inicio rápido general] para consultar los pasos necesarios para disponibilizarla.
+. Crear los secretos en _Stratio KMS_. Para ello debes acceder a `https://<stratio_kms_ui_url>/ui/vault/secrets` y crear un secreto en la carpeta correspondiente del servicio con las siguientes opciones según el modo de autenticación:
++
+--
+* _Service Account_
++
+[source,json]
+----
+{..
+  "accessKey": "<AWS-ACCESS-KEY>",
+  "secretKey": "<AWS-SECRET-KEY>"
+}
+----
+
+* _Assumed Role_
++
+[source,json]
+----
+{
+  "accessKey": "<AWS-ACCESS-KEY>",
+  "secretKey": "<AWS-SECRET-KEY>",
+  "roleArn": "<ASSUME-ROLE-ARN>",
+  "stsClientEndpoint": "<STS-CLIENT-ENDPOINT>",
+  "stsClientEndpointRegion": "<STS-CLIENT-ENDPOINT-REGION>"
+}
+----
+
+--
++
+Este secreto se debe subir a los siguientes directorios de _Stratio KMS_:
++
+--
+** *Agente de descubrimiento*: `userland/passwords/<nombre_agente>.<namespace_agente>/<nombre_secreto>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<nombre_virtualizer>.<namespace_virtualizer>/<nombre_secreto>`.
+** *_Stratio Rocket_*: `userland/passwords/<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Workflows_ de _Stratio Rocket_*: `userland/passwords/execution-identity-<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Stratio Intelligence_*: `/people/passwords/<nombre_usuario_intelligence>/<nombre_secreto>`.
++
+NOTE: El nombre y los valores del secreto para todos los servicios deben coincidir con los elegidos para configurar el agente de descubrimiento.
+--
++
+* Proxy con autenticación.
++
+Si estás realizando la conexión a través de un proxy autenticado debes incluir el secreto relativo a dicha autenticación para el *agente de descubrimiento* con el siguiente formato:
++
+[source,json]
+----
+{
+  "user": "<YOUR-PROXY-USER>",
+  "pass": "<YOUR-PROXY-PASS>"
+}
+----
++
+NOTE: Es común disponer de un único proxy mediante el cual realizar las conexiones de varios almacenes de datos. Si es tu caso, puedes utilizar el mismo secreto en la configuración de todos ellos.
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento para Amazon S3 debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors DFS', el agente `Amazon S3 Agent`.
+
+Los campos a rellenar para la instalación son:
+
+* *_General_*
+** *_Service ID_* (_NAME_ID_): identificador único del agente de descubrimiento. Ejemplo: `dg-s3-agent`.
+** *_Name of the Service_*: nombre del servicio. Ejemplo: `dg-s3-agent`.
++
+image::conf_agente_s3_general.png[General,450,100]
+
+* *_Configuration of the Service to be Discovered_*
+** *_Service to be discovered_*
+*** *_Service name_*: `dg-s3-agent`.
+*** *_Root discovery path_* (`COMM_SERVICE_INIT_PATH`): cuentas de AWS que se desean descubrir precedidas de `/` y separadas por `,`.
++
+Ejemplo: _/myawsaccount1,/myawsaccount2_.
++
+NOTE: Aunque se puede descubrir más de una cuenta, todas ellas usarán el mismo secreto por lo que la identidad autenticada deberá poder acceder a todas ellas (ver los xref:amazon-s3:operations-guide.adoc#_known-issues[problemas conocidos]).
+** *_Resource datastore connection configuration_*
+*** *_Custom datastore service security_* (`CUSTOM_SERVICE_DS_SECURITY`): tipo de seguridad a utilizar: _ServiceAccount_.
+*** *_Access credentials_* (`CUSTOM_STRATIO_CREDENTIALS`): nombre del secreto que utilizará el agente. Ejemplo: _-secret_.
+*** *_SSCC driver location (Scala 2.12)_* (`CUSTOM_SERVICE_SSCC_DRIVER_LOCATION`): URL del artefacto del conector. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-s3-0.3_2.12-1.0.x.jar`.
++
+image::conf_agente_s3_service.png[Configuration of the Service to be Discovered,450,100]
+
+** *_DFS configuration parameters_*
+*** *_GLOB filter_* (`DFS_GLOB_FILTER`): https://en.wikipedia.org/wiki/Glob_(programming)[patrón GLOB] para filtrar directorios. La ruta tiene la forma `nombre_cuenta/nombre_bucket/directorio_1/directorio_N/fichero`. Pueden incluirse varios patrones separados por `;`.
++
+Ejemplo para filtrar todos los ficheros en formato Parquet y CSV del _landing++_++bucket_ perteneciente a la cuenta de AWS _myawsaccount_ (en cualquier subdirectorio):
++
+[source,bash]
+----
+/myawsaccount/landing_bucket/**.parquet;/myawsaccount/landing_bucket/**.csv
+----
++
+NOTE: Por *cuestiones de rendimiento*, es altamente recomendable indicar los *patrones GLOB* de los recursos a descubrir. Aunque es posible utilizar comodines en la posición del proyecto o del _bucket_, no se recomienda ya que esto expandiría todos los árboles de directorios generando un *excesivo consumo de recursos*.
++
+*** *_Parallelism Level_* (`DFS_PARALLELISM_LEVEL`): grado de paralelismo usado en el descubrimiento. Por defecto, se calcula automáticamente en función de la capacidad de CPU asignada al agente.
++
+image::conf_agente_s3_dfs.png[DFSConfig]
++
+** *_S3 configuration parameters_*
+*** *_S3 Use custom endpoint (useful for private links)_*: activar para poder modificar el _endpoint_ usado por el cliente de Amazon S3.
+*** *_S3 default region_* (`S3_DEFAULT_REGION`): región usada en el _endpoint_ por defecto. Por defecto, la región establecida en la API de Amazon S3: `us-west-2`.
++
+image::conf_agente_s3_specific_region.png[S3ConfigRegion]
++
+*** *_S3 custom endpoint_* (`S3_ENDPOINT`): valor del _endpoint_ usado por el cliente de Amazon S3.
+*** *_S3 custom endpoint region_* (`S3_ENDPOINT_REGION`): región asociada al _endpoint_ anterior. Es obligatoria ya que el _endpoint_ puede no incluirla.
++
+image::conf_agente_s3_specific_endpoint.png[S3ConfigEndpoint]
++
+NOTE: Cuando se usa la autenticación de tipo _Assumed Role_ pueden entrar en juego dos _endpoints_: el usado para generar las credenciales temporales, informado en el secreto bajo la clave `stsCustomEndpoint`, y el usado para la autenticación principal.
++
+** *_S3 API Client Configuration_*
+*** *_Use path-style access_* (`S3_CLIENT_PATH_STYLE_ACCESS`): configura el cliente para acceder con _path-style_ para todas las peticiones. Por defecto, se utiliza el usado por la API de Amazon S3.
+*** *_Use S3 accelerate endpoint_* (`S3_CLIENT_ACCELERATE_MODE_ENABLED`): configura el cliente para usar el _accelerate endpoint_ de Amazon S3 para todas las peticiones. Por defecto, se utiliza el usado por la API de Amazon S3.
+*** *_Enable global bucket access_* (`S3_CLIENT_FORCE_GLOBAL_BUCKET_ACCESS_ENABLED`): configura si el acceso global al _bucket_ está activado. Por defecto, se utiliza el usado por la API de Amazon S3.
+*** *_Use Amazon S3 dualstack mode_* (`S3_CLIENT_DUAL_STACK_ENABLED`): configura el cliente para usar el modo _dualstack_ de Amazon S3 para todas las peticiones. Por defecto, se utiliza el usado por la API de Amazon S3.
++
+image::conf_agente_s3_api_client_config.png[S3ConfigApiClient]
++
+* *_Resources_*
+** *_Instances_*: número de instancias del agente a desplegar en el _cluster_.
+** *_CPUs Request_*: CPU asignada al agente al ser desplegado.
+** *_CPUs Limit_*: CPU máxima asignable al agente.
+** *_Memory (MB)_*: memoria asignada al agente al ser desplegado.
+** *_Memory limit (MB)_*: memoria máxima asignable al agente.
++
+image::conf_agente_s3_resources.png[S3Resources]
+
+* *_Enable S3 Proxy_* (_S3_ENABLE_PROXY_): permite habilitar el uso de un proxy (deshabilitado por defecto).
+** *_Proxy Address_* (_S3_PROXY_ADDRESS_): esta opción sólo aparecerá si el proxy está habilitado. Dirección del proxy formada por: protocolo (opcional, _http://_ o _https://_, por defecto _https://_) + host + puerto (opcional, _:3128_ por defecto).
+** *_Enable S3 Proxy Authentication_* (_S3_ENABLE_PROXY_AUTH_): esta opción sólo aparecerá si el proxy está habilitado. Permite habilitar el uso de proxy con autenticación (deshabilitado por defecto).
+** *_Proxy Secret_* (_S3_PROXY_SECRET_): esta opción sólo aparecerá si el proxy con autenticación está habilitado. Nombre del secreto que contiene las credenciales para autenticarse en el proxy. Si se deja en blanco, tomará el valor del secreto indicado en _Access credentials_ añadiéndole el sufijo `-proxy`. En caso contrario, se utilizará el secreto indicado para obtener las credenciales de autenticación en el proxy.
++
+image::conf_agente_s3_proxy.png[S3Proxy]
+
+El proceso de descubrimiento es asíncrono. Una vez terminado, se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+image::vista_agente.png[Agente de descubrimiento]
+
+== Virtualiza tus datos
+
+IMPORTANT: Ten en cuenta que para virtualizar las tablas descubiertas es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de Amazon S3 de la siguiente manera:
+
+* Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'eureka-agent' -> 'Edit' -> 'Customize deployment' -> 'Settings'.
+* Añade al campo _Additional jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-s3-0.3_2.12-1.0.x.jar`.
+
+image::conf_eureka.png[Configuración de Eureka]
+
+=== _Stratio Virtualizer_
+
+Para virtualizar los datos de Amazon S3 es necesario añadir el conector de Amazon S3 a la instancia de _Stratio Virtualizer_:
+
+* Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'virtualizer' -> 'Edit' -> 'Customize deployment' -> 'Environment' -> 'JDBC Integration'.
+* Añade al campo _JDBC Drivers URL List_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-s3-0.3_2.12-1.0.x.jar`.
+
+image::conf_virtualizer.png[Configuración de Virtualizer]
+
+==== Conexión por proxy
+
+* En caso de querer realizar conexión por proxy sin conexión SSL/TLS necesitas insertar las siguientes variables en el despliegue:
++
+[source,bash]
+----
+XD_CUSTOM_SPARK_spark_hadoop_fs_s3a_proxy_host = <your_proxy_host>
+XD_CUSTOM_SPARK_spark_hadoop_fs_s3a_proxy_port = <your_proxy_port>
+XD_CUSTOM_SPARK_spark_hadoop_fs_s3a_proxy_username = <your_proxy_username>
+XD_CUSTOM_SPARK_spark_hadoop_fs_s3a_proxy_password = <your_proxy_password>
+----
+
+* En caso de querer realizar conexión por proxy con conexión SSL/TLS, deberás indicarle en el despliegue mediante _java options_.
++
+[source,bash]
+----
+EXECUTOR_JAVA_OPTS_AGG = -Djavax.net.ssl.trustStore=/etc/virtualizer/.secrets/.trust/truststore.jks -Djavax.net.ssl.trustStorePassword=<trustore_pwd> -Djavax.net.ssl.trustStoreType=JKS
+DRIVER_JAVA_OPTS_AGG = -Djavax.net.ssl.trustStore=/etc/virtualizer/.secrets/.trust/truststore.jks -Djavax.net.ssl.trustStorePassword=<trustore_pwd> -Djavax.net.ssl.trustStoreType=JKS
+----
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+==== Gestión del _driver_
+
+Para acceder y explotar los datos de Amazon S3 es necesario añadir el conector de Amazon S3 a la instancia de _Stratio Rocket_:
+
+* Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Classpath configuration'.
+* Añade al campo _Rocket extra jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-s3-0.3_2.12-1.0.x.jar`.
+* Añade esa misma URL al campo _Spark classpath extra jars_ (_Stratio Rocket_ necesita disponer del conector en tiempo de inicialización de Apache Spark™).
+
+image::conf_rocket.png[Configuración de Rocket]
+
+==== Gestión de los secretos
+
+Sube las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_, tal como aparece descrito en los prerrequisitos.
+
+[#rocket-configuration]
+
+==== Gestión de la configuración
+
+* Puedes consultar cómo habilitar el acceso directo a recursos de Amazon S3 sin usar tablas del catálogo en xref:#direct-access-to-resources[el apartado específico de esta guía].
+* PrivateLink
++
+Para conectarte usando PrivateLink en los accesos directos a Amazon S3 en los _workflows_ tendrás que xref:#setting-spark-config[informar las siguientes propiedades de Apache Spark™]:
++
+[source,bash]
+----
+spark.hadoop.fs.s3a.endpoint=<s3-custom-endpoint>
+spark.hadoop.fs.s3a.endpoint.region=<s3-custom-endpoint-region>
+----
++
+NOTE: Esta configuración *no es necesaria* para el acceso con PrivateLink usando tablas virtualizadas en el catálogo.
++
+* Linaje personalizado
++
+_Stratio Rocket_ permite la personalización del linaje para conectores desacoplados. Para activarlo, sigue estos pasos:
++
+** A la hora de desplegar el agente de Amazon S3 en _Stratio Command Center_ debes establecer el nombre de servicio a `amazonaws.com`:
++
+image::lineage_custom_service_name.png[Service Name]
++
+** Edita en _Stratio Command Center_ el descriptor de _Stratio Rocket_ para establecer las propiedades relativas al linaje personalizado.
++
+Existen varios modos de linaje personalizado. Para el caso de Amazon S3, se pueden utilizar los modos _Spark Format_ y _Custom_.
++
+*** En el modo _Spark Format_ se puede configurar el linaje personalizado para un tipo concreto de fichero (por ejemplo Parquet) estableciendo el valor `parquet:com.stratio.connectors.ssccs3.S3QualityRulesAndLineage:getMetadataPath` en '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Governance Lineage' -> 'Custom lineage and quality rules methods using Spark format':
++
+image::lineage_custom_spark_format.png[Spark Format]
++
+IMPORTANT: El linaje personalizado de Amazon S3 se aplicará a *todos los _inputs_ y _outputs_* de un formato de archivo independientemente de su origen. Por lo tanto, si el archivo puede tener otro origen que Amazon S3, será necesario usar una etiqueta personalizada como se describe a continuación.
++
+*** En el modo _Custom_ se puede configurar el linaje personalizado mediante una etiqueta personalizada (por ejemplo `myS3`) estableciendo el valor `myS3:com.stratio.connectors.ssccs3.S3QualityRulesAndLineage:getMetadataPath` en '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Governance Lineage' -> 'Custom lineage and quality rules methods':
++
+image::lineage_custom_custom_tag.png[Custom Tag]
++
+** En _Stratio Rocket_ se creará un _Workflow_ de tipo `Datasource` con la siguiente configuración:
+*** En el modo _Spark Format_ se debe añadir la opción "accountName" con el nombre de la cuenta de Amazon S3 que se desee utilizar:
++
+image::lineage_custom_workflow_spark_format.png[Workflow Spark Format]
++
+*** En el modo _Custom_ se debe añadir la opción "accountName" con el nombre de la cuenta de Amazon S3 que se desee utilizar y la opción "lineage++_++custom" con el nombre de la etiqueta definida en el paso anterior:
++
+image::lineage_custom_workflow_custom_tag.png[Workflow Custom Tag]
++
+* Reglas de calidad personalizadas
++
+_Stratio Rocket_ permite la personalización de reglas de calidad para conectores desacoplados. Para activarlas, sigue estos pasos:
++
+** Edita en _Stratio Command Center_ el descriptor de _Stratio Rocket_ para establecer la propiedad relativa a las reglas de calidad personalizadas.
++
+Estas reglas se pueden configurar estableciendo el valor del campo '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Governance Lineage' -> 'Custom planned quality rules methods'.
++
+*** Si se utiliza el método de autenticación _ServiceAccount_, el valor debe ser `com.stratio.connectors.ssccs3.S3DriverServiceAccount:com.stratio.connectors.ssccs3.S3QualityRulesAndLineage:getPlannedQRCreateTable`.
++
+image::qr_custom_service_account.png[QR Service Account]
++
+*** Si se utiliza el método de autenticación _Assumed Role_, el valor debe ser `com.stratio.connectors.ssccs3.S3DriverAssumeRole:com.stratio.connectors.ssccs3.S3QualityRulesAndLineage:getPlannedQRCreateTable`.
++
+image::qr_custom_assume_role.png[QR Assume Role]
++
+NOTE: Esta configuración *no es necesaria* para el linaje y las reglas de calidad sobre tablas virtualizadas en el catálogo.
+
+* Conexión por proxy/PrivateLink
+** En caso de querer realizar conexión por proxy sin conexión SSL/TLS necesitarás insertar las siguientes variables en el despliegue:
++
+[source,bash]
+----
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_host = <your_proxy_host>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_port = <your_proxy_port>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_username = <your_proxy_username>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_proxy_password = <your_proxy_password>
+----
++
+** En caso de querer realizar conexión por proxy con conexión SSL/TLS, deberás modificar las opciones Java correspondientes a las variables `SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS` y `SPARK_DRIVER_JAVA_OPTIONS`. Para ello, dirígete dentro de tu proyecto de _Stratio Rocket_ → "Parameters" → "Spark Configurations".
++
+Para cada variable `SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS` y `SPARK_DRIVER_JAVA_OPTIONS`, añade lo siguiente al contenido que exista:
++
+[source,bash]
+----
+-Djavax.net.ssl.trustStore=/security/truststore.jks -Djavax.net.ssl.trustStorePassword=<trustore_pwd> -Djavax.net.ssl.trustStoreType=JKS
+----
+
+** En caso de querer realizar conexión por PrivateLink necesitarás insertar las siguientes variables en el despliegue:
++
+[source,bash]
+----
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_endpoint = <s3-custom-endpoint>
+SPARK_EXTRA_CONFIG_spark_hadoop_fs_s3a_endpoint_region=<s3-custom-endpoint-region>
+----
++
+NOTE: Esta configuración *no es necesaria* para el acceso con PrivateLink usando tablas virtualizadas en el catálogo.
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_, tal y como aparece descrito en xref:ROOT:quick-start-guide#_stratio_intelligence[la guía de inicio rápido general].
+
+==== Gestión del _driver_
+
+Para acceder y explotar los datos de Amazon S3 es necesario configurar _Stratio Intelligence_ de la siguiente manera:
+
+* Añadir el conector de Amazon S3 a la instancia de _Stratio Intelligence_:
+** Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'intelligence' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Analytic Environment Settings' -> 'Extra jars to Spark Context Configuration'.
+** Añade al campo _Spark classpath extra jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-s3-0.3_2.12-1.0.x.jar`.
++
+image::conf_intelligence.png[Intelligence]
++
+** Añade esa misma URL al _classpath_ de Apache Spark™.
++
+IMPORTANT: Debido a que _Stratio Intelligence_ necesita disponer del conector en tiempo de inicialización de Apache Spark™, es necesario que el conector se encuentre en el _classpath_ al arrancar el _Notebook_. Actualmente, la manera de hacerlo es editando el descriptor conrrespondiente a _Stratio Intelligence_ en Kubernetes y añadir la URL del conector a la variable de entorno `ANALYTIC_ENV_SPARK_HOME_EXTRA_JARS`.
++
+image::conf_intelligence_env_vars.png[IntelligenceCustomParams]
+
+==== Gestión de los secretos
+
+Sube las credenciales de acceso para los _workflows_ y para _Stratio Intelligence_ a _Stratio KMS_ tal como aparece descrito en los prerrequisitos.
+
+==== Gestión de la configuración
+
+* Para no tener problemas con la consistencia de datos se debe configurar _Stratio Intelligence_ como se indica en el documento de xref:ROOT:commiters.adoc#_uso_con_stratio_intelligence[integración].
+* Puedes consultar cómo habilitar el acceso directo a recursos de Amazon S3 sin usar tablas del catálogo en xref:#direct-access-to-resources[el apartado específico de esta guía].
+* En caso de querer realizar conexión por proxy sin conexión SSL/TLS, necesitarás insertar las siguientes variables en el _core-site.xml_ del despliegue de _Stratio Intelligence_ para así poder insertar las variables propias de Apache Spark™:
++
+[source,xml]
+----
+    <property>
+      <name>fs.s3a.proxy.host</name>
+      <value>your_host</value>
+    </property>
+    <property>
+      <name>fs.s3a.proxy.port</name>
+      <value>your_port</value>
+    </property>
+    <property>
+      <name>fs.s3a.proxy.username</name>
+      <value>your_username</value>
+    </property>
+    <property>
+      <name>fs.s3a.proxy.password</name>
+      <value>your_password</value>
+    </property>
+----
++
+* PrivateLink
++
+En caso de querer realizar la conexión directa a Amazon S3 por PrivateLink necesitarás insertar las siguientes propiedades en el _core-site.xml_ del despliegue de _Stratio Intelligence_:
++
+[source,xml]
+----
+<property>
+  <name>fs.s3a.endpoint</name>
+  <value>your_endpoint</value>
+</property>
+<property>
+  <name>fs.s3a.endpoint.region</name>
+  <value>your_endpoint_region</value>
+</property>
+----
++
+NOTE: Esta configuración *no es necesaria* para el acceso con PrivateLink usando tablas virtualizadas en el catálogo.

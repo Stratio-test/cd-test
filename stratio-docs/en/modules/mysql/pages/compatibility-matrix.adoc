@@ -1,0 +1,52 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with the SSCC MySQL connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| ≥ sscc-mysql-0.3_2.12-3.1.x
+
+| _Stratio BDL_
+| Virtualization
+| ≥ sscc-mysql-0.3_2.12-3.1.x
+
+| _Stratio Virtualizer_
+| Read/Write
+| ≥ sscc-mysql-0.3_2.12-3.1.x
+
+| _Stratio Rocket_
+| Virtualized Read/Write
+| ≥ sscc-mysql-0.3_2.12-3.1.x
+
+| _Stratio Intelligence_
+| Virtualized Read/Write
+| ≥ sscc-mysql-0.3_2.12-3.1.x
+|===
+
+== Compatibility with MySQL versions
+
+Connector compatibility has been validated for the following data stores:
+
+* *MySQL:* MySQL versions 5.7 and earlier and for MySQL 8.
+* *MariaDB:* version 10.3. It hasn't been validated for the other versions of MariaDB.
+
+NOTE: If you're going to install the connector for MariaDB, keep in mind that even though the guide indicates MySQL, it's also valid for Maria DB.
+
+== Supported JDBC driver versions
+
+The connector needs to be coupled with an artifact with the MySQL JDBC driver. Since it's decoupled, you can use the same connector with different versions.
+
+The current version of the connector supports the following JDBC driver versions:
+
+|===
+| JDBC driver version | Artifact from the connectors repository
+| 8.0.30
+| _mysql-jdbc-8.0.30-1.0.0.jar_
+
+| 5.1.42
+| _mysql-jdbc-5.1.42-1.0.0.jar_
+|===

@@ -1,0 +1,9 @@
+﻿= Troubleshooting
+
+In this section, you'll learn how to troubleshoot possible errors or problems related to Apache Impala® metadata discovery.
+
+* If you use external tables, make sure that the columnar file is correctly encoded. You may have problems when querying data.
+* Kerberos is a delicate mechanism. Make sure you have a direct connection to the server. Make sure that the secret is correct.
+* If your account is a domain service account, be sure to link that domain to the realm, in the 'domain++_++realm' section. If it isn't, you don't need to do anything.
+* You may have connection problems if the user permissions on the connection database are not set correctly.
+* When in doubt, restart any service to apply the changes directly.

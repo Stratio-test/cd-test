@@ -1,0 +1,32 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with the AWS IoT connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| -
+| -
+
+| _Stratio BDL_
+| -
+| -
+
+| _Stratio Virtualizer_
+| -
+| -
+
+| _Stratio Rocket_
+| Read
+| _Plugin custom_
+
+| _Stratio Intelligence_
+| -
+| -
+|===
+
+== Compatibility with AWS IoT versions
+
+Connector compatibility has been validated for AWS IoT MQTT 5.

@@ -1,0 +1,11 @@
+﻿= Known issues
+
+* Currently, the connector does not discover documents containing _arrays_ with values of different types. If found, an error like the following will appear: "Expected the same types in ARRAY and found [LONG,STRING]".
+* In version https://search.maven.org/artifact/com.arangodb/arangodb-spark-datasource-3.2_2.12/1.4.2/jar[1.4.2] of the ArangoDB data source, which is the one used by the ArangoDB SSCC connector, it is not possible to use a _TrustStore_ file to generate SSL connections. The ArangoDB support service reports this problem at https://github.com/arangodb/arangodb-spark-datasource/issues/41[ArangoDB issues].
++
+This limitation does not allow to add the certificate for the SSL connection in the Vault paths `secrets/ca-trust/certificates/` and `secrets/ca-trust/bundle` nor to add it to the _TrustStore_ that is created in each of the services and use these _truststores_ for the connection:
+
+. Discovery agent: `AGENT_SSL_TRUSTSTORE=/home/governance/.extract/truststore.jks` (_'secrets/ca-trust/certificates/'_).
+. Eureka: `BDL_SSL_TRUSTSTORE=/home/bdl-agent/.ssl/truststore.jks` (_'secrets/ca-trust/certificates/'_).
+. _Stratio Virtualizer_: `/tmp/spark-secrets/ca-trust/trustStore.jks` (_'secrets/ca-trust/bundle'_), `/tmp/spark-secrets/DATASTORE/trustStore.jks` (_'secrets/ca-trust/bundle'_) or `/etc/virtualizer/.secrets/.trust/truststore.jks` (_'secrets/ca-trust/certificates/'_).
+. _Stratio Rocket_: `/tmp/secrets/ca-trust/trustStore.jks_ (_'secrets/ca-trust/bundle'_)`, `/tmp/secrets/DATASTORE/trustStore.jks` (_'secrets/ca-trust/bundle'_) or `/security/truststore.jks` (_'secrets/ca-trust/certificates/'_).

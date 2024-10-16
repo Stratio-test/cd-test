@@ -1,0 +1,118 @@
+﻿= User guide
+
+== Description
+
+The SSCC Apache Hive™ connector allows you to fully integrate Apache Hive™ into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:apache-hive:compatibility-matrix.adoc[compatibility matrix].
+
+== Discover your data
+
+The discovery performed by the SSCC Apache Hive™ agent will make the data hierarchy in Apache Hive™ visible and navigable in _Stratio Data Governance_:
+
+* Schemas
+* Tables
+* Columns
+
+image::hive-governance-datastore.png[]
+
+TIP: You can read more about using the data store in the xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc[_Stratio Data Governance_ user guide].
+
+The agent will also associate technical or system metadata to the levels of the data hierarchy:
+
+. *Data store*, accessible through the "System attributes" button:
+** General
++
+--
+*** _Version_: version of the connector that made the discovery.
+*** _URL_: JDBC URL used for connection with Apache Hive™.
+*** _Security_: type of security used. Possible values: MD5 (username and password) or KRB (Kerberos).
+--
++
+image::hive-governance-datastore-system-attrs.png[]
++
+** Data source attributes: name and version of the database and JDBC driver class used.
++
+image::hive-governance-datastore-system-attrs2.png[]
+
+. *_Table_*, accessible using the "System attributes" button or the "Connector Attributes" link:
+** _database_: schema where the table is included.
+** _format_: file format. Possible values: "text", "csv", "parquet" and the rest of the formats supported by Apache Hive™ and the connector.
+** _location_: file location in Apache Hive™.
+** _table_: table name.
+** _tableType_: table type. Possible values: "TABLE" and "VIEW".
++
+image::hive-governance-table-system-attrs.png[]
+
+. *_Column_*, accessible using the "System attributes" button or the "Connector Attributes" link, after selecting it from the list.
+** Properties (only in _System attributes_): precision, scale and whether the type has a sign.
+** Connector attributes: data store type (_HIVE_) and name of the original data type in Apache Hive™.
++
+image::hive-governance-column-system-attrs.png[]
+
+=== BDL virtualization
+
+The connector supports customization of data access in virtualized tables using xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_bdl_custom_attributes[advanced BDL attributes] from __Stratio Data Governance__. These can be modified from the UI.
+
+* *bdl.options.virtualizer.native*: the possible values are "True" and "False". "True" if the user wants to access the data with the xref:stratio-virtualizer:user-guide:what-can-i-do-with-stratio-virtualizer.adoc#_native_queries[native queries] of __Stratio Virtualizer__. If this attribute is set, the default setting ("True") will be overwritten.
+* *bdl.options.native.filter*: filter applied on the table virtualization if you carried out discovery with native mode activated.
+
+To access the data stored natively in the distributed file system to which Apache Hive™ launches its queries, you have to previously configure the multi-HDFS access as indicated in the xref:apache-hadoop-hdfs:operations-guide.adoc#_stratio_virtualizer[documentation] and also add the following attributes in the virtualized tables where you want to configure the access:
+
+* * *bdl.options.hive.distributed*: has to be set to "True".
+* * *bdl.options.hive.distributed.external.hdfs*: has to have the value indicated in the installation of _Stratio Virtualizer_ in 'Environment' -> 'Enable multiple HDFS' -> 'Enable HDFS' -> 'External hdfs name'.
++
+image::hive-distributed-attrs.png[]
+
+TIP: For more details on the use of the BDL, see the xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[BDL data processing documentation].
+
+== Virtualize your data
+
+After tables have been discovered, you can add them to a technical view of a collection. All the configurable parameters of the discovery and those parameters modified from the _Stratio Data Governance_ UI are propagated in the collections where that table is added.
+
+TIP: To learn more about how to manage collections you can consult the xref:stratio-data-governance:user-manual:collections.adoc[_Stratio Data Governance_ user guide].
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+To create a table directly in the _Stratio Virtualizer_ catalog, you can execute the following statement:
+
+[source,sql]
+----
+CREATE TABLE hive_table_krb USING com.stratio.crossdata.connector.hive OPTIONS (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiossccdriver` 'com.stratio.connectors.sscchive.HiveDriverKRB',
+    `url` 'jdbc:hive2://<hive_host>:<hive_port>/<hive_database>;principal=<principal_name>',
+    `driver` 'org.apache.hive312.jdbc.HiveDriver',
+    `dbtable` '<nombre_tabla>'
+)
+----
+
+=== Native access to Apache Hive™
+
+The connector includes an implementation of xref:stratio-virtualizer:architecture:features.adoc#_native_access_to_data_stores[native dialect of __Stratio Virtualizer__]. You can check how to configure it globally in its xref:stratio-virtualizer:operations-guide:configuration/processing-configuration.adoc#_improvements_from_stratio_virtualizer_to_sparks_push_down[operations guide].
+
+TIP: To check if a catalog table supports the native dialect, you can check its `provider`: the result of the `show create table my_table` statement must contain `using com.stratio.crossdata.connector.hive`.
+
+The native dialect supports a subset of the https://archive.apache.org/dist/spark/docs/3.1.1/sql-ref.html[Apache Spark™ SQL dialect]. Unsupported statements could still be executed but without performing the full push-down provided by the native dialect, so performance may suffer for tables with a large number of rows.
+
+TIP: You can check the subset of the supported SQL dialect in xref:apache-hive:user-guide/native-coverage.adoc[the native dialect coverage reference].
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+After the data has been virtualized, you can access it from _Stratio Rocket_ using:
+
+* The catalog.
++
+image::hive-rocket-catalog.png[]
+
+* In the workflows using the input from xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[__Stratio Virtualizer__]. You can force access through the native dialect by checking the "Force query execution with native connectors" box.
++
+image::hive-rocket_virtualizer_input.png[]
+
+=== _Stratio Intelligence_
+
+You can see how the data is accessed from _Stratio Intelligence_ in the xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[general quick start guide].

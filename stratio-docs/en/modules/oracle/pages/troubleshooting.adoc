@@ -1,0 +1,11 @@
+﻿= Troubleshooting
+
+In this section, you'll learn how to troubleshoot potential errors or problems related to the SSCC Oracle connector.
+
+* *Driver version:* when choosing an Oracle JDBC driver, it's important to note that _Stratio Generative AI Data Fabric_ uses Java 8. For this, *you must use the `ojdbc8.jar`*.
+
+* *Length of identifiers in Oracle Server prior to 12.2:* when accessing the data using the native _Stratio Crossdata_ connector without fallback to Apache Spark™, the use of identifiers longer than 30 characters causes the "ORA-00972: identifier is too long" error. To avoid this problem, in Oracle version 12.2 and higher, this limit has been extended to 128 characters. As an alternative solution, the identifiers can be truncated to 30 characters while maintaining their uniqueness. This can be handled programmatically as described in the https://docs.oracle.com/en/database/oracle/oracle-database/21/odpnt/EFCoreIdentifier.html#GUID-FA43F1A1-EDA2-462F-8844-45D49EF67607[Oracle Developer's Guide].
+
+* *javax.xml.parsers.ParserConfigurationException:* by including the _xmlparserv2_ library in the classpath, it sets the system property `javax.xml.parsers.SAXParserFactory to oracle.xml.jaxp.JXSAXParserFactory`, which causes other packages (such as login) to use this by default. The SAX function http://xml.org/sax/features/external-general-entities is not supported. To avoid this problem, you must prevent the Oracle `xmlparserv2` library from setting this property by including the `META_INF/services/javax.xml.parsers.SAXParserFactory` file. This can be done easily by replacing the `xmlparserv2` artifact with `xmlparserv2_sans_jaxp_services`.
+
+* *"JDBC connection initiated but not exactly one connection provider found which can handle it. Found active providers"*. In versions prior to 1.2.1, you need to include the `sscc-oracle-spark-0.3_2.12-1.x.y.jar` artifact and the `sscc-oracle-0.3_2.12-1.x.y.jar` artifact in the modules where it is integrated. If not, accessing the data using the _Kerberos_ authentication mode will fail, generating the aforementioned error.

@@ -1,0 +1,28 @@
+﻿= Compatibility Matrix
+
+The modules that are compatible with the _Azure DataLake Gen2_ connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+|_Stratio Data Governance_ 
+|Discovery 
+|Integrated
+
+|_Stratio BDL_
+|Virtualization
+|Integrated
+
+|_Stratio Virtualizer_
+|Read / Write
+|Integrated
+
+|_Stratio Rocket_
+|Virtualized Read / Write
+|Integrated
+
+|_Stratio Intelligence_
+|-
+|-
+|=== 

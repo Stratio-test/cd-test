@@ -1,0 +1,59 @@
+= Guía de usuario
+
+== Descripción
+
+El conector Apache Hadoop® (HDFS) te permite la integración completa de Apache Hadoop® (HDFS) en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:apache-hadoop-hdfs:compatibility-matrix.adoc[matriz de compatibilidad].
+
+== Descubre tus datos
+
+=== Conoce tus datos
+
+Además de lo que se muestra en xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tablas_y_columnas[_Stratio Data Governance_], también puedes encontrar los atributos técnicos extraídos de los recursos de Apache Hadoop® (HDFS). Se extraen todos los metadatos que porporciona Apache Hadoop® (HDFS) y se añaden a la interfaz de usuario de _Stratio Data Governance_ tanto a en tabla como en columna.
+
+* Los metadatos extraídos en tabla son: _owner_, _group_, _permissions_, _isEncrypted_, _length_, _replication_, _blockSize_, _modifiedAt_, _schema_ y _partition_.
++
+image:hdfs-table-metadata.png[]
+
+* Los metadatos extraídos en columna son: _schemaType_, _type_, _default_, _constraint_, _ordinal_, _properties_, _excelProperties_.
++
+image:hdfs-column-metadata.png[]
+
+=== Virtualización de la BDL
+
+El proceso de descubrimiento es asíncrono. Una vez terminado, se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+Además de los xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_atributos_personalizados_de_bdl[atributos personalizados de BDL] es posible personalizar el acceso a las tablas mediante atributos modificables desde la interfaz de usuario.
+
+NOTE: Puedes consultar cómo crear atributos en la xref:stratio-data-governance:user-manual:addition-of-metadata[guía de usuario] de _Stratio Data Governance_.
+
+TIP: Para más detalles del uso de la BDL consulta la xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[documentación de procesamiento de datos con BDL].
+
+== Virtualiza tus datos
+
+Una vez descubiertas las tablas, es posible añadirlas a una vista técnica de una colección. Todos los parámetros configurables del descubrimiento y los modificados desde la interfaz de usuario de _Stratio Data Governance_ se propagan en las colecciones donde se añada esa tabla.
+
+TIP: Para saber más sobre cómo gestionar las colecciones puedes consultar xref:stratio-data-governance:user-manual:collections.adoc[la guía de usuario de _Stratio Data Governance_].
+
+IMPORTANT: Ten en cuenta que, para virtualizar las tablas descubiertas, es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Una vez virtualizados los datos, es posible acceder desde _Stratio Rocket_ mediante:
+
+* El catálogo.
++
+image:hdfs-rocket-catalog.png[]
+
+* Dentro de los _workflows_, haciendo uso del _input_ de xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[_Stratio Virtualizer_].
++
+image:hdfs-rocket-virtualizer-input.png[]
+
+TIP: Para más detalle sobre los _inputs/outputs_ de _Stratio Rocket_ se recomienda visitar xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc[su documentación].
+
+=== _Stratio Intelligence_
+
+Se puede comprobar cómo se accede a los datos desde _Stratio Intelligence_ en la xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[guía de inicio rápido general].

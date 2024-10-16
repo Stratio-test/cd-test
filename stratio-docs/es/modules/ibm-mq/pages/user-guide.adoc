@@ -1,0 +1,31 @@
+= Guía de usuario
+
+== Descripción
+
+El conector IBM MQ te permite la integración de IBM MQ en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:ibm-mq:compatibility-matrix.adoc[matriz de compatibilidad].
+
+NOTE: La integración se realiza mediante _workflows_ de _Stratio Rocket_.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+El conector IBM MQ está integrado en _Stratio Rocket_ en _assets_ de tipo _streaming_ como un "input".
+
+Para su configuración se tiene:
+
+image::ibm_mq_conf_completo.png[]
+
+Los campos más importantes son:
+
+* *_Host_:* _host_ de la instancia IBM MQ.
+* *_Port_:* puerto de la instancia IBM MQ.
+* *_Queue manager name_:* nombre de la cola IBM MQ.
+* *_Queue Channel_:* canal de la cola IBM MQ.
+* *_Vault db name_:* nombre del secreto. Consulta la xref:ibm-mq:quick-start-guide.adoc#conf-secreto[configuración del secreto].
+
+Una vez configurado, puedes realizar _workflows_ donde utilices las cajas IBM MQ para consumir eventos de una cola. Los eventos se pueden crear manualmente desde la https://www.ibm.com/docs/en/mq-appliance/latest?topic=configuring-mq-appliance-web-ui[IBM MQ Web UI].
+
+image::ibm_mq_wf.png[]

@@ -1,0 +1,985 @@
+= Guías de migraciones
+
+[#agent-jdbc-to-sscc-legacy-migration]
+
+== Migración de un agente JDBC a un agente SSCC _legacy_
+
+Esta guía te ayudará a migrar el descubrimiento y gobierno de un agente JDBC a un agente SSCC desacoplado con el modo _legacy_ activado.
+
+Los agentes JDBC a migrar son aquellos instalados con los siguientes servicios de _Stratio Command Center_:
+
+* `agent-as400-external-default`
+* `agent-db2-external-default`
+* `agent-mssql-external-default`
+* `agent-oracle-external-default`
+* `agent-pg-external-default`
+* `agent-pg-internal-default`
+* `agent-salesforce-external-default`
+* `agent-saphana-external-default`
+* `agent-teradata-external-default`
+
+O también cualquier otro servicio basado en la imagen docker `dg-jdbc-agent`.
+
+IMPORTANT: Esta sección de la guía *no contempla* la migración de tablas creadas directamente por el usuario en el catálogo de _Stratio Virtualizer_. La migración de estas tablas está cubierta en su xref:#virtualizer-jdbc-to-sscc-migration[propia sección].
+
+=== Migración de datos de _Stratio Data Governance_
+
+==== Prerrequisitos
+
+. Apagar todos los servicios que utilicen los _schemas_ `dg_metadata`, `dg_datamarket` y `cct-orchestrator` de la base de datos utilizada por _Stratio Data Governance_ y _Stratio Command Center_ (por defecto llamada `postgreskeos`) para evitar realizar escrituras mientras se hace la migración y prevenir así la posible pérdida de información en caso de tener que realizar un _Rollback_, incluyendo:
+* _Stratio Data Governance_, el servicio _cct-orchestrator_, _Stratio Eureka_ y _Stratio Rocket_.
+* Todos los agentes de descubrimiento.
++
+NOTE: Es posible hacer la migración apagando únicamente _Stratio Data Governance_, _Stratio Eureka_ y los agentes de descubrimiento. En este caso habría, que hacer una copia de seguridad del _schema_ `dg_metadata` de la base de datos `postgreskeos`.
+
+. Para la correcta ejecución de los _scripts_ será necesario recopilar la siguiente información:
++
+--
+. El nombre del _cluster_ de URL donde se instaló _Stratio Data Governance_ y la base de datos utilizada.
+** En los ejemplos se usará el nombre `postgreskeos` por defecto para ambos.
+. El nombre del agente JDBC a migrar: es el nombre que aparece en la interfaz de usuario del 'Data Dictionary' de _Stratio Data Governance_.
+. El nombre del agente SSCC que se va a instalar.
+. El _tenant_ del _cluster_ al que pertenece el agente JDBC y en el que se  instalará el agente SSCC (debe ser el mismo).
+--
++
+. Es necesario tener la herramienta kubectl configurada para acceder al _cluster_ del entorno.
+
+==== Proceso de migración
+
+El proceso de migración consiste en realizar las modificaciones necesarias en la base de datos `postgreskeos`, en el _schema_ `dg_metadata`, donde se guardan los metadatos del _Data Catalog_ para después desplegar un agente SSCC que escriba en el mismo sitio que lo hacía el agente JDBC.
+
+Tras estas modificaciones, al arrancar el servicio de _Stratio Eureka_, este iniciará la sincronización de los cambios realizados en el catálogo de _Stratio Virtualizer_, incluyendo las opciones necesarias para la activación del tipo de seguridad `custom_sscc`.
+
+IMPORTANT: En función del número de tablas técnicas asociadas al agente migrado y el número de instancias y recursos asignados al servicio de _Stratio Eureka_ este proceso de sincronización podría dilatarse en el tiempo.
+
+Después de aplicar el proceso podrás seguir utilizando las _Data collections_, _bdl.options_, atributos personalizados y _assets_ relacionados creados por los usuarios para el agente JDBC a migrar, con las ventajas que aporta el agente SSCC en el modo _no legacy_.
+
+==== Pasos a realizar
+
+. Antes de realizar la intervención se debe hacer una copia de seguridad de los schemas 'dg_metadata', 'dg_datamarket' y 'cct-orchestrator' de la base de datos URL usada por los servicios _Stratio Data Governance_ y _cct-orchestrator_ para almacenar los metadatos descubiertos (por defecto llamada `postgreskeos`).
++
+--
+* Puedes encontrar más información acerca de las copias de seguridad en xref:stratio-postgres:administration-guide:pgcluster/disaster-recovery-logical.adoc#_backup_pgbackup[la guía de administración de __Stratio PostgreSQL Operator__].
++
+--
+IMPORTANT: Un error en el proceso de migración podría provocar pérdidas de información esenciales para el correcto funcionamiento de la plataforma, por lo que nunca debes realizarla sin una copia de seguridad previa.
+
+. Descarga los _scripts_ de migración en el equipo local en un directorio dedicado que sólo contenga dichos _scripts_.
++
+--
+* xref:attachment$/migrations-guide/from-jdbc-agent/sscc/sanity-check.sql[Comprobaciones previas]
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-jdbc-agent/sscc/sanity-check.sql[]
+----
+
+====
++
+* xref:attachment$/migrations-guide/from-jdbc-agent/sscc/jdbc-to-sscc-migration.sql[_Script_ de migración agente JDBC a SSCC]
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-jdbc-agent/sscc/jdbc-to-sscc-migration.sql[]
+----
+
+====
+--
++
+. Establece el _namespace_ y el nombre del _pod_ primario del _cluster_ de URL.
++
+[source, bash]
+----
+# El namespace por defecto es `keos-core`
+# El cluster de PostgreSQL® y la base de datos por defecto es `postgreskeos`
+export PG_CLUSTER_NAME=<postgres_cluster_name>
+export POD_NAMESPACE=<namespace>
+export POD_NAME=$(kubectl get endpoints $PG_CLUSTER_NAME-primary -n $POD_NAMESPACE -o=jsonpath={..targetRef.name})
+----
++
+. Sube la carpeta que contiene los _scripts_ de migración.
++
+[source, bash]
+----
+kubectl cp /path/to/downloaded/migration-scripts $POD_NAMESPACE/$POD_NAME:/tmp
+----
++
+. Abre una consola en el _pod_ primario del _cluster_ de URL.
++
+[source, bash]
+----
+kubectl exec -it $POD_NAME -n=$POD_NAMESPACE -- bash
+----
++
+NOTE: A partir de este punto, los comandos deben ejecutarse en la consola del _pod_ primario del _cluster_ de URL.
++
+. Ejecuta xref:attachment$/migrations-guide/from-jdbc-agent/sscc/sanity-check.sql[el _script_ de comprobación previa] que devolverá el número de registros a migrar por tabla. Al finalizar la migración, se volverá a ejecutar para comprobar que coincide.
++
+Este _script_ necesita las siguientes https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] para su funcionamiento:
++
+--
+* `tenant`: _tenant_ donde se encuentra desplegado el agente.
+** Por ejemplo: _s000001_.
+* `dg_jdbc_agent_name`: nombre del agente a migrar que aparece en _Stratio Data Governance_.
++
+image::governance-sources.png[]
++
+** Por ejemplo: _dg-mssql-jdbc-agent_.
+--
++
+Ejemplo de escritura del recuento de elementos a migrar en un archivo para poder usarlo en posteriores comprobaciones:
++
+[source,bash]
+----
+psql -d postgreskeos -f /tmp/migration-scripts/sanity-check.sql --set tenant="'s000001'" --set dg_jdbc_agent_name="'dg-mssql-jdbc-agent'" -o /tmp/migration-scripts/elements-to-migrate.txt
+----
++
+[source,bash]
+----
+Password for user postgres:
+postgres@postgreskeos-1:/tmp/migration-scripts$ cat elements-to-migrate.txt
+               table               | count
+-----------------------------------+-------
+ data_asset_enriched               |     0
+ quality                           |     3
+ actor_data_asset                  |     0
+ metrics_mdp_execution_aggregation |     3
+ business_layer_event_historic     |     0
+ business_layer_event              |     0
+ key_data_asset                    |     0
+ data_asset                        |   130
+ metrics                           |     3
+ entity_relation                   |     0
+ enriched_properties_modified      |     3
+(10 rows)
+----
++
+. Ejecuta el _script_ de migración:
++
+Este _script_ necesita una serie de https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] establecidas para su correcto funcionamiento:
++
+--
+* `tenant`: _tenant_ donde se encuentra desplegado el agente.
+** Por ejemplo: _s000001_.
+* `dg_jdbc_agent_name`: nombre del agente JDBC a migrar.
+** Por ejemplo: _dg-mssql-jdbc-agent_.
+* `dg_sscc_agent_name`: nombre del agente SSCC que se va a instalar.
+** Por ejemplo: _dg-mssql-sscc-agent_.
+* `ds_type`: tipo de almacén de datos.
+** Los soportados actualmente son:
+*** *as400*
+*** *db2*
+*** *mssql*
+*** *ORACLE* (en mayúsculas)
+*** *POSTGRESQL* (en mayúsculas)
+*** *SALESFORCE* (en mayúsculas)
+*** *teradata*
++
+--
++
+El _script_ realizará las modificaciones temporalmente y hará una consulta sobre las filas modificadas.
++
+Ejemplo de migración de un agente JDBC de Microsoft SQL Server a SSCC:
++
+[source,bash]
+----
+psql -d postgreskeos --set ds_type="'mssql'" --set tenant="'s000001'" --set dg_jdbc_agent_name="'dg-mssql-jdbc-agent'" --set dg_sscc_agent_name="'dg-mssql-sscc-agent'"
+----
++
+[source,bash]
+----
+Password for user postgres:
+psql (14.5 (Ubuntu 14.5-1.pgdg22.04+1))
+Type "help" for help.
+
+postgreskeos=# \i /tmp/migration-scripts/jdbc-to-sscc-migration.sql
+BEGIN
+INSERT 0 0
+INSERT 0 0
+UPDATE 1
+UPDATE 1
+UPDATE 128
+UPDATE 28
+UPDATE 0
+UPDATE 5
+UPDATE 5
+UPDATE 5
+UPDATE 0
+UPDATE 130
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 3
+UPDATE 2
+UPDATE 3
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 3
+UPDATE 3
+               table               | count
+-----------------------------------+-------
+ data_asset_enriched               |     0
+ quality                           |     3
+ actor_data_asset                  |     0
+ business_layer_event_historic     |     0
+ business_layer_event              |     0
+ key_data_asset                    |     0
+ data_asset                        |   130
+ entity_relation                   |     0
+ metrics_mdp_execution_aggregation |     3
+ metrics                           |     3
+(10 rows)
+----
++
+. Ahora y todavía en la consola `psql` se pueden hacer las comprobaciones necesarias, como comparar las tablas modificadas con las que devolvió el _script_ de comprobación inicial:
++
+[source,bash]
+----
+postgreskeos=# \! cat /tmp/migration-scripts/elements-to-migrate.txt
+               table               | count
+-----------------------------------+-------
+ data_asset_enriched               |     0
+ quality                           |     3
+ actor_data_asset                  |     0
+ metrics_mdp_execution_aggregation |     3
+ business_layer_event_historic     |     0
+ business_layer_event              |     0
+ key_data_asset                    |     0
+ data_asset                        |   130
+ metrics                           |     3
+ entity_relation                   |     0
+ enriched_properties_modified      |     3
+(4 rows)
+----
++
+. Como último paso, en la consola `psql` debes:
+.. Descartar los cambios si se ha detectado algún error o incoherencia en los datos:
++
+[source,bash]
+----
+postgreskeos=# rollback;
+----
++
+.. Confirmarlos en caso contrario.
++
+IMPORTANT: Después de este paso, si es necesario volver a la situación previa a la migración tendrás que restaurar la copia de seguridad creada previamente.
++
+[source,bash]
+----
+postgreskeos=# commit;
+----
++
+. Migración de los _vendor_ de los agentes de descubrimiento.
++
+Hay algunos agentes de descubrimiento de los que es necesario actualizar su _vendor_ (también visualizado como "Source type" en el diccionario de datos de _Stratio Data Governance_) a través de una sentencia SQL en la base de datos de _Stratio Data Governance_ llamada `postgreskeos`.
++
+image::governance-data-dictionary.png[]
++
+Es necesario ejecutar una sentencia SQL dependiendo del almacén de datos que se esté migrando. Para la correcta ejecución de las sentencias SQL es necesario recopilar la siguiente información:
++
+--
+* `tenant`: _tenant_ donde se encuentra desplegado el agente.
+** Por ejemplo: _s000001_.
+* `dg-agent-name`: nombre del agente a migrar que aparece en _Stratio Data Governance_.
++
+image:governance-sources.png[]
++
+** Una vez localizado el _tenant_ y el nombre del agente, se pueden sustituir por los _placeholder_ `<tenant>` y `<dg-agent-name>` en las sentencias.
+--
++
+La lista de agentes que pueden actualizarse y sus correspondientes sentencias SQL son las siguientes:
++
+** *Apache Cassandra®*:
++
+[source,bash]
+----
+UPDATE "dg_metadata"."data_asset" SET vendor = replace(vendor, 'Stratio', 'Apache') WHERE tenant='<tenant>' AND metadata_path LIKE '<dg-agent-name>' || ':%';
+----
+
+** *Elasticsearch*:
++
+[source,bash]
+----
+UPDATE "dg_metadata"."data_asset" SET vendor = replace(vendor, 'Stratio', 'Elastic') WHERE tenant='<tenant>' AND metadata_path LIKE '<dg-agent-name>' || ':%';
+----
++
+** *MySQL*:
++
+[source,bash]
+----
+UPDATE "dg_metadata"."data_asset" SET vendor = replace(vendor, 'Stratio', 'Oracle') WHERE tenant='<tenant>' AND metadata_path LIKE '<dg-agent-name>' || ':%';
+----
+
+** *Oracle*:
++
+[source,bash]
+----
+UPDATE "dg_metadata"."data_asset" SET vendor = replace(vendor, 'Apache', 'Oracle') WHERE tenant='<tenant>' AND metadata_path LIKE '<dg-agent-name>' || ':%';
+----
+
+** *PostgreSQL®*:
++
+[source,bash]
+----
+UPDATE "dg_metadata"."data_asset" SET vendor = replace(vendor, 'postgres', 'PostgreSQL Global Development Group') WHERE tenant='<tenant>' AND metadata_path LIKE '<dg-agent-name>' || ':%';
+----
+
+** *Salesforce*:
++
+[source,bash]
+----
+UPDATE "dg_metadata"."data_asset" SET vendor = replace(vendor, 'salesforce', 'SALESFORCE') WHERE tenant='<tenant>' AND metadata_path LIKE '<dg-agent-name>' || ':%';
+----
+
+** *Teradata*:
++
+[source,bash]
+----
+UPDATE "dg_metadata"."data_asset" SET vendor = replace(vendor, 'teradata', 'Teradata') WHERE tenant='<tenant>' AND metadata_path LIKE '<dg-agent-name>' || ':%';
+----
++
+Una vez sustituidos en la sentencia los _placeholder_ correspondientes, se puede comprobar el número de registros que se van a actualizar previamente con la sentencia:
++
+[source,bash]
+----
+select count(*) from "dg_metadata"."data_asset" where id in (select id from "dg_metadata"."data_asset" where "metadata_path" like '<dg-agent-name>:%');
+----
+
+. Arrancar los servicios parados previamente en los prerrequisitos *excepto el agente migrado y _Stratio Rocket_* (para arrancar _Stratio Rocket_, espera hasta completar la xref:#agent-jdbc-to-sscc-rocket-migration[Migración de datos de _Stratio Rocket_]).
++
+. Instalar el agente SSCC al que se está migrando. Puedes consultar cómo realizar la instalación en la guía de operaciones.
++
+NOTE: Recuerda que la configuración del agente SSCC debe ser la misma que la del agente JDBC y que el parámetro `Use legacy mode` debe estar a _true_ en caso de tenerlo. Por ejemplo, las bases de datos a descubrir deben coincidir.
++
+. Comprueba en la interfaz de usuario de _Stratio Data Governance_ que se puede acceder a los datos descubiertos, colecciones, reglas de calidad, relaciones entre _assets_, etc.
+
+==== _Troubleshooting_
+
+** Dependiendo del número de registros a actualizar, es posible que el _script_ de migración tarde más tiempo por sentencia y PostgreSQL® dé un _timeout_. En este, caso habría que configurar los _timeout_ de la base de datos. Normalmente valdría con establecer `idle_in_transaction_session_timeout` y `statement_timeout` a *0* para deshabilitar el _timeout_ para el proceso. Es importante *no configurar estos parámetros en el fichero de configuración _postgresql.conf_*, se recomienda informar estos parámetros antes de lanzar los _scripts_ con:
++
+[source,bash]
+----
+SET statement_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+----
++
+TIP: Para más información, revisa la https://www.postgresql.org/docs/current/runtime-config-client.html[configuración de PostgreSQL®].
+
+[#agent-jdbc-to-sscc-rocket-migration]
+
+=== Migración de datos de _Stratio Rocket_
+
+==== Prerrequisitos
+
+. Comprobar que el servicio _Stratio Rocket_ sigue suspendido y suspenderlo si no lo está.
+** Debes hacer una copia de seguridad de todos los _workflows_ y el _schema_ de PostgreSQL® usado por _Stratio Rocket_ para evitar la pérdida de datos si se encuentra un problema durante la actualización.
+** Además, debes detener todos los _assets_ de tipo _workflow_, _AutoMLPipeline_ y _MLProject_ en ejecución. Esto puede provocar una pérdida de servicio en el caso de _workflows_ de _streaming_ pero es necesario hacerlo.
+. Haber actualizado el agente JDBC a un agente SSCC.
+** Recuerda no activar el servicio todavía.
+. Comprobar que la opción "Enable proactive quality rules scheduling" está activada en la configuración del servicio de _Stratio_Rocket_ y activarla si no lo está.
++
+image:command-center-qr-scheduling.png[]
++
+IMPORTANT: Debido a un error en el proceso de sincronización, es necesario usar una versión de _Stratio Rocket_ superior o igual a la 3.1.2.
++
+. Para la correcta ejecución de los _scripts_ será necesario recopilar la siguiente información:
++
+--
+. El nombre del _cluster_ de PostgreSQL® donde se instaló la base de datos de _Stratio Rocket_ (por defecto `psql`).
+. El nombre de la base de datos utilizada (por defecto `rocket`).
+. El esquema de la instancia del servicio de _Stratio Rocket_ (por defecto `rocket.<tenant-id>-rocket`).
+** En los ejemplos, se usará el nombre por defecto para los tres: `psql`, `rocket` y `rocket.<tenant-id>-rocket`.
+. El nombre del agente JDBC que se va a migrar.
+. El nombre del agente SSCC que se va a instalar.
+--
++
+. Es necesario tener la herramienta kubectl configurada para acceder al _cluster_ del entorno.
+
+==== Proceso de migración
+
+El proceso de migración consiste en:
+
+* Realizar las modificaciones necesarias en la base de datos `rocket` en el _schema_ `rocket.<tenantId>-rocket` no cubiertas por el punto posterior.
+* Dejar que _Stratio Rocket_ sincronice automáticamente los datos sobre reglas de calidad planificadas modificados en _Stratio Data Governance_ con los _scripts_ según lo descrito en la xref:#agent-sscc-legacy-to-sscc-non-legacy-governance-migration[sección anterior].
+
+Después de aplicar el proceso, podrás seguir utilizando las reglas de calidad planificadas y las integradas en el _workflow_ para el agente SSCC _legacy_ a migrar.
+
+==== Pasos a realizar
+
+. Antes de realizar la intervención se debe hacer una copia de seguridad de la base de datos PostgreSQL® usada por _Stratio Rocket_ para almacenar los metadatos descubiertos (por defecto llamada `rocket`).
++
+--
+* Puedes encontrar más información acerca de las copias de seguridad en xref:stratio-postgres:administration-guide:pgcluster/disaster-recovery-logical.adoc#_backup_pgbackup[la guía de administración de __Stratio PostgreSQL Operator__].
++
+--
+IMPORTANT: Un error en el proceso de migración podría provocar pérdidas de información esenciales para el correcto funcionamiento de la plataforma, por lo que nunca debes realizarla sin una copia de seguridad previa.
+
+. Descarga los _scripts_ de migración en el equipo local en un directorio dedicado que sólo contenga dichos _scripts_.
++
+--
+* xref:attachment$/migrations-guide/from-jdbc-agent/sscc/rocket-sanity-check.sql[Comprobaciones previas]
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-jdbc-agent/sscc/rocket-sanity-check.sql[]
+----
+
+====
++
+* xref:attachment$/migrations-guide/from-jdbc-agent/sscc/rocket-jdbc-to-sscc-migration.sql[_Script_ de migración de agente JDBC a SSCC]
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-jdbc-agent/sscc/rocket-jdbc-to-sscc-migration.sql[]
+----
+
+====
+--
++
+. Establece el _namespace_ y el nombre del _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+# El namespace por defecto es `<tenantId>-datastores`
+# El cluster de PostgreSQL® y la base de datos por defecto es `psql`
+export PG_CLUSTER_NAME=<postgres_cluster_name>
+export POD_NAMESPACE=<namespace>
+export POD_NAME=$(kubectl get endpoints $PG_CLUSTER_NAME-primary -n $POD_NAMESPACE -o=jsonpath={..targetRef.name})
+----
++
+. Sube la carpeta que contiene los _scripts_ de migración.
++
+[source, bash]
+----
+kubectl cp /path/to/downloaded/migration-scripts $POD_NAMESPACE/$POD_NAME:/tmp
+----
++
+. Abre una consola en el _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+kubectl exec -it $POD_NAME -n=$POD_NAMESPACE -- bash
+----
++
+NOTE: A partir de este punto, los comandos deben ejecutarse en la consola del _pod_ primario del _cluster_ de PostgreSQL®.
++
+. Ejecuta xref:attachment$/migrations-guide/from-jdbc-agent/sscc/rocket-sanity-check.sql[el _script_ de comprobación previa] que devolverá el número de registros a migrar por tabla. Al finalizar la migración, se volverá a ejecutar para comprobar que coincide.
++
+Este _script_ necesita las siguientes https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] para su funcionamiento:
++
+--
+* `dg_jdbc_agent_name`: nombre del agente JDBC a migrar que aparece en _Stratio Data Governance_.
++
+image::governance-sources.png[]
++
+** Por ejemplo: _dg-mssql-jdbc-agent_.
+* `rocket_instance_schema`: esquema de la instancia del servicio de _Stratio Rocket_ a migrar entre dobles comillas.
+** Por ejemplo: _"rocket.s000001-rocket"_.
+--
++
+Ejemplo de escritura del recuento de elementos a migrar en un archivo para poder usarlo en posteriores comprobaciones:
++
+[source,bash]
+----
+psql -d rocket -f /tmp/migration-scripts/rocket-sanity-check.sql --set dg_jdbc_agent_name="'dg-mssql-jdbc-agent'" --set rocket_instance_schema="\"rocket.s000001-rocket\"" -o /tmp/migration-scripts/elements-to-migrate.txt
+----
++
+[source,bash]
+----
+Password for user postgres:
+postgres@psql-1:/tmp/migration-scripts$ cat elements-to-migrate.txt
+        table            | count
+-------------------------+-------
+ quality_rule_result     |     76
+ workflow_version        |      1
+(2 rows)
+----
++
+. Ejecuta el _script_ de migración:
++
+Este _script_ necesita una serie de https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] establecidas para su correcto funcionamiento:
++
+--
+* `dg_jdbc_agent_name`: nombre del agente JDBC que se va a migrar.
+** Por ejemplo: _dg-mssql-jdbc-agent_.
+* `dg_sscc_agent_name`: nombre del agente SSCC que se va a instalar.
+** Por ejemplo: _dg-mssql-sscc-agent_.
+* `rocket_instance_schema`: esquema de la instancia del servicio de _Stratio Rocket_ a migrar entre dobles comillas.
+** Por ejemplo: _"rocket.s000001-rocket"_.
++
+--
++
+El _script_ realizará las modificaciones temporalmente, informando del número de filas modificadas.
++
+Ejemplo de migración de un agente JDBC de MSSQL a SSCC:
++
+[source,bash]
+----
+psql -d rocket --set dg_jdbc_agent_name="'dg-mssql-jdbc-agent'" --set dg_sscc_agent_name="'dg-mssql-sscc-agent'" --set rocket_instance_schema="\"rocket.s000001-rocket\""
+----
++
+[source,bash]
+----
+Password for user postgres:
+psql (14.7 (Ubuntu 14.7-1.pgdg22.04+1))
+Type "help" for help.
+
+rocket=# \i /tmp/migration-scripts/rocket-jdbc-to-sscc-migration.sql
+BEGIN
+UPDATE  1
+UPDATE 76
+        table            | count
+-------------------------+-------
+ quality_rule_result     |     76
+ workflow_version        |      1
+(2 rows)
+----
++
+. Ahora y todavía en la consola `psql` se pueden hacer las comprobaciones necesarias, como comparar las tablas modificadas con las que devolvió el _script_ de comprobación inicial:
++
+[source,bash]
+----
+rocket=# \! cat /tmp/migration-scripts/elements-to-migrate.txt
+        table            | count
+-------------------------+-------
+ quality_rule_result     |     76
+ workflow_version        |      1
+(2 rows)
+----
++
+. Como último paso, en la consola `psql` debes:
+.. Descartar los cambios si se ha detectado algún error o incoherencia en los datos:
++
+[source,bash]
+----
+postgreskeos=# rollback;
+----
++
+.. Confirmarlos en caso contrario.
++
+IMPORTANT: Después de este paso, si es necesario volver a la situación previa a la migración tendrás que restaurar la copia de seguridad creada previamente tanto de _Stratio Rocket_ como de _Stratio Data Governance_ (revirtiendo la migración en esta última).
++
+[source,bash]
+----
+postgreskeos=# commit;
+----
++
+. Arranca el servicio de _Stratio Rocket_ parado previamente en los prerrequisitos con la configuración adecuada para activar el linaje y las reglas de calidad. Puedes consultar la configuración de las reglas de calidad y linaje de cada conector en su apartado de xref:stratio-connectors:arangodb:operations-guide.adoc#agent-sscc-configuration-qrs-and-lineage[Gestión de la configuración: reglas de calidad y linaje].
++
+. Espera a que los datos reglas de calidad planificadas se sincronicen automáticamente usando "proactive quality rules scheduling".
++
+. Comprueba en la interfaz de usuario de _Stratio Rocket_ que se puede acceder a las reglas de calidad tanto en el planificador como en los _workflows_ en los que se estaban utilizando.
+
+[#virtualizer-jdbc-to-sscc-migration]
+
+== Migración de tablas no gobernadas del catálogo de _Stratio Virtualizer_ para adaptarlas al conector SSCC
+
+Esta guía tiene como objetivo ayudar *exclusivamente* a la migración de tablas creadas directamente por el usuario en el catálogo de _Stratio Virtualizer_.
+
+IMPORTANT: Esta sección de la guía *no contempla* la migración de tablas creadas automáticamente por _Stratio BDL_ a partir de metadatos descubiertos en _Stratio Data Governance_. La migración de estas tablas está cubierta en su xref:#agent-jdbc-to-sscc-migration[propia sección].
+
+=== Prerrequisitos
+
+. Para la correcta ejecución de los _scripts_ será necesario recopilar la siguiente información:
++
+--
+. El nombre del _cluster_ de PostgreSQL® y de la base de datos donde se guarda la información del catálogo de _Stratio Virtualizer_.
+.. En los ejemplos se usará "virtualizer" como nombre de la base de datos.
+. La URL JDBC usada cuando se crearon las tablas en el catálogo.
+. La URL JDBC usada en el nuevo conector SSCC.
+. El tipo de autenticación del nuevo conector SSCC (usuario y contraseña, Kerberos, etc.) y el nombre del secreto donde está guardada la información necesaria para la misma.
+--
+. Es necesario tener la herramienta kubectl configurada para acceder al _cluster_ del entorno.
+. También es necesario apagar todos los servicios que usen el _cluster_ de PostgreSQL® donde se va a realizar la migración mientras dure la misma: _Stratio Virtualizer_, _Stratio BDL_, _Stratio Rocket_, _Stratio Intelligence_, _Stratio Discovery_ y _Stratio DLC_.
+
+=== Pasos a realizar
+
+. Haz una copia de seguridad de la base de datos PostgreSQL® usada por _Stratio Virtualizer_ para almacenar los metadatos del catálogo.
++
+--
+** Puedes encontrar más información sobre las copias de seguridad en xref:stratio-postgres:administration-guide:pgcluster/disaster-recovery.adoc#_backup_pgbackup[la guía de administración de __Stratio PostgreSQL Operator__].
+--
+IMPORTANT: Un error en el proceso de migración podría provocar pérdidas de información esenciales para el correcto funcionamiento de la plataforma, por lo que nunca debes realizarla sin una copia de seguridad previa.
++
+. Descarga los _scripts_ de migración apropiados al equipo local en un directorio dedicado que sólo contenga dichos _scripts_. En los ejemplos se usará como nombre de directorio "migration-scripts".
++
+--
+* xref:attachment$/migrations-guide/from-jdbc-agent/virtualizer/sanity-check.sql[Comprobaciones previas]
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-jdbc-agent/virtualizer/sanity-check.sql[]
+----
+
+====
++
+* Modificaciones para migrar al conector SSCC. En este caso, deberás elegir entre uno de los disponibles por tipo de base de datos y modo de autenticación usados para conectarse a la misma:
+** Microsoft SQL Server:
+*** Usando xref:mssql:attachment$/migrations-guide/from-jdbc-agent/virtualizer/mssql-from-jdbc-agent-to-md5-sscc.sql[autenticación mediante usuario y contraseña].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::mssql:attachment$/migrations-guide/from-jdbc-agent/virtualizer/mssql-from-jdbc-agent-to-md5-sscc.sql[]
+----
+
+====
++
+*** Usando xref:mssql:attachment$/migrations-guide/from-jdbc-agent/virtualizer/mssql-from-jdbc-agent-to-krb-sscc.sql[autenticación mediante Kerberos].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::mssql:attachment$/migrations-guide/from-jdbc-agent/virtualizer/mssql-from-jdbc-agent-to-krb-sscc.sql[]
+----
+
+====
++
+** IBM Db2 for iSeries AS400:
+*** Usando xref:as400:attachment$/migrations-guide/from-jdbc-agent/virtualizer/as400-from-jdbc-agent-to-md5-sscc.sql[autenticación mediante usuario y contraseña].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::as400:attachment$/migrations-guide/from-jdbc-agent/virtualizer/as400-from-jdbc-agent-to-md5-sscc.sql[]
+----
+
+====
++
+** IBM Db2 for UNIX:
+*** Usando xref:ibm-db2:attachment$/migrations-guide/from-jdbc-agent/virtualizer/db2-from-jdbc-agent-to-md5-sscc.sql[autenticación mediante usuario y contraseña].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::db2:attachment$/migrations-guide/from-jdbc-agent/virtualizer/db2-from-jdbc-agent-to-md5-sscc.sql[]
+----
+
+====
++
+** PostgreSQL®:
+*** Usando xref:postgres:attachment$/migrations-guide/from-jdbc-agent/virtualizer/postgres-from-jdbc-agent-to-md5-sscc.sql[autenticación mediante usuario y contraseña].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::postgres:attachment$/migrations-guide/from-jdbc-agent/virtualizer/postgres-from-jdbc-agent-to-md5-sscc.sql[]
+----
+
+====
++
+*** Usando xref:postgres:attachment$/migrations-guide/from-jdbc-agent/virtualizer/postgres-from-jdbc-agent-to-mtls-sscc.sql[mTLS (_Transport Layer Security_ mutuo)].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::postgres:attachment$/migrations-guide/from-jdbc-agent/virtualizer/postgres-from-jdbc-agent-to-mtls-sscc.sql[]
+----
+
+====
++
+*** Usando xref:postgres:attachment$/migrations-guide/from-jdbc-agent/virtualizer/postgres-from-jdbc-agent-to-md5-mtls-sscc.sql[mTLS (_Transport Layer Security_ mutuo) combinado con usuario y contraseña].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::postgres:attachment$/migrations-guide/from-jdbc-agent/virtualizer/postgres-from-jdbc-agent-to-md5-mtls-sscc.sql[]
+----
+
+====
++
+** Oracle:
+*** Usando xref:oracle:attachment$/migrations-guide/from-jdbc-agent/virtualizer/oracle-from-jdbc-agent-to-md5-sscc.sql[autenticación mediante usuario y contraseña].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::oracle:attachment$/migrations-guide/from-jdbc-agent/virtualizer/oracle-from-jdbc-agent-to-md5-sscc.sql[]
+----
+
+====
++
+*** Usando xref:oracle:attachment$/migrations-guide/from-jdbc-agent/virtualizer/oracle-from-jdbc-agent-to-krb-sscc.sql[autenticación mediante Kerberos].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::oracle:attachment$/migrations-guide/from-jdbc-agent/virtualizer/oracle-from-jdbc-agent-to-krb-sscc.sql[]
+----
+
+====
++
+** SAP HANA:
+*** Usando xref:saphana:attachment$/migrations-guide/from-jdbc-agent/virtualizer/saphana-from-jdbc-agent-to-md5-sscc.sql[autenticación mediante usuario y contraseña].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::saphana:attachment$/migrations-guide/from-jdbc-agent/virtualizer/saphana-from-jdbc-agent-to-md5-sscc.sql[]
+----
+
+====
+--
++
+. Establece el _namespace_ y eñ nombre del _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+export PG_CLUSTER_NAME=<postgres_cluster_name>
+export POD_NAMESPACE=<namespace>
+export POD_NAME=$(kubectl get endpoints $PG_CLUSTER_NAME-primary -n $POD_NAMESPACE -o=jsonpath={..targetRef.name})
+----
++
+. Sube la carpeta que contiene los _scripts_ de migración.
++
+[source, bash]
+----
+kubectl cp /path/to/downloaded/migration-scripts $POD_NAMESPACE/$POD_NAME:/tmp
+----
++
+. Abre una consola en el _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+kubectl exec -it $POD_NAME -n=$POD_NAMESPACE -- bash
+----
++
+NOTE: A partir de este punto, los comandos deben ejecutarse en la consola del _pod_ primario del _cluster_ de PostgreSQL®.
++
+. Ejecuta xref:attachment$/migrations-guide/from-jdbc-agent/virtualizer/sanity-check.sql[el _script_ de comprobación previa] que devolverá las tablas que se van a migrar. Habrá que comprobar con detenimiento que son las correctas.
++
+Este _script_ necesita las siguientes https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_]:
++
+--
+* `databases_with_tables_to_be_migrated`: un lista separada por comas de bases de datos del catálogo de _Stratio Virtualizer_ que contienen las tablas que se quieren migrar.
+** Por ejemplo: `default`, `my_database` o `null` si no se quiere filtrar.
+* `old_jdbc_agent_url_prefix`: con un prefijo de la URL JDBC usada en las tablas que van a ser migradas.
+** Por ejemplo, para Microsoft SQL Server: `'jdbc:sqlserver://mssql.mycompany.com:1433;database=my_database%'` o `'jdbc:sqlserver:%'`. Recuerda añadir el _placeholder_ `%` al final.
+--
++
+A continuación se muestra un ejemplo con Microsoft SQL Server escribiendo la lista a un archivo para poder usarlo en posteriores comprobaciones:
++
+[source,bash]
+----
+$ psql -d virtualizer -f /tmp/migration-scripts/sanity-check.sql --set databases_with_tables_to_be_migrated="'default','test_migration'" --set old_jdbc_agent_url_prefix="'jdbc:sqlserver://mssql.mycompany.com:1433;database=my_database%'" -o /tmp/migration-scripts/tables.txt
+Password for user postgres:
+$ cat /tmp/migration-scripts/tables.txt
+        DB_NAME        | TBL_ID |                     TBL_NAME                        | SERDE_ID
+---------------------+--------+---------------------------------------+----------
+ default                     |    357    | msssql_jdbc_test                                  |      357
+ default                     |    360    | msssql_jdbc_to_sscc_md5_test         |      360
+ test_migration        |    362    | msssql_jdbc_test                                  |      362
+ test_migration        |    363    | msssql_jdbc_to_sscc_md5_test         |      363
+ test_migration        |    364    | msssql_jdbc_to_sscc_krb_test            |      364
+(5 rows)
+----
++
+. Ejecuta el _script_ de modificaciones adecuado según la base de datos y el modo de autenticación usados en el nuevo conector desacoplado SSCC:
++
+--
+* Microsoft SQL Server
+** *usuario y contraseña*: `/tmp/migration-scripts/mssql-from-jdbc-agent-to-md5-sscc.sql`.
+** *Kerberos*: `/tmp/migration-scripts/mssql-from-jdbc-agent-to-krb-sscc.sql`.
+* IBM Db2 for iSeries AS400
+** *usuario y contraseña*: `/tmp/migration-scripts/as400-from-jdbc-agent-to-md5-sscc.sql`.
+* IBM Db2 for UNIX
+** *usuario y contraseña*: `/tmp/migration-scripts/db2-from-jdbc-agent-to-md5-sscc.sql`.
+* Oracle
+** *usuario y contraseña*: `/tmp/migration-scripts/oracle-from-jdbc-agent-to-md5-sscc.sql`.
+** *Kerberos*: `/tmp/migration-scripts/oracle-from-jdbc-agent-to-krb-sscc.sql`.
+* SAP HANA
+** *usuario y contraseña*: `/tmp/migration-scripts/saphana-from-jdbc-agent-to-md5-sscc.sql`.
+--
++
+Este _script_ necesita una serie de https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] establecidas para su correcto funcionamiento:
++
+--
+* `databases_with_tables_to_be_migrated`: un lista separada por comas de bases de datos del catálogo de _Stratio Virtualizer_ que contienen las tablas que se quieren migrar.
+* `old_jdbc_agent_url_prefix`: con un prefijo de la URL JDBC usada en las tablas que se van a migrar.
+* `new_jdbc_url_sscc`: con la *URL JDBC completa* usada por el nuevo conector SSCC. Esta URL reemplazará a la URL previa en las tablas a migrar.
+** Por ejemplo: 'jdbc:sqlserver://mssql.mycompany.com:1434;database=my_database'.
+* `vault_secret_name`: el nombre del secreto con la información para la autenticación del nuevo conector SSCC.
++
+--
++
+El _script_ realizará las modificaciones temporalmente y hará una consulta sobre las filas modificadas:
++
+[source,bash]
+----
+$ psql -d virtualizer --set databases_with_tables_to_be_migrated="'default','test_migration'" --set old_jdbc_agent_url_prefix="'jdbc:sqlserver://mssql.mycompany.com:1433;database=my_database%'" --set new_jdbc_url_sscc="'jdbc:sqlserver://mssql.mycompany.com:1434;database=my_database'" --set vault_secret_name="'<sscc-mssql-secret-name>'"
+Password for user postgres:
+psql (14.5 (Ubuntu 14.5-1.pgdg22.04+1))
+Type "help" for help.
+
+virtualizer=# \i /tmp/migration-scripts/${bbdd}-from-jdbc-agent-to-${auth}-sscc.sql
+BEGIN
+INSERT 0 25
+        DB_NAME        | TBL_ID |              TBL_NAME                          | SERDE_ID
+--------------------+---------+------------------------------------+----------
+ default                     |    357     | msssql_jdbc_test                               |      357
+ default                     |    360     | msssql_jdbc_to_sscc_md5_test      |      360
+ test_migration        |    362     | msssql_jdbc_test                               |      362
+ test_migration        |    363     | msssql_jdbc_to_sscc_md5_test       |      363
+ test_migration        |    364     | msssql_jdbc_to_sscc_krb_test         |      364
+(5 rows)
+----
++
+. Ahora y todavía en la consola `psql` se pueden hacer las comprobaciones necesarias, como comparar las tablas modificadas con las que devolvió el _script_ de comprobación inicial:
++
+[source,bash]
+----
+virtualizer=# \! cat /tmp/migration-scripts/tables.txt
+        DB_NAME        | TBL_ID |                     TBL_NAME                        | SERDE_ID
+---------------------+--------+---------------------------------------+----------
+ default                     |    357    | msssql_jdbc_test                                  |      357
+ default                     |    360    | msssql_jdbc_to_sscc_md5_test         |      360
+ test_migration        |    362    | msssql_jdbc_test                                  |      362
+ test_migration        |    363    | msssql_jdbc_to_sscc_md5_test         |      363
+ test_migration        |    364    | msssql_jdbc_to_sscc_krb_test            |      364
+(5 rows)
+----
++
+. Como último paso, en la consola `psql` debes:
+.. Descartar los cambios si se ha detectado algún error o incoherencia en los datos:
++
+[source,bash]
+----
+virtualizer=# rollback;
+----
++
+.. Confirmarlos en caso contrario.
++
+IMPORTANT: Después de este paso, si es necesario volver a la situación previa a la migración tendrás que restaurar la copia de seguridad creada previamente.
++
+[source,bash]
+----
+virtualizer=# commit;
+----
++
+. Arranca el servicio se _Stratio Virtualizer_ y comprueba en xref:stratio-virtualizer:user-guide:stratio-virtualizer-shell.adoc[su consola de comandos] que se puede acceder a los datos realizando consultas sobre las tablas de catálogo migradas.
++
+NOTE: Recuerda que previamente se debe haber instalado el conector SSCC en _Stratio Virtualizer_. Puedes consultar cómo realizar la instalación en la guía de operaciones específica de cada conector.
++
+. Arranca el resto de servicios que paraste al inicio de la migración.
+
+== Migración del agente de descubrimiento MySQL
+
+Utiliza esta guía si necesitas migrar versiones antiguas del agente de descubrimiento de MySQL con versión del _dg-custom-agent_: 'stratio-governance-custom-agent:0.1.0' y que use una versión SSCC 1.1.1.
+
+=== Prerrequisitos
+
+. Apagar todos los servicios que utilicen la base de datos de _Stratio Data Governance_, por defecto llamada `postgreskeos`, para evitar realizar escrituras mientras se realiza la migración y así prevenir la posible pérdida de información en caso de tener que realizar un _Rollback_, incluyendo:
+* _Stratio Data Governance_, _Stratio GoSec_, _Stratio Command Center_, _Stratio Eureka_ y _Stratio Rocket_.
+* Todos los agentes de descubrimiento.
++
+NOTE: Es posible realizar la migración apagando únicamente _Stratio Data Governance_, _Stratio Eureka_, _Stratio Rocket_ y los agentes de descubrimiento. En este caso, habría que realizar una copia de seguridad del _schema_ `dg_metadata` de la base de datos `postgreskeos`.
+
+=== Proceso de migración
+
+A diferencia de los agentes de descubrimiento JDBC, es necesario que sigas los siguientes pasos:
+
+. Entra en _Stratio Command Center_.
+. Copia el descriptor de MySQL de la última versión y añade la siguiente línea:
++
+image::mysql-descriptor-modification.png[]
+
+. Una vez guardado, dentro de la lista de servicios selecciona "upgrade":
++
+image::command-center-service-upgrade.png[]
+
+. Selecciona el descriptor que has guardado previamente:
++
+image::command-center-service-upgrade2.png[]
+
+. Actualiza los siguientes parámetros:
++
+--
+** `Datastore driver location`: localización de la nueva versión del _driver_ de descubrimiento SSCC de MySQL.
+** `MySQL JDBC version`: versión del _driver_ JDBC de MySQL.
++
+image::command-center-mysql-upgrade.png[]
+
+** `Datastore driver name`: actualización de la paquetería usada por el _driver_ SSCC de MySQL.
++
+image::command-center-mysql-upgrade2.png[]
+
+--
+Una vez realizados los cambios, pulsa el botón "upgrade".
+
+. Levanta los servicios parados al inicio de la migración y comprueba que el agente funciona correctamente.
++
+En el _log_ podrás observar que se han actualizado algunos _assets_ con una traza similar a:
++
+[source,bash]
+----
+2023-05-04T17:43:19.636+00:00 INFO - - CustomAgentCluster-4 akka.event.slf4j.Slf4jLogger$$anonfun$receive$1$$anonfun$applyOrElse$3.apply$mcV$sp:92 {"@message": "Metrics - Synchronizing 0 (new), 19 (updated) and 0 (deleted) Federated DataAssets duration: 199 millis","@data":{}}
+----

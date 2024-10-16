@@ -1,0 +1,49 @@
+﻿= Compatibility matrix
+
+The following modules are compatible with the SSCC Microsoft SQL Server connector, along with the different options that are supported starting with the version of the specified artifact:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| ≥ sscc-mssql-0.3_2.12-1.5.x
+
+| _Stratio BDL_
+| Virtualization
+| ≥ sscc-mssql-0.3_2.12-1.5.x
+
+| _Stratio Virtualizer_
+| Read/Write/Native Access
+| ≥ sscc-mssql-0.3_2.12-1.5.x
+
+| _Stratio Rocket_
+| Virtualized Read/Write/Native Access
+| ≥ sscc-mssql-0.3_2.12-1.5.x
+
+| _Stratio Intelligence_
+| Virtualized Read/Write/Native Access
+| ≥ sscc-mssql-0.3_2.12-1.5.x
+|===
+
+== Compatibility with Microsoft SQL Server versions
+
+Connector compatibility has been validated for Microsoft SQL Server 2017 and 2019.
+
+== Supported JDBC driver versions
+
+The connector needs to be coupled with an artifact with the Microsoft Server SQL JDBC driver. Since it's decoupled, you can use the same connector with different versions.
+
+The current version of the connector supports the following JDBC driver versions:
+
+|===
+| JDBC driver version | Artifact from the connectors repository
+
+| 9.4.1
+| _mssql-jdbc-9.4.1.jre8.jar_
+|===
+
+The different drivers can be downloaded from https://search.maven.org/artifact/com.microsoft.sqlserver/mssql-jdbc/9.4.1.jre8/jar[this link].
+
+TIP: Here you can see https://learn.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server-support-matrix?view=sql-server-ver15#sql-version-compatibility[the compatibility matrix for the different versions of the JDBC driver and Microsoft SQL Server].

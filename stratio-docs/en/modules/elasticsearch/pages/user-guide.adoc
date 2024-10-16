@@ -1,0 +1,94 @@
+= User guide
+
+== Description
+
+The SSCC Elasticsearch connector allows you to fully integrate Elasticsearch into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:elasticsearch:compatibility-matrix.adoc[compatibility matrix].
+
+== Discover your data
+
+=== Know your data
+
+In addition to what xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tables_and_columns[__Stratio Data Governance__] shows, you can also find technical attributes extracted from Elasticsearch resources. All metadata provided by Elasticsearch is extracted and added to the _Stratio Data Governance_ UI in both tables and columns.
+
+* The metadata extracted in table form are as follows:
++
+image::elasticsearch-governance-tabla.png[]
+
+* The metadata extracted in column form are as follows:
+** `type`: type in _Stratio Generative AI Data Fabric_.
+** `nullable`: whether the field can contain null values or not.
+** `sourceType`: original type in Elasticsearch or OpenSearch.
+** `metadata`: the metadata contained in the _mapping_ of the field.
+** `en.read.field.as.array.include`: attribute indicating whether it is an array type field and how deep it is in the array. For example:
++
+If a _column1_ field of a governed table contains the attribute `en.read.field.as.array.include`: `column1:2`, this means that the _column1_ field is of type "array of arrays" (depth 2).
++
+image::elasticsearch-governance-columna.png[]
+
+=== BDL virtualization
+
+The discovery process is asynchronous. Once completed, it can be viewed from the _Stratio Data Governance_ UI.
+
+NOTE: You can consult how to create attributes in the xref:stratio-data-governance:user-manual:addition-of-metadata[_Stratio Data Governance_ user guide].
+
+TIP: For more details on the use of the BDL, see the xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[BDL data processing documentation].
+
+== Virtualize your data
+
+After tables have been discovered, you can add them to a technical view of a collection. All the configurable parameters of the discovery and those parameters modified from the _Stratio Data Governance_ UI are propagated in the collections where that table is added.
+
+TIP: To learn more about how to manage collections you can consult the xref:stratio-data-governance:user-manual:collections.adoc[_Stratio Data Governance_ user guide].
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+To create a table directly in the _Stratio Virtualizer_ catalog, you can execute the following statement:
+
+[source,sql]
+----
+CREATE TABLE elasticsearch_table USING org.elasticsearch.spark.sql OPTIONS (
+  `stratiosecurity` 'true',
+  `stratiocredentials` '<secret_name>',
+  `stratiosecuritymode` 'custom_sscc',
+  `stratiossccdriver` 'com.stratio.connectors.ssccelasticsearch.ElasticSearchDriverMD5',
+  `es.ser.reader.value.class` 'com.stratio.connector.ssccelasticsearch.spark.sql.CustomStratioScalaRowValueReader',
+  `es.nodes` '<host>',
+  `es.port` '<port>',
+  `es.nodes.wan.only` 'true',
+  `es.resource` '<index>'
+)
+----
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+After the data has been virtualized, from _Stratio Rocket_ you will be able to:
+
+* Access them using the *catalog*.
++
+image::elasticsearch-rocket-catalog.png[]
+
+* Perform ETL processes with the xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[_workflows_] by means of the assets.
++
+image::elasticsearch-rocket-asset-1.png[]
++
+image::elasticsearch-rocket-asset-2.png[]
++
+image::elasticsearch-rocket-workflows.png[]
++
+When configuring a _Stratio Rocket_ _workflow_ using a _datasource_ type box, you must fill in the following options (user/password authentication):
+
+* _es.user_: `<user_elasticsearch>`.
+* _es.password_: `<password_elasticsearch>`.
+* _es.nodes_: `<host_elasticsearch>`.
+* _es.port_: `<port_eleasticsearch>`.
+* _es.net.http.auth.user_: `<user_eleasticsearch>`.
+* _es.net.http.auth.pass_: `<password_eleasticsearch>`.
+* _es.resource_: `<index_eleasticsearch>`.
+* _es.nodes.wan.only_: `<true/false>`.
+
+=== _Stratio Intelligence_
+
+You can see how the data is accessed from _Stratio Intelligence_ in the xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[general quick start guide].

@@ -1,0 +1,9 @@
+= _Troubleshooting_
+
+En esta sección, aprenderás a resolver posibles errores o problemas que puedan ocurrir relacionados con el descubrimiento de metadatos de Apache Impala®.
+
+* Si utilizas tablas externas, asegúrate de que la codificación del fichero columnar es el correcto ya que puedes tener problemas al consultar datos.
+* Kerberos es un mecanismo delicado. Asegúrate de tener una conexión directa hacia el servidor y mira bien que el secreto sea el correcto.
+* Si tu cuenta es de servicio con dominio, asegúrate de unir ese dominio con el _realm_ en la sección 'domain_realm'. Si no la tiene, no hay que hacer nada.
+* Puedes tener problemas de conexión si no están bien puestos los permisos de usuario sobre la base de datos de conexión.
+* Ante cualquier duda, reinicia cualquier servicio para que aplique los cambios directamente.

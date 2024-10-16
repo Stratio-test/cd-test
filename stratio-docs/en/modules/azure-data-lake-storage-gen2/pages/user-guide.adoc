@@ -1,0 +1,68 @@
+﻿= User Guide
+
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+== Description
+
+The _Azure DataLake Gen2_ connector will enable full _Azure DataLake Gen2_ integration into _Stratio Augmented Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:azure-data-lake-storage-gen2:compatibility-matrix.adoc[compatibility matrix].
+
+== Discover your data
+
+=== Know your data
+
+Beyond what xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tablas_y_columnas[_Stratio Data Governance_] shows, there are also technical attributes extracted from Azure DataLake Gen2 resources. Some of the metadata provided by _Azure DataLake Gen2_ is extracted and added to the _Stratio Data Governance_ interface in both table and column form.
+
+image::azure-datalake-gen2-governance-1.png[]
+
+=== BDL virtualization
+
+The discovery process is asynchronous. Once the discovery is finished you can view it from the _Stratio Data Governance_ UI.
+
+NOTE: You can learn how to create new attributes in the xref:stratio-data-governance:user-manual:addition-of-metadata[Add Metadata] section of _Stratio Data Governance_.
+
+For more details on the use of the BDL, see the xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[BDL data processing documentation].
+
+== Virtualize your data
+
+After tables have been discovered you can add them to a technical view of a collection. All configurable discovery parameters and those modified from the _Stratio Data Governance_ UI are propagated in the collections where this table is added.
+
+To learn more about how to manage collections you can consult the xref:stratio-data-governance:user-manual:collections.adoc[_Stratio Data Governance_ User Guide].
+
+IMPORTANT: Note that in order to virtualize the discovered tables, the xref:stratio-gosec:operations-guide:manage-policies:manage-domains-policies.adoc[domain policies] need to be managed through _Stratio Gosec_.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+Once the data has been virtualized, from _Stratio Rocket_ you'll be able to:
+
+* Access virtualized data from _Stratio Rocket_ via the *catalog*.
++
+image::azure-datalake-gen2-rocket-catalog.png[]
+
+* Perform ETLs with xref:stratio-rocket:user-guide:workflow-asset:data-inputs.adoc#_stratio_virtualizer[workflows] using _Stratio Rocket_ assets.
++
+image::azure-datalake-gen2-rocket-asset-1.png[]
+
+If you want to perform file-formatted writes in Azure, you must make sure that the storage account configuration is defined in the deployment. See section xref:azure-data-lake-storage-gen2:troubleshooting.adoc[connecting to multiple storage accounts].
+If you want to connect via PrivateLink to be able to write to or read from a _Stratio Rocket_ box, you must correctly insert the host, with the corresponding private host. Ex *<your_account>.privatelink.dfs.core.windows.net*.
+
+=== Stratio Intelligence
+
+You can use a session of _Stratio Virtualizer_ in _Stratio Intelligence_ to quickly access your data through a Jupiter Notebook (use a session of PySpark). This is an example for can follow:
+
+[source,python]
+----
+from pystratio.xd.xdsession import XDSession
+xd = XDSession(sc)
+xd.sql("SELECT * FROM adlGen2_col.YOUR_TABLE LIMIT 3").show()
+----
+
+For more information about data consistency from _Stratio Intelligence_ go to the document xref:ROOT:commiters.adoc[integration page].

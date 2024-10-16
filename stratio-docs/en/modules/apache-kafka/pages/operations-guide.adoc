@@ -1,0 +1,23 @@
+= Operations guide
+
+== Description
+
+The SSCC Apache Kafka® connector allows you to integrate https://kafka.apache.org/[Apache Kafka®] into _Stratio Rocket_.
+
+=== Authentication
+
+Currently, the connector only supports *TLS* authentication.
+
+You will have to configure _Stratio Rocket_ with its corresponding values.
+
+== Prerequisites
+
+. The xref:ROOT:quick-start-guide.adoc[_Stratio KMS_ UI] should be accessible to manage credentials.
+. Have an Apache Kafka® queue configured with a host and a port.
+. Create secrets in _Stratio KMS_. To connect to Apache Kafka® via TLS you need to add the CA certificate to the path: `ca-trust/certificates/<certificate_ca_name>`.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+Visit the xref:apache-kafka:quick-start-guide.adoc[quick start guide] to see how to change the _Stratio Rocket_ descriptor.

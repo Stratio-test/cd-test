@@ -1,0 +1,19 @@
+= _Troubleshooting_
+
+== Error "AUTHENTICATION_FAILED Log"
+
+Si en el _input/output_ de los _workflows_ de _Stratio Rocket_ te aparece el siguiente error:
+
+[source]
+----
+An error: (java.security.PrivilegedActionException: javax.security.sasl.SaslException: No OAuth Bearer tokens in Subject's private credentials
+[Caused by java.io.IOException: No OAuth Bearer tokens in Subject's private credentials]) occurred when evaluating the SASL token received from the Kafka Broker.
+Kafka Client will go to AUTHENTICATION_FAILED state.
+----
+
+Las causas comunes suelen ser:
+
+* *Autorización*: credenciales incorrectas. El_cluster_ de Azure Event Hubs, el _consumer group_ o el _topic_ no están autorizados.
+* *Red*: necesitas conectividad con:
+** https://login.microsoftonline.com para obtener el _token_.
+** _Brokers_ de Azure Event Hubs. Por ejemplo: `connectors.servicebus.windows.net`.

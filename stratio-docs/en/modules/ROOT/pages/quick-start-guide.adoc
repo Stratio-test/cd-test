@@ -1,0 +1,3 @@
+= Quick start guide
+
+include::stratio-connectors:ROOT:partial$quick-start-guide.adoc[]

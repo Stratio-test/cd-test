@@ -1,0 +1,7 @@
+= Known issues
+
+* SAP HANA JDBC does not support arrays, so in the _Stratio Command Center_ descriptor, you need to enable the check to display array columns in the _Stratio Data Governance_ data dictionary.
+* Arrays are not supported in virtualization.
+* Spatial data types, such as _st++_++geometry_ and _st++_++point_, are considered as binary to enable virtualization.
+* Writes types that are not allowed include: _spatial_ (_st++_++geometry_ and _st++_++point_), _arrays_, _date_, _time_, _seconddate_ and _timestamp_.
+* Views of type _COLUMN_ are note supported and they are not discovered.
