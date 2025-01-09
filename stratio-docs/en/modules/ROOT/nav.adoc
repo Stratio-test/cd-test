@@ -1,0 +1,273 @@
+* xref:ROOT:introduction.adoc[]
+* xref:ROOT:what-is-new.adoc[]
+* xref:ROOT:quick-start-guide.adoc[]
+* xref:connectors-repository:operations-guide.adoc[Connectors repository]
+** xref:connectors-repository:operations-guide.adoc[]
+** xref:connectors-repository:user-guide.adoc[]
+* Connect to your data
+** RDBMS
+*** Oracle
+**** xref:oracle:compatibility-matrix.adoc[]
+**** xref:oracle:quick-start-guide.adoc[]
+**** xref:oracle:user-guide.adoc[]
+**** xref:oracle:operations-guide.adoc[]
+**** xref:oracle:troubleshooting.adoc[]
+**** xref:oracle:known-issues.adoc[]
+*** MySQL
+**** xref:mysql:compatibility-matrix.adoc[]
+**** xref:mysql:quick-start-guide.adoc[]
+**** xref:mysql:user-guide.adoc[]
+**** xref:mysql:operations-guide.adoc[]
+**** xref:mysql:troubleshooting.adoc[]
+*** Microsoft SQL Server
+**** xref:mssql:compatibility-matrix.adoc[]
+**** xref:mssql:quick-start-guide.adoc[]
+**** xref:mssql:user-guide.adoc[]
+**** xref:mssql:operations-guide.adoc[]
+**** xref:mssql:known-issues.adoc[]
+*** PostgreSQL®
+**** xref:postgres:compatibility-matrix.adoc[]
+**** xref:postgres:quick-start-guide.adoc[]
+**** xref:postgres:user-guide.adoc[]
+***** xref:postgres:user-guide/native-coverage.adoc[]
+****** xref:postgres:user-guide/native-coverage/clusterby-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/distributed-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/groupby-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/having-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/join-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/like-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/limit-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/orderby-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/set-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/sortby-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/tablesample-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/where-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/window-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/case-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/pivot-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/lateral-clause-result.adoc
+****** xref:postgres:user-guide/native-coverage/functions-arrays.adoc
+****** xref:postgres:user-guide/native-coverage/functions-date-and-timestamp.adoc
+****** xref:postgres:user-guide/native-coverage/functions-hash.adoc
+****** xref:postgres:user-guide/native-coverage/functions-json.adoc
+****** xref:postgres:user-guide/native-coverage/functions-maps.adoc
+****** xref:postgres:user-guide/native-coverage/functions-math.adoc
+****** xref:postgres:user-guide/native-coverage/functions-string.adoc
+****** xref:postgres:user-guide/native-coverage/functions-xpath.adoc
+****** xref:postgres:user-guide/native-coverage/functions-others.adoc
+****** xref:postgres:user-guide/native-coverage/functions-aggregate.adoc
+**** xref:postgres:operations-guide.adoc[]
+**** xref:postgres:known-issues.adoc[]
+*** IBM Db2
+**** xref:ibm-db2:compatibility-matrix.adoc[]
+**** xref:ibm-db2:quick-start-guide.adoc[]
+**** xref:ibm-db2:user-guide.adoc[]
+**** xref:ibm-db2:operations-guide.adoc[]
+**** xref:ibm-db2:troubleshooting.adoc[]
+*** AS400
+**** xref:as400:compatibility-matrix.adoc[]
+**** xref:as400:quick-start-guide.adoc[]
+**** xref:as400:user-guide.adoc[]
+**** xref:as400:operations-guide.adoc[]
+** No SQL
+*** MongoDB
+**** xref:mongodb:compatibility-matrix.adoc[]
+**** xref:mongodb:quick-start-guide.adoc[]
+**** xref:mongodb:user-guide.adoc[]
+**** xref:mongodb:operations-guide.adoc[]
+**** xref:mongodb:known-issues.adoc[]
+*** Elasticsearch & OpenSearch
+**** xref:elasticsearch:compatibility-matrix.adoc[]
+**** xref:elasticsearch:quick-start-guide.adoc[]
+**** xref:elasticsearch:user-guide.adoc[]
+**** xref:elasticsearch:operations-guide.adoc[]
+**** xref:elasticsearch:troubleshooting.adoc[]
+*** Cassandra
+**** xref:apache-cassandra:compatibility-matrix.adoc[]
+**** xref:apache-cassandra:quick-start-guide.adoc[]
+**** xref:apache-cassandra:user-guide.adoc[]
+**** xref:apache-cassandra:operations-guide.adoc[]
+**** xref:apache-cassandra:troubleshooting.adoc[]
+**** xref:apache-cassandra:known-issues.adoc[]
+*** ArangoDB
+**** xref:arangodb:compatibility-matrix.adoc[]
+**** xref:arangodb:quick-start-guide.adoc[]
+**** xref:arangodb:user-guide.adoc[]
+**** xref:arangodb:operations-guide.adoc[]
+**** xref:arangodb:known-issues.adoc[]
+** Data Warehouse
+*** Apache Hive™
+**** xref:apache-hive:compatibility-matrix.adoc[]
+**** xref:apache-hive:quick-start-guide.adoc[]
+**** xref:apache-hive:user-guide.adoc[]
+***** xref:apache-hive:user-guide/native-coverage.adoc[]
+****** xref:apache-hive:user-guide/native-coverage/clusterby-clause-result.adoc[_CLUSTER BY_ clause]
+****** xref:apache-hive:user-guide/native-coverage/distributed-clause-result.adoc[_DISTRIBUTED BY_ clause]
+****** xref:apache-hive:user-guide/native-coverage/groupby-clause-result.adoc[_GROUP BY_ clause]
+****** xref:apache-hive:user-guide/native-coverage/having-clause-result.adoc[_HAVING_ clause]
+****** xref:apache-hive:user-guide/native-coverage/join-clause-result.adoc[_JOIN_ clause]
+****** xref:apache-hive:user-guide/native-coverage/like-clause-result.adoc[_LIKE_ clause]
+****** xref:apache-hive:user-guide/native-coverage/limit-clause-result.adoc[_LIMIT_ clause]
+****** xref:apache-hive:user-guide/native-coverage/orderby-clause-result.adoc[_ORDER BY_ clause]
+****** xref:apache-hive:user-guide/native-coverage/set-clause-result.adoc[_SET_ clause]
+****** xref:apache-hive:user-guide/native-coverage/sortby-clause-result.adoc[_SORT BY_ clause]
+****** xref:apache-hive:user-guide/native-coverage/tablesample-clause-result.adoc[_TABLESAMPLE_ clause]
+****** xref:apache-hive:user-guide/native-coverage/where-clause-result.adoc[_WHERE_ clause]
+****** xref:apache-hive:user-guide/native-coverage/window-clause-result.adoc[Window functions]
+****** xref:apache-hive:user-guide/native-coverage/case-clause-result.adoc[_CASE_ clause]
+****** xref:apache-hive:user-guide/native-coverage/pivot-clause-result.adoc[_PIVOT_ clause]
+****** xref:apache-hive:user-guide/native-coverage/lateral-clause-result.adoc[_LATERAL VIEW_ clause]
+****** xref:apache-hive:user-guide/native-coverage/functions-arrays.adoc[_ARRAY_ functions]
+****** xref:apache-hive:user-guide/native-coverage/functions-date-and-timestamp.adoc[_DATE_ and _TIMESTAMP_ functions]
+****** xref:apache-hive:user-guide/native-coverage/functions-hash.adoc[_HASH_ functions]
+****** xref:apache-hive:user-guide/native-coverage/functions-json.adoc[_JSON_ functions]
+****** xref:apache-hive:user-guide/native-coverage/functions-maps.adoc[_MAP_ functions]
+****** xref:apache-hive:user-guide/native-coverage/functions-math.adoc[_Math_ and _Logical_ functions]
+****** xref:apache-hive:user-guide/native-coverage/functions-string.adoc[_STRING_ functions]
+****** xref:apache-hive:user-guide/native-coverage/functions-xpath.adoc[_XPATH_ functions]
+****** xref:apache-hive:user-guide/native-coverage/functions-others.adoc[Other functions]
+****** xref:apache-hive:user-guide/native-coverage/functions-aggregate.adoc[Aggregation functions]
+**** xref:apache-hive:operations-guide.adoc[]
+*** Teradata
+**** xref:teradata:compatibility-matrix.adoc[]
+**** xref:teradata:quick-start-guide.adoc[]
+**** xref:teradata:user-guide.adoc[]
+**** xref:teradata:operations-guide.adoc[]
+**** xref:teradata:known-issues.adoc[]
+*** Databricks
+**** xref:databricks:compatibility-matrix.adoc[]
+**** xref:databricks:quick-start-guide.adoc[]
+**** xref:databricks:user-guide.adoc[]
+**** xref:databricks:operations-guide.adoc[]
+*** BigQuery
+**** xref:bigquery:compatibility-matrix.adoc[]
+**** xref:bigquery:quick-start-guide.adoc[]
+**** xref:bigquery:user-guide.adoc[]
+**** xref:bigquery:operations-guide.adoc[]
+**** xref:bigquery:troubleshooting.adoc[]
+**** xref:bigquery:known-issues.adoc[]
+*** SAP HANA
+**** xref:saphana:compatibility-matrix.adoc[]
+**** xref:saphana:quick-start-guide.adoc[]
+**** xref:saphana:user-guide.adoc[]
+**** xref:saphana:operations-guide.adoc[]
+**** xref:saphana:known-issues.adoc[]
+*** Apache Impala®
+**** xref:apache-impala:compatibility-matrix.adoc[]
+**** xref:apache-impala:quick-start-guide.adoc[]
+**** xref:apache-impala:user-guide.adoc[]
+***** xref:apache-impala:user-guide/native-coverage.adoc[]
+****** xref:apache-impala:user-guide/native-coverage/clusterby-clause-result.adoc[_CLUSTER BY_ clause]
+****** xref:apache-impala:user-guide/native-coverage/distributed-clause-result.adoc[_DISTRIBUTED BY_ clause]
+****** xref:apache-impala:user-guide/native-coverage/groupby-clause-result.adoc[_GROUP BY_ clause]
+****** xref:apache-impala:user-guide/native-coverage/having-clause-result.adoc[_HAVING_ clause]
+****** xref:apache-impala:user-guide/native-coverage/join-clause-result.adoc[_JOIN_ clause]
+****** xref:apache-impala:user-guide/native-coverage/like-clause-result.adoc[_LIKE_ clause]
+****** xref:apache-impala:user-guide/native-coverage/limit-clause-result.adoc[_LIMIT_ clause]
+****** xref:apache-impala:user-guide/native-coverage/orderby-clause-result.adoc[_ORDER BY_ clause]
+****** xref:apache-impala:user-guide/native-coverage/set-clause-result.adoc[_SET_ clause]
+****** xref:apache-impala:user-guide/native-coverage/sortby-clause-result.adoc[_SORT BY_ clause]
+****** xref:apache-impala:user-guide/native-coverage/tablesample-clause-result.adoc[_TABLESAMPLE_ clause]
+****** xref:apache-impala:user-guide/native-coverage/where-clause-result.adoc[_WHERE_ clause]
+****** xref:apache-impala:user-guide/native-coverage/window-clause-result.adoc[Window functions]
+****** xref:apache-impala:user-guide/native-coverage/case-clause-result.adoc[_CASE_ clause]
+****** xref:apache-impala:user-guide/native-coverage/pivot-clause-result.adoc[_PIVOT_ clause]
+****** xref:apache-impala:user-guide/native-coverage/lateral-clause-result.adoc[_LATERAL VIEW_ clause]
+****** xref:apache-impala:user-guide/native-coverage/functions-arrays.adoc[_ARRAY_ functions]
+****** xref:apache-impala:user-guide/native-coverage/functions-date-and-timestamp.adoc[_DATE_ and _TIMESTAMP_ functions]
+****** xref:apache-impala:user-guide/native-coverage/functions-hash.adoc[_HASH_ functions]
+****** xref:apache-impala:user-guide/native-coverage/functions-json.adoc[_JSON_ functions]
+****** xref:apache-impala:user-guide/native-coverage/functions-maps.adoc[_MAP_ functions]
+****** xref:apache-impala:user-guide/native-coverage/functions-math.adoc[_Math_ and _Logical_ functions]
+****** xref:apache-impala:user-guide/native-coverage/functions-string.adoc[_STRING_ functions]
+****** xref:apache-impala:user-guide/native-coverage/functions-xpath.adoc[_XPATH_ functions]
+****** xref:apache-impala:user-guide/native-coverage/functions-others.adoc[Other functions]
+****** xref:apache-impala:user-guide/native-coverage/functions-aggregate.adoc[Aggregadtion functions]
+**** xref:apache-impala:operations-guide.adoc[]
+**** xref:apache-impala:troubleshooting.adoc[]
+*** Snowflake
+**** xref:snowflake:compatibility-matrix.adoc[]
+**** xref:snowflake:quick-start-guide.adoc[]
+**** xref:snowflake:user-guide.adoc[]
+**** xref:snowflake:operations-guide.adoc[]
+**** xref:snowflake:known-issues.adoc[]
+*** ClickHouse
+**** xref:clickhouse:compatibility-matrix.adoc[]
+**** xref:clickhouse:quick-start-guide.adoc[]
+**** xref:clickhouse:user-guide.adoc[]
+**** xref:clickhouse:operations-guide.adoc[]
+**** xref:clickhouse:known-issues.adoc[]
+*** SAS® Viya®
+**** xref:sas-viya:compatibility-matrix.adoc[]
+**** xref:sas-viya:quick-start-guide.adoc[]
+**** xref:sas-viya:user-guide.adoc[]
+**** xref:sas-viya:operations-guide.adoc[]
+**** xref:sas-viya:known-issues.adoc[]
+** DFS
+*** xref:ROOT:commiters.adoc[]
+// *** xref:ROOT:data-serialization-files.adoc[]
+*** xref:ROOT:advanced-configuration.adoc[]
+*** Apache Hadoop® (HDFS)
+**** xref:apache-hadoop-hdfs:compatibility-matrix.adoc[]
+**** xref:apache-hadoop-hdfs:quick-start-guide.adoc[]
+**** xref:apache-hadoop-hdfs:user-guide.adoc[]
+**** xref:apache-hadoop-hdfs:operations-guide.adoc[]
+*** Azure Data Lake Storage Gen2
+**** xref:azure-data-lake-storage-gen2:compatibility-matrix.adoc[]
+**** xref:azure-data-lake-storage-gen2:quick-start-guide.adoc[]
+**** xref:azure-data-lake-storage-gen2:user-guide.adoc[]
+**** xref:azure-data-lake-storage-gen2:operations-guide.adoc[]
+*** Google Cloud Storage
+**** xref:google-cloud-storage:compatibility-matrix.adoc[]
+**** xref:google-cloud-storage:quick-start-guide.adoc[]
+**** xref:google-cloud-storage:user-guide.adoc[]
+**** xref:google-cloud-storage:operations-guide.adoc[]
+**** xref:google-cloud-storage:known-issues.adoc[]
+*** Amazon S3
+**** xref:amazon-s3:compatibility-matrix.adoc[]
+**** xref:amazon-s3:quick-start-guide.adoc[]
+**** xref:amazon-s3:user-guide.adoc[]
+**** xref:amazon-s3:operations-guide.adoc[]
+**** xref:amazon-s3:troubleshooting.adoc[]
+**** xref:amazon-s3:known-issues.adoc[]
+*** SAS® Grid Manager
+**** xref:sas-grid-manager:compatibility-matrix.adoc[]
+**** xref:sas-grid-manager:quick-start-guide.adoc[]
+**** xref:sas-grid-manager:user-guide.adoc[]
+**** xref:sas-grid-manager:operations-guide.adoc[]
+**** xref:sas-grid-manager:known-issues.adoc[]
+** SaaS
+*** Salesforce
+**** xref:salesforce:compatibility-matrix.adoc[]
+**** xref:salesforce:quick-start-guide.adoc[]
+**** xref:salesforce:user-guide.adoc[]
+**** xref:salesforce:operations-guide.adoc[]
+**** xref:salesforce:known-issues.adoc[]
+** Pub/Sub
+*** Apache Kafka®
+**** xref:apache-kafka:compatibility-matrix.adoc[]
+**** xref:apache-kafka:quick-start-guide.adoc[]
+**** xref:apache-kafka:user-guide.adoc[]
+**** xref:apache-kafka:operations-guide.adoc[]
+*** Azure Event Hubs
+**** xref:azure-event-hubs:compatibility-matrix.adoc[]
+**** xref:azure-event-hubs:quick-start-guide.adoc[]
+**** xref:azure-event-hubs:user-guide.adoc[]
+**** xref:azure-event-hubs:operations-guide.adoc[]
+**** xref:azure-event-hubs:troubleshooting.adoc[]
+*** IBM MQ
+**** xref:ibm-mq:compatibility-matrix.adoc[]
+**** xref:ibm-mq:quick-start-guide.adoc[]
+**** xref:ibm-mq:user-guide.adoc[]
+**** xref:ibm-mq:operations-guide.adoc[]
+**** xref:ibm-mq:known-issues.adoc[]
+*** AWS IoT
+**** xref:aws-iot:compatibility-matrix.adoc[]
+**** xref:aws-iot:quick-start-guide.adoc[]
+**** xref:aws-iot:user-guide.adoc[]
+**** xref:aws-iot:operations-guide.adoc[]
+* Migrations guides
+** xref:ROOT:dfs-cloud-to-dfs-sscc-migrations-guide.adoc[DFS cloud to DFS SSCC]
+** xref:ROOT:jdbc-to-sscc-legacy-migrations-guide.adoc[JDBC to SSCC legacy]
+** xref:ROOT:sscc-legacy-to-sscc-migrations-guide.adoc[SSCC legacy to SSCC no legacy]
+** xref:ROOT:dfs-partitioning-migrations-guide.adoc[Partitioning on DFS connectors]

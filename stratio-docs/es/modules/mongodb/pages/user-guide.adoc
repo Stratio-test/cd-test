@@ -1,0 +1,71 @@
+= Guía de usuario
+
+== Descripción
+
+El conector SSCC MongoDB te permite la integración completa de MongoDB en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:mongodb:compatibility-matrix.adoc[matriz de compatibilidad].
+
+== Descubre tus datos
+
+=== Conoce tus datos
+
+Además de lo que se muestra en xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tablas_y_columnas[_Stratio Data Governance_], también puedes encontrar los atributos técnicos extraídos de los recursos de MongoDB. Se extraen todos los metadatos que proporciona MongoDB y se añaden a la interfaz de usuario de _Stratio Data Governance_.
+
+* Los metadatos extraídos son los siguientes:
+** *type*: tipo de almacén de datos (_MONGODB_).
+** *sourceType*: nombre del tipo de datos original en MongoDB.
++
+image:mongodb-metadata.png[]
+
+=== Virtualización de la BDL
+
+El proceso de descubrimiento es asíncrono. Una vez terminado, se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+TIP: Para más detalles del uso de la BDL consulta la xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[documentación de procesamiento de datos con BDL].
+
+== Virtualiza tus datos
+
+Una vez descubiertas las tablas, es posible añadirlas a una vista técnica de una colección. Todos los parámetros configurables del descubrimiento y los modificados desde la interfaz de usuario de _Stratio Data Governance_ se propagan en las colecciones donde se añada esa tabla.
+
+TIP: Para saber más sobre cómo gestionar las colecciones puedes consultar xref:stratio-data-governance:user-manual:collections.adoc[la guía de usuario de _Stratio Data Governance_].
+
+IMPORTANT: Ten en cuenta que, para virtualizar las tablas descubiertas, es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+Para crear una tabla directamente en el catálogo de _Stratio Virtualizer_ puedes ejecutar la siguiente sentencia:
+
+[source,sql]
+----
+CREATE TABLE mongodb_table USING ssccmongodb OPTIONS (
+    `stratiosecurity` 'true',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiossccdriver` 'com.stratio.connectors.ssccmongodb.MongoDBDriverMD5',
+    `url` 'mongodb://<mongodb_host>:<mongodb_port>',
+    `database` '<mongodb_database>',
+    `collection` '<nombre_colección>'
+)
+----
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Una vez virtualizados los datos, es posible acceder desde _Stratio Rocket_ mediante:
+
+* El catálogo.
++
+image::mongodb-ejemplo-querie-coleccion-rocket.png[]
+
+* Dentro de los _workflows_, haciendo uso del _input_ de xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[_Stratio Virtualizer_].
++
+image::mongodb-ejemplo-workflow-coleccion-rocket.png[]
++
+A la hora de configurar un _workflow_ de _Stratio Rocket_ usando una caja de tipo _datasource_, deberás rellenar las siguientes opciones:
++
+** _url_: `<url_mongodb>`.
+** _dbtable_: `<table_name>`.
+
+=== _Stratio Intelligence_
+
+Se puede comprobar cómo se accede a los datos desde _Stratio Intelligence_ en la xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[guía de inicio rápido general].

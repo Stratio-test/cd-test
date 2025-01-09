@@ -1,0 +1,176 @@
+= Aggregate functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+| any(expr)
+| SELECT any(bool) FROM coverage_impala.aggregate
+| No
+
+| approx_count_distinct(expr[, relativeSD])
+| SELECT approx_count_distinct(age) FROM coverage_impala.aggregate
+| No
+
+| approx_percentile(col, percentage [, accuracy])
+| SELECT approx_percentile(age, array(0.5, 0.4, 0.1), 100) FROM coverage_impala.aggregate
+| No
+
+| avg(expr)
+| SELECT avg(age) FROM coverage_impala.aggregate
+| Yes
+
+| bit_and(expr)
+| SELECT bit_and(age) FROM coverage_impala.aggregate
+| No
+
+| bit_or(expr)
+| SELECT bit_or(age) FROM coverage_impala.aggregate
+| No
+
+| bit_xor(expr)
+| SELECT bit_xor(age) FROM coverage_impala.aggregate
+| No
+
+| bool_and(expr)
+| SELECT bool_and(bool) FROM coverage_impala.aggregate
+| No
+
+| bool_or(expr)
+| SELECT bool_or(bool) FROM coverage_impala.aggregate
+| No
+
+| collect_list(expr)
+| SELECT collect_list(bool) FROM coverage_impala.aggregate
+| No
+
+| collect_set(expr)
+| SELECT collect_set(bool) FROM coverage_impala.aggregate
+| No
+
+| corr(expr1, expr2)
+| SELECT coor(age,bool) FROM coverage_impala.aggregate
+| No
+
+| count(++*++)
+| SELECT count(++*++) FROM coverage_impala.aggregate
+| Yes
+
+| count(expr[, expr...])
+| SELECT count(age) FROM coverage_impala.aggregate
+| Yes
+
+| count(DISTINCT expr[, expr...])
+| SELECT count(DISTINCT age) FROM coverage_impala.aggregate
+| Yes
+
+| count_if(expr)
+| SELECT count(age % 2 = 0) FROM coverage_impala.aggregate
+| Yes
+
+| count_min_sketch(col, eps, confidence, seed)
+| SELECT hex(count_min_sketch(age, 0.5d, 0.5d, 1)) FROM coverage_impala.aggregate
+| No
+
+| covar_pop(expr1, expr2)
+| SELECT covar_pop(age,age) FROM coverage_impala.aggregate
+| No
+
+| covar_samp(expr1, expr2)
+| SELECT covar_samp(age,age) FROM coverage_impala.aggregate
+| No
+
+| every(expr)
+| SELECT every(bool) FROM coverage_impala.aggregate
+| No
+
+| first(expr[, isIgnoreNull])
+| SELECT first(bool) FROM coverage_impala.aggregate
+| No
+
+| first_value(expr[, isIgnoreNull])
+| SELECT first_value(bool) FROM coverage_impala.aggregate
+| No
+
+| kurtosis(expr)
+| SELECT kurtosis(age) FROM coverage_impala.aggregate
+| No
+
+| last(expr[, isIgnoreNull])
+| SELECT last(age) FROM coverage_impala.aggregate
+| No
+
+| last_value(expr[, isIgnoreNull])
+| SELECT last_value(age) FROM coverage_impala.aggregate
+| No
+
+| max(expr)
+| SELECT max(age) FROM coverage_impala.aggregate
+| Yes
+
+| max_by(x, y)
+| SELECT max_by(age,bool) FROM coverage_impala.aggregate
+| No
+
+| mean(expr)
+| SELECT mean(age) FROM coverage_impala.aggregate
+| No
+
+| min(expr)
+| SELECT min(age) FROM coverage_impala.aggregate
+| Yes
+
+| min_by(x, y)
+| SELECT min_by(age,bool) FROM coverage_impala.aggregate
+| No
+
+| percentile(col, percentage [, frequency])
+| SELECT percentile(age,0.3) FROM coverage_impala.aggregate
+| No
+
+| percentile_approx(col, percentage [, accuracy])
+| SELECT percentile_approx(age, 0.5, 100) FROM coverage_impala.aggregate
+| No
+
+| skewness(expr)
+| SELECT skewness(age) FROM coverage_impala.aggregate
+| No
+
+| some(expr)
+| SELECT some (bool) FROM coverage_impala.aggregate
+| No
+
+| std(expr)
+| SELECT std(age) FROM coverage_impala.aggregate
+| No
+
+| stddev(expr)
+| SELECT stddev(age) FROM coverage_impala.aggregate
+| Yes
+
+| stddev_pop(expr)
+| SELECT stddev_pop(age) FROM coverage_impala.aggregate
+| Yes
+
+| stddev_samp(expr)
+| SELECT stddev_samp(age) FROM coverage_impala.aggregate
+| Yes
+
+| sum(expr)
+| SELECT sum(age) FROM coverage_impala.aggregate
+| Yes
+
+| var_pop(expr)
+| SELECT var_pop(age) FROM coverage_impala.aggregate
+| Yes
+
+| var_samp(expr)
+| SELECT var_samp(age) FROM coverage_impala.aggregate
+| Yes
+
+| variance(expr)
+| SELECT variance(age) FROM coverage_impala.aggregate
+| Yes
+
+|===

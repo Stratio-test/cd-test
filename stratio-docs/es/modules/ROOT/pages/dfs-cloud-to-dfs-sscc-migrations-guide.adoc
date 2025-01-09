@@ -1,0 +1,770 @@
+= Guías de migraciones
+
+[#agent-dfs-cloud-to-dfs-sscc]
+
+== Migración de un agente _cloud_ DFS a un agente DFS SSCC
+
+Esta guía te ayudará a migrar el descubrimiento y gobierno de un agente DFS _cloud_ a un agente DFS SSCC.
+
+Solo aplica a los agentes DFS _cloud_ que tengan una versión propia de DFS SSCC:
+
+* xref:azure-data-lake-storage-gen2:quick-start-guide.adoc[sscc-adls2] (incluye la migración de un agente _cloud_ BLOB).
+* xref:google-cloud-storage:quick-start-guide.adoc[sscc-gcs]
+* xref:amazon-s3:quick-start-guide.adoc[sscc-s3]
+
+IMPORTANT: Esta sección de la guía *no contempla* la migración de tablas creadas directamente por el usuario en el catálogo de _Stratio Virtualizer_. La migración de estas tablas está cubierta en su xref:#agent-dfs-cloud-to-dfs-sscc-virtualizer-migration[propia sección].
+
+[#agent-dfs-cloud-to-dfs-sscc-governance-migration]
+
+=== Migración de datos de _Stratio Data Governance_
+
+==== Prerrequisitos
+
+. Apagar todos los servicios que utilicen los _schemas_ 'dg_metadata', 'dg_datamarket' y 'cct-orchestrator' de la base de datos utilizada por _Stratio Data Governance_ y _Stratio Command Center_, por defecto llamada `postgreskeos`, para evitar realizar escrituras mientras se hace la migración y así prevenir la posible pérdida de información en caso de tener que realizar un _Rollback_, incluyendo:
+* _Stratio Data Governance_, el servicio _cct-orchestrator_, _Stratio Eureka_ y _Stratio Rocket_.
+* Todos los agentes de descubrimiento.
+* _Stratio Rocket_, ya que el resultado de las reglas de calidad planificadas ejecutadas durante la migración podría afectar a la misma.
++
+NOTE: Es posible realizar la migración apagando únicamente _Stratio Data Governance_, _Stratio Eureka_, los agentes de descubrimiento y _Stratio Rocket_. En este caso habría que hacer una copia de seguridad del _schema_ `dg_metadata` de la base de datos `postgreskeos`.
+
+. Para la correcta ejecución de los _scripts_ será necesario recopilar la siguiente información:
++
+--
+. El nombre del _cluster_ de PostgreSQL® donde se instaló _Stratio Data Governance_ (por defecto `postgreskeos`) y la base de datos utilizada (por defecto `postgreskeos`).
+** En los ejemplos se usará el nombre por defecto para ambos: `postgreskeos`.
+. El nombre del agente SSCC que se va a migrar.
+. El _tenant_ del _cluster_ al que pertenece el agente SSCC.
+--
++
+. Es necesario tener la herramienta `kubectl` configurada para acceder al _cluster_ del entorno.
+
+==== Proceso de migración
+
+El proceso de migración consiste en realizar las modificaciones necesarias en la base de datos `postgreskeos` y en el _schema_ `dg_metadata` donde se guardan los metadatos del _Data Catalog_ para después arrancar un agente SSCC.
+
+Después de aplicar el proceso podrás seguir utilizando las _Data collections_, _bdl.options_, atributos personalizados y _assets_ relacionados creados por los usuarios para el agente SSCC _cloud_ a migrar.
+
+==== Pasos a realizar
+
+. Antes de realizar la intervención se debe hacer una copia de seguridad de los _schemas_ 'dg_metadata', 'dg_datamarket' y 'cct-orchestrator' de la base de datos PostgreSQL® usada por los servicios _Stratio Data Governance_ y _cct-orchestrator_ para almacenar los metadatos descubiertos (por defecto llamada `postgreskeos`).
++
+--
+TIP: Puedes encontrar más información acerca de las copias de seguridad en xref:stratio-postgres:administration-guide:pgcluster:disaster-recovery.adoc#_backup_pgbackup[la guía de administración de _Stratio PostgreSQL Operator_].
+--
+IMPORTANT: Un error en el proceso de migración podría provocar pérdidas de información esenciales para el correcto funcionamiento de la plataforma, por lo que nunca debes realizarla sin una copia de seguridad previa.
+
+. Descarga los _scripts_ de migración en el equipo local en un directorio dedicado que solo contenga dichos _scripts_.
++
+* xref:attachment$/migrations-guide/from-cloud-agent/sanity-check-dfs-cloud.sql[Comprobaciones previas]
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-cloud-agent/sanity-check-dfs-cloud.sql[]
+----
+
+====
++
+* xref:attachment$/migrations-guide/from-cloud-agent/dfs-cloud-to-dfs-sscc-migration.sql[_Script_ de migración de un agente DFS _cloud_ a un agente DFS SSCC]
++
+.Ver _script_
+
+[%collapsible]
+====
++
+[source,sql]
+----
+include::attachment$/migrations-guide/from-cloud-agent/dfs-cloud-to-dfs-sscc-migration.sql[]
+----
++
+====
+. Establece el _namespace_ y nombre del _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+# El namespace por defecto es `keos-core`
+# El cluster de PostgreSQL® y la base de datos por defecto es `postgreskeos`
+export PG_CLUSTER_NAME=<postgres_cluster_name>
+export POD_NAMESPACE=<namespace>
+export POD_NAME=$(kubectl get endpoints $PG_CLUSTER_NAME-primary -n $POD_NAMESPACE -o=jsonpath={..targetRef.name})
+----
++
+. Sube la carpeta que contiene los _scripts_ de migración.
++
+[source, bash]
+----
+kubectl cp /path/to/downloaded/migration-scripts $POD_NAMESPACE/$POD_NAME:/tmp
+----
++
+. Abre una consola en el _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+kubectl exec -it $POD_NAME -n=$POD_NAMESPACE -- bash
+----
++
+NOTE: A partir de este punto, los comandos deben ejecutarse en la consola del _pod_ primario del _cluster_ de PostgreSQL®.
+. Ejecuta xref:attachment$/migrations-guide/from-cloud-agent/sanity-check-dfs-cloud.sql[el _script_ de comprobación previa] que devolverá el número de registros a migrar por tabla. Al finalizar la migración, se volverá a ejecutar para comprobar que coincide.
++
+Este _script_ necesita las siguientes https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] para su funcionamiento:
++
+--
+* *`tenant`*: _tenant_ donde se encuentra desplegado el agente.
+** Por ejemplo `'s000001'`.
+* *`dg_cloud_agent_name`*: nombre del agente a migrar que aparece en _Stratio Data Governance_.
++
+image::governance-sources.png[]
++
+** Por ejemplo _dg-cloud-agent-gcs_.
+* *`dg_dfs_sscc_agent_name`*: nombre del agente DFS SSCC que se va a instalar.
+** Por ejemplo `'dg-gcs-agent'`.
+* *`ds_type`*: tipo de almacén de datos que se va a migrar dependiendo del DS. Ten en cuenta que si la migración es sobre un agente BLOB el tipo debe ser 'AzureDLS2'.
+**Los posibles tipos son 'AmazonS3', 'AzureDLS2', 'GCloudStorage'.
+* *`account_name`*: nombre de la cuenta de servicio utilizada.
+** *S3*: cuenta de facturación.
+** *GCS*: proyecto.
+** *ADLS2*: cuenta de almacenamiento.
+* *`ds_old_type`*: tipo de agente _cloud_ que se va a migrar. E.g ADLS2, BLOB, GCS, S3
+**Los posibles tipos son 'ADLS2', 'GCS' y 'S3'.
+--
++
+Ejemplo de escritura del recuento de elementos a migrar en un archivo para poder usarlo en posteriores comprobaciones:
++
+[source,bash]
+----
+psql -d postgreskeos -f /tmp/migration-scripts/sanity-check-dfs-cloud.sql --set tenant="'s000001'" --set dg_cloud_agent_name="'dg-cloud-agent-gcs'" --set ds_old_type="'GCS'" --set dg_dfs_sscc_agent_name="'dg-gcs-agent'" --set ds_type="'GCloudStorage'" --set account_name="'connectors'" -o /tmp/migration-scripts/elements-to-migrate.txt
+----
++
+[source,bash]
+----
+Password for user postgres:
+postgres@postgreskeos-1:/tmp/migration-scripts$ cat elements-to-migrate.txt
+               table               | count
+-----------------------------------+-------
+ metrics_mdp_execution_aggregation |     6
+ metrics                           |     6
+ data_asset_enriched               |     0
+ entity_relation                   |     2
+ actor_data_asset                  |     0
+ enriched_properties_modified      |     3
+ quality                           |     2
+ data_asset                        |   176
+ business_layer_event_historic     |     0
+ business_layer_event              |     0
+ key_data_asset                    |     0
+ data_asset                        |  5029
+ quality                           |     0
+ metrics_mdp_execution_aggregation |     0
+(10 rows)
+----
++
+. Ejecuta el _script_ de migración:
++
+Este _script_ necesita una serie de https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] establecidas para su correcto funcionamiento:
++
+--
+* *`tenant`*: _tenant_ donde se encuentra desplegado el agente.
+** Por ejemplo `'s000001'`.
+* *`dg_cloud_agent_name`*: nombre del agente a migrar que aparece en _Stratio Data Governance_.
+* *`dg_dfs_sscc_agent_name`*: nombre del agente DFS SSCC que se va a instalar.
+** Por ejemplo `'dg-gcs-agent'`.
+* *`ds_old_type`*: tipo de agente _cloud_ que se va a migrar. E.g ADLS2, BLOB, GCS, S3
+**Los posibles tipos son 'ADLS2', 'GCS' y 'S3'.
+* *`ds_type`*: tipo de almacén de datos que se va a migrar dependiendo del DS. Ten en cuenta que si la migración es sobre un agente BLOB el tipo debe ser 'AzureDLS2'.
+**Los posibles tipos son 'AmazonS3', 'AzureDLS2', 'GCloudStorage'.
+* *`account_name`*: nombre de la cuenta de servicio utilizada.
+** *S3*: billing account
+** *GCS*: project
+** *ADLS2*: storage account
+* *`container`*: nombre del contenedor (rellenalo unicamente si la migración es de un agente cloud BLOB o un agente _cloud_ ADLS2).
++
+--
++
+El _script_ realizará las modificaciones temporalmente y hará una consulta sobre las filas modificadas.
++
+WARNING: Debes tener en cuenta que si no estás realizando una migración desde un agente _cloud_ tipo BLOB o ADLS2 debes dejar la variable ´container´ sin ningún valor.
++
+Ejemplo de migración de un agente _cloud_ DFS a un agente DFS SSCC:
++
+[source,bash]
+----
+psql -d postgreskeos --set tenant="'s000001'" --set dg_cloud_agent_name="'dg-cloud-agent-gcs'" --set ds_old_type="'GCS'" --set dg_dfs_sscc_agent_name="'dg-gcs-agent'" --set ds_type="'GCloudStorage'" --set account_name="'connectors'" --set container="''"
+----
++
+[source,bash]
+----
+Password for user postgres:
+psql (14.7 (Ubuntu 14.7-1.pgdg22.04+1))
+Type "help" for help.
+
+postgreskeos=# \i /tmp/migration-scripts/dfs-cloud-to-dfs-sscc-migration.sql
+BEGIN
+UPDATE 5028
+UPDATE 5028
+UPDATE 2
+UPDATE 1
+UPDATE 1
+UPDATE 2
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+               table               | count
+-----------------------------------+-------
+ metrics                           |     0
+ data_asset_enriched               |     0
+ enriched_properties_modified      |     2
+ entity_relation                   |     2
+ actor_data_asset                  |     0
+ business_layer_event_historic     |     0
+ business_layer_event              |     0
+ key_data_asset                    |     0
+ data_asset                        |  4658
+ quality                           |     0
+ metrics_mdp_execution_aggregation |     0
+(10 rows)
+----
+
+. Ahora y todavía en la consola `psql` se pueden hacer las comprobaciones necesarias, como comparar las tablas modificadas con las que devolvió el _script_ de comprobación inicial, teniendo en cuenta que los elementos de la tabla _data++_++asset_ coincidirán con la resta de los elementos de esa misma tabla y "elements++_++to++_++delete" del _sanity++_++check_:
++
+IMPORTANT: Debes tener en cuenta que en la migración se eliminan _metadatapaths_ redundantes por lo que el número resultante de la tabla 'data_asset' será menor al mostrado en el _sanity++_++check_.
++
+[source,bash]
+----
+psql (14.7 (Ubuntu 14.7-1.pgdg22.04+1))
+Type "help" for help.
+
+postgreskeos=# \! cat /tmp/migration-scripts/elements-to-migrate.txt
+               table               | count
+-----------------------------------+-------
+ metrics_mdp_execution_aggregation |     6
+ metrics                           |     6
+ data_asset_enriched               |     0
+ entity_relation                   |     2
+ actor_data_asset                  |     0
+ enriched_properties_modified      |     3
+ quality                           |     2
+ data_asset                        |   176
+ business_layer_event_historic     |     0
+ business_layer_event              |     0
+ key_data_asset                    |     0
+ data_asset                        |  5029
+ quality                           |     0
+ metrics_mdp_execution_aggregation |     0
+(10 rows)
+----
++
+. Como último paso, en la consola `psql` debes:
+.. Descartar los cambios si has detectado algún error o incoherencia en los datos:
++
+[source,bash]
+----
+postgreskeos=# rollback;
+----
++
+.. Confirmar los cambios en caso contrario.
++
+IMPORTANT: Después de este paso, si es necesario volver a la situación previa a la migración tendrás que restaurar la copia de seguridad creada previamente.
++
+[source,bash]
+----
+postgreskeos=# commit;
+----
+
+. Arrancar los servicios parados previamente en los prerrequisitos excepto el *agente migrado* y *_Stratio Rocket_* (para arrancar *_Stratio Rocket_* espera hasta completar la xref:#dfs-cloud-to-dfs-sscc-rocket-migration[migración de datos de _Stratio Rocket_]).
++
+. Instalar el agente SSCC al que se está migrando. Puedes consultar cómo realizar la instalación en la guía de operaciones del conector correspondiente.
++
+NOTE: Recuerda que en la configuración del agente SSCC el nombre del agente debe coincidir con el especificado en el parámetro `dg_dfs_sscc_agent_name` de la migración.
++
+. Arrancar el agente de descubrimiento y comprobar en la interfaz de usuario de _Stratio Data Governance_ que se puede acceder a los datos descubiertos, colecciones, atributos, relaciones entre _assets_, etc.
+
+[#dfs-cloud-to-dfs-sscc-rocket-migration]
+
+=== Migración de datos de _Stratio Rocket_
+
+==== Prerrequisitos
+
+. Comprueba que el servicio _Stratio Rocket_ sigue suspendido y suspéndelo si no lo está.
+** Debes hacer una copia de seguridad de todos los _workflows_ y el _schema_ de PostgreSQL® usado por _Stratio Rocket_ para evitar la pérdida de datos si se encuentra un problema durante la actualización.
+** Además, debes detener todos los _assets_ de tipo _workflow_, _AutoMLPipeline_ y _MLProject_ en ejecución. Esto puede provocar una pérdida de servicio en el caso de _workflows_ de _streaming_, pero es necesario hacerlo.
+. Instala o actualiza a la versión del conector SSCC adecuada en _Stratio Rocket_ siguiendo la correspondiente guía de operaciones.
+** Recuerda no activar el servicio todavía.
+. Comprueba que la opción "Enable proactive quality rules scheduling" está activada en la configuración del servicio de _Stratio_Rocket_ y actívala si no lo está.
++
+image:command-center-qr-scheduling.png[]
++
+IMPORTANT: Debido a un error en el proceso de sincronización es necesario usar una versión de _Stratio Rocket_ superior o igual a 3.1.2.
++
+. Para la correcta ejecución de los _scripts_ será necesario recopilar la siguiente información:
++
+--
+. El nombre del _cluster_ de PostgreSQL® donde se instaló la base de datos de _Stratio Rocket_ (por defecto `psql`).
+. El nombre de la base de datos utilizada (por defecto `rocket`).
+. El esquema de la instancia del servicio de _Stratio Rocket_ (por defecto `rocket.<tenant-id>-rocket`).
+** En los ejemplos se usará el nombre por defecto para los tres: `psql`, `rocket` y `rocket.<tenant-id>-rocket`.
+. El nombre del agente SSCC que se va a migrar.
+--
++
+. Es necesario tener la herramienta `kubectl` configurada para acceder al _cluster_ del entorno.
+
+==== Proceso de migración
+
+El proceso de migración consiste en:
+
+* Realizar las modificaciones necesarias en la base de datos `rocket` en el _schema_ `rocket.<tenantId>-rocket` no cubiertas por el punto posterior.
+* Dejar que _Stratio Rocket_ sincronice automáticamente los datos sobre reglas de calidad planificadas modificados en _Stratio Data Governance_ con los _scripts_, según lo descrito en la xref:#agent-dfs-cloud-to-dfs-sscc-governance-migration][sección anterior].
+
+Después de aplicar el proceso, podrás seguir utilizando las reglas de calidad planificadas y las integradas (_embedded_) en el _workflow_ para el agente SSCC a migrar.
+
+==== Pasos a realizar
+
+. Antes de realizar la intervención se debe hacer una copia de seguridad de la base de datos PostgreSQL® usada por _Stratio Rocket_ para almacenar los metadatos descubiertos (por defecto llamada `rocket`).
++
+--
+* Puedes encontrar más información acerca de las copias de seguridad en xref:stratio-postgres:administration-guide:pgcluster:disaster-recovery.adoc#_backup_pgbackup[la guía de administración de _Stratio PostgreSQL® Operator_].
++
+--
+IMPORTANT: Un error en el proceso de migración podría provocar pérdidas de información esenciales para el correcto funcionamiento de la plataforma, por lo que nunca debes realizarla sin una copia de seguridad previa.
+
+. Descarga los _scripts_ de migración en el equipo local en un directorio dedicado que solo contenga dichos _scripts_.
++
+--
+* xref:attachment$/migrations-guide/from-cloud-agent/rocket-sanity-check-dfs-cloud.sql[Comprobaciones previas].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-cloud-agent/rocket-sanity-check-dfs-cloud.sql[]
+----
+
+====
++
+* xref:attachment$/migrations-guide/from-cloud-agent/rocket-dfs-cloud-to-dfs-sscc.sql[_Script_ de migración del agente _cloud_ a SSCC].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-cloud-agent/rocket-dfs-cloud-to-dfs-sscc.sql[]
+----
+
+====
+--
++
+. Establece el _namespace_ y nombre del _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+# El namespace por defecto es `<tenantId>-datastores`
+# El cluster de PostgreSQL® y la base de datos por defecto es `psql`
+export PG_CLUSTER_NAME=<postgres_cluster_name>
+export POD_NAMESPACE=<namespace>
+export POD_NAME=$(kubectl get endpoints $PG_CLUSTER_NAME-primary -n $POD_NAMESPACE -o=jsonpath={..targetRef.name})
+----
++
+. Sube la carpeta que contiene los _scripts_ de migración.
++
+[source, bash]
+----
+kubectl cp /path/to/downloaded/migration-scripts $POD_NAMESPACE/$POD_NAME:/tmp
+----
++
+. Abre una consola en el _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+kubectl exec -it $POD_NAME -n=$POD_NAMESPACE -- bash
+----
++
+NOTE: A partir de este punto, los comandos deben ejecutarse en la consola del _pod_ primario del _cluster_ de PostgreSQL®.
++
+. Ejecuta xref:attachment$/migrations-guide/from-cloud-agent/rocket-sanity-check-dfs-cloud.sql[el _script_ de comprobación previa] que devolverá el número de registros a migrar por tabla. Al finalizar la migración, se volverá a ejecutar para comprobar que coincide.
++
+Este _script_ necesita las siguientes https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] para su funcionamiento:
++
+--
+* *`dg_cloud_agent_name`*: nombre del agente a migrar que aparece en _Stratio Data Governance_.
++
+image::governance-sources.png[]
++
+** Por ejemplo `'dg-cloud-agent-gcs'`.
+* *`rocket_instance_schema`*: esquema de la instancia del servicio de _Stratio Rocket_ a migrar entre dobles comillas.
+** Por ejemplo `"rocket.s000001-rocket"`
+--
++
+Ejemplo de escritura del recuento de elementos a migrar en un archivo para poder usarlo en posteriores comprobaciones:
++
+[source,bash]
+----
+psql -d rocket -f /tmp/migration-scripts/rocket-sanity-check-dfs-cloud.sql --set dg_cloud_agent_name="'dg-cloud-agent-gcs'" --set rocket_instance_schema="\"rocket.s000001-rocket\"" -o /tmp/migration-scripts/elements-to-migrate.txt
+----
++
+[source,bash]
+----
+Password for user postgres:
+postgres@psql-1:/tmp/migration-scripts$ cat elements-to-migrate.txt
+        table            | count
+-------------------------+-------
+ quality_rule_result     |     76
+ workflow_version        |      1
+(2 rows)
+----
++
+. Ejecuta el _script_ de migración:
++
+Este _script_ necesita una serie de https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] establecidas para su correcto funcionamiento:
++
+--
+* *`dg_cloud_agent_name`*: nombre del agente a migrar que aparece en _Stratio Data Governance_.
+** Por ejemplo: _dg-cloud-agent-gcs_.
+* *`dg_dfs_sscc_agent_name`*: nombre del agente _cloud_ SSCC que se va a instalar.
+** Por ejemplo: _dg-agent-gcs_.
+* *`rocket_instance_schema`*: esquema de la instancia del servicio de _Stratio Rocket_ a migrar entre dobles comillas.
+** Por ejemplo: _"rocket.s000001-rocket"_.
+* *`ds_old_type`*: tipo de agente _cloud_ que se va a migrar. Ejemplo: ADLS2, BLOB, GCS, S3.
+* *`account_name`*: nombre de la cuenta de servicio utilizada.
+** *S3*: billing account
+** *GCS*: project
+** *ADLS2*: storage account
+* *`container`*: nombre del contenedor (rellenalo unicamente si la migración es de un agente cloud BLOB o un agente _cloud_ ADLS2).
++
+--
++
+El _script_ realizará las modificaciones temporalmente, informando del número de filas modificadas.
++
+Ejemplo de migración de un agente _cloud_ Google Cloud Storage a un agente SSCC:
++
+[source,bash]
+----
+psql -d rocket --set dg_cloud_agent_name="'dg-cloud-agent-gcs'" --set dg_dfs_sscc_agent_name="'dg-agent-gcs'" --set rocket_instance_schema="\"rocket.s000001-rocket\"" --set ds_old_type="'GCS'" --set account_name="'connectors'" --set container="''"
+----
++
+[source,bash]
+----
+Password for user postgres:
+psql (14.7 (Ubuntu 14.7-1.pgdg22.04+1))
+Type "help" for help.
+
+rocket=# \i /tmp/migration-scripts/rocket-dfs-cloud-to-dfs-sscc.sql
+BEGIN
+UPDATE  1
+UPDATE 76
+        table            | count
+-------------------------+-------
+ quality_rule_result     |     76
+ workflow_version        |      1
+(2 rows)
+----
++
+. Ahora y todavía en la consola `psql` puedes hacer las comprobaciones necesarias, como comparar las tablas modificadas con las que devolvió el _script_ de comprobación inicial:
++
+[source,bash]
+----
+rocket=# \! cat /tmp/migration-scripts/elements-to-migrate.txt
+        table            | count
+-------------------------+-------
+ quality_rule_result     |     76
+ workflow_version        |      1
+(2 rows)
+----
++
+. Como último paso, en la consola `psql` debes:
+.. Descartar los cambios si se ha detectado algún error o incoherencia en los datos:
++
+[source,bash]
+----
+postgreskeos=# rollback;
+----
++
+.. Confirmar los cambios en caso contrario.
++
+IMPORTANT: Después de este paso, si es necesario volver a la situación previa a la migración tendrás que restaurar la copia de seguridad creada previamente tanto de _Stratio Rocket_ como de *_Stratio Data Governance_* (revirtiendo la migración en esta última).
++
+[source,bash]
+----
+postgreskeos=# commit;
+----
++
+. Arranca el servicio de _Stratio Rocket_ parado previamente en los prerrequisitos con la configuración adecuada para activar el linaje y las reglas de calidad. Puedes consultar la configuración de las reglas de calidad y linaje de cada conector en su apartado de xref:stratio-connectors:arangodb:operations-guide.adoc#agent-sscc-configuration-qrs-and-lineage[Gestión de la configuración: reglas de calidad y linaje].
++
+. Espera a que los datos de reglas de calidad planificadas se sincronicen automáticamente usando `proactive quality rules scheduling`.
+. Comprueba en la interfaz de usuario de _Stratio Rocket_ que se puede acceder a las reglas de calidad tanto en el planificador como en los _workflows_ en los que se estaban utilizando.
+
+[#agent-dfs-cloud-to-dfs-sscc-virtualizer-migration]
+
+== Migración de tablas no gobernadas del catálogo de _Stratio Virtualizer_ para adaptarlas al conector SSCC
+
+Esta guía tiene como objetivo ayudar *exclusivamente* a la migración de tablas creadas directamente por el usuario en el catálogo de _Stratio Virtualizer_.
+
+IMPORTANT: La guía *no contempla* la migración de tablas creadas automáticamente por _Stratio BDL_ a partir de metadatos descubiertos en _Stratio Data Governance_. Esta migración está cubierta en su xref:#agent-dfs-cloud-to-dfs-sscc-governance-migration[propia guía de migración].
+
+=== Prerrequisitos
+
+. Para la correcta ejecución de los _scripts_ será necesario recopilar la siguiente información:
++
+--
+. El nombre del _cluster_ de PostgreSQL® y de la base de datos donde se guarda la información del catálogo de _Stratio Virtualizer_.
+.. En los ejemplos, se usará como nombre de la base de datos "virtualizer".
+. La ruta a los ficheros usada cuando se crearon las tablas en el catálogo.
+. El tipo de autenticación del nuevo conector SSCC y el nombre del secreto donde está guardada la información necesaria para la misma.
+--
+. Es necesario tener la herramienta `kubectl` configurada para acceder al _cluster_ del entorno.
+. También es necesario apagar todos los servicios que usen el _cluster_ de PostgreSQL® donde se va a realizar la migración mientras dure la misma: _Stratio Virtualizer_, _Stratio BDL_, _Stratio Rocket_, _Stratio Intelligence_, _Stratio Discovery_ y _Stratio DLC_.
+
+=== Pasos a realizar
+
+. Debes hacer una copia de seguridad de la base de datos PostgreSQL® usada por _Stratio Virtualizer_ para almacenar los metadatos del catálogo.
++
+--
+** Puedes encontrar más información acerca de las copias de seguridad en xref:stratio-postgres:administration-guide:pgcluster/disaster-recovery.adoc#_backup_pgbackup[la guía de administración de __Stratio PostgreSQL Operator__].
+--
+IMPORTANT: Un error en el proceso de migración podría provocar pérdidas de información esenciales para el correcto funcionamiento de la plataforma, por lo que nunca debes realizarla sin una copia de seguridad previa.
++
+. Descarga los _scripts_ de migración apropiados al equipo local en un directorio dedicado que sólo contenga dichos _scripts_. En los ejemplos, se usará como nombre de directorio "migration-scripts".
++
+--
+* xref:attachment$/migrations-guide/from-cloud-agent/virtualizer/sanity-check.sql[Comprobaciones previas]
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-cloud-agent/virtualizer/sanity-check.sql[]
+----
+
+====
++
+* Modificaciones para migrar al conector SSCC. En este caso, deberás elegir entre uno de los disponibles por el proveedor de DFS y el modo de autenticación usados para conectarse al mismo:
+** Amazon S3:
+*** Usando xref:amazon-s3:attachment$/migrations-guide/from-cloud-agent/virtualizer/s3-from-cloud-agent-to-serv-account-sscc.sql[autenticación mediante cuenta de servicio].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::mssql:attachment$/migrations-guide/from-cloud-agent/virtualizer/s3-from-cloud-agent-to-serv-account-sscc.sql[]
+----
+
+====
++
+*** Usando xref:amazon-s3:attachment$/migrations-guide/from-cloud-agent/virtualizer/s3-from-cloud-agent-to-assume-role-sscc.sql[autenticación mediante _Assume Role_].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::amazon-s3:attachment$/migrations-guide/from-cloud-agent/virtualizer/s3-from-cloud-agent-to-assume-role-sscc.sql[]
+----
+
+====
++
+** Google Cloud Storage:
+*** Usando xref:google-cloud-storage:attachment$/migrations-guide/from-cloud-agent/virtualizer/gcs-from-cloud-agent-to-serv-account-sscc.sql[autenticación mediante cuenta de servicio].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::google-cloud-storage:attachment$/migrations-guide/from-cloud-agent/virtualizer/gcs-from-cloud-agent-to-serv-account-sscc.sql[]
+----
+
+====
++
+** Azure Data Lake Storage Gen2:
+*** Usando xref:azure-data-lake-storage-gen2:attachment$/migrations-guide/from-cloud-agent/virtualizer/azure-from-cloud-agent-to-shared-key-sscc.sql[autenticación mediante _shared key_].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::azure-data-lake-storage-gen2:attachment$/migrations-guide/from-cloud-agent/virtualizer/azure-from-cloud-agent-to-shared-key-sscc.sql[]
+----
+
+====
++
+*** Usando xref:azure-data-lake-storage-gen2:attachment$/migrations-guide/from-cloud-agent/virtualizer/azure-from-cloud-agent-to-oauth2-sscc.sql[autenticación mediante OAuth2.0 (cliente de aplicación)].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::azure-data-lake-storage-gen2:attachment$/migrations-guide/from-cloud-agent/virtualizer/azure-from-cloud-agent-to-oauth2-sscc.sql[]
+----
+
+====
+--
++
+. Establece el _namespace_ y nombre del _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+export PG_CLUSTER_NAME=<postgres_cluster_name>
+export POD_NAMESPACE=<namespace>
+export POD_NAME=$(kubectl get endpoints $PG_CLUSTER_NAME-primary -n $POD_NAMESPACE -o=jsonpath={..targetRef.name})
+----
++
+. Sube la carpeta que contiene los _scripts_ de migración.
++
+[source, bash]
+----
+kubectl cp /path/to/downloaded/migration-scripts $POD_NAMESPACE/$POD_NAME:/tmp
+----
++
+. Abre una consola en el _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+kubectl exec -it $POD_NAME -n=$POD_NAMESPACE -- bash
+----
++
+NOTE: A partir de este punto, los comandos deben ejecutarse en la consola del _pod_ primario del _cluster_ de PostgreSQL®.
++
+. Ejecuta xref:attachment$/migrations-guide/from-cloud-agent/virtualizer/sanity-check.sql[el _script_ de comprobación previa] que devolverá las tablas que van a ser migradas. Habrá que comprobar con detenimiento que son las correctas.
++
+Este _script_ necesita las siguientes https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_]:
++
+--
+* `databases_with_tables_to_be_migrated`: un lista separada por comas de bases de datos del catálogo de _Stratio Virtualizer_ que contienen las tablas que se quieren migrar.
+** Por ejemplo, `default, `my_database` o `null` si no se quiere filtrar.
+* `old_cloud_agent_location_prefix`: con un prefijo del URI con la localización de los ficheros usada en las tablas que van a ser migradas, por ejemplo:
+** Para Amazon S3: `s3a://my-bucket/my-path%`, `s3a://my-bucket/%` o `s3a://%`.
+** Para Google Cloud Storage: `gs://my-bucket/my-path%`, `gs://my-bucket/%` o `gs://%`.
+** Para Azure Data Lake Storage Gen2: `abfss://my-container@my-account.dfs.core.windows.net/my-path%`, `abfss://my-container@%` o `abfss://%`.
+** Para Azure Blob Storage: `wasbs://my-container@my-account.blob.core.windows.net/my-path%`, `wasbs://my-container@%` o `wasbs://%`.
+TIP: Recuerda añadir el _placeholder_ `%` al final.
+--
++
+A continuación se muestra un ejemplo con Amazon S3 escribiendo la lista a un archivo para poder usarlo en posteriores comprobaciones:
++
+[source,bash]
+----
+$ psql -d virtualizer -f /tmp/migration-scripts/sanity-check.sql --set databases_with_tables_to_be_migrated="'default','test_migration'" --set old_cloud_agent_location_prefix="'s3a://my-bucket%'" -o /tmp/migration-scripts/tables.txt
+Password for user postgres:
+$ cat /tmp/migration-scripts/tables.txt
+        DB_NAME        | TBL_ID |                     TBL_NAME                        | SERDE_ID
+---------------------+--------+---------------------------------------+----------
+ default                     |    523    | s3_cloud_test                                  |      523
+ default                     |    524    | s3_cloud_to_sscc_md5_test         |      524
+ test_migration        |    544    | s3_cloud_test                                  |      544
+ test_migration        |    545    | s3_cloud_to_sscc_sa_test         |      545
+ test_migration        |    548    | s3_cloud_to_sscc_ar_test            |      548
+(5 rows)
+----
++
+. Ejecutar el _script_ de modificaciones adecuado según la base de datos y el modo de autenticación usado en el nuevo conector desacoplado SSCC:
++
+--
+* Amazon S3
+** *cuenta de servicio*: `/tmp/migration-scripts/s3-from-cloud-agent-to-serv-account-sscc.sql`.
+** *_Assume Role_*: `/tmp/migration-scripts/s3-from-cloud-agent-to-assume-role-sscc.sql`.
+* Google Cloud Storage
+** *cuenta de servicio*: `/tmp/migration-scripts/gcs-from-cloud-agent-to-serv-account-sscc.sql`.
+* Azure Data Lake Storage Gen2
+** *_shared key_*: `/tmp/migration-scripts/adls2-from-cloud-agent-to-shared-key-sscc.sql`.
+** *_OAuth2.0_*: `/tmp/migration-scripts/adls2-from-cloud-agent-to-oauth2-sscc.sql`.
+--
++
+Este _script_ necesita una serie de https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] establecidas para su correcto funcionamiento:
++
+--
+* `databases_with_tables_to_be_migrated`: un lista separada por comas de bases de datos del catálogo de _Stratio Virtualizer_ que contienen las tablas que se quieren migrar.
+** Por ejemplo `default`, `my_database` o `null` si no se quiere filtrar.
+* `old_cloud_agent_location_prefix`: con un prefijo del URI con la localización de los ficheros usada en las tablas que se van a migrar.
+** Por ejemplo, para Amazon S3, `s3a://my-bucket/my-path%`, `s3a://my-bucket/%` o `s3a://%`. Recuerda añadir el _placeholder_ `%` al final.
+* `vault_secret_name`: el nombre del secreto con la información para la autenticación del nuevo conector SSCC.
++
+--
++
+El _script_ realizará las modificaciones temporalmente y hará una consulta sobre las filas modificadas:
++
+[source,bash]
+----
+$ psql -d virtualizer --set databases_with_tables_to_be_migrated="'default','test_migration'" --set old_cloud_agent_location_prefix="'s3a://my-bucket%'" --set vault_secret_name="'<sscc-s3-secret-name>'"
+Password for user postgres:
+psql (14.5 (Ubuntu 14.5-1.pgdg22.04+1))
+Type "help" for help.
+
+virtualizer=# \i /tmp/migration-scripts/${bbdd}-from-cloud-agent-to-${auth}-sscc.sql
+BEGIN
+INSERT 0 25
+        DB_NAME        | TBL_ID |              TBL_NAME                          | SERDE_ID
+--------------------+---------+------------------------------------+----------
+ default                     |    523    | s3_cloud_test                                  |      523
+ default                     |    524    | s3_cloud_to_sscc_md5_test         |      524
+ test_migration        |    544    | s3_cloud_test                                  |      544
+ test_migration        |    545    | s3_cloud_to_sscc_sa_test         |      545
+ test_migration        |    548    | s3_cloud_to_sscc_ar_test            |      548
+(5 rows)
+----
++
+. Ahora y todavía en la consola `psql` se pueden hacer las comprobaciones necesarias, como comparar las tablas modificadas con las que devolvió el _script_ de comprobación inicial:
++
+[source,bash]
+----
+virtualizer=# \! cat /tmp/migration-scripts/tables.txt
+        DB_NAME        | TBL_ID |                     TBL_NAME                        | SERDE_ID
+---------------------+--------+---------------------------------------+----------
+ default                     |    523    | s3_cloud_test                                  |      523
+ default                     |    524    | s3_cloud_to_sscc_md5_test         |      524
+ test_migration        |    544    | s3_cloud_test                                  |      544
+ test_migration        |    545    | s3_cloud_to_sscc_sa_test         |      545
+ test_migration        |    548    | s3_cloud_to_sscc_ar_test            |      548
+(5 rows)
+----
++
+. Como último paso, en la consola `psql` se deben:
+.. Descartar los cambios si se ha detectado algún error o incoherencia en los datos:
++
+[source,bash]
+----
+virtualizer=# rollback;
+----
++
+.. Confirmar los cambios en caso contrario.
++
+IMPORTANT: Después de este paso, si es necesario volver a la situación previa a la migración tendrás que restaurar la copia de seguridad creada previamente.
++
+[source,bash]
+----
+virtualizer=# commit;
+----
++
+. Arranca el servicio se _Stratio Virtualizer_ y comprueba en xref:stratio-virtualizer:user-guide:stratio-virtualizer-shell.adoc[su consola de comandos] que se puede acceder a los datos realizando consultas sobre las tablas de catálogo migradas.
++
+NOTE: Recuerda que previamente se debe haber instalado el conector SSCC en _Stratio Virtualizer_. Puedes consultar cómo realizar la instalación en la guía de operaciones específica de cada conector.
++
+. Arranca el resto de servicios que paraste al inicio de la migración.

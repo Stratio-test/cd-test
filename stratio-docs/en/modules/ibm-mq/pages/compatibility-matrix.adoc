@@ -1,0 +1,32 @@
+= Compatibility matrix
+
+The modules that are compatible with the SSCC IBM MQ connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| -
+
+| _Stratio BDL_
+| Virtualization
+| -
+
+| _Stratio Virtualizer_
+| Read/Write/Native access
+| -
+
+| _Stratio Rocket_
+| Read/Virtualized write/Native access
+| Integrated
+
+| _Stratio Intelligence_
+| Read/Virtualized write/Native access
+| -
+|===
+
+== Compatibility with IBM MQ versions
+
+Connector compatibility has been validated for IBM MQ 9.2.1.

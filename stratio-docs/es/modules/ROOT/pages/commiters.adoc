@@ -1,0 +1,308 @@
+= Integración de _Stratio Virtualizer_ con almacenamiento _cloud_
+
+== Introducción
+
+Apache Hadoop® (HDFS) es un sistema de archivos que ofrece un subconjunto del comportamiento de un sistema de archivos POSIX (o al menos la implementación de las API y el modelo del sistema de archivos POSIX proporcionado por los de Linux). Está totalmente integrado con Apache Hadoop® y se prueba de forma exhaustiva en cada nueva versión.
+
+Sin embargo, los principales proveedores de _cloud_ ofrecen almacenamiento de datos persistente en almacenes de objetos, tales como Amazon S3, Azure Data Lake Storage Gen2 o Google Cloud Storage. Estos no son sistemas de archivos clásicos POSIX, y si los conectores hacia estos servicios no se configuran de forma correcta pueden presentar algunos inconvenientes en su integración con _Stratio Virtualizer_.
+
+=== ¿Cómo funciona un almacenamiento de objetos?
+
+Un almacén de objetos es un servicio de almacenamiento de datos al que normalmente se accede a través de HTTP/HTTPS.
+
+Los objetos se almacenan por nombre: una cadena, posiblemente con símbolos "/" en ellos, simulando una estructura de directorios. Aunque no existe una jerarquía de directorios real en ellos salvo para las cuentas de almacenamiento de Azure Data Lake Storage Gen2 con el espacio de nombres jerárquico activado.
+
+Para almacenar cientos de _petabytes_ de datos sin ningún punto único de fallo, los almacenes de objetos reemplazan el árbol de directorios del sistema de archivos clásico con un modelo más simple de clave de objeto => datos.
+
+Los almacenes de objetos generalmente priorizan la disponibilidad; no hay un único punto de fallo equivalente a los _NameNode_ de Apache Hadoop® (HDFS).
+
+Los conectores para almacenes de objetos simulan ser un sistema de archivos con las mismas características y operaciones que Apache Hadoop® (HDFS). Esto es sólo una simulación, tienen características diferentes y en ocasiones fallan por diferentes motivos:
+
+. *Consistencia*: por lo general, los almacenes de objetos son eventualmente consistentes. Los cambios en los objetos (creación, eliminación y actualizaciones) pueden tardar en ser visibles. De hecho, no hay garantía de que un cambio sea inmediatamente visible para el cliente que acaba de realizarlo. Por ejemplo, un objeto `test/data1.csv` se puede sobrescribir con un nuevo conjunto de datos, pero cuando se realiza una llamada `GET test/data1.csv` poco después de la actualización, se devuelven los datos originales. Apache Hadoop® asume que los sistemas de archivos son consistentes de forma inmediata, que la creación, las actualizaciones y las eliminaciones sean inmediatamente visibles, y que los resultados de enumerar un directorio estén actualizados con respecto a los archivos dentro de ese directorio.
+
+. *Atomicidad*: Apache Hadoop® asume que las operaciones de cambio de nombre de directorio son atómicas, al igual que las operaciones de eliminación. Los conectores para almacenes de objetos los implementan como operaciones en los objetos individuales cuyos nombres coinciden con el prefijo del directorio. Como resultado, los cambios se realizan archivo por archivo y no son atómicos. Si una operación falla a mitad del proceso, el estado del almacén de objetos refleja la operación parcialmente completada.
+
+. *Durabilidad*: Apache Hadoop® asume que las implementaciones de _OutputStream_ escriben datos en su almacenamiento (persistente) en una operación `flush()`. Las implementaciones de almacenamiento de objetos guardan todos sus datos escritos en un archivo local que luego envía al almacén de objetos en la operación final de cierre. Como resultado, nunca hay datos parciales de operaciones incompletas o fallidas. Además, como el proceso de escritura comienza en la operación `close()`, esa operación puede tardar un tiempo proporcional a la cantidad de datos a cargar e inversamente proporcional al ancho de banda de la red.
+
+. *Autorización*: Apache Hadoop® usa la clase _FileStatus_ para representar metadatos de archivos y directorios, incluido el propietario, el grupo y los permisos. Es posible que los almacenes de objetos no tengan una forma viable de conservar estos metadatos.
+
+Los almacenes de objetos con estas características no se pueden utilizar como reemplazo directo de Apache Hadoop® (HDFS). En términos de la descripción anterior, sus implementaciones de las operaciones especificadas no coinciden con las requeridas. Se consideran compatibles con la comunidad de desarrollo de Apache Hadoop® pero no en la misma medida que Apache Hadoop® (HDFS).
+
+=== ¿Cómo afecta a _Stratio Virtualizer_?
+
+_Stratio Virtualizer_ escribe el resultado de los trabajos en un sistema de archivos. Es decir, cada tarea de _Stratio Virtualizer_ escribe su salida como un archivo. El sistema debe producir una salida consistente incluso si:
+
+* Algunas tareas se interrumpen mientras están en progreso (por ejemplo, la eliminación de una tarea o que un ejecutor se quede sin memoria) y se pueden volver a intentar en otro ejecutor.
+* Se pueden ejecutar varias copias de una misma tarea en paralelo en diferentes ejecutores (un mecanismo llamado especulación que ayuda con el rendimiento).
+
+Para resolver este problema, se utiliza una técnica llamada *protocolo de confirmación* que utiliza un directorio intermedio (temporal). Al finalizar las tareas, lista los directorios de salida intermedios y cambia el nombre de los archivos a su ubicación final. Esto funciona bien en el sistema de archivos distribuidos de Apache Hadoop® (HDFS) porque listar un directorio produce resultados consistentes y cambiar el nombre de un archivo es una operación rápida de "O (1)".
+
+image::integration-dfs-spark.png[]
+
+Por lo tanto, para que _Stratio Virtualizer_ pueda trabajar de forma segura con un almacenamiento de objetos es necesario que este cumpla dos condiciones:
+
+* Debe ser totalmente consistente la lectura tras la escritura. Es decir, la consistencia debe ser inmediata.
+* La operación de renombre de directorios debe ser atómica.
+
+Apache Hadoop® proporciona conectores para algunos de los principales servicios de almacenamiento de objetos, aunque en algunos casos se violan los requisitos necesarios para garantizar la consistencia. Tal como se ha indicado, no se pueden usar como reemplazo directo de un sistema de archivos distribuido como Apache Hadoop® (HDFS) *excepto cuando se indique explícitamente por el propio desarrollador del conector*.
+
+NOTE: A partir de 2021, los almacenes de objetos de Amazon S3, Google Cloud Storage y Microsoft (Azure Storage, ADLS Gen1, ADLS Gen2) *son consistentes*. Esto significa que, tan pronto como se escribe/actualiza un archivo, otros procesos pueden mostrarlo, verlo y abrirlo, y se recuperará la última versión. Sin embargo, *el problema del cambio de nombre existe en algunos casos*, y para resolverlo hay diferentes soluciones que se analizarán en cada caso*.
+
+Situación actual:
+
+[cols="1,1,1,1"]
+|===
+| Almacenamiento | Conector | Seguridad del renombrado del directorio | Rendimiento del renombrado
+
+|Amazon S3
+|s3a
+|Unsafe
+|O(data)
+
+|Azure Storage
+|wasb
+|Safe
+|O(files)
+
+|Azure Data Lake Storage Gen2
+|abfs
+|Safe
+|O(1)
+
+|Google Cloud Storage
+|gs
+|Mixed *
+|O(files)
+|===
+
+https://spark.apache.org/docs/latest/cloud-integration.html#recommended-settings-for-writing-to-object-stores[Integración con infraestructuras _cloud_ - Documentación de Apache Spark™ 3.3.1]
+
+* https://issues.apache.org/jira/browse/MAPREDUCE-7341[([#MAPREDUCE-7341\] _Add a task-manifest output _commiter_ for Azure and Google Cloud Storage - ASF JIRA_)]
+
+IMPORTANT: Si se está trabajando con formatos tipo tabla como Delta.io, Apache Iceberg o Apache Hudi, el uso de _commiter_ en Amazon S3 no es relevante ya que estos formatos de tabla manejan el proceso de confirmación de manera diferente.
+
+== Amazon S3
+
+=== El problema de _commit_ en Amazon S3
+
+_Stratio Virtualizer_ usa la clase `FileOutputCommitter` para administrar la promoción de archivos creados en un solo intento de una tarea al resultado final de una consulta. Esto se hace para manejar fallos de tareas y _jobs_ y para respaldar la ejecución especulativa. Lo hace listando directorios y renombrando su contenido en el destino final cuando se confirman las tareas y luego los _jobs_.
+
+Esto tiene algunos requisitos clave del sistema de archivos subyacente:
+
+. Cuando enumera un directorio, ve todos los archivos que se han creado en él y ningún archivo que no esté en él (es decir, que se haya eliminado).
+. Cuando cambia el nombre de un directorio, es una transacción atómica. Ningún otro proceso en el _cluster_ puede cambiar el nombre de un archivo o directorio a la misma ruta. Si el cambio de nombre falla por algún motivo, los datos están en la ubicación original o en el destino, en cuyo caso el cambio de nombre se realizó correctamente.
+
+En el pasado, el almacén de objetos Amazon S3 y el cliente del sistema de archivos `s3a://` no podían cumplir con estos requisitos, pero actualmente S3A es consistente. Internamente, Amazon S3 todavía realiza el cambio de nombre copiando archivos y después eliminando los originales. Esto puede fallar a la mitad y no hay nada que impida que otro proceso en el _cluster_ intente cambiar el nombre al mismo tiempo.
+
+Como resultado:
+
+* Si falla un cambio de nombre, los datos quedan en un estado desconocido.
+* Si más de un proceso intenta comprometer el _job_ simultáneamente, el directorio de salida puede contener los resultados de ambos procesos ya que no es una operación exclusiva.
+
+IMPORTANT: El uso del `FileOutputCommitter` "clásico" para enviar trabajo a Amazon S3 corre el riesgo de perder o dañar los datos generados.
+
+=== Uso de _committers_ en Amazon S3
+
+Para abordar los problemas de la fase de confirmación de tareas existe un soporte explícito en el módulo _hadoop-aws_ para enviar trabajos a Amazon S3 a través del cliente del sistema de archivos S3A.
+
+Para una salida de trabajo segura y de alto rendimiento, es necesario usar un _committer_ escrito explícitamente para trabajar con Amazon S3, tratándolo como un almacén de objetos con características especiales.
+
+A partir de Apache Hadoop® 3.1, el sistema de archivos de S3A incorpora clases diseñadas para integrarse con los protocolos de confirmación de _jobs_ de Apache Hadoop® y _Stratio Virtualizer_, clases que interactúan con el sistema de archivos de S3A para confirmar el _job_ de forma fiable en Amazon S3.
+
+El concepto clave que se debe conocer es el mecanismo de "carga multiparte" de Amazon S3. Esto permite que un cliente de Amazon S3 escriba datos en varias solicitudes `HTTP POST` sólo completando la operación de escritura con un `POST` final para completar la carga. Este mecanismo de carga de varias partes ya se usa automáticamente cuando se escriben grandes cantidades de datos en Amazon S3.
+
+Los _committer_ de S3A hacen un uso explícito de este mecanismo de carga multiparte:
+
+. Las tareas individuales en un _job_ escriben sus datos en Amazon S3 como operaciones `POST` dentro de cargas de varias partes pero no emiten un `POST` final para completar la carga.
+. Las cargas de varias partes se confirman en el proceso de confirmación del _job_.
+
+De forma adicional al _committer_ predeterminado de Apache Hadoop® (`FileOutputCommitter`), hay dos tipos diferentes de _committer_ S3A denominados _staging_ y _magic_. Estos varían principalmente en cómo se escriben los datos durante la ejecución de la tarea, cómo se pasa la información de confirmación pendiente al administrador de _jobs_ y cómo se resuelven los conflictos con los archivos existentes.
+
+==== _Staging committer_
+
+Desarrollado por Netflix y cedido a la comunidad. Escribe los datos en el sistema de archivos compartido a nivel de _cluster_ de _Stratio Virtualizer_ (Apache Hadoop® (HDFS) o NFS), de modo que las tareas se escriben en direcciones URL con esquemas “file://”. Cuando se confirma una tarea, sus archivos se enumeran y se cargan en Amazon S3 como cargas multiparte incompletas. La información necesaria para completar las cargas se guarda en local, donde se confirma a través del algoritmo de confirmación estándar "v1". Cuando se confirma el _job_, se lee las listas de escrituras pendientes de su directorio de destino del _job_ local y completa esas cargas.
+
+Cancelar una tarea es sencillo: el directorio local elimina sus datos provisionales. La cancelación de un _job_ se logra leyendo las listas de escrituras pendientes del directorio temporal del _job_ local y abortando esas cargas. Para mayor seguridad, se anulan todas las escrituras multiparte pendientes en el directorio de destino.
+
+El _committer_ de _staging_ viene en dos formas ligeramente diferentes en su forma de resolución de conflictos. Estas son:
+
+* _Directory_: todo el árbol de directorios de datos se escribe o sobrescribe, como de costumbre.
+* _Partitioned_: manejo especial de árboles de directorios particionados, como por ejemplo el formato `AÑO=2017/MES=09/DÍA=19`. La resolución de conflictos se limita a las particiones que se actualizan. Este modo está diseñado para permitir que los _jobs_ actualicen un árbol de directorios particionados para restringir la resolución de conflictos exclusivamente a aquellos directorios de partición que contengan datos nuevos. Está diseñado para usarse sólo con _Stratio Virtualizer_.
+
+Cuando se confirma una tarea, los datos se cargan en el directorio de destino. Se puede establecer una política de cómo reaccionar si en el destino ya existen los datos mediante el parámetro de configuración `fs.s3a.committer.staging.conflict-mode` (https://hadoop.apache.org/docs/stable/hadoop-aws/tools/hadoop-aws/committers.html).
+
+CAUTION: No se recomienda el uso de estos _committer_ con _Stratio Intelligence_ debido a problemas de permisos que se describen más adelante. Como alternativa, se puede utilizar el _magic committer_. xref:#_uso_con_stratio_intelligence[(Revisa el apartado 2.6 - consideración 3)].
+
+==== _Magic committer_
+
+El _magic committer_ completa los _jobs_ de _Stratio Virtualizer_ en el sistema de archivos destino (_bucket_ Amazon S3). Escribe en rutas específicas en un directorio principal. Cuando se cierra el flujo de salida, la información necesaria para completar la escritura se guarda en el directorio utilizado por _magic_. Si se cancela la tarea, enumera las escrituras pendientes y las cancela.
+
+En comparación con _staging_, _magic committer_ ofrece tiempos de escritura más rápidos: la salida se carga en Amazon S3 a medida que se escribe evitando la escritura local y posterior subida.
+
+Inicialmente, este _commiter_ requería instalar una base de datos Dynamodb para habilitar un mecanismo de cliente Amazon S3 llamado S3Guard ("protegiéndolo" contra resultados inconsistentes) pero, desde diciembre de 2020, https://aws.amazon.com/es/about-aws/whats-new/2020/12/amazon-s3-now-delivers-strong-read-after-write-consistency-automatically-for-all-applications/[Amazon S3 ofrece una consistencia sólida completa de lectura después de escritura a nivel global], por lo que ya no es necesario instalar S3Guard.
+
+=== ¿Qué _committer_ debo usar en cada caso?
+
+[cols="1,1"]
+|===
+| _Committer_ | Caso de uso
+
+| FileOutputCommitter
+| Cuando se trabaja con Amazon S3, no hay garantía de operación atómica en el renombrado de ficheros utilizado por este _commiter_ en la confirmación de escrituras. Por ello debe evitarse su uso con Amazon S3.
+
+| Staging - Directory
+| Puedes utilizar este _committer_ cuando no se trabaja con demasiados datos y estos no están particionados, si bien debes considerar la necesidad de espacio local mientras se confirman y suben los _jobs_ finalizados a Amazon S3. *No es recomendable su uso con _Stratio Intelligence_ xref:#_uso_con_stratio_intelligence[(revisa el apartado 2.6 - consideración 3)]*.
+
+| Staging - Partitioned
+| Este _commiter_ es el adecuado si el caso de uso trabaja con datos particionados y suele realizar escrituras sobre ciertas particiones. No obstante, se debe considerar la necesidad de espacio local mientras se confirman y suben los _jobs_ finalizados a Amazon S3. *No es recomendable su uso con _Stratio Intelligence_ xref:#_uso_con_stratio_intelligence[(revisa el apartado 2.6 - consideración 3)]*.
+
+| Magic
+| De forma general, este _commiter_ es el recomendado para Amazon S3 ya que puede trabajar bien con grandes cantidades de datos y su rendimiento es mucho mayor. Como ventaja, no necesita espacio de almacenamiento local en el _cluster_ de _Stratio Virtualizer_ porque trabaja directamente sobre Amazon S3.
+* Ya no es necesario el uso de s3Guard ya que, por defecto, https://aws.amazon.com/es/about-aws/whats-new/2020/12/amazon-s3-now-delivers-strong-read-after-write-consistency-automatically-for-all-applications/[Amazon S3 es consistente].
+|===
+
+=== Configuración de _committer_
+
+Para la configuración de un _commiter_ será necesario establecer los siguientes parámetros en la sesión de _Stratio Virtualizer_:
+
+[cols="1,1"]
+|===
+| Parámetro | Valor
+
+| `fs.s3a.path.style.access`
+| _true_
+
+| `mapreduce.outputcommitter.factory.scheme.s3a`
+| _org.apache.hadoop.fs.s3a.commit.S3ACommitterFactory_
+
+| `fs.s3a.committer.name`
+| Será el _commiter_ a utilizar:
+
+    - _directory_
+    - _partitioned_
+    - _magic_
+
+| `spark.sql.sources.commitProtocolClass` (sólo Parquet)
+| _org.apache.spark.internal.io.cloud.PathOutputCommitProtocol_
+
+| `spark.sql.parquet.output.committer.class` (sólo Parquet)
+| _org.apache.spark.internal.io.cloud.BindingParquetOutputCommitter_
+
+| `fs.s3a.committer.staging.conflict-mode`
+| Sólo aplica a los _commiter_ "directory" y "partitioned" y será como se deberán resolver los conflictos:
+
+- _append_: añade nuevos ficheros al directorio de destino existente.
+- _fail_: falla si el directorio de destino existe.
+- _replace_: borra los ficheros existentes antes de subir los nuevos.
+
+| `fs.s3a.committer.staging.tmp.path`
+| Sólo aplica a los _commiter_ "directory" y "partitioned" y será la ruta utilizada para los ficheros temporales en local.
+|===
+
+=== ¿Cómo verificar que el _commiter_ está funcionando?
+
+Cuando finaliza una escritura de un _job_, _Stratio Virtualizer_ genera en el destino un fichero llamado "++_++SUCCESS" que indica que se ha ejecutado de forma correcta. Este fichero tiene contenido vacío cuando se utiliza el _commiter_ predeterminado de _Stratio Virtualizer_. Sin embargo, cuando se utiliza alguno de los indicados anteriormente (_staging_ o _magic_), el fichero contiene una serie de metadatos que describen el _commiter_ utilizado entre otros.
+
+=== Uso con _Stratio Intelligence_
+
+Se ha probado la integración del uso de _commiters_ específicos con _Stratio Intelligence_ (Universo 13.0). Si bien se puede usar correctamente, es necesario aplicar y tener en cuenta las siguientes consideraciones para no incurrir en posibles errores o inconsistencias:
+
+. Cuando se trabaja con ficheros Parquet es necesario añadir una dependencia que actualmente no está integrada en producto. Para ello, desde la configuración de _kernels_ de _Stratio Intelligence_ se debe añadir la siguiente configuración:
+
+[source,bash]
+----
+--conf spark.jars.packages="org.apache.spark:spark-hadoop-cloud_2.12:3.1.1.3.1.7270.0-253" --conf spark.jars.repositories="https://repository.cloudera.com/artifactory/cloudera-repos/"
+----
+
+. Una vez configurado y reiniciado el _kernel_ se pueden usar los _commiter_ de Amazon S3. Para ello, debes configurar una serie de parámetros en la sesión de _Stratio Virtualizer_. Por ejemplo, en el caso del _magic commiter_:
++
+[source]
+----
+spark._jsc.hadoopConfiguration().set("fs.s3a.path.style.access","true")
+spark._jsc.hadoopConfiguration().set("mapreduce.outputcommitter.factory.scheme.s3a","org.apache.hadoop.fs.s3a.commit.S3ACommitterFactory")
+spark._jsc.hadoopConfiguration().set("fs.s3a.committer.name","magic")
+spark._jsc.hadoopConfiguration().set("spark.sql.sources.commitProtocolClass","org.apache.spark.internal.io.cloud.PathOutputCommitProtocol")
+spark._jsc.hadoopConfiguration().set("spark.sql.parquet.output.committer.class","org.apache.spark.internal.io.cloud.BindingParquetOutputCommitter")
+----
+
+. Una cuestión importante al usar _Stratio Intelligence_ con los _commiter_ de Amazon S3 de tipo _staging_ es que `SPARK_USER` debe coincidir con el usuario de _Stratio Intelligence_ debido a que hay tareas de movimiento de carpetas/ficheros (como se ha descrito en el funcionamiento de los _commiter_) que son lanzadas por _Stratio Virtualizer_. Por ello, *no se recomienda usar _commiter_ de tipo _staging_ (_directory_ o _partitioned_) con _Stratio Intelligence_. En su defecto, se debe usar _magic_ cuando el valor establecido en `SPARK_USER` y el usuario de _Stratio Intelligence_ que está realizando la escritura en Amazon S3 no puedan ser el mismo*.
+
+== Azure Data Lake Storage Gen2 y Azure Blob
+
+No existen _commiter_ específicos como sucede con Amazon S3. Sin embargo, el conector de Apache Hadoop® para Azure presenta las siguientes características tanto para el uso de Azure Data Lake Storage Gen2 como Azure Blob:
+
+* Admiten la lectura y escritura de datos almacenados en una cuenta de Azure Blob Storage.
+* Ofrecen una vista coherente del almacenamiento en todos los clientes. Es decir la lectura es consistente.
+* Pueden leer datos escritos a través del conector _wasb_.
+* Presentan una vista jerárquica del sistema de archivos mediante la implementación de la interfaz estándar de Apache Hadoop®.
+* Pueden actuar como fuente o destino de datos en Apache Hadoop® MapReduce, Apache Hive™ y _Stratio Virtualizer_.
+* Están probados a escala en Linux y Windows por Microsoft.
+* Se pueden usar como reemplazo de Apache Hadoop® (HDFS) en _clusters_ de Apache Hadoop® implementados en la infraestructura de Azure.
+
+Al igual que con todos los servicios de almacenamiento de Azure, ofrecen una vista totalmente consistente con una coherencia completa de creación, lectura, actualización y eliminación para datos y metadatos.
+
+https://hadoop.apache.org/docs/current/hadoop-azure/abfs.html[Apache Hadoop® Azure support: ABFS — Azure Data Lake Storage Gen2]
+https://hadoop.apache.org/docs/stable/hadoop-azure/index.html[Apache Hadoop® Azure support: Azure Blob Storage]
+
+[NOTE]
+====
+Por defecto, el comportamiento de renombrado de directorios no es atómico para Azure Blob. Sin embargo, se puede configurar el parámetro `fs.azure.atomic.rename.dir` que permite establecer qué rutas se tratarán de forma atómica en operaciones de renombrado (puede recibir una lista de rutas separadas por coma).
+
+En el caso de https://learn.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction#designed-for-enterprise-big-data-analytics[Azure Data Lake Storage Gen2], el renombrado sí es atómico por defecto.
+====
+
+== Google Cloud Storage
+
+Google Cloud Storage (GCS) ofrece un https://github.com/GoogleCloudDataproc/hadoop-connectors[conector de código abierto] que es consistente en la lectura tras una escritura. Sin embargo, en el caso de renombrado, la operación es atómica con respecto a fichero, no siéndolo con respecto a directorio.
+
+Para tener un correcto funcionamiento con _Stratio Virtualizer_, el conector ofrece la capacidad de establecer un bloqueo durante la escritura en Google Cloud Storage. Este parámetro se denomina: `fs.gs.cooperative.locking.enable` y debe configurarse a `true` si se quiere que mientras un _job_ se ejecute tenga un bloqueo exclusivo sobre la ruta de destino.
+
+Tal como describe https://cloud.google.com/blog/products/data-analytics/new-release-of-cloud-storage-connector-for-hadoop-improving-performance-throughput-and-more?utm_source=pocket_reader[la documentación de Google Cloud Storage], el _job_ de _Stratio Virtualizer_ (haciendo uso de la librería) adquiere un bloqueo que tiene que ir renovando cada cierto tiempo (mientras dura la operación). Si por algún motivo el _job_ termina de forma inesperada, al no renovar este bloqueo Google Cloud Storage de forma automática, lo elimina para no dejar el recurso bloqueado indefinidamente. Si el _job_ termina de forma correcta, el propio conector cancelará el bloqueo. El tiempo de refresco del bloqueo se puede configurar mediante el parámetro https://github.com/GoogleCloudPlatform/bigdata-interop/blob/v2.0.0/gcs/CONFIGURATION.md#cooperative-locking-feature-configuration[`fs.gs.cooperative.locking.expiration.timeout.ms`], que tiene un valor predeterminado de 120s.
+
+image::integration-dfs-explained-gcs.png[]
+
+== Conclusiones
+
+Como se desprende del análisis realizado, debido al funcionamiento del algoritmo de "protocolo de confirmación" utilizado por _Stratio Virtualizer_, *trabajar con sistemas de almacenamiento Cloud como Amazon S3, Azure Blob Storage, Azure Data Lake Storage Gen2 o Google Cloud Storage requiere conocer ciertas consideraciones para poder garantizar que no se ocasionan casuísticas que puedan comprometer la consistencia de los datos.*
+
+Puede ocurrir que, durante la ejecución de _jobs_ de _Stratio Virtualizer_ que tienen como destino el almacenamiento de objetos, este no garantice una consistencia inmediata de lectura ni una operación de renombrado de directorio atómico. Así, si un _job_ falla a mitad de la ejecución, podrían quedar los datos de forma inconsistente en el destino y no habría ningún mecanismo para evitar que un segundo _job_ lea esos datos.
+
+Para resolver este problema se han implementado mecanismos en los conectores utilizados por _Stratio Virtualizer_. Dichos mecanismos *se tienen que activar de forma explícita para garantizar escrituras consistentes en todas las situaciones*. En caso contrario, se utiliza el mecanismo predeterminado de _Stratio Virtualizer_ (_FileOutputCommitter_), que no será consistente en todas las circunstancias.
+
+[cols="1,1,1"]
+|===
+| Almacenamiento | Conector | ¿Es seguro su uso con _Stratio Virtualizer_?
+
+|Amazon S3
+|s3a
+|Sí, siempre que se utilice alguno de los _commiter_ _staging_ o _magic_ con la configuración indicada en el apartado 2.4.
+*El _commiter_ recomendado es _magic_. Se debe descartar el uso del _commiter_ tipo _staging_ xref:#_uso_con_stratio_intelligence[(revisar el apartado 2.6 - consideración 3)]*.
+
+|Azure Blob Storage
+|wasb
+|Sí, configurando el conector con el parámetro `fs.azure.atomic.rename.dir` tal como se indica en el apartado 3.
+
+|Azure Data Lake Storage Gen2
+|abfs
+|Sí, sin aplicar ninguna configuración específica ya que Azure Data Lake Storage Gen2 ya ofrece todos los mecanismos necesarios.
+
+|Google Cloud Storage
+|gs
+|Sí, utilizando el conector de código abierto ofrecido por Google y estableciendo el parámetro `fs.gs.cooperative.locking.enable` con el valor "true", tal como se indica en el apartado 4.
+|===
+
+== Referencias
+
+* https://spark.apache.org/docs/3.1.1/cloud-integration.html
+* https://www.databricks.com/blog/2017/05/31/transactional-writes-cloud-storage.html
+* https://issues.apache.org/jira/browse/MAPREDUCE-7341
+* https://stackoverflow.com/questions/66933229/writing-to-google-cloud-storage-with-v2-algorithm-safe
+* http://www.openkb.info/2019/04/what-is-difference-between.html
+* https://cloud.google.com/storage/docs/consistency
+* https://hadoop.apache.org/docs/stable/hadoop-azure/index.html
+* https://learn.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction#designed-for-enterprise-big-data-analytics
+* https://hadoop.apache.org/docs/current/hadoop-azure/abfs.html
+* https://aws.amazon.com/es/about-aws/whats-new/2020/12/amazon-s3-now-delivers-strong-read-after-write-consistency-automatically-for-all-applications/
+* https://aws.amazon.com/es/about-aws/whats-new/2020/12/amazon-s3-now-delivers-strong-read-after-write-consistency-automatically-for-all-applications/
+* http://www.openkb.info/2019/04/what-is-difference-between.html
+* https://cloud.google.com/blog/products/data-analytics/new-release-of-cloud-storage-connector-for-hadoop-improving-performance-throughput-and-more?utm_source=pocket_reader

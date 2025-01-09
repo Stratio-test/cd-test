@@ -1,0 +1,30 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector de SSCC Salesforce, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-salesforce-0.3_2.12-1.1.x
+
+| _Stratio BDL_
+| Virtualización
+| ≥ sscc-salesforce-0.3_2.12-1.1.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura
+| ≥ sscc-salesforce-0.3_2.12-1.1.x
+
+| _Stratio Rocket_
+| Lectura/Escritura*
+| ≥ sscc-salesforce-0.3_2.12-1.1.x
+
+| _Stratio Intelligence_
+| Lectura/Escritura*
+| ≥ sscc-salesforce-0.3_2.12-1.1.x
+|===
+
+(*) El conector SSCC Salesforce permite la escritura virtualizada. Sin embargo, para la escritura a Salesforce únicamente soporta los modos _append_ y _upsert_. Para más información, consulta la sección de xref:salesforce:known-issues.adoc[problemas conocidos].

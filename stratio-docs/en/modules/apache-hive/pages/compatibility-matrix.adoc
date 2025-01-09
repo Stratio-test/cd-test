@@ -1,0 +1,55 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with the SSCC Apache Hive™ connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+|===
+|Module|Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio BDL_
+|Virtualization and optimization
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Virtualizer_
+| Read/write
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Rocket_
+| Virtualized read/write
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Intelligence_
+| Virtualized read/write
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Spark_
+| Data processing
+| >= sscc-hive-0.3_2.12-1.5.x
+|===
+
+== Compatibility with Apache Hive™ versions
+
+Connector compatibility has been validated for Apache Hive™ 3.1.2.
+
+== Supported JDBC driver versions
+
+The connector needs to be coupled with an artifact with the Apache Hive™ JDBC driver. Since it's decoupled, you can use the same connector with different versions.
+
+The current version of the connector supports the following JDBC driver versions:
+
+|===
+| JDBC driver version | Artifact from the connectors repository
+
+| 2.1.0
+| _hive-jdbc-2.2.0-1.0.x.jar_
+
+| 3.1.2
+| _hive-jdbc-3.1.2-1.0.x.jar_
+|===
+
+The different drivers are available at https://central.sonatype.com/artifact/org.postgresql/postgresql[this link].
+
+The current version of the driver must support PostgreSQL® 8.2 and higher using version 3.0 of the PostgreSQL® protocol. See its https://jdbc.postgresql.org/documentation/[documentation].

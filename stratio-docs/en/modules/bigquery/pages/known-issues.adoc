@@ -1,0 +1,17 @@
+﻿= Known issues
+
+* The Google BigQuery Java API has a silent mode that doesn't report errors when it's unable to connect to a certain project. If an empty data store appears in _Stratio Data Governance_ (or it doesn't appear at all), it may be because you do not have the required permissions in the account settings of Google service.
+* You need to set up a Google Cloud Storage bucket to perform write operations.
+* If you create a table that doesn't exist in BigQuery, the _Stratio Virtualizer_ catalog returns a "None.get" error. Refer to the xref:bigquery:troubleshooting.adoc[Troubleshooting section] for more info on this problem.
+* BigQuery views are supported, but are displayed as tables in the _Stratio Data Governance_ UI.
+* The Google BigQuery data type `BIGNUMERIC` is translated as `STRING` in _Stratio Data Governance_ and _Stratio Virtualizer_ as it exceeds the maximum precision allowed in _Stratio Spark_.
+* Not all BigQuery data types and tables are supported by all access modes:
+** _Spark datasource_ (provider `spark`):
+*** Supports all data types, both simple and complex.
+*** It doesn't support external tables or snapshot.
+** _Native dialect_ (provider `com.stratio.crossdata.connector.bigquery`):
+*** Supports all data types, both simple and complex.
+*** Supports all table types.
+** JDBC (provider `jdbc`):
+*** Supports all simple types except the `TIME` type. It doesn't support complex types, arrays or structs.
+*** Supports all table types.

@@ -1,0 +1,129 @@
+﻿= User Guide
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+The purpose of this guide is to explain the specific operations of the GCS  connector for a user on the _Stratio Augmented Data Fabric_ platform.
+
+== Discover your data
+
+Google Cloud Storage is an external storage bundled with Google that can be used to store any type of object that supports uses such as storage for internet applications, backup and restore, disaster recovery, data archiving, and data lakes for analytics, and hybrid cloud storage.
+
+_Stratio Augmented Data Fabric_ can perform discovery tasks on Google Cloud Storage metadata.
+The hierarchy supported by the connector is:
+
+. Bucket
+. N-directories
+. Columnar file
+
+The _GCS bucket_ should be organized according to the above structure to successfully discover the data. Simply provide the discovery agent with the bucket and the directory you want it to connect to. The agent will take care of the rest.
+
+Have a look at the https://cloud.google.com/storage/docs/introduction?hl=es-419[Google Cloud Storage Guide] for more information.
+
+Some of the attributes of the Cloud discovery agent are the following:
+
+* _Security_: *MD5*. Username/password authentication. It is unique.
+* _stratiocredentials_: The name of the secret used.
+* _typeConfig_: FILE
+* _driver_: org.apache->hadoop->2.7.2
+* URL: The GCS connection URL. For example: *gs://connectors-bucket-test*
+
+These are the discovery views:
+
+=== Directories
+
+image::gcs-vista-general-dir.png[]
+
+Attributes:
+
+* _owner_: The user owner.
+* _group_: The user group.
+* _permissions_: Octal file permissions.
+* _isEncrypeted_: If it's encrypted or not.
+
+=== Table
+
+image::gcs-vista-general-tabla.png[]
+
+Attributes: +
+
+* _owner_: The user owner.
+* _group_: The user group.
+* _permissions_: Octal file permissions.
+* _isEncrypted_: If it's encrypted or not.
+* _length_: File size.
+* _replication_: If it's replicated. 1 if it is not.
+* _blockSize_: Block size.
+* _modifiedAt_: When it was modified. Format in milliseconds.
+* _schema_: Table format type.
+* _partition_: The partition (if any).
+
+=== Columns
+
+image::gcs-vista-columna-gcs-general.png[]
+
+Attributes: +
+
+* _schemaType_: Table format type.
+* _type_: Table encoding.
+* _default_: Default value. - if it doesn't have one.
+* _constraint_: If it's a restrictive column.
+* _ordinal_: The number of the column in the table.
+* _precision_: The precision of the column.
+* _scale_: Double precision of the column.
+* _isSigned_: If it's authorized.
+* _isHidden_: If the column is hidden.
+
+To learn how _Stratio Data Governance_ manages schemas, tables and columns, have a look at the xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tablas_y_columnas[_Stratio Data Governance_ guide]. +
+If it finds a columnar file of any of the types shown below within any directory the Cloud agent is able to retrieve the metadata, and represent it as if it were a SQL type table. The supported files are:
+
+* Parquet
+* Text (CSV, JSON and XML)
+* ORC
+* Avro
+
+You can now create your own technical collections.
+
+IMPORTANT: If you want to add attributes to the tables, you have to do it on the table you added to the technical collection, never on the discovery agent itself.
+
+== Virtualize your data
+
+After tables have been discovered you can add them to a technical view of a collection. All the configurable parameters of the discovery and those parameters modified from the _Stratio Data Governance_ UI are propagated in the collections where that table is added.
+
+You can read more about its features in its xref:stratio-virtualizer:user-guide:user-guide.adoc#_trabajar_con_stratio_virtualizer[user guide].
+
+NOTE: Note that in order to virtualize the discovered tables, the xref:stratio-gosec:operations-guide:manage-policies:manage-domains-policies.adoc[domain policies] need to be managed through _Stratio Gosec_.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+You can use any workflow to perform your operations with Google Cloud Storage data in _Stratio Rocket_. Use _Stratio Virtualizer_ or SQL boxes as input to your workflows.
+
+Writing to Google Cloud Storage is supported. Use a _Stratio Virtualizer_ box to write directly to another file. If you do, you have to write to a specific file.
+
+The best way to check access to Google Cloud Storage data is through the catalog.
+
+The connector can work with quality rules to run your checks on Google Cloud Storage data.
+
+When you run a _Stratio Rocket_ workflow, you can display its technical lineage by clicking on the table in the technical collection.
+
+=== _Stratio Intelligence_
+
+You can use a _Stratio Virtualizer_ session in _Stratio Intelligence_ to quickly access your data via a Jupiter Notebook (use a PySpark session). An example:
+
+Always use your attached collection reference with your table.
+
+[source,python]
+----
+from pystratio.xd.xdsession import XDSession
+xd = XDSession(sc)
+xd.sql("SELECT * FROM gcs_col.YOUR_TABLE LIMIT 3").show()
+----
+
+You can see how to access the data from _Stratio Intelligence_ in the xref:ROOT:quick-start.html#_stratio_intelligence[Quick Guide]
+
+For more information about data consistency, refer to the xref:ROOT:commiters.adoc[Integration] document.

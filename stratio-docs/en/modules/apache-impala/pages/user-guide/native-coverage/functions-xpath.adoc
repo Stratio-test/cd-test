@@ -1,0 +1,44 @@
+= _XPATH_ functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+| XPATH Functions
+| SELECT xpath('<a><b>b1</b><b>b2</b><b>b3</b><c>c1</c><c>c2</c></a>','a/b/text()'),age FROM coverage_impala.xpath
+| No
+
+| xpath_boolean
+| SELECT xpath_boolean('<a><b>1</b></a>','a/b'),age FROM coverage_impala.xpath
+| No
+
+| xpath_double
+| SELECT xpath_double('<a><b>1</b><b>2</b></a>', 'sum(a/b)'),age FROM coverage_impala.xpath
+| No
+
+| xpath_float
+| SSELECT xpath_float('<a><b>1</b><b>2</b></a>', 'sum(a/b)'),age FROM coverage_impala.xpath
+| No
+
+| xpath_int
+| SELECT xpath_int('<a><b>1</b><b>2</b></a>', 'sum(a/b)'),age FROM coverage_impala.xpath
+| No
+
+| xpath_long
+| SELECT xpath_long('<a><b>1</b><b>2</b></a>', 'sum(a/b)'),age FROM coverage_impala.xpath
+| No
+
+| xpath_number
+| SELECT xpath_number('<a><b>1</b><b>2</b></a>', 'sum(a/b)'), 'UTF-8'),age FROM coverage_impala.xpath
+| No
+
+| xpath_short
+| SELECT xpath_short('<a><b>1</b><b>2</b></a>', 'sum(a/b)'),age FROM coverage_impala.xpath
+| No
+
+| xpath_string
+| SELECT xpath_string('<a><b>b</b><c>cc</c></a>','a/c'),age FROM coverage_impala.xpath
+| No
+
+|===

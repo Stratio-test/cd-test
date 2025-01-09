@@ -1,0 +1,46 @@
+= Migration guide for partitioning support on DFS connectors
+
+This guide describes the steps required to add support for partitioning on DFS connectors when upgrading a connector to the following versions:
+
+* sscc-adls2 version 1.2.0
+
+The goal is to recreate the catalog tables associated with the files discovered by the DFS connectors to take into account the partitions set in those files.
+
+== Steps to be performed
+
+. Modify the agent configuration to use the new version of the DFS connector artifact.
+. Modify the _Stratio Eureka_ configuration to use the new version of the agent and recreate the tables instead of modifying them.
++
+To do this, add the following configuration parameter in the service modification screen:
++
+--
+** `BDL_AGENT_DROP_AND_CREATE_TABLE_INSTEADOF_UPDATE` with value "true".
+
+image::partition-guide-eureka-config.png[]
+
+--
+
+. Modify the _Stratio Virtualizer_ configuration to refresh partitions automatically.
+* To do this, enable the "Refresh partitions change automatically" property.
++
+image::partition-guide-virt-config.png[]
+
+* You can also refresh the recreated tables by executing the following statement in _Stratio Virtualizer_:
++
+[source,sql]
+----
+ALTER TABLE <table_name> RECOVER PARTITIONS;
+----
+
+. Checks that the tables in the catalog take partitions into account and that their data can be accessed:
++
+[source,sql]
+----
+DESCRIBE EXTENDED <table_name>;
+# |# Partition Information     |                                                                                                                                                                                                                                             |       |
+# |# col_name                  |data_type
+# |id                          |int
+SELECT * FROM <table_name>;
+----
+
+. Restore the initial configuration of _Stratio Eureka_ and _Stratio Virtualizer_.

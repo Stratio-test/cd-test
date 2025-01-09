@@ -1,0 +1,19 @@
+= Problemas conocidos
+
+Estos son los problemas conocidos del conector de Snowflake clasificados según su dialecto:
+
+* Dialecto JDBC.
+** Los tipos de datos _array_, _object_, _variant_, _geography_ y _geometry_ se codifican como _string_ para permitir la virtualización.
+** Las escrituras de los tipos _array_, _object_ y _variant_ no están soportadas.
+
+* Dialecto _Stratio Crossdata_ nativo.
+** Las escrituras de los tipos _array_, _object_ y _variant_ no están soportadas.
+** Las siguientes funcionalidades no están soportadas:
+*** Para la función `date_part` no se permiten los formatos `YEAROFWEEK` ni `DAYOFWEEK_ISO`.
+*** Funciones _WINDOWS_.
+*** Funciones _EXPANDING_.
+** Para los tipos `ARRAY` y `STRUCT` no se permite hacer _SELECT_ si dentro de los tipos en cuestión se tienen tipos `Map` o `CalendarInterval` de Apache Spark™.
+** Las tablas de _Stratio Crossdata_ creadas mediante el agente BDL tendrán los tipos de datos _array_, _object_ y _variant_ creados como _string_.
+** Las tablas de _Stratio Crossdata_ creadas manualmente sin esquema tendrán los tipos de datos _array_ como _array<string>_ y los tipos _object_ y _variant_ creados como _string_.
+** La función _cast_ de _binary_ a _string_ se descodifica a formato _hex_, que es el formato por defecto de Snowflake.
+** La función _cast_ de _string_ a _binary_ se codifica a formato _hex_, que es el formato por defecto de Snowflake.

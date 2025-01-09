@@ -1,0 +1,45 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector SSCC BigQuery, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-bigquery-0.3_2.12-1.10.x
+
+| _Stratio BDL_
+| Virtualización
+| ≥ sscc-bigquery-0.3_2.12-1.10.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura/Acceso nativo
+| ≥ sscc-bigquery-0.3_2.12-1.10.x
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada/Acceso nativo
+| ≥ sscc-bigquery-0.3_2.12-1.10.x
+
+| _Stratio Intelligence_
+| Lectura/Escritura virtualizada/Acceso nativo
+| ≥ sscc-bigquery-0.3_2.12-1.10.x
+|===
+
+== Compatibilidad con versiones de la API de BigQuery
+
+Se ha validado la compatibilidad del conector para la API de BigQuery 2.11.2 y versiones anteriores.
+
+== Versiones del _driver JDBC_ soportadas
+
+Desde la versión 1.10.0, el conector necesita estar acompañado del _JDBC BigQuery_ de Simba para los módulos de _Stratio Virtualizer_ y _Stratio Rocket_.
+
+La versión actual del conector está validada contra las siguientes versiones del _driver JDBC_ de Simba.
+
+|===
+| Versión del _driver SSCC_ | Versión del _driver JDBC_ de Simba
+
+| _sscc-bigquery-0.3_2.12-1.10.0-5a3d3f1.jar_
+| _simba-jdbc-bigquery-42_1.3.3.1004-4.0.0-08702a9.jar_
+|===

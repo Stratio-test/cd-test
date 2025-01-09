@@ -1,0 +1,168 @@
+= Guía de operaciones
+
+== Descripción
+
+El conector SSCC ArangoDB te permite la integración de ArangoDB en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:arangodb:compatibility-matrix.adoc[matriz de compatibilidad].
+
+=== Autenticación
+
+Actualmente, el conector SSCC ArangoDB solo soporta autenticación con *usuario y contraseña*.
+
+== Prerrequisitos
+
+. Tener una instancia de ArangoDB instalada y accesible desde _Stratio Generative AI Data Fabric_ con el modo de autenticación configurado.
+. Instalar el xref:connectors-repository:operations-guide.adoc#_instalación[repositorio de conectores].
++
+IMPORTANT: En el repositorio de conectores se tendrá disponible en la URL http://connectors.tenant-my_namespace/v1/api/artifact/<nombre_artefacto> el artefacto `sscc-arangodb-0.3_2.12-1.2.x`, que se utiliza para un uso básico del conector SSCC ArangoDB.
+
+. Tener accesible la [interfaz de usuario de _Stratio KMS_] para la gestión de credenciales:
++
+Visita la sección de la xref:ROOT:quick-start-guide.adoc#access-kms-ui[interfaz de usuario de _Stratio KMS_] para consultar los pasos necesarios para tenerla disponible.
++
+TIP: No se recomienda utilizar usuarios con privilegios de administrador. Se recomienda la gestión de permisos usando *permisos* sobre base de datos.
++
+El usuario debe tener permiso de tipo _Access_ sobre las bases de datos y de tipo _Read Only_ en las colecciones que se quieran descubrir. Si se quiere escribir en ArangoDB desde _Stratio Rocket_, el permiso que se debe otorgar a las colecciones será el de _Read/Write_.
++
+image::arangodb-permissions.png[]
+
+. Crear los secretos en _Stratio KMS_. Para ello debes acceder a `https://<stratio_kms_ui_url>/ui/vault/secrets` y crear un secreto en la carpeta correspondiente del servicio con las siguientes opciones:
+
+* Usuario/contraseña
+** *_user_*: `<usuario_arangodb>`.
+** *_pass_*: `<contraseña_arangodb>`.
+
+Este secreto se debe subir a los siguientes directorios de _Stratio KMS_:
+
+* *Agente de descubrimiento*: `userland/passwords/<nombre_agente>.<namespace>/<nombre_secreto>`.
+* *_Stratio Virtualizer_*: `userland/passwords/<nombre_virtualizer>.<namespace_virtualizer>/<nombre_secreto>`.
+* *_Stratio Rocket_*: `userland/passwords/<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+* *_Workflows_ de _Stratio Rocket_*: `userland/passwords/execution-identity-<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+* *_Stratio Intelligence_*: `/people/passwords/<nombre_usuario_intelligence>/<nombre_secreto>`.
++
+NOTE: El nombre y los valores del secreto para todos los servicios deben coincidir con los elegidos para configurar el agente de descubrimiento.
+
+--
+*Si se requiere la conexión mediante SSL*
+
+. Crea el certificado en _Stratio KMS_. Para ello debes acceder a `https://<stratio_kms_ui_url>/ui/vault/secrets` y crear un certificado en la carpeta correspondiente del servicio con las siguientes opciones:
++
+** *_arangodb-ssl_crt_*: `<certificado_arangodb_ssl>`.
++
+image::arangodb-certificate-ssl.png[]
++
+Este certificado se debe subir a los siguientes directorios de _Stratio KMS_:
++
+** *Agente de descubrimiento*: `userland/certificates/<nombre_agente>`.
+** *_Stratio Virtualizer_*: `userland/certificates/<nombre_virtualizer>.<namespace_virtualizer>`.
+** *_Stratio Rocket_*: `userland/certificates/<nombre_rocket>.<namespace_rocket>`.
+** *_Workflows_ de _Stratio Rocket_*: `userland/certificates/execution-identity-<nombre_rocket>.<namespace_rocket>`.
+** *_Stratio Intelligence_*: `/people/certificates/<nombre_usuario_intelligence>`.
+--
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para ArangoDB debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors NoSQL' el agente "ArangoDB Agent".
+
+Los campos a rellenar para la instalación son:
+
+* *_General_*:
+** *_Service ID_*: identificador único del agente. Ejemplo: _dg-arangodb-agent_.
+** *_Name of the Service_*: nombre mostrado en _Stratio KEOS_
+* *_Metadata Datastore (PostgreSQL®)_*
+** *_Host_*: instancia de PostgreSQL® que almacena los metadatos descubiertos. Ejemplo: _poolpostgresgov_.
+* *_Configuration of the service to be discovered_*
+** *_Service to be discovered_*
+*** *_Service name_*: nombre que se utiliza para identificar este almacén de datos en _Stratio Data Governance_. Es el que se mostrará en su interfaz de usuario.
+*** *_Root discovery path_*: colección que se quiere descubrir. Ejemplo: _/connectorstorage_.
+** *_Resource datastore connection configuration_*
+*** *_Custom Service URL_*: URL donde está alojada la instancia de ArangoDB. Ejemplo: `arangoDbHost:8529`.
+*** *_Access credentials_*: nombre del secreto creado en xref:#create-secret[_Stratio KMS_]. Ejemplo: _arangodb-secret_.
+*** *_Datastore driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC ArangoDB.
+*** *_Service security SSL Enabled_*: `(True/False)`. indica si la instancia de ArangoDB usa conexión SSL.
+* *_ArangoDB Settings_*
+** *_ArangoDB Document Sample Size_*: número de documentos que se extraen para inferir el esquema de la colección.
+
+image::arangodb-cct-deployment1.png[]
+
+image::arangodb-cct-deployment2.png[]
+
+image::arangodb-cct-deployment3.png[]
+
+El proceso de descubrimiento es asíncrono, una vez terminado el descubrimiento se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+image::arangodb-governance.png[]
+
+image::arangodb-metadata1.png[]
+
+== Virtualiza tus datos
+
+IMPORTANT: Ten en cuenta que para virtualizar las tablas descubiertas es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de SSCC ArangoDB. Para ello basta con añadir la URL del repositorio de conectores del artefacto `sscc-arangodb-0.3_2.12-1.2.x` en la variable '_Stratio Command Center_' -> 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+image::arangodb-bdl.png[]
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+TIP: Consulta aquí xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[más información acerca del procesamiento de datos con BDL].
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ soporta la interacción con ArangoDB a través del conector SSCC ArangoDB. Esta integración tiene ciertos requisitos:
+
+* Se deben modificar los siguientes campos del despliegue de _Stratio Virtualizer_ en _Stratio Command Center_:
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Integration'.
+*** *_JDBC Integration_*: `(True/False)`.
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'JDBC Drivers URL List'.
+*** *_JDBC Drivers URL List_*: `http://connectors.tenant-my_namespace/v1/api/artifact/sscc-arangodb-0.3_2.12-1.2.x.jar`.
++
+image::arangodb-virtualizer-conf.png[]
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+==== Gestión del _driver_
+
+Para el uso de _Stratio Rocket_ es necesario tener el conector de SSCC ArangoDB configurado. Para ello:
+
+* Se debe añadir la URL del artefacto `sscc-arangodb-0.3_2.12-1.2.x` en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` de _Stratio Command Center_.
+** *_Rocket extra jars_*: `http://connectors.tenant-my_namespace/v1/api/artifact/sscc-arangodb-0.3_2.12-1.2.x.jar`.
++
+image::arangodb-rocket-conf.png[]
+
+==== Gestión de los secretos
+
+Sube las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_ tal como aparece descrito en los prerrequisitos.
+
+[#rocket-configuration]
+
+==== Gestión de la configuración: reglas de calidad y linaje
+
+Accede a la configuración de _Stratio Rocket_ en 'Settings' -> 'Governance Lineage' y asegúrate de que la opción "Governance Lineage" esté activada.
+
+Los campos a rellenar son los siguientes:
+
+* _Custom lineage and quality rules methods using Spark format_: `com.stratio.connectors.ssccarangodb:com.stratio.connectors.ssccarangodb.ArangoDBQualityRulesAndLineage:getMetadataPath`.
+** Con esta opción se activará el linaje para los flujos de datos usando cajas de tipo _datasource_ que accedan directamente al almacén de datos.
++
+IMPORTANT: Para que funcione correctamente el linaje, el agente de descubrimiento debe tener como _Service Name_ el valor `<host_url_arangodb>.port.<port_url_arangodb>`.
+
+* _Custom planned quality rules methods_: `com.stratio.connectors.ssccarangodb.ArangoDBDriver:com.stratio.connectors.ssccarangodb.ArangoDBQualityRulesAndLineage:getPlannedQRCreateTable`.
+** Con esta opción se soportarán las reglas de calidad planificadas que accedan directamente a tablas del almacén de datos.
+
+NOTE: Recuerda que, si ya tienes más de una referencia en la lista, se deben añadir las siguientes separándolas por una coma.
+
+Reinicia _Stratio Rocket_ para aplicar los cambios.
+
+NOTE: Estas variables *no son necesarias* para el linaje y las reglas de calidad sobre tablas virtualizadas en el catálogo.
+
+=== _Stratio Intelligence_
+
+Para la configuración correcta de _Stratio Intelligence_ consulta la xref:arangodb:quick-start-guide.adoc#_stratio_intelligence[sección de _Stratio Intelligence_]. Para la integración con ArangoDB, solo es necesaria la subida de credenciales mostrada en los prerrequisitos.

@@ -1,0 +1,39 @@
+﻿= Troubleshooting
+
+In this section, you'll learn how to troubleshoot possible errors or problems related to BigQuery metadata discovery.
+
+== The _Stratio Data Governance_ data dictionary appears empty
+
+When adding a project that does not have the Vault secrets correctly configured in the `COMM_SERVICE_INIT_PATH` variable, the discovery agent does not display any trace of error or warning.
+
+Check that the value of the `COMM_SERVICE_INIT_PATH` variable matches the name of the secret stored for the BigQuery discovery agent and that the secrets for this project have been generated correctly.
+
+NOTE: For security reasons, the BigQuery API does not show any log traces or does so silently. Plus, BigQuery returns a "Not found" error type instead of a "Not authorized" one.
+
+== _Stratio Virtualizer_ or _Stratio Rocket_ return a "None.get" error
+
+Remember that if you create a table in the catalog that does not exist in BigQuery, the catalog will return a "None.get" error and the table will not appear in the _Stratio Virtualizer_ catalog but will be created in BigQuery. This is an https://github.com/GoogleCloudDataproc/spark-bigquery-connector/issues/451[error in the BigQuery library].
+
+To solve it, simply re-run the query and the table will be created in the _Stratio Virtualizer_ catalog.
+
+== Reading limitation with _Stratio Virtualizer_'s Datasource
+
+=== Error "Table type 'SNAPSHOT' of table 'table_name_snapshot' is not supported"
+
+If you get this error when trying to read a table of type _Snapshot_ it is because these tables are not supported by this type of read.
+
+As stated in the xref:bigquery:known-issues.adoc[known issues] section, using the native dialect or JDBC resolves them correctly. To do this, you must modify the access type of the failing table using the `bdl.options.virtualizer.native` attribute of _Stratio Data Governance_ as indicated in the xref:bigquery:user-guide.adoc#_virtualization_of_the_bdl[user guide]. 
+
+Alternatively, you can modify the `BigQuery Native Mode` variable in the discovery agent, as indicated in the xref:bigquery:operations-guide.adoc#_discovery_agent[operations guide].
+
+NOTE: Applying the change to the discovery agent descriptor will change the access on all previously discovered tables. Adding the attribute will only change the access in the table where it is added.
+
+=== Error "io.grpc.StatusRuntimeException: INVALID_ARGUMENT: request failed: Only external tables with connections can be read with the Storage API"
+
+If you get this error when trying to read a _Snapshot_ type table, that is because these tables are not supported with this read type.
+
+As stated in the xref:bigquery:known-issues.adoc[known issues] section, using the native dialect or JDBC resolves them correctly. To do this, you must modify the access type of the failing table using the `bdl.options.virtualizer.native` attribute of _Stratio Data Governance_ as indicated in the xref:bigquery:user-guide.adoc#_virtualization_of_the_bdl[user guide]. 
+
+Alternatively, you can modify the `BigQuery Native Mode` variable in the discovery agent, as indicated in the xref:bigquery:operations-guide.adoc#_discovery_agent[operations guide].
+
+NOTE: Applying the change to the discovery agent descriptor will change the access on all previously discovered tables. Adding the attribute will only change the access in the table where it is added.

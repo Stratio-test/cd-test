@@ -1,0 +1,190 @@
+= Guía de operaciones
+
+== Descripción
+
+El conector AWS IoT te permite la integración de AWS IoT en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:aws-iot:compatibility-matrix.adoc[matriz de compatibilidad].
+
+NOTE: Este conector está integrado en el módulo _Stratio Rocket_ dentro de _Stratio Generative AI Data Fabric_.
+
+=== Autenticación
+
+Actualmente, el conector AWS IoT solo soporta el modo de autenticación con *certificado y clave privada*.
+
+== Prerrequisitos
+
+* Instalar el xref:connectors-repository:operations-guide.adoc#_instalación[repositorio de conectores].
++
+IMPORTANT: En el repositorio de conectores se tendrá disponible en la URL `http://connectors.<tenant>-<namespace>/v1/api/artifact/<nombre_artefacto>` el artefacto `custom-aws-iot-1.0.x`.
+
+* Tener accesible la xref:ROOT:quick-start-guide.adoc[interfaz de usuario de _Stratio KMS_].
+* Tener un _namespace_ (instancia) de AWS IoT configurado y accesible desde _Stratio Generative AI Data Fabric_.
+* Crear los secretos en _Stratio KMS_.
++
+--
+*Certificate*
+
+El secreto que se va a subir consta de dos claves:
+
+* _user_ : <private-key>.
+* _pass_ : <certificate>.
+--
++
+Configurar en el despliegue las siguientes variables:
++
+[source,yml]
+----
+- name: SPARK_SECURITY_DB_ENABLE
+  value: "true"
+- name: SPARK_SECURITY_DB_<secret-name>_VAULT_PATH
+  value: /v1/userland/passwords/<tenant>-<secret-name>
+----
++
+A continuación se muestra un ejemplo de cómo tienen que quedar los nombres de la variable de entorno y la propiedad del _workflow_ para que coincidan.
++
+image::mqtt-pass-deploy.png[]
++
+Ese valor no debe contener ningún `_` para diferenciar los secretos. Por ejemplo:
++
+** `SPARK_SECURITY_DB_MQTT_DES_VAULT_PATH`: no válido.
+** `SPARK_SECURITY_DB_MQTTDES_VAULT_PATH`: válido.
++
+[TIP]
+====
+Se obtiene una imagen similar a esta:
+
+image::mqtt-vault-execution-user-pass.png[]
+
+====
+
+== Permisos
+
+Debes configurar los permisos asociados para poder leer del _topic_ de MQTT.
+
+A continuación se muestra un ejemplo de los permisos básicos, aunque idealmente se deberían usar los mínimos necesarios:
+
+[source,json]
+----
+{
+ "Version": "2012-10-17",
+ "Statement": [
+   {
+     "Effect": "Allow",
+     "Action": [
+       "iot:Publish",
+       "iot:Receive"
+     ],
+     "Resource": "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topic/sdk/test/java"
+   },
+   {
+     "Effect": "Allow",
+     "Action": "iot:Subscribe",
+     "Resource": "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topicfilter/sdk/test/java"
+},
+   {
+     "Effect": "Allow",
+     "Action": "iot:Connect",
+     "Resource": [
+       "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/sdk-java",
+       "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/rocket"
+     ]
+   },
+   {
+     "Effect": "Allow",
+     "Action": "iot:Publish",
+     "Resource": "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/sdk-java"
+   },
+   {
+     "Effect": "Allow",
+     "Action": "iot:Receive",
+     "Resource": "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/sdk-java"
+   },
+   {
+     "Effect": "Allow",
+     "Action": "iot:Subscribe",
+     "Resource": "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/sdk-java"
+   }
+ ]
+}
+----
+
+IMPORTANT: Con un secreto o con varios apuntando a diferentes _topics_ en un mismo _workflow_.
+
+En cuanto a las políticas asociadas para poder usar las expresiones regulares para distintos _topics_, en el siguiente ejemplo se pueden ver:
+
+* Varios _topic_.
+* Varios _topicfilter_.
+* Varios clientes.
+
+[source,json]
+----
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iot:Publish",
+        "iot:Receive"
+      ],
+      "Resource": [
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topic/sdk/test/java",
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topic/sensor1/*",
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topic/sensor2/*",
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topic/sensor3/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Subscribe",
+      "Resource": [
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topicfilter/sdk/test/java",
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topicfilter/sensor1/*",
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topicfilter/sensor2/*",
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topicfilter/sensor3/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Connect",
+      "Resource": [
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/sdk-java",
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/rocket",
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/consumer-*",
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/producer-*",
+        "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/publisher-*"
+      ]
+    }
+  ]
+}
+----
+
+Después, en la propia configuración, te puedes subscribir a los _topics_ usando las expresiones regurales. Esta tabla contiene la configuración y el tipo de expresión que se pueden usar.
+
+|===
+| Política AWS                                             | Subscribirse a todos con `#` | _Topic_ en _producer_
+
+| arn:aws:iot:eu-west-3:XXXXXXXXXXXX:topicfilter/sensor1/* | sensor1/#                    | sensor1/temperature
+
+| arn:aws:iot:eu-west-3:XXXXXXXXXXXX:topicfilter/sensor2/* | sensor2/#                    | sensor2/temperature
+|===
+
+[TIP]
+====
+Para más información, visita estos enlaces:
+
+* https://docs.aws.amazon.com/es_es/iot/latest/developerguide/pub-sub-policy.html[Ejemplos de política de publicación/suscripción]
+* https://docs.aws.amazon.com/es_es/iot/latest/developerguide/iot-action-resources.html[Recursos de acción de AWS IoT Core]
+* https://docs.aws.amazon.com/es_es/iot/latest/developerguide/topics.html[Temas de MQTT]
+====
+
+IMPORTANT: Necesitas dar permisos en Apache Hadoop® (HDFS) a _Stratio Rocket_ para que se pueda ejecutar en `/`.
+
+Si quieres visualizar los _logs_ con más detalle, debes configurar la variable `SERVICE_LOG_LEVEL` a `INFO`.
+
+image::mqtt-log-service-log-level.png[]
+
+A partir de la versión 3.1 de _Stratio Rocket_, hay que configurar la variable `CONNECTORS_LOG_LEVEL` para poder ver los _logs_.
+
+image::mqtt-log-connectors-log-level.png[]

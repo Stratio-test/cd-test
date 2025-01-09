@@ -1,0 +1,79 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar brevemente cómo integrar una base de datos Microsoft SQL Server en la plataforma _Stratio Generative AI Data Fabric_.
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector de Microsoft SQL Server en la xref:mssql:operations-guide.adoc#_prerrequisitos[Guía de operaciones].
+
+NOTE: Ten en cuenta que en esta guía de inicio rápido se utilizará el *modo de autenticación Kerberos*.
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para Microsoft SQL Server debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS' el agente `Microsoft SQLServer Agent`.
+
+En la instalación debes añadir la información correspondiente a la instancia de la base de datos a descubrir, además de las URL del repositorio de conectores donde se almacenan los artefactos necesarios y xref:mssql:operations-guide.adoc#create-secret[subir las credenciales de acceso a _Stratio KMS_].
+
+Los campos más importantes a rellenar son:
+
+* *_Root discovery path_*: esquemas de Microsoft SQL Server que quieras que se descubran. Deben estar separados por comas, sin espacios, y con una `/` barra al principio.
+* *_Custom Service URL_*: URL JDBC usada para conectarse a Microsoft SQL Server. Ejemplo: `jdbc:sqlserver://mssql.stratio.com:1434/-db-`.
+* *_Access credentials_*: nombre del secreto creado en xref:#create-secret[_Stratio KMS_]. Ejemplo: `mssql-secret`.
+* *_SSCC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC Microsoft SQL Server. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mssql-0.3_2.12-1.5.x.jar`.
+* *_JDBC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del _driver JDBC_ elegido. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/mssql-jdbc-9.4.1.jre8.jar`.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:mssql:operations-guide.adoc[guía de operaciones].
+
+Una vez terminado el proceso de descubrimiento, el almacén de datos aparecerá en la interfaz de usuario de _Stratio Data Governance_.
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de Microsoft SQL Server. Para ello, hay que añadir la URL del repositorio de conectores del artefacto `sscc-sscc-0.3_2.12-1.3.x` en la variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+* *_Additional jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mssql-0.3_2.12-1.5.x.jar`.
+
+image::mssql-bdl.png[]
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+=== _Stratio Virtualizer_
+
+Para el uso de _Stratio Virtualizer_ es necesario tener configurado el conector de Microsoft SQL Server. Para ello, debes añadir la URL del artefacto `sscc-mssql-0.3_2.12-1.5.x` en la variable 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` y además subir las credenciales de acceso a _Stratio KMS_.
+
+* *_JDBC Drivers URL List_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/mssql-jdbc-9.4.1.jre8.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mssql-0.3_2.12-1.5.x.jar`.
+
+image::mssql-virtualizer.png[]
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener configurado el conector de Microsoft SQL Server. Para ello, debes añadir la URL del artefacto `sscc-mssql-0.3_2.12-1.5.x` en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` y además subir las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_.
+
+En el ejemplo que se está siguiendo, _Stratio Rocket_ quedaría de esta manera:
+
+* *_Rocket extra jars_*: `http://connectors.<tenant>-<namespace>/v1/api/artifact/mssql-jdbc-9.4.1.jre8.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mssql-0.3_2.12-1.5.x.jar`.
+
+Tras aplicar estos cambios, deberías poder acceder a la colección virtualizada de Microsoft SQL Server mediante consultas SQL directamente en el catálogo o mediante un _input_ de _Stratio Virtualizer_ en un _workflow_.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:mssql:operations-guide.adoc#rocket-configuration[guía de operaciones].
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_, tal y como aparece descrito en xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[la guía de inicio rápido general].
+
+Una vez esté configurado _Stratio Intelligence_ , tienes que añadir el conector y el _driver JDBC_ de Microsoft SQL Server al directorio _artifacts/spark++_++jars_ y xref:mssql:operations-guide.adoc[subir las credenciales de acceso a _Stratio KMS_].
+
+Para la subida del artefacto, debes descargarlo en el directorio _artifacts/spark++_++jars_ dentro del _workspace_ de _Stratio Intelligence_ realizando una petición cURL. En el caso que se está tratando, se podría realizar la siguiente petición:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-mssql-0.3_2.12-1.5.x.jar --output sscc-mssql-0.3_2.12-1.5.x.jar
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/mssql-jdbc-9.4.1.jre8.jar --output mssql-jdbc-9.4.1.jar
+----
+
+Una vez realizada esta configuración, podrás acceder a las tablas que se han virtualizado de la base de datos Microsoft SQL Server externa.

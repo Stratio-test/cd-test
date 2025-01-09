@@ -1,0 +1,206 @@
+= Guía de operaciones
+
+El repositorio de conectores es un repositorio de los artefactos necesarios y sus metadatos para conectar a una fuente de datos. Permite la automatización de la gestión de los conectores, módulos, el versionado y las compatibilidades.
+
+== Prerrequisitos
+
+. Tener accesible la interfaz de usuario de _Stratio KMS_ para la gestión de credenciales. Visita la sección de la xref:ROOT:quick-start-guide.adoc[guía de inicio rápido general] para consultar los pasos necesarios para disponibilizarla.
+
+== Instalación y actualización
+
+Para instalar o actualizar el servicio _Connectors Management_ debes rellenar los siguientes campos:
+
+* *_Service id_*: identificador del servicio en _Stratio KEOS_.
+* *_Secret credentials_*: nombre del secreto que almacena el usuario/contraseña por defecto.
+* *Resource management*
+** *_Instances_*: número de instancias que se desplegarán del servicio.
+** *_CPUs_*: CPU asignada al servicio al ser desplegado.
+** *_CPUs Limit_*: CPU máxima asignable al servicio.
+** *_Memory (MB)_*: memoria asignada al servicio al ser desplegado.
+** *_Memory limit (MB)_*: memoria máxima asignable al servicio.
+* *Namespaces*
+** *_Discovered namespaces_*: _namespace_ donde se desplegará el servicio.
+
+image::connectors-repository-cct-deployment.png[]
+
+En la instalación o actualización del servicio se generan las credenciales del usuario por defecto de la API si no existían previamente:
+
+[source,json]
+----
+{
+  "user": "admin",
+  "pass": "changeit"
+}
+----
+
+La contraseña debe ser modificada por el usuario en la instalación o actualización para que cumpla los criterios de seguridad: tener al menos 8 caracteres, una letra minúscula, una letra mayúscula, un número y un carácter especial (excluyendo el espacio).
+
+Para modificarla, debes acceder a _https://<stratio++_++kms++_++ui++_++url>/ui/vault/secrets_ y navegar hasta las credenciales que corresponden al servicio:
+
+* `userland/passwords/<nombre_servicio>.<namespace_servicio>/<nombre_secreto>`
+
+Una vez allí, debes modificar la clave _pass_ con una contraseña que cumpla los requisitos especificados anteriormente. El identificador del usuario también se puede modificar cambiando la entrada _user_.
+
+Si el servicio está corriendo, se necesitará reiniciar el servicio _Connectors Management_ para que estos cambios se hagan efectivos.
+
+A continuación, puedes comprobar el estado del servicio en la interfaz de usuario de _Stratio Command Center_ para verificar que se encuentra disponible.
+
+image::connectors-repository-cct-status.png[]
+
+[IMPORTANT]
+====
+Para actualizar la versión del servicio es necesario pararlo previamente o podría fallar al arrancar con el siguiente error:
+
+[source,bash]
+----
+Volume is already used by pod(s) connectors-xxxxx
+----
+
+====
+
+== Precarga automática
+
+Para cargar los datos y artefactos que proporciona _Stratio Generative AI Data Fabric_ en cada universo necesitas ejecutar un _job_ de K8s.
+
+El _job_ de carga automática es idempotente, por lo que su ejecución una o varias veces producirá el mismo resultado.
+
+=== Crear un _job_ de carga de datos
+
+Para crear un _job_ en K8s debes ejecutar el siguiente comando, donde _connectors-loader-job.yaml_ es el nombre del fichero que contiene la descripción del _job_.
+
+[source,bash]
+----
+kubectl create -f ~/connectors-loader-job.yaml -n {namespace}
+----
+
+A continuación, el contenido del _job_:
+
+[source,yaml]
+----
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: connectors-loader
+  labels:
+    app.kubernetes.io/name: connectors-loader
+    app.kubernetes.io/component: connectors-loader
+    cct.stratio.com/application_id: connectors-loader.{namespace}
+spec:
+  template:
+    spec:
+      containers:
+        - name: connectors-loader
+          imagePullPolicy: Always
+          image: ${eos.dockerRegistry}/connectors-loader:{version_universo}
+          env:
+            - name: CONNECTORS_MANAGEMENT_API_HOST
+              value: "{connectors-management-serviceId}"
+            - name: CONNECTORS_MANAGEMENT_API_PORT
+              value: "80"
+            - name: CONNECTORS_LOADER_LOG_LEVEL
+              value: "INFO"
+            - name: CONNECTORS_LOADER_SECRET_NAME
+              value: "{connectors-secret}"
+            - name: VAULT_HOSTS
+              value: "vault.keos-core"
+            - name: VAULT_PORT
+              value: "8200"
+            - name: VAULT_ROLE
+              value: "{namespace}-{connectors-management-serviceId}"
+            - name: VAULT_PATH
+              value: "userland"
+            - name: EXTRACT_PATH
+              value: "{connectors-management-serviceId}.{namespace}"
+      restartPolicy: OnFailure
+      serviceAccount: {connectors-server-service-account}
+  backoffLimit: 5
+----
+
+Debes sustituir las siguientes variables en el archivo:
+
+* `"{version_universo}"` con la versión del Universo que quieras cargar.
+* `"{namespace}"` con el _namespace_ donde crees el _job_.
+* `"{connectors-management-serviceId}"` con el identificador del servicio que se asignó al repositorio de conectores.
+* `"{connectors-server-vault-role}"` por el valor asignado al _Secret Role_ del repositorio de conectores.
+* `"{connectors-secrets}"` nombre del secreto del servicio del repositorio de conectores.
+* `"{serviceAccount}"` por la cuenta del servicio del repositorio de conectores que normalmente coincide con el _Service ID_.
+
+NOTE: Si el _job_ ya existe por una carga anterior y necesitas volver a crearlo para cargar los datos de una nueva versión del Universo, tienes que borrar el _job_ existente antes de volver a crearlo.
+
+* *_General_*:
+** *_Service ID_*: identificador único del agente.
+** *_Name of the Service_*: nombre del agente.
+* *_Metadata Data store (PostgreSQL®)_*
+
+=== Borrar un _job_ de carga de conectores
+
+Para borrar un _job_ en K8s puedes ejecutar el siguiente comando, donde _connectors-loader_ es el nombre del _job_.
+
+[source,bash]
+----
+kubectl delete job connectors-loader -n <namespace>
+----
+
+=== Acceder al _log_ del _job_ K8s ejecutado
+
+Para acceder al _log_ de un _job_ en K8s puedes ejecutar el siguiente comando, donde _connectors-loader_ es el nombre del _job_:
+
+[source,bash]
+----
+kubectl logs job.batch/connectors-loader -n <namespace>
+----
+
+== Carga de datos manual
+
+Si necesitas operar con el servicio de mantenimiento de conectores de forma manual lo puedes hacer a través de una API REST.
+
+[source,bash]
+----
+https://connectors.tenant-my_namespace/v1/api
+----
+
+=== Crear un _driver_
+
+Para ello puedes ejecutar el siguiente comando:
+
+[source,bash]
+----
+curl --request POST 'https://connectors.tenant-my_namespace/v1/api/driver' --header 'Content-Type: application/json' \
+--data-raw '{
+  "name": "jdbc-hive",
+  "version": "2.1.1-1.0.0",
+  "embedded": false,
+  "status": "available"
+}' -i
+----
+
+image::connectors-repository-create-driver-manual.png[]
+
+=== Subir el artefacto de un _driver_
+
+Para ello puedes ejecutar el siguiente comando:
+
+[source,bash]
+----
+curl --request POST 'https://connectors.tenant-my_namespace/v1/api/artifact/<fileName>?artifactType=<Driver|Connector>&artifactId=<artifactId>' --form 'file=@"<localFileAbsolutePath>"' -i
+----
+
+image::connectors-repository-upload-artifact.png[]
+
+=== Descargar el artefacto de un _driver_
+
+Para ello puedes ejecutar los siguientes comandos:
+
+[source,bash]
+----
+curl --request GET 'https://connectors.tenant-my_namespace/v1/api/artifact/<fileName>' -i
+----
+
+image::connectors-repository-download-artifact.png[]
+
+[source,bash]
+----
+curl --request GET 'https://connectors.tenant-my_namespace/v1/api/driver?name=<driverName>&version=<driverVersion>' -i
+----
+
+image::connectors-repository-download-driver-artifact.png[]

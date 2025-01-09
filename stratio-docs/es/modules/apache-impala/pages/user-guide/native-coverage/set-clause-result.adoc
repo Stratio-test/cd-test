@@ -1,0 +1,82 @@
+= _SET_ clause
+
+== Except
+
+=== Syntax
+
+[source,sql]
+----
+[ ( ] relation [ ) ] EXCEPT | MINUS [ ALL | DISTINCT ] [ ( ] relation [ ) ]
+----
+
+=== Result
+
+[cols="1,1"]
+|===
+|Query |Implemented
+
+| SELECT c FROM coverage_impala.number1 EXCEPT SELECT c FROM coverage_impala.number2;
+| No
+
+| SELECT c FROM coverage_impala.number1 MINUS SELECT c FROM coverage_impala.number2;
+| No
+
+| SELECT c FROM coverage_impala.number1 EXCEPT ALL (SELECT c FROM coverage_impala.number2);
+| No
+
+| SELECT c FROM coverage_impala.number1 EXCEPT ALL (SELECT c FROM coverage_impala.number2);
+| No
+
+|===
+
+== Intersect
+
+=== Syntax
+
+[source,sql]
+----
+[ ( ] relation [ ) ] INTERSECT [ ALL | DISTINCT ] [ ( ] relation [ ) ]
+----
+
+=== Result
+
+[cols="1,1"]
+|===
+|Query |Implemented
+
+| (SELECT c FROM coverage_impala.number1) UNION (SELECT c FROM coverage_impala.number2);
+| Yes
+
+| (SELECT c FROM coverage_impala.number1) UNION DISTINCT (SELECT c FROM coverage_impala.number2);
+| Yes
+
+| SELECT c FROM coverage_impala.number1 UNION ALL (SELECT c FROM coverage_impala.number2);
+| Yes
+
+|===
+
+== Union
+
+=== Syntax
+
+[source,sql]
+----
+[ ( ] relation [ ) ] UNION [ ALL | DISTINCT ] [ ( ] relation [ ) ]
+----
+
+=== Result
+
+[cols="1,1"]
+|===
+|Query |Implemented
+
+| (SELECT c FROM coverage_impala.number1) UNION (SELECT c FROM coverage_impala.number2);
+| Yes
+
+| (SELECT c FROM coverage_impala.number1) UNION DISTINCT (SELECT c FROM coverage_impala.number2);
+| Yes
+
+| SELECT c FROM coverage_impala.number1 UNION ALL (SELECT c FROM coverage_impala.number2);
+| Yes
+
+|===

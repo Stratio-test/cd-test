@@ -1,0 +1,55 @@
+= _LIKE_ clause
+
+== Syntax
+
+[source,sql]
+----
+[ NOT ] { LIKE search_pattern [ ESCAPE esc_char ] | [ RLIKE | REGEXP ] regex_pattern }
+[ NOT ] { LIKE quantifiers ( search_pattern [ , ... ]) }
+----
+
+== Result
+
+[cols="1,1"]
+|===
+|Query |Implemented
+| SELECT * FROM coverage_impala.person WHERE name LIKE 'M%';
+| Yes
+
+| SELECT * FROM coverage_impala.person WHERE name LIKE 'M_ry';
+| Yes
+
+| SELECT * FROM coverage_impala.person WHERE name NOT LIKE 'M_ry';
+| Yes
+
+| SELECT * FROM coverage_impala.person WHERE name RLIKE 'M+';
+| Yes
+
+| SELECT * FROM coverage_impala.person WHERE name REGEXP 'M+';
+| Yes
+
+| SELECT * FROM coverage_impala.person WHERE name LIKE '%\_%';
+| Yes
+
+| SELECT * FROM coverage_impala.person WHERE name LIKE '%/usr/bin/mvn%' ESCAPE '$';
+| Yes
+
+| SELECT * FROM coverage_impala.person WHERE name LIKE ALL ('%an%', '%an');
+| No
+
+| SELECT * FROM coverage_impala.person WHERE name LIKE ANY ('%an%', '%an');
+| No
+
+| SELECT * FROM coverage_impala.person WHERE name LIKE SOME ('%an%', '%an');
+| No
+
+| SELECT * FROM coverage_impala.person WHERE name NOT LIKE ALL ('%an%', '%an');
+| No
+
+| SELECT * FROM coverage_impala.person WHERE name NOT LIKE ANY ('%an%', '%an');
+| No
+
+| SELECT * FROM coverage_impala.person WHERE name NOT LIKE SOME ('%an%', '%an');
+| No
+
+|===

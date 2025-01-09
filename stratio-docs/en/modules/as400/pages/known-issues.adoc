@@ -1,0 +1,8 @@
+= Known issues
+
+* Write to *ROWID* columns is not allowed because columns are generated automatically. If the size differs from that of the columns, inserting values is not allowed.
+* Reading of _datalink_ type is not directly supported since it is translated as a string. Writing is not supported either.
+* User-defined types https://www.ibm.com/docs/en/i/7.5?topic=statements-create-type-array[_array_] and https://www.ibm.com/docs/en/i/7.5?topic=statements-create-type-distinct[_distinct_] are also translated as a string and their writing is not supported.
+* The _decfloat_ type does not support https://www.ibm.com/docs/en/db2-for-zos/11?topic=constants-decimal-floating-point[_snan_, _inf_ and _Nan_ values].
+* Numeric types whose precision exceeds the maximum allowed by _Stratio Spark_ (38) are discovered and virtualized as _string_ type:
+** Read and write are allowed but the accuracy of the operations performed with it is not guaranteed, since they are implicitly converted to the _double_ type.

@@ -1,0 +1,63 @@
+﻿= Quick start guide
+
+The purpose of this guide is to briefly explain how to integrate Salesforce into the _Stratio Generative AI Data Fabric_ platform.
+
+== Prerequisites
+
+You can find the prerequisites for installing the SSCC Salesforce connector in the xref:salesforce:operations-guide.adoc#_prerequisites[operations guide].
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for Salesforce you must go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' and select "Salesforce Agent".
+
+When installing, you have to add the URL of the connectors repository where the `stratio-jdbc-salesforce:1.0.x` artifact is stored and upload the access credentials to _Stratio KMS_. For the latter, access `https://<stratioo_kms_ui_url>/ui/vault/secrets` and, in the *userland/passwords/<agent_name>* folder, create a secret with the following options:
+
+* _user_ : `<user>`.
+* _pass_ : `<password><security-token>`.
+
+The most important fields to fill in are:
+
+* * *_Root discovery path_*: path from which you want to discover the metadata recursively. Example: `/<project_name>`.
+* *_Access credentials_*: name of the secret created in _Stratio KMS_. Example: `<secret_name>`.
+* * *_Data store driver location_*: URL where the artifact that will contain the JAR of the SSCC Salesforce connector is located in the connectors repository. Example: `http://connectors.tenant-my_namespace/v1/api/artifact/salesforce-jdbc-driver-1.0.1-9b13bdf.jar`.
+
+TIP: More information on the other configuration parameters can be found in the xref:salesforce:operations-guide.adoc#_discovery_agent[operations guide].
+
+Once the discovery process is completed, the data store will appear in the _Stratio Data Governance_ UI.
+
+== Virtualize your data
+
+Salesforce is not integrated with _Stratio Virtualizer_. A _JDBC driver_ is provided for metadata discovery but, since Salesforce does not support SQL queries, it cannot be integrated with _Stratio Virtualizer_.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_ it is not necessary to add any JAR, as the Apache Spark™ for Salesforce data source is already integrated within _Stratio Rocket_.
+
+* To upload the credentials for _Stratio Rocket_, you must access `https:<stratio_kms_ui_url>/ui/vault/secrets` and, in the folder `userland/passwords/<rocket_name>.<namespace_rocket>`, create a secret with the following options:
+
+** _user_ : `<user>`.
+** _pass_ : `<password><security-token>`.
+
+* To upload the credentials for _Stratio Rocket_ _workflows_, you must access `https://<stratio_kms_ui_url>/ui/vault/secrets` and, in the folder `userland/passwords/execution-identity-<rocket_name>.<namespace_rocket>`, create a secret with the following options:
+
+** _user_ : `<user>`.
+** _pass_ : `<password><security-token>`.
+
+Once the secrets have been uploaded, it is necessary to add the following environment variables to the _Stratio Rocket_ deployment:
+
+* `SPARK_SECURITY_DB_ENABLE` = _true_.
+* `SPARK_SECURITY_DB_salesforce_VAULT_PATH` = _*/v1/userland/passwords/<rocket_name>.<namespace_rocket>/salesforce*_.
+
+The next step would be to create a _workflow_ of type _bach_ by adding an _input_ or an _output_ from _Stratio Rocket_.
+
+image::salesforce-rocket-inputconfig-1.png[]
+
+TIP: More information on the other configuration parameters can be found in the xref:salesforce:operations-guide.adoc#rocket-configuration[operations guide].
+
+=== _Stratio Intelligence_
+
+Salesforce is not integrated with _Stratio Intelligence_.

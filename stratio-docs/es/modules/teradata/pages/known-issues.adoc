@@ -1,0 +1,3 @@
+= Problemas conocidos
+
+* Actualmente el conector no soporta los tipos de dato _ARRAY, INTERVAL, [TD_ANYTYPE, VARIANT_TYPE, (Structured)] AVRO_ y _JSON_.

@@ -1,0 +1,83 @@
+﻿= User guide
+
+== Description
+
+The SSCC ArangoDB connector allows you to fully integrate ArangoDB into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:arangodb:compatibility-matrix.adoc[compatibility matrix].
+
+== Discover your data
+
+=== Know your data
+
+In addition to what xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tables_and_columns[__Stratio Data Governance__] shows, you can also find technical attributes extracted from ArangoDB resources. All metadata provided by ArangoDB is extracted and added to the _Stratio Data Governance_ UI.
+
+* The metadata extracted from the database are:
+** *type*: data store type (_ARANGODB_).
++
+image:arangodb-metadata1.png[]
+
+* The metadata extracted from the tables are:
+** *database*: database name.
+** *status*: collection status.
+** *type*: collection type (_DOCUMENT | EDGES_).
++
+image:arangodb-metadata2.png[]
+
+=== BDL virtualization
+
+The discovery process is asynchronous. Once completed, it can be viewed from the _Stratio Data Governance_ UI.
+
+TIP: For more details on the use of the BDL, see the xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[BDL data processing documentation].
+
+== Virtualize your data
+
+After tables have been discovered, you can add them to a technical view of a collection. All the configurable parameters of the discovery and those parameters modified from the _Stratio Data Governance_ UI are propagated in the collections where that table is added.
+
+TIP: To learn more about how to manage collections you can consult the xref:stratio-data-governance:user-manual:collections.adoc[_Stratio Data Governance_ user guide].
+
+IMPORTANT: Note that to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+To create a table directly in the _Stratio Virtualizer_ catalog, you can execute the following statement:
+
+[source,sql]
+----
+CREATE TABLE arangodb_table USING com.stratio.connectors.ssccarangodb OPTIONS (
+  `stratiocredentials` 'arangodb-secrets',
+  `stratiosecurity` 'true',
+  `stratiosecuritymode` 'custom_sscc',
+  `stratiossccdriver` 'com.stratio.connectors.ssccarangodb.ArangoDBMD5',
+  `ssl.enabled` '<true/false>',
+  `endpoints` '<host>:<port>',
+  `database` '<database_name>',
+  `table` '<table_name>'
+)
+----
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+After the data has been virtualized, you can access it from _Stratio Rocket_ using:
+
+* The catalog.
++
+image::arangodb-ejemplo-querie-coleccion-rocket.png[]
+
+* In the workflows using the input from xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratioo_virtualizer[_Stratio Virtualizer_].
++
+image::arangodb-ejemplo-workflow-coleccion-rocket.png[]
++
+When configuring a _Stratio Rocket_ _workflow_ using a _datasource_ type box, you must fill in the following options:
+
+* _url_: `<url_arangodb>`.
+* _user_: `<arangodb_username>`.
+* _password_: `<arangodb_user_password>`.
+* _database_: `<arangodb_database>`.
+* _SSLConnection_: `<is_ssl_connection_enabled>`.
+* _table_: `<table_arangodb>`.
+* _endpoints_: `<endpoint_arangodb>`.
+
+=== _Stratio Intelligence_
+
+You can see how the data is accessed from _Stratio Intelligence_ in the xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[general quick start guide].

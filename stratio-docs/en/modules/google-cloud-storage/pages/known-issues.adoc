@@ -1,0 +1,11 @@
+﻿== Known Issues
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+* The first GCS versions with _Stratio Spark_ support are 2.4.4-3.5.0 and 3.0.1-1.1.0, and 3.1.0 for _Stratio Virtualizer_ support.
+* PARQUET, CSV, JSON and ORC file formats are supported. XML and AVRO formats are supported by Spark, but some dependencies need to be added.
+* Only one service account can be supported. It must have all the necessary read/write permissions for each bucket.

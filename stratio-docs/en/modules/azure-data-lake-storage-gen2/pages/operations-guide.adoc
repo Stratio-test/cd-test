@@ -1,0 +1,208 @@
+﻿= Operations Guide
+
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+== Description
+
+The _Azure DataLake Gen2_ connector will enable _Azure DataLake Gen2_ integration into _Stratio Augmented Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:azure-data-lake-storage-gen2:compatibility-matrix.adoc[compatibility matrix].
+
+NOTE: This connector is integrated into the _Stratio Augmented Data Fabric_ product.
+
+== Authentication
+
+Currently, the _Azure DataLake Gen2_ connector supports the *Oauth2.0* authentication method.
+
+== Prerequisites
+
+. Have the xref:ROOT:quick-start-guide.adoc#Guía-Rápida[_Stratio KMS_ UI] accessible.
++
+. [#instance-db-sscc]Have an instance of _Azure DataLake Gen2_ created, configured and accessible from _Stratio Augmented Data Fabric_.
++
+. Have an _Azure_ account installed with the following basic permissions:
+** File system access
++
+. [#create-secret]Create secrets in _Stratio KMS_.
++
+--
+** _user_: <client_id>
+** _pass_: <client_secret>
+--
++
+[TIP]
+====
+You'll get an image similar to this one:
+
+image::azure-datalake-gen2-vault-discovery-agent-user-pass.png[]
+
+====
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
+
+** *Discovery agent*: userland/passwords/<agent_name>/<secret_name>
+** *_Stratio Virtualizer_*: userland/passwords/<virtualizer_name>.<virtualizer_namespace>/<secret_name>
+** *_Stratio Rocket_*: userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>
+** *_Stratio Rocket_ workflows*: userland/passwords/execution-identity-<rocket_name>.<rocket_namespace>/<secret_name>
+
+. If you want to connect through PrivateLink, make sure you have the following:
+** You have _Stratio Augmented Data Fabric_ installed in an Azure *VPC*.
+** You have a PrivateLink to a private host on Azure private network with a specific hostname. Ex: *<your_namespace>.privatelink.servicebus.windows.net*
+
+IMPORTANT: It is recommended that you create a dedicated user with limited permissions.
+
+NOTE: The _Azure DataLake Gen2_ connector is integrated into _Stratio Augmented Data Fabric_ and includes the Azure DataLake Gen2 drivers needed to connect, which means there's no need to include additional artifacts.
+
+== Discover your data
+
+=== Discovery agent
+
+The fields you need to fill in to install the _Stratio Data Governance_ discovery agent for _Azure DataLake Gen2_ are as follows:
+
+* *_General_*:
+** *_Service ID_*: Agent's unique identifier.
+** *_Name of the Service_*: Agent name.
+* *_Metadata Data store_ (PostgreSQL):*
+** *_Host_*: PostgreSQL instance that stores the _Azure DataLake Gen2_ metadata.
+* *_External configuration_:*
+** *_Datastore type_*: Type of cloud datastore.
+** *_Service vendor_*: Type of cloud service or provider.
+** *_Default FS_*: URI of the storage object.
+** *_Init path_*: Folder from where it will be discovered recursively.
+** *_Azure Data Lake Gen2 Configuration_*: _Azure DataLake Gen2_ authentication configuration.
+*** *_Azure DL2 Authorization Method_*: _Azure DataLake Gen2_ authentication method.
+*** *_Azure DL2 OAuth2 Tenant / Directory ID_*: Directory ID.
+** *_Vault secrets retrieval_*: Configuration of secrets in Vault.
+*** *_Vault credentials_*: Vault authentication method for _Azure DataLake Gen2_.
+*** *_Access credentials_*: Name of the secret in Vault for _Azure DataLake Gen2_.
+
+NOTE: Don't confuse the _Vault credentials_ field with _Azure DL2 Authorization Method_. The first is the format in which the secrets are added, as explained in the xref:azure-data-lake-storage-gen2:operations-guide.adoc#_agente_de_descubrimiento[creating secrets using _Stratio KMS_] section. The second is the type of native _Azure DataLake Gen2_ authentication that the connector supports.
+
+[TIP]
+====
+It should look similar to this configuration:
+
+* _Service ID_: *dg-cloud-agent*
+* _Name of the service_: *dg-cloud-agent*
+* _Host_: *pgbouncer-postgreskeos-governance.keos-core*
+* _Datastore type_: *ADLS2*
+* _Service vendor_: *Azure*
+* _Default FS_: *abfss://<container>@<account_name>.dfs.core.windows.net*
+* _Init path_: *<path to discover>*
+* _Azure Data Lake Gen2 Configuration_:
+** _Azure DL2 Authorization Method_: *OAUTH2*
+** _Azure DL2 OAuth2 Tenant / Directory_ ID: *9c2f8eb6-5bf1-4597-8f4b-0357395935f5*
+* _Vault secrets retrieval_:
+** Vault credentials: *MD5*
+** Access credentials: *s000001-azure-gen2*
+
+As shown in the following image:
+
+image::azure-datalake-gen2-discovery-agent-settings.png[]
+
+====
+
+The discovery process is asynchronous. Once the discovery is finished you can view it from the _Stratio Data Governance_ UI.
+
+image::azure-datalake-gen2-governance-1.png[]
+
+==== Connection by PrivateLink
+
+If you want to connect with PrivateLink, you must indicate the appropriate host in the value `Default FS`. Ex: *abfss://<container>@<account_name>.privatelink.dfs.core.windows.net*
+
+== Virtualize your data
+
+IMPORTANT: Note that in order to virtualize the discovered tables, the xref:stratio-gosec:operations-guide:manage-policies:manage-domains-policies.adoc[domain policies] need to be managed through _Stratio Gosec_.
+
+=== Eureka agent
+
+No configuration is required to use the BDL.
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ supports interaction with _Azure DataLake Gen2_. This requires you to modify the following fields of the _Stratio Virtualizer_ deployment in _Stratio Command Center_.
+
+* Enable *_Environment_* -> *_External datastores_* -> _Azure DataLake Gen2 Integration_
+
+* Enter the name of the storage account in *_Environment_* -> *_External datastores_* -> _Azure Account_
+
+* Add the Directory ID in *_Environment_* -> *_External datastores_* -> _Azure Directory ID_
+
+* Add the path where the secret is hosted inside the _Stratio _KMS_ in *_Environment_* -> *_External datastores_* -> _Vault Path_
+
+[TIP]
+====
+It should look similar to this configuration:
+
+* _Azure DataLake Gen2 Integration_: *True*
+
+* _Azure Account_: *stratiospk*
+
+* _Azure Directory ID_: *9c2f8eb6-5bf1-4597-8f4b-0357395935f5*
+
+* _Vault Path_: */v1/userland/passwords/s000001-azure-gen2*
+
+As shown in the following image:
+
+image::azure-datalake-gen2-virtualizer-environment.png[]
+
+====
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, the _Azure DataLake Gen2_ connector must be configured. To do this:
+
+* Enable *_General_* -> *_Networking_* -> *_External Services_* -> *_Azure DataLake Configuration_* -> _Adls2 configuration enabled_
+
+* Enter the name of the storage account in *_General_* -> *_Networking_* -> *_External Services_* -> *_Azure DataLake Configuration_* -> _Storage account in Azure_
+
+* Add the Directory ID in *_General_* -> *_Networking_* -> *_External Services_* -> *_Azure DataLake Configuration_* -> _Tenant/directory identifier in Azure_
+
+[TIP]
+====
+It should look similar to this configuration:
+
+* _Adls2 configuration enabled_: *True*
+
+* _Storage account in Azure_: *stratiospk*
+
+* _Tenant/directory identifier in Azure_: *9c2f8eb6-5bf1-4597-8f4b-0357395935f5*
+
+As shown in the following image:
+
+image::azure-datalake-gen2-rocket-environment.png[]
+
+====
+
+=== Stratio Intelligence
+
+For the correct configuration of _Stratio Intelligence_ with GCS connector it is recommended to see the xref:azure-data-lake-storage-gen2:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_ section]. Remember that you have to use the appropriate format for the authentication mode for secrets.
+
+In addition, you have to add the following variables to _Stratio Intelligence_ deployment:
+
+ANALYTIC_ENV_SPARK_SECURITY_ADLS2_ENABLE: "true"
+ANALYTIC_ENV_SPARK_SECURITY_ADLS2_ACCOUNT_NAME: Ex. stratiospk
+INTERPOLATED_ANALITYC_ENV_SPARK_SECURITY_ADLS2_<account_name>_VAULT_PATH: /v1/people/passwords/${username}/<secret_name>
+
+In order to avoid having problems with data consistency, add the variable `fs.gs.cooperative.locking.expiration.timeout.ms` with the value `true` in the ConfigMap of HDFS and restart the service.
+
+[source,bash]
+----
+<configuration>
+  <property>
+    <name>fs.gs.cooperative.locking.enable</name>
+    <value>true</value>
+  </property>
+</configuration>
+----
+
+For more information about data consistency go to the xref:ROOT:commiters.adoc[integration page].
+
+NOTE: In case of connecting with PrivateLink, you should only change the discovery agent deployment variable `Default FS`.

@@ -1,0 +1,153 @@
+= _ARRAYS_ functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| array_contains(array, value)
+| SELECT array_contains(numbers,1) FROM coverage_impala.arraysfunctions
+| No
+
+| array_distinct(array)
+| SELECT array_distinct(numbers) FROM coverage_impala.arraysfunctions
+| No
+
+| array_except(array1, array2)
+| SELECT array_except(numbers, numbers) FROM coverage_impala.arraysfunctions
+| No
+
+| array_intersect(array1, array2)
+| SELECT array_intersect(numbers, numbers) FROM coverage_impala.arraysfunctions
+| No
+
+| array_join(array, delimiter[, nullReplacement])
+| SELECT array_join(names,' ') FROM coverage_impala.arraysfunctions
+| No
+
+| array_max(array)
+| SELECT array_max(numbers) FROM coverage_impala.arraysfunctions
+| No
+
+| array_min(array)
+| SELECT array_min(numbers) FROM coverage_impala.arraysfunctions
+| No
+
+| array_position(array, element)
+| SELECT array_position(numbers) FROM coverage_impala.arraysfunctions
+| No
+
+| array_remove(array, element)
+| SELECT array_remove(numbers) FROM coverage_impala.arraysfunctions
+| No
+
+| array_repeat(element, count)
+| SELECT array_repeat(city,2) FROM coverage_impala.arraysfunctions
+| No
+
+| array_union(array1, array2)
+| SELECT array_union(names,names) FROM coverage_impala.arraysfunctions
+| No
+
+| arrays_overlap(a1, a2)
+| SELECT arrays_overlap(names,names) FROM coverage_impala.arraysfunctions
+| No
+
+| arrays_zip(a1, a2, ...)
+| SELECT arrays_zip(numbers,numbers) FROM coverage_impala.arraysfunctions
+| No
+
+| concat(col1, col2, ..., colN)
+| SELECT concat(id,id) FROM coverage_impala.arraysfunctions
+| Yes
+
+| flatten(arrayOfArrays)
+| SELECT flatten(array(numbers)) FROM coverage_impala.arraysfunctions
+| No
+
+| reverse(array)
+| SELECT reverse(city) FROM coverage_impala.arraysfunctions
+| Yes
+
+| sequence(start, stop, step)
+| SELECT sequence(id,10) FROM coverage_impala.arraysfunctions
+| No
+
+| shuffle(array)
+| SELECT shuffle(numbers) FROM coverage_impala.arraysfunctions
+| No
+
+| slice(x, start, length)
+| SELECT slice(numbers,-1,3) FROM coverage_impala.arraysfunctions
+| No
+
+| sort_array(array[, ascendingOrder])
+| SELECT sort_array(numbers,true) FROM coverage_impala.arraysfunctions
+| No
+
+| array
+| SELECT array(1, 2, 3),age FROM coverage_impala.coverage_table
+| No
+
+| array_sort
+| SELECT array_sort(array(5, 6, 1), (left, right) -> case when left < right then -1 when left > right then 1 else 0 end),age FROM coverage_impala.coverage_table
+| No
+
+| element_at
+| SELECT element_at(array(1, 2, 3), 2),age FROM coverage_impala.coverage_table
+| No
+
+| elt
+| SELECT elt(1, 'scala', 'java'),age FROM coverage_impala.coverage_table
+| No
+
+| exists
+| SELECT elt(1, 'scala', 'java'),age FROM coverage_impala.coverage_table
+| No
+
+| explode
+| SELECT explode(array(10, 20)),age FROM coverage_impala.coverage_table
+| No
+
+| explode_outer
+| SELECT explode_outer(array(10, 20)),age FROM coverage_impala.coverage_table
+| No
+
+| filter
+| SELECT filter(array(1, 2, 3), x -> x % 2 == 1),age FROM coverage_impala.coverage_table
+| No
+
+| find_in_set
+| SELECT find_in_set('ab','abc,b,ab,c,def'),age FROM coverage_impala.coverage_table
+| Yes
+
+| forall
+| SELECT forall(array(1, 2, 3), x -> x % 2 == 0),age FROM coverage_impala.coverage_table
+| No
+
+| nvl
+| SELECT nvl(NULL, array('2')),age FROM coverage_impala.coverage_table
+| No
+
+| nvl2
+| SELECT nvl2(NULL, 2, 1),age FROM coverage_impala.coverage_table
+| Yes
+
+| shuffle
+| SELECT shuffle(array(1, 20, 3, 5)),age FROM coverage_impala.coverage_table
+| No
+
+| size
+| SELECT size(array('b', 'd', 'c', 'a')),age FROM coverage_impala.coverage_table
+| No
+
+| slice
+| SELECT slice(array(1, 2, 3, 4), 2, 2),age FROM coverage_impala.coverage_table
+| No
+
+| transform
+| SELECT transform(array(1, 2, 3), x -> x + 1),age FROM coverage_impala.coverage_table
+| No
+
+|===

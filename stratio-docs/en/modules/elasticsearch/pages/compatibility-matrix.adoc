@@ -1,0 +1,36 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with the SSCC Elasticsearch connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| ≥ sscc-elasticsearch-0.3_2.11-1.0.x
+
+| _Stratio BDL_
+| Virtualization
+| ≥ sscc-elasticsearch-0.3_2.12-1.0.x
+
+| _Stratio Virtualizer_
+| Read/write
+| ≥ sscc-elasticsearch-0.3_2.12-1.0.x
+
+| _Stratio Rocket_
+| Read/Virtualized write
+| ≥ sscc-elasticsearch-0.3_2.12-1.0.x
+
+| _Stratio Intelligence_
+| Read/Virtualized write
+| ≥ sscc-elasticsearch-0.3_2.12-1.0.x
+|===
+
+== Compatibility with Elasticsearch versions
+
+Connector compatibility has been validated for Elasticsearch 7.x and 8.x.
+
+== Compatibility with OpenSearch versions
+
+Connector compatibility has been validated for OpenSearch 1.x and 2.x.

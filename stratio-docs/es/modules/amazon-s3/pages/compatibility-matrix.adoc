@@ -1,0 +1,72 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector Amazon S3, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo|Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| ≥ sscc-s3-0.3_2.12-1.0.x
+
+| _Stratio BDL_
+| Virtualización
+| ≥ sscc-s3-0.3_2.12-1.0.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura
+| ≥ sscc-s3-0.3_2.12-1.0.x
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada
+| ≥ sscc-s3-0.3_2.12-1.0.x
+
+| _Stratio Intelligence_
+| Lectura/Escritura virtualizada
+| ≥ sscc-s3-0.3_2.12-1.0.x
+|===
+
+== Formatos soportados
+
+El conector Amazon S3 soporta los siguientes tipos de formato de archivo:
+
+[cols="1,1,1,1"]
+|===
+|Formato|Extensión|Lectura|Escritura
+
+|Avro
+|.avro
+| ✅
+| ✅
+
+|CSV
+|.csv
+| ✅
+| ✅
+
+|JSON
+|.json
+| ✅
+| ✅
+
+|ORC
+|.orc
+| ✅
+| ✅
+
+|Parquet
+|.parquet
+| ✅
+| ✅
+
+|Text
+|.txt
+| ✅
+| ✅
+
+|Delta
+|(Directorio _delta++_++log)
+| ✅
+| ✅
+|===

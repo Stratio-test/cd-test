@@ -1,0 +1,32 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector IBM MQ, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| -
+
+| _Stratio BDL_
+| Virtualización
+| -
+
+| _Stratio Virtualizer_
+| Lectura/Escritura/Acceso nativo
+| -
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada/Acceso nativo
+| Integrado
+
+| _Stratio Intelligence_
+| Lectura/Escritura virtualizada/Acceso nativo
+| -
+|===
+
+== Compatibilidad con versiones de IBM MQ
+
+Se ha validado la compatibilidad del conector para IBM MQ 9.2.1.

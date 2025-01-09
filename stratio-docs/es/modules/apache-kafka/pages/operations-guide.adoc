@@ -1,0 +1,23 @@
+= Guía de operaciones
+
+== Descripción
+
+El conector especial Apache Kafka® va a permitir la integración de https://kafka.apache.org/[Apache Kafka®] en _Stratio Rocket_.
+
+=== Autenticación
+
+Actualmente, el conector solo soporta el *modo de autenticación TLS*.
+
+Deberás configurar _Stratio Rocket_ con sus valores correspondientes.
+
+== Prerrequisitos
+
+. Tener accesible la xref:ROOT:quick-start-guide.adoc[interfaz de usuario de _Stratio KMS_].
+. Tener configurada una cola Apache Kafka® con un _host_ y un puerto.
+. Crear los secretos en _Stratio KMS_. Para conectar al Apache Kafka® vía TLS necesitas añadir el certificado de la CA a la ruta: `ca-trust/certificates/<nombre_ca_certificado>`.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Visita la xref:apache-kafka:quick-start-guide.adoc[guía de inicio rápido] para ver cómo realizar el cambio en el descriptor de _Stratio Rocket_.

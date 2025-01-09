@@ -1,0 +1,260 @@
+= Guía de operaciones
+
+== Descripción
+
+El conector SSCC Apache Impala® te permite la integración completa de una base de datos Apache Impala® en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:apache-impala:compatibility-matrix.adoc[matriz de compatibilidad].
+
+=== Autenticación
+
+Actualmente, el conector SSCC Apache Impala® solo soporta el *modo de autenticación con https://kerberos.org/[Kerberos]*.
+
+== Prerrequisitos
+
+. Tener una instancia de una base de datos de Apache Impala® accesible desde _Stratio Generative AI Data Fabric_ con el modo de autenticación configurado:
++
+** Para configurar la autenticación con Kerberos necesitarás:
+*** El nombre del *_service principal_* y su *_realm_* asociado.
+*** El *_keytab_* con las claves encriptadas asociadas al *_service principal_* codificado en Base64.
+*** Las URL de los servidores *KDC* y *Admin* utilizados.
+
+. Tener una URL JDBC para la conexión con el servidor de Apache Impala®:
++
+** Puedes leer más acerca del formato de esta URL en la https://impala.apache.org/docs/build/html/topics/impala_jdbc.html[documentación oficial].
+** En los ejemplos se usa _jdbc:hive2://impala.labs.stratio.com:21050/default_.
+** Puedes añadir atributos especiales para la conexión a tu base de datos a la URL si los necesitas, separados por `;` con el formato `property=value`, pero no pongas nunca los atributos usuario y contraseña. El sufijo final `/-db-``es específico de la plataforma y se debe añadir siempre.
+** La cadena de conexión JDBC debe tener este formato: `*jdbc:hive2://<host>:<port>/-db-*`. Únicamente debes de cambiar el _host_ y el _port_.
+
+. Instalar el xref:connectors-repository:operations-guide.adoc#_instalación[repositorio de conectores]:
++
+Visita la sección de la xref:ROOT:quick-start-guide.adoc#conns-repository-install[Guía rápida general] para averiguar cómo instalar el repositorio.
++
+NOTE: En el repositorio de conectores se tendrán disponiblen en la URL `http://connectors.<tenant>-<namespace>/v1/api/artifact/<nombre_artefacto>` los artefactos usados en esta guía: `sscc-hive-0.3_2.12-1.5.x.jar` y `hive-jdbc-3.1.2-1.0.x.jar`.
++
+. Necesitas tener 5 usuarios diferentes (uno para cada módulo):
++
+La conexión se realiza por base de datos, por lo que es necesario que cada usuario tenga unos roles concretos. La siguiente tabla relaciona los usuarios con los roles necesarios para que la plataforma pueda funcionar.
++
+|===
+|Nombre de usuario |Privilegios de Apache Impala®
+
+| `user_governance_impala`
+| _CREATE, REFRESH_ y _SELECT_
+
+| `user_virtualizer_impala`
+| _INSERT, CREATE, REFRESH_ y _SELECT_
+
+| `user_rocket_mssql`
+| _INSERT, CREATE, REFRESH_ y _SELECT_
+
+| `user_rocket_execution_impala`
+| _INSERT, CREATE, REFRESH_ y _SELECT_
+
+| `user_intelligence_impala`
+| _INSERT, CREATE, REFRESH_ y _SELECT_
+|===
++
+Un ejemplo de cómo hacerlo:
++
+[source,sql]
+----
+GRANT CREATE,REFRESH,SELECT ON database your_database
+   TO USER user_governance_impala
+----
+
+. Tener accesible la interfaz de usuario de _Stratio KMS_ para la gestión de credenciales:
++
+Visita la sección de la xref:ROOT:quick-start-guide.adoc#access-kms-ui[Guía rápida general] para consultar los pasos necesarios para tenerla disponible.
+
+[#create-secret]
+
+. Crear los secretos en _Stratio KMS_. Para ello debes acceder a `https://<stratio_kms_ui_url>/ui/vault/secrets` y crear un secreto en la carpeta correspondiente del servicio con las siguientes opciones según el modo de autenticación:
++
+Cada uno de los usuarios, deberá integrarse con cada módulo de Stratio. A la hora de insertar los secretos, todos (sin excepción), deberán tener el mismo formato:
++
+--
+** Kerberos
+*** *_principal_*: `<hive_service_principal_name>`.
+*** *_keytab_*: `<hive_keytab_base64>`.
+--
++
+Este secreto se debe subir a los siguientes directorios de _Stratio KMS_:
+
+** *Agente de descubrimiento*: `userland/passwords/<nombre_agente>.<namespace_agente>/<nombre_secreto>`.
+** *_Stratio Virtualizer_*: `userland/passwords/<nombre_virtualizer>.<namespace_virtualizer>/<nombre_secreto>`.
+** *_Stratio Rocket_*: `userland/passwords/<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Workflows_ de _Stratio Rocket_*: `userland/passwords/execution-identity-<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
+** *_Stratio Intelligence_*: `/people/passwords/<nombre_usuario_intelligence>/<nombre_secreto>`.
++
+NOTE: El nombre y los valores del secreto para todos los servicios deben coincidir con los elegidos para configurar el agente de descubrimiento.
+
+. Modificar la configuración Kerberos en los servicios.
++
+--
+Para la autenticación con Kerberos es necesario modificar el fichero de configuración usado en el servicio desde el que se va a iniciar la autenticación, incluyendo en él la información propia de Kerberos usado en Apache Impala®.
++
+Para modificarlo es necesario conseguir el nombre del _ConfigMap_ de Kerberos, que se puede encontrar en la vista de 'Configuración' del servicio en _Stratio Command Center_, en el campo _Kerberos configmap name_. Una vez conseguido, se puede editar con una herramienta de gestión del _cluster_ de Kubernetes, por ejemplo _kubectl_:
++
+[source,bash]
+----
+kubectl edit configmap <configmap_name>
+----
++
+El fichero ya contiene información previa, propia del servicio, a la que se debe añadir la configuración de Kerberos para acceder a Apache Impala®.
++
+Si tienes, por ejemplo, la siguiente configuración de acceso con Kerberos a Apache Impala®:
++
+* _Service Principal_: `myprincipal/impala.mycompany.com`.
+* _Realm_: `MYCOMPANY.COM`.
+* _KDC host_: `impala.mycompany.com:88`.
+* _Admin host_: `impala.mycompany.com:749`.
++
+Y el fichero https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html[_krb5.conf_] del _ConfigMap_ con la configuración de Kerberos previa del servicio es:
++
+[source,bash]
+----
+[libdefaults]
+ default_realm=ZULU.INT
+ dns_lookup_realm=false
+ dns_lookup_kdc=false
+ renew_lifetime=7d
+ ticket_lifetime=24h
+ rdns=false
+ forwardable=true
+ renewable=true
+ default_ccache_name=/tmp/krb5cc_%{uid}
+ udp_preference_limit=1
+[realms]
+ ZULU.INT={
+   kdc=kerberos.keos-idp:88
+   admin_server=kerberos.keos-idp:749
+ }
+----
++
+Modificándolo para aceptar la configuración de Apache Impala®, quedaría de la siguiente manera:
++
+[source,bash]
+----
+[libdefaults]
+ default_realm=ZULU.INT
+ dns_lookup_realm=false
+ dns_lookup_kdc=false
+ renew_lifetime=7d
+ ticket_lifetime=24h
+ rdns=false
+ forwardable=true
+ renewable=true
+ default_ccache_name=/tmp/krb5cc_%{uid}
+ udp_preference_limit=1
+[realms]
+  ZULU.INT={
+   kdc=kerberos.keos-idp:88
+   admin_server=kerberos.keos-idp:749
+  }
+  MYCOMPANY.COM={
+   kdc=impala.mycompany.com:88
+   admin_server = impala.mycompany.com:749
+  }
+[domain_realm]
+ .mycompany.com = MYCOMPANY.COM
+ mycompany.com = MYCOMPANY.COM
+----
++
+NOTE: Es necesario reiniciar el servicio tras modificar esta configuración para que haga efecto.
+--
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para Apache Impala® debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors Data Warehouse' el agente "Cloudera Impala Agent".
+
+Los campos a rellenar para la instalación son:
+
+* *_General_*:
+** *_Service ID_*: identificador único del agente de descubrimiento.
+** *_Name of the Service_*: nombre con el que el agente aparecerá en _Stratio Data Governance_.
+* *Metadata Datastore (PostgreSQL®)*
+** *_Host_*: instancia de PostgreSQL® que almacena los metadatos descubiertos. Ejemplo: _pgbouncer-postgreskeos-governance.keos-core_.
+* *Configuration of the Service to be Discovered*
+** *Service to be discovered:*
+*** *_Service name_*: nombre del servicio del agente de descubrimiento en _Stratio Data Governance_. Es el que se mostrará en su interfaz de usuario. Ejemplo: _dg-impala-agent_.
+*** *_Root discovery path_*: rutas de los esquemas de Apache Impala® que se quieren descubrir. Ejemplo: `/schema_to_be_discovered,/schema_to_be_discovered2`. Deben estar separadas por comas, sin espacios y con una `/` al principio para descubrir todos los esquemas a los que se tenga acceso.
++
+image::configuracion_agente_impala_1.png[]
++
+** *Resource datastore connection configuration*
+*** *_Custom Service URL_*: cadena de conexión a la base de datos Apache Impala®. Debe ser similar al siguiente ejemplo: `jdbc:hive2://your.host.com:21050/default`.
+*** *_Custom Datastore service security_*: tipo de autenticación utilizada para la conexión: KRB (Kerberos).
+*** *_Access credentials_*: nombre de las credenciales. Ponle un nombre significativo y único. Ej: `impala-credentials`.
+*** *_SSCC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC Apache Impala®. Ejemplo: _http://connectors.<tenant>-<namespace>/<path>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar_.
+*** *_JDBC driver location_*: URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del _driver JDBC_. Ejemplo: _http://connectors.<tenant>-<namespace>/<path>/v1/api/artifact/hive-jdbc-3.1.2-1.0.0-47b3295.jar_.
++
+image::configuracion_agente_impala_2.png[]
+
+A continuación debes aplicar la configuración de Kerberos siguiendo lo indicado un poco más arriba en esta guía.
+
+Cuando el proceso de descubrimiento haya terminado, se puede comprobar que se ha descubierto un nuevo almacén de datos en la interfaz de usuario de _Stratio Data Governance_.
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de Apache Impala®. Para ello basta con añadir la URL del repositorio de conectores del artefacto necesario en la variable `Additional jars` en el formulario de modificación del servicio en _Stratio Command Center_.
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+=== _Stratio Virtualizer_
+
+Para el uso de _Stratio Virtualizer_ es necesario tener configurado el conector de Apache Impala®. Para ello debes subir las credenciales de acceso a _Stratio KMS_ y añadir la URL del repositorio de conectores de los artefactos necesarios en la variable `JDBC Drivers URL List` en el formulario de modificación del servicio _Stratio Virtualizer_ en _Stratio Command Center_.
+
+* 'Customized deployment' -> 'Settings'
++
+--
+** _Use native SQL queries_: los posibles valores son "True" y "False". "True" si el usuario quiere acceder al dato con el xref:stratio-virtualizer:user-guide:what-can-i-do-with-stratio-virtualizer.adoc#_consultas_nativas[dialecto nativo] de _Stratio Virtualizer_.
+--
+
+* 'Customized deployment' -> 'Environment'
++
+--
+** _JDBC Integration_: habilitado.
+** _JDBC Drivers URL List_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-3.1.2-1.0.0-47b3295.jar`.
+--
++
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
++
+A continuación debes aplicar la configuración de Kerberos siguiendo lo indicado un poco más arriba en esta guía.
++
+Para virtualizar el conector SSCC Apache Impala® debes añadir alguna de las tablas descubiertas en una colección de _Stratio Data Governance_ y dar permisos en _Stratio GoSec_. Una vez hecho eso, los datos serán accesibles en el resto de módulos de _Stratio Generative AI Data Fabric_. Puedes ver cómo aparecen en la siguiente imagen:
++
+image::col_tecnica_impala.png[Colección técnica Impala]
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener el conector de Apache Impala® configurado. Para ello
+
+. Se debe subir las credenciales de acceso a _Stratio KMS_ para los _workflows_ y para _Stratio Rocket_.
+. Se deben añadir las URL de los artefactos necesarios en la variable _Rocket extra jars_ en el formulario de modificación del servicio _Stratio Rocket_ en _Stratio Command Center_:
+
+* 'Customized deployment' -> 'Settings' -> 'Classpath'
++
+--
+** _Include Crossdata native connector library_: habilitado.
+** _Include Crossdata native engine library_: habilitado.
+** _Rocket extra jars_: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-hive-0.3_2.12-1.5.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/hive-jdbc-3.1.2-1.0.0-47b3295.jar`.
+--
++
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
++
+A continuación debes aplicar la configuración de Kerberos siguiendo lo indicado un poco más arriba en esta guía.
++
+En _Stratio Rocket_ se puede acceder a la colección virtualizada de Apache Impala® mediante consultas SQL o mediante un _workflow_. La siguiente imagen muestra un ejemplo:
++
+image::rocket1_db2.png[BDL]
+
+=== _Stratio Intelligence_
+
+Para la correcta configuración de _Stratio Intelligence_ consulta la xref:apache-impala:quick-start-guide.adoc#_stratio_intelligence[sección de _Stratio Intelligence_], recordando que hay que usar el formato adecuado al modo de autenticación para los secretos.

@@ -1,0 +1,145 @@
+﻿= Operations guide
+
+== Description
+
+The SSCC MongoDB connector allows you to integrate MongoDB into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:mongodb:compatibility-matrix.adoc[compatibility matrix].
+
+=== Authentication
+
+Currently, the connector only supports *username and password* authentication.
+
+== Prerequisites
+
+* Install the xref:connectors-repository:operations-guide.adoc#_installation[connectors repository].
++
+IMPORTANT: In the connectors repository, the `sscc-mongodb-0.3_2.12-1.3.x` artifact, which will be used for basic use of the MongoDB connector, will be available at the URL http://connectors.tenant-my_namespace/v1/api/artifact/<artifact_name>.
+
+* Have the xref:ROOT:quick-start-guide.adoc[_Stratio KMS_ UI] accessible.
+* Have a MongoDB database instance installed and accessible from _Stratio Generative AI Data Fabric_.
+* Create secrets in _Stratio KMS_. Currently, the connector only supports username and password authentication.
++
+--
+The secret to be uploaded consists of two keys:
+
+** _user_: <mongodb_user>.
+** _pass_: <mongodb_pass>.
+--
++
+This secret must be uploaded to the following _Stratio KMS_ directories:
+
+** *Discovery agent*: `userland/passwords/<agent_name>/<secret_name>`.`.
+** *_Stratio Virtualizer_*: `userland/passwords/<virtualizer_name>.<virtualizer_namespace>/<secret_name>`.
+** *_Stratio Rocket_*: `userland/passwords/<rocket_name>.<rocket_namespace>/<secret_name>`.
+** *_Stratio Rocket_ _workflows_*: `userland/passwords/execution-identity-<rocket_name>.<rocket_namespace>/<secret_name>`.
+** *_Stratio Intelligence_*: `/people/passwords/<intelligence_user_name>/<secret_name>`.
+
+== Discover your data
+
+=== Discovery agent
+
+To install a _Stratio Data Governance_ discovery agent for MongoDB, go to '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors NoSQL' and select the agent "MongoDB Agent".
+
+The fields to be filled in for the installation are:
+
+* *General*:
+** *_Service ID_*: agent's unique identifier. Example: _dg-mongodb-agent_.
+** *_Name of the Service_*: name displayed in _Stratio KEOS_. Example: _dg-mongodb-agent_.
+* *Metadata Datastore (PostgreSQL®)*
+* *_Host_*: the PostgreSQL® instance that stores the MongoDB metadata. Example: _poolpostgresgov_.
+* *_Configuration of the service to be discovered_*
+** *Service to be discovered:*
+*** *_Service name_*: name that will be used to identify this data store in _Stratio Data Governance_. It's the one that will be displayed in the UI.
+*** *_Root discovery path_*: collection to be discovered. They should be separated by commas, without spaces, and with a slash `/` at the beginning. Example: _/connectorstorage_.
+** *Resource datastore connection configuration*
+*** *_Custom Service URL_*
+*** *_Access credentials_*: name of the secret created in _Stratio KMS_ with the authorization credentials. Example: _mongodb-secret_.
+*** *_DataStore driver location_*: URL where the MongoDB SSCC connector JAR is located.
+* *_MongoDB Settings_*
+* *_MongoDB Await Duration_*: maximum waiting time (in seconds) when retrieving results from MongoDB.
+* *_MongoDB Document Sample Size_*: number of documents that are extracted to infer the schema of the collection.
+** *_Fix Huge Structs Enabled_*: `(True/False). Allows to mitigate the effect of poorly constructed recursive structures by replacing them with a _STRING_ field named `malformed_field_[<_original field name_>]`. A typical case of this phenomenon can be seen in https://www.mongodb.com/docs/atlas/sample-data/sample-analytics/#sample-document-1[this MongoDB Atlas data set].
+
+The discovery process is asynchronous. Once the discovery is finished you can view it from the _Stratio Data Governance_ UI.
+
+image::mongodb-discover-metadata1.png[]
+
+image::mongodb-discover-metadata2.png[]
+
+image::mongodb-discover-metadata3.png[]
+
+NOTE: Views in MongoDB are supported, but are displayed as tables in the _Stratio Data Governance_ UI.
+
+== Virtualize your data
+
+IMPORTANT: Note that, to virtualize the discovered tables, you need to manage the xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[domain policies] through _Stratio GoSec_.
+
+=== Eureka agent
+
+To use the BDL, you need to configure the Eureka agent with the MongoDB connector. To do this, just add the URL of the connectors repository of the `sscc-mongodb-0.3_2.12-1.3.x` artifact in the variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+image::mongodb-bdl.png[]
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+TIP: See here xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[more information about data processing with BDL].
+
+=== _Stratio Virtualizer_
+
+_Stratio Virtualizer_ supports interaction with MongoDB through the SSCC MongoDB connector. This integration has certain requirements:
+
+* The following _Stratio Virtualizer_ deployment fields must be modified in _Stratio Command Center_:
++
+--
+** 'Customized deployment' -> 'Environment' -> 'External datastores' -> 'External datastores'.
+*** 'JDBC Integration': `(True/False)`.
+*** 'JDBC Drivers URL List': `http://connectors.tenant-my_namespace/v1/api/artifact/sscc-mongodb-0.3_2.12-1.3.x.jar`.
+--
++
+image::mongodb-virtualizer-conf.png[]
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+==== Managing the driver
+
+To use _Stratio Rocket_, the MongoDB connector needs to be configured. To do this:
+
+* You have to add the URL of the `sscc-mongodb-0.3_2.12-1.3.x` artifact in the 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` of _Stratio Command Center_.
+** *_Rocket extra jars_*: `http://connectors.tenant-my_namespace/v1/api/artifact/sscc-mongodb-0.3_2.12-1.3.x.jar`.
++
+image::mongodb-rocket-conf.png[]
+
+* You also have to upload the access credentials for _workflows_ and for _Stratio Rocket_ to _Stratio KMS_.
+
+==== Managing secrets
+
+Upload the access credentials for the _workflows_ and for _Stratio Rocket_ to _Stratio KMS_ as described in the prerequisites.
+
+[#rocket-configuration]
+
+==== Configuration management: quality rules and lineage
+
+Access the _Stratio Rocket_ configuration in 'Settings' -> 'Governance Lineage' and make sure that the "Governance Lineage" option is enabled.
+
+The fields to be filled in are the following:
+
+* _Custom lineage and quality rules methods using Spark format_: `ssccmongodb:com.stratio.connectors.ssccmongodb.MongoDBQualityRulesAndLineage:getMetadataPath`.
+** This option activates lineage for data flows using _datasource_ boxes that access the data store directly.
++
+IMPORTANT: For lineage to work properly, the discovery agent must have the value `<host_url_mongodb>.port.<port_url_mongodb>` as its _Service Name_.
+
+* _Custom planned quality rules methods_: `com.stratio.connectors.ssccmongodb.MongoDBDriverMD5:com.stratio.connectors.ssccmongodb.MongoDBQualityRulesAndLineage:getPlannedQRCreateTable`.
+** With this option, the planned quality rules that directly access tables in the data store will be supported.
+
+NOTE: Remember that, if you already have more than one artifact in the list, you have to add the following ones, separating them with a comma.
+
+Restart _Stratio Rocket_ to apply the changes.
+
+NOTE: These variables are *not necessary* for lineage and quality rules on virtualized tables in the catalog.
+
+=== _Stratio Intelligence_
+
+To correctly configure _Stratio Intelligence_, see the xref:mongodb:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_ section]. For integration with MongoDB, only credentials shown in the prerequisites need to be uploaded.

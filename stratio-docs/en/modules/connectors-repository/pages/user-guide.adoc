@@ -1,0 +1,93 @@
+= User guide
+
+The connector repository allows you to manage connectors, versioning and compatibilities. For more details on how to use this, you can go to the Swagger-UI `https://<serviceId>.<tenant>.<namespace>/<serviceId>/swagger`.
+
+== Authentication
+
+To operate with the API, you need to obtain a token through the _/auth/signin_ endpoint. To do this, make the request with the default username and password in the body:
+
+[source,json]
+----
+{
+  "username": "admin",
+  "password": "1234"
+}
+----
+
+image::connectors-repository-sigin-body.png[]
+
+The response returns the user's information with their _accessToken_.
+
+image::connectors-repository-signin-response.png[]
+
+To use it from Swagger, press the "Authorize" button in the upper corner of the screen and enter the token to use the rest of the endpoints of the API.
+
+=== Searching for a connector
+
+You can search for a connector in the repository by the name of the connector or by tags, to get a list of connectors with their information, versions, compatibilities, etc.
+
+*Search by name*
+
+You can pass as many values as you want as the `name` parameter, and all the connectors that contain any of the specified values in their name will be returned.
+
+image::connectors-repository-find-connectors-by-name.png[]
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/connector/findByName?name=<connectorName1>&name=<connectorName2>&name=<connectorName3>' -i
+----
+
+*Search by tags*
+
+You can pass as many values as you want as the `tags` parameter, and the search will return all the connectors that contain any of the specified values in their tags.
+
+image::connectors-repository-find-connectors-by-tags.png[]
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/connector/findByTags?tags=<connectorTag1>&tags=<connectorTag2>' -i
+----
+
+=== Searching for a driver
+
+To search for a driver in the repository, you can enter the name of the driver and get a list of drivers with all their information. You can pass as many values as you want as the `name` parameter, and the search will return all the drivers that contain any of the indicated values in their names.
+
+image::connectors-repository-find-drivers-by-name.png[]
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/driver/findByName?name=<connectorName1>&name=<connectorName2>&name=<connectorName3>' -i
+----
+
+=== Downloading an artifact by name
+
+To do this, you need to know the name under which the artifact was created in the repository. If you don't know it, you can use the connector search and driver search operations to select the component you want and find out the artifact name.
+
+image::connectors-repository-download-artifact.png[]
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/artifact/<artifactName>' -i
+----
+
+=== Downloading a connector by name, version and Scala version*
+
+To do this, run the following command:
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/connector?name=<connectorName>&version=<connectorVersion>&scala=<scalaVersion>' -i
+----
+
+image::connectors-repository-download-connector-artifact.png[]
+
+=== Downloading a driver by name, version and Scala version
+
+To do this, run the following command:
+
+[source,bash]
+----
+curl --request GET 'https://connectors.<tenant>-<namespace>/v1/api/driver?name=<driverName>&version=<driverVersion>' -i
+----
+
+image::connectors-repository-download-driver-artifact.png[]

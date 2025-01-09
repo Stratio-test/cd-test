@@ -1,0 +1,35 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with the SSCC Databricks connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+|===
+|Module |Capacity | Connector
+
+| _Stratio Data Governance_
+| Discovery
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio BDL_
+| Virtualization and optimization
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Virtualizer_
+| Read and write
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Rocket_
+| Virtualized read/write
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Intelligence_
+| Virtualized read/write
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Spark_
+| Data processing
+| >= sscc-hive-0.3_2.12-1.5.x
+|===
+
+== Compatibility with Databricks SQL versions
+
+Connector compatibility has been validated for Databricks SQL 2022.40.

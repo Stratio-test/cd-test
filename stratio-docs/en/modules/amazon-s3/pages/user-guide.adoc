@@ -1,0 +1,140 @@
+﻿= User Guide
+
+// import formats and settings ///
+:source-highlighter: rouge
+:note-caption: NOTE
+:important-caption: IMPORTANT
+:tip-caption: EXAMPLE
+// //////////////////////////////
+
+The purpose of this guide is to explain the specific operations of the _AWS-S3_ connector for a user on the _Stratio Augmented Data Fabric_ platform.
+
+== Description
+
+S3 is an external storage bundled with Amazon Web Services (AWS) that can be used to store any type of object that supports use cases such as storage for internet applications, backup and restore, disaster recovery, data archiving, data lakes for analytics, and hybrid cloud storage.
+
+_Stratio Augmented Data Fabric_ can perform discovery tasks on _AWS-S3_ metadata. +
+The hierarchy supported by the connector is:
+
+. _Bucket_
+. N-directories
+. Columnar file
+
+The _AWS-S3 bucket_ should be organized according to the above structure to successfully discover the data. You also need to provide the discovery agent with the bucket and the directory you want it to connect to.
+
+Have a look at https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html[AWS-S3 official guide] for more information.
+
+== Discover your data
+
+For the connector to access your data like you see in xref:amazon-s3:operations-guide.adoc#_cuentas_aws[AWS Accounts], you first need to create the user you want _Stratio Augmented Data Fabric_ to use to conduct data discovery. The discovery process will fail if the bucket doesn't have the right permissions.
+
+Some of the attributes of the cloud discovery agent are the following:
+
+* Security: *MD5*. Username/password authentication. It is unique.
+* _stratiocredentials_: The name of the secret used.
+* _typeConfig_: FILE
+* _driver_: org.apache->hadoop->2.7.2
+* URL: The S3 connection URL: For example: `s3a://stratio-connectors`
+
+These are the discovery views: +
+
+*Directories*
+
+image::vista_general_dir_aws.png[]
+
+Attributes: +
+
+* _owner_: The user owner.
+* _group_: The user group.
+* _permissions_: Octal file permissions.
+* _isEncrypeted_: If it's encrypted or not.
+
+*Table*
+
+image::vista_general_tabla_aws.png[]
+
+Attributes: +
+
+* _owner_: The user owner.
+* _group_: The user group.
+* _permissions_: Octal file permissions.
+* _isEncrypted_: If it's encrypted or not.
+* _length_: File size.
+* _replication_: If it's replicated. 1 if it is not.
+* _blockSize_: Block size.
+* _modifiedAt_: When it was modified. Format in milliseconds.
+* _schema_: Table format type.
+* _partition_: The partition (if any).
+
+*Columns*
+
+image::vista_columna_aws_general.png[]
+
+Attributes: +
+
+* _schemaType_: Table format type.
+* _type_: Table encoding.
+* _default_: Default value. - if it doesn't have one.
+* _constraint_: If it's a restrictive column.
+* _ordinal_: The number of the column in the table.
+* _precision_: The precision of the column.
+* _scale_: Double precision of the column.
+* _isSigned_: If it's authorized.
+* _isHidden_: If the column is hidden.
+
+The Cloud agent works as follows:
+It can identify file systems that are N deep from the root identified at the first level in an _S3 bucket_.
+
+If it finds a columnar file of any of the types shown below within any directory, the Cloud agent is able to retrieve the metadata, and represent it as if it were a SQL type table. The supported files are:
+
+* Parquet
+* Text (CSV, JSON and XML)
+* ORC
+* Avro
+
+You can now create your own technical collections.
+
+IMPORTANT: If you want to add attributes to the tables, you have to do it on the table you added to the technical collection, never on the discovery agent itself.
+
+The next thing you can do is to work with your data.
+
+== Virtualize your data
+
+After tables have been discovered you can add them to a technical view of a collection. All configurable discovery parameters and those modified from the _Stratio Data Governance_ UI are propagated in the collections where this table is added.
+
+You can read more about its features in its xref:stratio-virtualizer:user-guide:user-guide.adoc#_trabajar_con_stratio_virtualizer[user guide].
+
+NOTE: Note that in order to virtualize the discovered tables, the xref:stratio-gosec:operations-guide:manage-policies:manage-domains-policies.adoc[domain policies] need to be managed through _Stratio Gosec_.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+You can use any workflow to perform your operations with _AWS-S3_ data in _Stratio Rocket_. Use Crossdata or SQL boxes as input to your workflows.
+
+Writing to _AWS-S3_ is supported. Use a _Stratio Crossdata_ box to write directly to another file. If you do, you have to write to a specific file. Refer to the xref:amazon-s3:operations-guide.adoc#_configurar_inputoutput_assets[Write] section to set up workflow outputs.
+
+The best way to check access to _AWS-S3_, data is through the catalog.
+
+The connector can work with quality rules to run your checks on _AWS-S3_ data.
+
+When you run a _Stratio Rocket_ workflow, you can display its technical lineage by clicking on the table in the technical collection, as shown in the image:
+
+image::linage_aws.png[Linaje,500]
+
+=== _Stratio Intelligence_
+
+You can use a  _Stratio Virtualizer_ session in _Stratio Intelligence_ to quickly access your data via a Jupiter Notebook (use a PySpark session). Check out the following example and reproduce it.
+
+Always use the reference of your collection attached with your table.
+
+[source,python]
+----
+from pystratio.xd.xdsession import XDSession
+xd = XDSession(sc)
+xd.sql("SELECT * FROM aws_s3_col.YOUR_TABLE LIMIT 3").show()
+----
+
+You can see how to access the data from _Stratio Intelligence_ in the xref:ROOT:quick-start.html#_stratio_intelligence[Quick Guide]
+
+For more information about data consistency, have a look at the xref:ROOT:commiters.adoc[Integration] document.

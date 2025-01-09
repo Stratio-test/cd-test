@@ -1,0 +1,160 @@
+= _STRING_ functions
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+| bin
+| SELECT bin(13),age FROM coverage_impala.stringfunctions
+| Yes
+
+| char
+| SELECT char(65),age FROM coverage_impala.stringfunctions
+| No
+
+| char_length
+| SELECT char_length('Spark SQL '),age FROM coverage_impala.stringfunctions
+| Yes
+
+| character_length
+| SELECT character_length('Spark SQL '),age FROM coverage_impala.stringfunctions
+| Yes
+
+| chr
+| SELECT chr(65),age FROM coverage_impala.stringfunctions
+| No
+
+| concat_ws
+| SELECT concat_ws(' ', 'Spark', 'SQL'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| format_string
+| SELECT format_string(Hello World %d %s, 100, days),age FROM coverage_impala.stringfunctions
+| No
+
+| initcap
+| SELECT initcap('sPark sql'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| instr
+| SELECT instr('SparkSQL', 'SQL'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| lcase
+| SELECT lcase('Spark sql'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| left
+| SELECT left('Spark SQL', 3),age FROM coverage_impala.stringfunctions
+| Yes
+
+| length
+| SELECT length('Spark sql'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| levenshtein
+| SELECT levenshtein('kitten', 'sitting'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| like
+| SELECT like('Spark', '_park'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| locate
+| SELECT locate('bar', 'foobarbar'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| lower
+| SELECT lower('SparkSql'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| lpad
+| SELECT lpad('hi', 5, '??'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| ltrim
+| SELECT ltrim('    SparkSQL   '),age FROM coverage_impala.stringfunctions
+| Yes
+
+| octet_length
+| SELECT octet_length('Spark sql'),age FROM coverage_impala.stringfunctions
+| No
+
+| overlay
+| SELECT overlay('Spark SQL' PLACING '_' FROM 6),age FROM coverage_impala.stringfunctions
+| No
+
+| parse_url
+| SELECT parse_url('http://spark.apache.org/path?query=1', 'HOST'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| position
+| SELECT position('bar', 'foobarbar'),age FROM coverage_impala.stringfunctions
+| No
+
+| printf
+| SELECT printf(Hello World %d %s, 100, days),age FROM coverage_impala.stringfunctions
+| No
+
+| regexp_extract
+| SELECT regexp_extract('100-200', '(\d+)-(\d+)', 1),age FROM coverage_impala.stringfunctions
+| Yes
+
+| regexp_extract_all
+| SELECT regexp_extract_all('100-200, 300-400', '(\d+)-(\d+)', 1),age FROM coverage_impala.stringfunctions
+| No
+
+| regexp_replace
+| SELECT regexp_replace('100-200', '(\d+)', 'num'),age FROM coverage_impala.stringfunctions
+| No
+
+| replace
+| SELECT replace('ABCabc', 'abc', 'DEF'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| right
+| SELECT right('Spark SQL', 3),age FROM coverage_impala.stringfunctions
+| Yes
+
+| rpad
+| SELECT rpad('hi', 5, '??'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| rtrim
+| SELECT rtrim('    SparkSQL   '),age FROM coverage_impala.stringfunctions
+| Yes
+
+| split
+| SELECT split('oneAtwoBthreeC', '[ABC]'),age FROM coverage_impala.stringfunctions
+| No
+
+| substr
+| SELECT substr('Spark SQL', 5),age FROM coverage_impala.stringfunctions
+| Yes
+
+| substring
+| SELECT substring('Spark SQL', 5),age FROM coverage_impala.stringfunctions
+| Yes
+
+| substring_index
+| SELECT substring_index('www.apache.org', '.', 2),age FROM coverage_impala.stringfunctions
+| No
+
+| translate
+| SELECT translate('AaBbCc', 'abc', '123'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| trim
+| SELECT trim('    SparkSQL   '),age FROM coverage_impala.stringfunctions
+| Yes
+
+| ucase
+| SELECT ucase('SparkSQL'),age FROM coverage_impala.stringfunctions
+| Yes
+
+| upper
+| SELECT upper('SparkSQL'),age FROM coverage_impala.stringfunctions
+| Yes
+
+|===

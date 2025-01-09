@@ -1,0 +1,42 @@
+= SQL coverage of the native dialect
+
+Below is a list of https://archive.apache.org/dist/spark/docs/3.1.1/sql-ref.html[Apache Spark™ SQL features] tested with the Apache Impala® native dialect.
+
+For each feature, it provides the Apache Spark™ SQL query that was executed in the test and whether the native dialect implements it.
+
+== Data retrieval expressions
+
+* xref:apache-impala:user-guide/native-coverage/clusterby-clause-result.adoc[_CLUSTER BY_ clause]
+* xref:apache-impala:user-guide/native-coverage/distributed-clause-result.adoc[_DISTRIBUTED BY_ clause]
+* xref:apache-impala:user-guide/native-coverage/groupby-clause-result.adoc[_GROUP BY_ clause]
+* xref:apache-impala:user-guide/native-coverage/having-clause-result.adoc[_HAVING_ clause]
+* xref:apache-impala:user-guide/native-coverage/join-clause-result.adoc[_JOIN_ clause]
+* xref:apache-impala:user-guide/native-coverage/like-clause-result.adoc[_LIKE_ predicate]
+* xref:apache-impala:user-guide/native-coverage/limit-clause-result.adoc[_LIMIT_ clause]
+* xref:apache-impala:user-guide/native-coverage/orderby-clause-result.adoc[_ORDER BY_ clause]
+* xref:apache-impala:user-guide/native-coverage/set-clause-result.adoc[Set operators: _EXCEPT, MINUS, INTERSECT, UNION_]
+* xref:apache-impala:user-guide/native-coverage/sortby-clause-result.adoc[_SORT BY_ clause]
+* xref:apache-impala:user-guide/native-coverage/tablesample-clause-result.adoc[_TABLESAMPLE_ clause]
+* xref:apache-impala:user-guide/native-coverage/where-clause-result.adoc[_WHERE_ clause]
+* xref:apache-impala:user-guide/native-coverage/window-clause-result.adoc[Window functions]
+* xref:apache-impala:user-guide/native-coverage/case-clause-result.adoc[_CASE_ clause]
+* xref:apache-impala:user-guide/native-coverage/pivot-clause-result.adoc[_PIVOT_ clause]
+* xref:apache-impala:user-guide/native-coverage/lateral-clause-result.adoc[_LATERAL VIEW_ clause]
+
+== Functions
+
+=== Scalar functions
+
+* xref:apache-impala:user-guide/native-coverage/functions-arrays.adoc[_ARRAY_ functions]
+* xref:apache-impala:user-guide/native-coverage/functions-date-and-timestamp.adoc[_DATE_ and _TIMESTAMP_ functions]
+* xref:apache-impala:user-guide/native-coverage/functions-hash.adoc[_HASH_ functions]
+* xref:apache-impala:user-guide/native-coverage/functions-json.adoc[_JSON_ functions]
+* xref:apache-impala:user-guide/native-coverage/functions-maps.adoc[_MAP_ functions]
+* xref:apache-impala:user-guide/native-coverage/functions-math.adoc[Math and logic functions]
+* xref:apache-impala:user-guide/native-coverage/functions-string.adoc[_STRING_ functions]
+* xref:apache-impala:user-guide/native-coverage/functions-xpath.adoc[_XPATH_ functions]
+* xref:apache-impala:user-guide/native-coverage/functions-others.adoc[Other functions]
+
+=== Aggregation-related functions
+
+* xref:apache-impala:user-guide/native-coverage/functions-aggregate.adoc[Aggregate functions]

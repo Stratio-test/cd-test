@@ -1,0 +1,88 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar de forma sencilla cómo integrar cualquier instancia de _bucket_ de Google Cloud Storage en la plataforma _Stratio Generative AI Data Fabric_.
+
+TIP: Para más información sobre el proceso de instalación, accede a la xref:stratio-connectors:ROOT:quick-start-guide.adoc[guía de inicio rápido general].
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector de Google Cloud Storage en la xref:google-cloud-storage:operations-guide.adoc#_prerrequisitos[guía de operaciones].
+
+NOTE: Ten en cuenta que en esta guía de inicio rápido se utilizará el *modo de autenticación _Service Account_ con usuario/contraseña* (_ACCESS KEY_).
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento para Google Cloud Storage debes seguir la ruta '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors DFS' y seleccionar el agente "Google GCS Agent".
+
+En la instalación debes añadir la información correspondiente a la cuenta de almacenamiento de Google Cloud Storage que se quiere descubrir y subir las credenciales de acceso a _Stratio KMS_. Visita los xref:google-cloud-storage:operations-guide.adoc#_prerrequisitos[prerrequisitos] en la guía de operaciones.
+
+En el ejemplo, la instalación queda de esta manera:
+
+* *_General_*
+** *_Service ID_*: `dg-gcs-agent`.
+** *_Name of the Service_*: `dg-gcs-agent`.
+* *_Configuration of the Service to be Discovered_*
+** *_Service to be discovered_*
+*** *_Service name_*: `dg-gcs-agent`.
+*** *_Root discovery path_*. Ej: _/connectorstoragetest_ (cuenta de Google Cloud Storage por descubrir).
+** *_Resource datastore connection configuration_*
+*** *_Custom datastore service security_*: _ServiceAccount_.
+*** *_Access credentials_*: Ej: _gcs-secret_.
+*** *_SSCC driver location (Scala 2.12)_*: _http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-gcs-0.3_2.12-1.1.x.jar_
+** *_DFS configuration parameters_*
+*** *_GCS GLOB filter_*. Ej: _/connectorstoragetest/connectors-bucket-test/test_data/**;/connectorstoragetest/connectors-bucket-test/test_qa/**;/connectorstoragetest/connectors-bucket-test/20221027/**_.
+* *_Namespace_*
+** *_Discovered namespaces_*: selecciona el espacio de nombres sobre el que quieras instalar el agente de descubrimiento.
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector de Google Cloud Storage de la siguiente manera:
+
+* Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'eureka-agent' -> 'Edit' -> 'Customize deployment' -> 'Settings'.
+* Añade al campo _Additional jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-gcs-0.3_2.12-1.1.x.jar`.
+
+=== _Stratio Virtualizer_
+
+Para virtualizar los datos de Google Cloud Storage es necesario configurar _Stratio Virtualizer_ de la siguiente manera:
+
+. Añadir el conector de Google Cloud Storage a la instancia de _Stratio Virtualizer_:
+.. Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'virtualizer' -> 'Edit' -> 'Customize deployment' -> 'Environment' -> 'JDBC Integration'.
+.. Añade al campo _JDBC Drivers URL List_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-gcs-0.3_2.12-1.1.x.jar`.
+. xref:google-cloud-storage:operations-guide.adoc#_prerrequisitos[Sube las credenciales de acceso a _Stratio KMS_].
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para acceder y explotar los datos de Google Cloud Storage es necesario configurar _Stratio Rocket_ de la siguiente manera:
+
+* Añade el conector de Google Cloud Storage a la instancia de _Stratio Rocket_:
+** Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'rocket' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Classpath configuration'.
+** Añade al campo _Rocket extra jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-gcs-0.3_2.12-1.1.x.jar`.
+** Añade esa misma URL al campo _Spark classpath extra jars_ (_Stratio Rocket_ necesita disponer del conector en tiempo de inicialización de Apache Spark™).
+* xref:google-cloud-storage:operations-guide.adoc#_prerequisitos[Sube las credenciales de acceso a _Stratio KMS_].
+
+Tras aplicar estos cambios, deberías poder acceder a la colección virtualizada de Google Cloud Storage mediante consultas SQL directamente en el catálogo o mediante un _input_ de _Stratio Virtualizer_ en un _workflow_. Consulta más información y los modos de acceso disponibles en la xref:google-cloud-storage:operations-guide.adoc#_stratio_rocket[guía de operaciones].
+
+=== _Stratio Intelligence_
+
+Previo a la integración con el conector es necesario configurar _Stratio Intelligence_, tal y como aparece descrito en xref:ROOT:quick-start-guide#_stratio_intelligence[la guía de inicio rápido general].
+
+Para acceder y explotar los datos de Google Cloud Storage es necesario configurar _Stratio Intelligence_ de la siguiente manera:
+
+* Añade el conector de Google Cloud Storage a la instancia de _Stratio Intelligence_:
+** Navega hasta '_Stratio Command Center_' -> 'Services' -> '<Tu Namespace>' -> 'intelligence' -> 'Edit' -> 'Customize deployment' -> 'Settings' -> 'Analytic Environment Settings' -> 'Extra jars to Spark Context Configuration'.
+** Añade al campo _Spark classpath extra jars_ la URL del conector `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-gcs-0.3_2.12-1.1.x.jar`.
+** Añade esa misma URL al _classpath_ de Apache Spark™.
++
+IMPORTANT: Debido a que _Stratio Intelligence_ necesita disponer del conector en tiempo de inicialización de Apache Spark™ es necesario que el conector se encuentre en el _classpath_ al arrancar el _Notebook_. Actualmente, la manera de hacerlo es editando el descriptor conrrespondiente a _Stratio Intelligence_ en Kubernetes y añadir la URL del conector a la variable de entorno `_ANALYTIC_ENV_SPARK_HOME_EXTRA_JARS_`.
+
+* xref:google-cloud-storage:operations-guide.adoc#_prerrequisitos[Sube las credenciales de acceso a _Stratio KMS_].
+
+Tras aplicar estos cambios deberías poder acceder a la colección virtualizada de Google Cloud Storage mediante SparkSQL a través del catálogo. Consulta más información y los modos de acceso disponibles en la xref:google-cloud-storage:operations-guide.adoc#_stratio_intelligence[guía de operaciones].
+
+TIP: Para no tener problemas con la consistencia de datos se debe configurar _Stratio Intelligence_ como se indica en el documento de xref:ROOT:commiters.adoc#_uso_con_stratio_intelligence[integración]. Consulta el documento para tener más información.

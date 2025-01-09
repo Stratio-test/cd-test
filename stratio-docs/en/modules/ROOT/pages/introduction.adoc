@@ -1,0 +1,42 @@
+= Introduction
+
+A connector is composed of one or more artifacts that allow access to data from external sources to the _Stratio Generative AI Fabric_ platform, so that the access of all modules of the platform to these external sources is fully integrated and transparent to the user.
+
+The following image shows a schema of the different modules where the artifacts are used to connect to external data sources.
+
+image::arquitectura-conectores.png[]
+
+These artifacts have to be configured in each module. Later on, we'll cover how to specifically configure each external database that will be accessed.
+
+== Managing secrets
+
+All of the external connectors are integrated with _Stratio KMS_ (Key Management System), Stratio's centralized key management repository.
+
+For each external database to be integrated, the secrets associated with the different modules that will use the external data must be uploaded to _Stratio KMS_:
+
+* Discovery agent.
+* _Stratio Virtualizer_.
+* _Stratio Rocket_.
+* _Stratio Rocket_ workflows.
+* _Stratio Intelligence_.
+
+Different types of secrets are supported depending on the database you want to connect to:
+
+* MD5 (username/password).
+* Kerberos integration with user/password authentication or keytab.
+* Service accounts.
+* Etc.
+
+== Operation
+
+In xref:stratio-virtualizer:architecture:features.adoc#_native_access_to_data_stores[__Stratio Virtualizer__] you can see the different operating modes.
+
+== Supported data repositories
+
+A compatibility matrix has been documented for each one of the repositories integrated into _Stratio Generative AI Data Fabric_, indicating:
+
+* The versions of the repository used to certify connector integration.
+* The versions of the driver used to certify connector integration.
+* The link to the compatibility matrix of the manufacturer of the driver versions.
+
+_Stratio Generative AI Data Fabric_ supports certified versions of the driver, as well as versions of the data repository for which the driver manufacturer guarantees compatibility.

@@ -1,0 +1,45 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector SSCC Apache Impala®, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+[cols="1,1,1"]
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio BDL_
+| Virtualización
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Virtualizer_
+| Lectura/Escritura/Acceso nativo
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Rocket_
+| Lectura/Escritura virtualizada/Acceso nativo
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Intelligence_
+| Lectura/Escritura virtualizada/Acceso nativo
+| >= sscc-hive-0.3_2.12-1.5.x
+|===
+
+== Compatibilidad con versiones de Apache Impala®
+
+Se ha validado la compatibilidad del conector para Apache Impala® 2.12 y 3.4.
+
+== Versiones del _driver JDBC_ soportadas
+
+El conector necesita estar acompañado de un artefacto con el _driver JDBC_ de Apache Hive™. Al estar desacoplado, se puede utilizar el mismo conector con diferentes versiones.
+
+La versión actual del conector está validada contra las siguientes versiones del _driver JDBC_:
+
+|===
+| Versión del _driver JDBC_ | Artefacto del repositorio de conectores
+
+| 3.1.2
+| _hive-jdbc-3.1.2-1.0.x.jar_
+|===

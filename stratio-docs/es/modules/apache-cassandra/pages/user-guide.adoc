@@ -1,0 +1,88 @@
+= Guía de usuario
+
+== Descripción
+
+El conector SSCC Apache Cassandra® te permite la integración completa de Apache Cassandra® en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:apache-cassandra:compatibility-matrix.adoc[matriz de compatibilidad].
+
+== Descubre tus datos
+
+=== Conoce tus datos
+
+Además de lo que se muestra en xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tablas_y_columnas[__Stratio Data Governance__], también puedes encontrar los atributos técnicos extraídos de los recursos de Apache Cassandra®. Se extraen todos los metadatos que proporciona Apache Cassandra® y se añaden a la interfaz de usuario de _Stratio Data Governance_ tanto en tabla como en columna.
+
+* Los metadatos extraídos en tabla son:
++
+image::cassandra-governance-tabla.png[]
+
+* Los metadatos extraídos en columna son:
++
+image::cassandra-governance-columna.png[]
+
+NOTE: Las vistas en Apache Cassandra® están soportadas pero se muestran como tablas en la interfaz de usuario de _Stratio Data Governance_.
+
+=== Virtualización de la BDL
+
+El proceso de descubrimiento es asíncrono. Una vez terminado, se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+NOTE: Puedes consultar cómo crear atributos en la xref:stratio-data-governance:user-manual:addition-of-metadata[guía de usuario] de _Stratio Data Governance_.
+
+TIP: Para más detalles del uso de la BDL consulta la xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[documentación de procesamiento de datos con BDL].
+
+== Virtualiza tus datos
+
+Una vez descubiertas las tablas, es posible añadirlas a una vista técnica de una colección. Todos los parámetros configurables del descubrimiento y los modificados desde la interfaz de usuario de _Stratio Data Governance_ se propagan en las colecciones desde donde se añada esa tabla.
+
+TIP: Para saber más sobre cómo gestionar las colecciones puedes consultar xref:stratio-data-governance:user-manual:collections.adoc[la guía de usuario de _Stratio Data Governance_].
+
+IMPORTANT: Ten en cuenta que, para virtualizar las tablas descubiertas, es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+Para crear una tabla directamente en el catálogo de _Stratio Virtualizer_ puedes ejecutar la siguiente sentencia:
+
+[source,sql]
+----
+CREATE TABLE cassandra_table USING com.stratio.connector.cassandra OPTIONS (
+    `stratiosecurity` 'true',
+    `stratiocredentials` '<nombre_secreto>',
+    `stratiosecuritymode` 'custom_sscc',
+    `stratiossccdriver` 'com.stratio.connectors.sscccassandra.CassandraDriverMD5',
+    `host` '<cassandra_host>',
+    `port` '<cassandra_port>',
+    `cluster` '<cassandra_cluster>',
+    `keyspace` '<cassandra_keyspace>',
+    `type` 'table',
+    `table` '<table_name>/<view_name>'
+)
+----
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Una vez virtualizados los datos, desde _Stratio Rocket_ podrás:
+
+* Acceder a ellos mediante el *catálogo*.
++
+image::cassandra-rocket-catalog.png[]
+
+* Realizar procesos ETL con los xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[_workflows_] por medio de los _assets_.
++
+image::cassandra-rocket-asset-1.png[]
++
+image::cassandra-rocket-asset-2.png[]
++
+image::cassandra-rocket-workflows.png[]
++
+A la hora de configurar un _workflow_ de _Stratio Rocket_ usando una caja de tipo _datasource_ deberás rellenar las siguientes opciones:
++
+* _host_: `<host_cassandra>`.
+* _port_: `<port_cassandra>`.
+* _cluster_: `<cluster_cassandra>`.
+* _keyspace_: `<keyspace_cassandra>`.
+* _type_: `<type_cassandra>`.
+* _table_: `<table_cassandra>`.
+
+=== _Stratio Intelligence_
+
+Se puede comprobar cómo se accede a los datos desde _Stratio Intelligence_ en la xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[guía de inicio rápido general].

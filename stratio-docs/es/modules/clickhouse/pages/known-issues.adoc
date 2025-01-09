@@ -1,0 +1,58 @@
+= Problemas conocidos
+
+* Actualmente, aunque es posible hacer el descubrimiento y lectura de los siguientes tipos de datos, no es posible la escritura.
+
+- _Array_
+- _SimpleAggregateFunction_
+- _JSON_
+- _Tuple_
+- _Map_
+- _GEO_
+- _Ring_
+- _Polygon_
+- _MultiPolygon_
+
+* En las columnas que no son seleccionables (por ejemplo las `EPHEMERAL`) no se podrá hacer _insert_ a dichas columnas.
+
+* Las tablas que contengan no son compatibles con Stratio.
+
+- _AggregateFunction_
+
+[source,sql]
+----
+CREATE OR REPLACE TABLE db.example
+(
+    id      UInt64,
+    unhexed String EPHEMERAL,
+    hexed   FixedString(10) DEFAULT unhex(unhexed)
+)
+ENGINE = MergeTree
+ORDER BY id;
+
+SELECT id, hexed FROM db.example;
+----
+
+En las columnas que son Enum se deben de insertar como String, ya que aunque por jdbc se pueden insertar como String o Int.
+
+* JDBC
+
+[source,sql]
+----
+INSERT into db.table values ('hello');
+INSERT into db.table values (1);
+----
+
+* Stratio
+
+[source,sql]
+----
+INSERT into db.table values ('hello');
+INSERT into db.table values (1);
+----
+
+Ejemplo del error
+
+[source,log]
+----
+java.lang.IllegalArgumentException: Unknown enum name: 1
+----

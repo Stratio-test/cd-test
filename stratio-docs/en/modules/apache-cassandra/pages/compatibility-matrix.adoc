@@ -1,0 +1,32 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with the SSCC Apache Cassandra® connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+| Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| ≥ sscc-cassandra-0.3_2.11-1.1.x
+
+| _Stratio BDL_
+| Virtualization
+| ≥ sscc-cassandra-0.3_2.12-1.1.x
+
+| _Stratio Virtualizer_
+| Read/write
+| ≥ sscc-cassandra-0.3_2.12-1.1.x
+
+| _Stratio Rocket_
+| Virtualized read/write
+| ≥ sscc-cassandra-0.3_2.12-1.1.x
+
+| _Stratio Intelligence_
+| Virtualized read/write
+| ≥ sscc-cassandra-0.3_2.12-1.1.x
+|===
+
+== Compatibility with SSCC Apache Cassandra® versions
+
+Connector compatibility has been validated for Apache Cassandra® 3.11.

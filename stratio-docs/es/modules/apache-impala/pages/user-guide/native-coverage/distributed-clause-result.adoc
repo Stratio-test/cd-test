@@ -1,0 +1,20 @@
+= _DISTRIBUTED BY_ clause
+
+== Syntax
+
+[source,sql]
+----
+DISTRIBUTE BY { expression [ , ... ] }
+----
+
+== Result
+
+[cols="1,1,1"]
+|===
+|Description |Query |Implemented
+
+| Produces rows distributed by age. Persons of the same age are clustered together.
+| SELECT age, name FROM coverage_impala.person_clusterby DISTRIBUTE BY age;
+| No
+
+|===

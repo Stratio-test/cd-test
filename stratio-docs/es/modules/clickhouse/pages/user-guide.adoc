@@ -1,0 +1,97 @@
+= Guía de usuario
+
+== Descripción
+
+El conector SSCC ClickHouse te permite la integración completa de ClickHouse en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:clickhouse:compatibility-matrix.adoc[matriz de compatibilidad].
+
+== Descubre tus datos
+
+=== Conoce tus datos
+
+El descubrimiento realizado por el agente SSCC ClickHouse hará visible y navegable en _Stratio Data Governance_ la jerarquía de datos en ClickHouse:
+
+* Esquemas
+* Tablas
+* Columnas
+
+image::clickhouse-governance-datastore.png[]
+
+TIP: Puedes leer más acerca del uso del almacén de datos en la xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc[documentación de _Stratio Data Governance_].
+
+El agente también asociará metadatos técnicos o de sistema a los niveles de la jerarquía de datos:
+
+. *Almacén de datos*, accesible a través del botón "System attributes":
+
+** Generales
++
+--
+*** _Version_: versión del conector que realizó el descubrimiento.
+*** _URL_: URL JDBC usada para la conexión con ClickHouse.
+*** _Security_: tipo de seguridad utilizado. De momento solo se permite MD5 (usuario y contraseña).
+--
++
+image::clickhouse-governance-datastore-system-attrs.png[]
++
+** Atributos del origen de datos: nombre y versión de la base de datos y clase del _driver JDBC_ utilizada.
++
+image::clickhouse-governance-datastore-system-attrs2.png[]
+
+. *Tabla*, accesible a través del botón "System attributes" o del enlace "Connector attributes":
+** _EngineDatabase_: tipo de motor de la base de datos.
+** _database_: esquema donde está incluida la tabla.
+** _engine_: tipo de motor de la base de la tabla.
+** _sortedBy_: ordenado por columna.
+** _sourceSchema_: esquema inferido original de la tabla.
+** _table_: nombre de la tabla.
+** _tableType_: tipo de tabla. Posibles valores: "TABLE" y "VIEW".
+
+image::clickhouse-governance-table-system-attrs.png[]
+
+. *Columna*, accesible a través del botón "System attributes" o del enlace "Connector attributes", tras seleccionarla en la lista.
+** Propiedades (solo en _System attributes_): precisión, escala y si el tipo tiene signo.
+** Atributos del conector: tipo de almacén de datos (_CLICKHOUSE_) y nombre del tipo de datos original en ClickHouse.
++
+image::clickhouse-governance-column-system-attrs.png[]
+
+=== Virtualización de la BDL
+
+El conector soporta la personalización del acceso al dato en las tablas virtualizadas mediante xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_atributos_personalizados_de_bdl[atributos avanzados de BDL] de _Stratio Data Governance_, modificables desde la interfaz de usuario.
+
+TIP: Para más detalles del uso de la BDL consulta la xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[documentación de procesamiento de datos con BDL].
+
+== Virtualiza tus datos
+
+Una vez descubiertas las tablas, es posible añadirlas a una vista técnica de una colección. Todos los parámetros configurables del descubrimiento y los modificados desde la interfaz de usuario de _Stratio Data Governance_ se propagan en las colecciones donde se añada esa tabla.
+
+TIP: Puedes leer más acerca de sus características en la xref:stratio-virtualizer:user-guide:user-guide.adoc#_trabajar_con_stratio_virtualizer[guía de usuario de _Stratio Virtualizer_].
+
+IMPORTANT: Ten en cuenta que, para virtualizar las tablas descubiertas, es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+Para crear una tabla directamente en el catálogo de _Stratio Virtualizer_ puedes ejecutar la siguiente sentencia:
+
+[source,sql]
+----
+CREATE TABLE `ejemplo_mytable2`
+ USING jdbc OPTIONS
+ (
+ `url`                         'jdbc:clickhouse:http://qa-dbsqa2.labs.stratio.com:8123',
+ `stratiossccdriver` 'com.stratio.connectors.clickhouse.ClickhouseDriverMD5',
+ `dbtable`                 'JENKINS_CONNECTORS_TEST.table_Int32',
+ `user`                       'conectores',
+ `password`             '1234'
+ )
+----
+
+== Transforma a tus datos
+
+=== _Stratio Rocket_
+
+Una vez virtualizados los datos, es posible acceder desde _Stratio Rocket_ mediante *el catálogo*:
+
+image::clickhouse-rocket-catalog.png[]
+
+=== _Stratio Intelligence_
+
+Puedes comprobar cómo se accede a los datos desde _Stratio Intelligence_ en la xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[guía de inicio rápido].

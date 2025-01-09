@@ -1,0 +1,33 @@
+= User guide
+
+== Description
+
+The SSCC Apache Kafka® connector allows you to fully integrate Apache Kafka® into _Stratio Generative AI Data Fabric_.
+
+Both the supported features and the different versions are found in the xref:apache-kafka:compatibility-matrix.adoc[compatibility matrix].
+
+NOTE: The integration is done through _Stratio Rocket_ _workflows_.
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+The Apache Kafka® connector is integrated into _Stratio Rocket_ in _streaming_ and _hybrid_ type assets in _input_ and _output_ type boxes. For more information, visit the xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc[_Stratio Rocket_ documentation].
+
+The most important fields in the "input" configuration are:
+
+* _Host_: instance host.
+* _Port_: instance port.
+* _Consumer strategy_: Apache Kafka® queue consumption strategy.
+* _Topics_: Apache Kafka® queue name.
+
+image::kafka_conf_input.png[]
+
+The most important fields in the "output" configuration are:
+
+* _Host_: instance host.
+* _Port_: instance port.
+
+image::kafka_conf_output.png[]
+
+Once configured, you can perform _workflows_ using Apache Kafka® boxes to consume events from a queue.

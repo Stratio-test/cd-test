@@ -1,0 +1,16 @@
+﻿= Quick start guide
+
+The purpose of this guide is to briefly explain how to integrate Azure Event Hubs into the _Stratio Generative AI Data Fabric_ platform.
+
+== Prerequisites
+
+You can find the prerequisites for installing the Azure Event Hubs connector in the xref:azure-event-hubs:operations-guide.adoc#_prerequisites[operations guide].
+
+== Transform your data
+
+=== _Stratio Rocket_
+
+To use _Stratio Rocket_, you need to have the Azure Event Hubs connector configured. To do this:
+
+* Configure the integration with Azure Event Hubs in 'General' -> 'Networking' -> 'External Services' -> 'Azure DataLake Configuration'.
+* Upload the access credentials for _workflows_ and for _Stratio Rocket_ to _Stratio KMS_.

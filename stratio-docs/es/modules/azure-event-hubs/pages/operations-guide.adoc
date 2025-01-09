@@ -1,0 +1,106 @@
+= Guía de operaciones
+
+== Descripción
+
+El conector Azure Event Hubs te permite la integración de Azure Event Hubs en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:azure-event-hubs:compatibility-matrix.adoc[matriz de compatibilidad].
+
+NOTE: Este conector está únicamente integrado en el módulo de _Stratio Rocket_.
+
+=== Autenticación
+
+Actualmente, el conector soporta dos modos de autenticación:
+
+* OAuth2.0: te puedes integrar con Active Directory de Azure para granularizar los permisos de usuario y obtener así un mejor nivel de seguridad.
+* _Shared Key/Shared Access Signature_ (SAS): acceso delegado a usuarios para recursos de Azure Event Hubs.
+
+== Prerrequisitos
+
+. Tener accesible la xref:ROOT:quick-start-guide.adoc[interfaz de usuario de _Stratio KMS_].
+. Tener un _namespace_ de https://azure.microsoft.com/en-us/products/event-hubs[Azure Event Hubs]. Esto es, una instancia de Azure Event Hubs configurada y accesible desde _Stratio Rocket_.
++
+NOTE: Es importante seleccionar el _Pricing tier_ de tipo _Standard_ ya que el tipo _Basic_ no soporta clientes de Apache Kafka®.
+
+. Crear un Event Hub (Apache Kafka® _topic_) y configurarlo.
+. Tener una cuenta de Azure configurada con los siguientes permisos básicos:
+** Suscripción a Event Hub.
+** Publicación a Event Hub.
+
+. Crear los secretos en _Stratio KMS_.
++
+--
+*OAuth2.0*
+
+El secreto que se va a subir consta de dos claves:
+
+* _user_ : `<client_id>`
+* _pass_ : `<client_secret>`
+
+*_Shared Key/Shared Access Signature_ (SAS)*
+
+El secreto que se va a subir consta de dos claves:
+
+* _user_ : `$ConnectionString`
+* _pass_ : `Endpoint=sb://<tu_namespace>.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=<tu_shared_access_key>`
+--
++
+NOTE: Al introducir los secretos, ten cuidado con los caracteres especiales.
++
+[TIP]
+====
+Habrá una imagen similar a esta:
+
+image::azure-event-hubs-vault-rocket-user-pass.png[]
+
+====
++
+Este secreto se debe subir al siguiente directorio de _Stratio KMS_:
+
+** *_Workflows_ de _Stratio Rocket_*: `userland/passwords/execution-identity-<nombre_rocket>.<namespace_rocket>/<nombre_secreto>`.
++
+. Si quieres conectarte mediante _privatelink_, asegúrate de cumplir con estos prerrequisitos:
+** Tener _Stratio Generative AI Data Fabric_ instalado en una *VPC* de Azure.
+** Tener creado un _privatelink_ enlazado a un _host_ privado a la red privada Azure con un nombre de _host_ concreto. Ej: `<your_namespace>.privatelink.servicebus.windows.net`.
+
+IMPORTANT: No debes confundir el _host_ del _privatelink_ con el nombre del _namespace_. El nombre de un _namespace_ puede ser `tu_namespace_` pero nunca `tu_namespace.privatelink`.
+
+IMPORTANT: Es recomendable crear un usuario dedicado con permisos limitados.
+
+NOTE: El conector de Azure Event Hubs está integrado en _Stratio Rocket_ e incluye los _drivers_ necesarios para poder conectarse, por lo que no es necesario incluir más artefactos.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener el conector de Azure Event Hubs configurado. Para ello, ve a 'Settings' -> 'Classpath':
+
+. *Include Kafka connector*: habilitado.
+. *Include EventHub*: habilitado.
+
+[TIP]
+====
+Debería quedar una configuración similar a la que aparece en la imagen:
+
+image::azure-event-hubs-rocket-environment.png[]
+
+====
+
+==== Conexión por proxy/privatelink
+
+* En caso de querer conectarte mediante un servidor proxy, sigue estos pasos:
++
+. Asegúrate tener un servidor proxy activo y accesible desde tu _cluster_.
+. Dirígete a tu proyecto de _Stratio Rocket_ y accede a la sección 'Parameters' -> 'SparkConfigurations'.
+. En los parámetros `SPARK_DRIVER_JAVA_OPTIONS` y `SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS` debes añadir lo siguiente:
++
+[source,bash]
+----
+-Dhttp.proxyHost = <your_host>
+-Dhttp.proxyPort = <your_port>
+-Dhttp.nonProxyHosts = kubernetes.*|*.keos-core
+-Dhttp.proxyUser = <your_user>
+-Dhttp.proxyPassword = <your_password>
+----
+
+* En caso de conectarte con _privatelink_, únicamente debes modificar el _host_ de las cajas _input/output_ de Event Hubs.

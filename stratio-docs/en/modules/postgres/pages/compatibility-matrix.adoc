@@ -1,0 +1,56 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with PostgreSQL® along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| Discovery
+| >= sscc-postgresql-0.3_2.12-1.1.x
+
+| _Stratio BDL_
+| Virtualization
+| >= sscc-postgresql-0.3_2.12-1.1.x
+
+| _Stratio BDL_
+| Operational semantic mapping
+| >= sscc-postgresql-0.3_2.12-1.1.x
+
+| _Stratio Virtualizer_
+| Read/Write/Native Access
+| >= sscc-postgresql-0.3_2.12-1.1.x
+
+| _Stratio Rocket_
+| Read/Write/Virtualized Write/Native Access
+| >= sscc-postgresql-0.3_2.12-1.1.x
+
+| _Stratio Intelligence_
+| Read/Write/Virtualized Write/Native Access
+| >= sscc-postgresql-0.3_2.12-1.1.x
+|===
+
+== Compatibility with PostgreSQL® versions
+
+The compatibility of the connector has been validated for PostgreSQL® versions 8.2 and higher.
+
+== Supported JDBC driver versions
+
+The SSCC PostgreSQL® connector already includes the PostgreSQL® driver.
+
+The current version of the connector supports the following JDBC driver versions:
+
+|===
+| JDBC driver version | SSCC PostgreSQL® connector version
+
+| 42.6.0 | sscc-postgresql-0.3_2.12-1.1.x
+|===
+
+The different drivers are available at https://central.sonatype.com/artifact/org.postgresql/postgresql[this link].
+
+The current version of the driver must support PostgreSQL® 8.2 and higher using version 3.0 of the PostgreSQL® protocol. See its https://jdbc.postgresql.org/documentation/[documentation].
+
+== Discovery with automatic optimization
+
+Since version 0.3_2.12-1.4.x, the PostgreSQL® SSCC connector includes automatic optimization mechanisms during the discovery process.

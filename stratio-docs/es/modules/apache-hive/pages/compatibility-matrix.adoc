@@ -1,0 +1,53 @@
+= Matriz de compatibilidad
+
+Los módulos compatibles con el conector SSCC Apache Hive™, junto con las distintas opciones que se soportan a partir de la versión que se indica del artefacto, son los siguientes:
+
+|===
+|Módulo |Capacidad |Conector
+
+| _Stratio Data Governance_
+| Descubrimiento
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio BDL_
+| Virtualización y optimización
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Virtualizer_
+| Lectura y escritura
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Rocket_
+| Lectura y escritura virtualizada
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Intelligence_
+| Lectura y escritura virtualizada
+| >= sscc-hive-0.3_2.12-1.5.x
+
+| _Stratio Spark_
+| Procesamiento de los datos
+| >= sscc-hive-0.3_2.12-1.5.x
+|===
+
+== Compatibilidad con versiones de Apache Hive™
+
+Se ha validado la compatibilidad del conector para Apache Hive™ 3.1.2.
+
+== Versiones del _driver JDBC_ soportadas
+
+El conector necesita estar acompañado de un artefacto con el _driver JDBC_ de Apache Hive™. Al estar desacoplado, se puede utilizar el mismo conector con diferentes versiones.
+
+La versión actual del conector está validada contra las siguientes versiones del _driver JDBC_:
+
+|===
+| Versión del _driver JDBC_ | Artefacto del repositorio de conectores
+
+| 2.1.0
+| _hive-jdbc-2.2.0-1.0.x.jar_
+
+| 3.1.2
+| _hive-jdbc-3.1.2-1.0.x.jar_
+|===
+
+NOTE: En los ejemplos de esta guía se ha usado el artefacto de la versión 2.1.0. Para utilizar la versión 3.1.2 hay que reemplazarlos por el artefacto correspondiente a esa versión.

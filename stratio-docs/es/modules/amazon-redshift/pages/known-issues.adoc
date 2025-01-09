@@ -1,0 +1,13 @@
+= Problemas conocidos
+
+Estos son los problemas conocidos del conector de SSCC Amazon Redshift.
+
+* Virtualización clasificada según su dialecto:
+** Dialecto JDBC:
+*** Los tipos de datos _super_ y _HLLSKETCH_ se codifican como _string_ para permitir la virtualización.
+*** La escritura del tipo _HLLSKETCH_ no está soportada.
+** Dialecto nativo de _Stratio Crossdata_:
+*** El tipo de dato _HLLSKETCH_ no está soportado.
+*** Soporte para funciones de ventana:
+**** Las funciones de ventana de tipo rango y analíticas no están soportadas.
+**** El resto de funciones de ventana necesitan una cláusula `ROWS` explícita.

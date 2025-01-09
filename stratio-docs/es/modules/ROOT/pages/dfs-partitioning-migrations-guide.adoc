@@ -1,0 +1,48 @@
+= Guía de migración para el soporte del particionado en los conectores DFS
+
+Esta guía describe los pasos necesarios para añadir soporte para el particionado en los conectores DFS en el momento de actualizar un conector a las siguientes versiones:
+
+* sscc-adls2 versión 1.2.0
+* sscc-gcs versión 1.3.0
+* sscc-s3 versión 1.3.0
+
+El objetivo es recrear las tablas del catálogo asociadas a los ficheros descubiertos por los conectores DFS para que tengan en cuenta las particiones establecidas en dichos ficheros.
+
+== Pasos a realizar
+
+. Modifica la configuración del agente para que use la nueva versión del artefacto del conector DFS.
+. Modifica la configuración de _Stratio Eureka_ para que use la nueva versión del agente y recree las tablas en lugar de modificarlas.
++
+Para ello, añade el siguiente parámetro de configuración en la pantalla de modificación del servicio:
++
+--
+** `BDL_AGENT_DROP_AND_CREATE_TABLE_INSTEADOF_UPDATE` con valor "true".
+
+image::partition-guide-eureka-config.png[]
+
+--
+
+. Modifica la configuración de _Stratio Virtualizer_ para que refresque las particiones automáticamente.
+* Para ello, activa la propiedad "Refresh partitions change automatically".
++
+image::partition-guide-virt-config.png[]
+
+* También se pueden refrescar las tablas recreadas ejecutando la siguiente sentencia en _Stratio Virtualizer_:
++
+[source,sql]
+----
+ALTER TABLE <table_name> RECOVER PARTITIONS;
+----
+
+. Comprueba que las tablas del catálogo tienen en cuenta las particiones y que se puede acceder a sus datos:
++
+[source,sql]
+----
+DESCRIBE EXTENDED <table_name>;
+# |# Partition Information     |                                                                                                                                                                                                                                             |       |
+# |# col_name                  |data_type
+# |id                          |int
+SELECT * FROM <table_name>;
+----
+
+. Restaura la configuración inicial de _Stratio Eureka_ y _Stratio Virtualizer_.

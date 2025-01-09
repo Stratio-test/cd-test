@@ -1,0 +1,491 @@
+= Guías de migraciones
+
+[#agent-sscc-legacy-to-sscc-non-legacy-migration]
+
+== Migración de un agente SSCC JDBC _legacy_ a uno no _legacy_
+
+Esta guía te ayudará a migrar el descubrimiento y gobierno de un agente SSCC con el modo _legacy_ activado a uno con el modo desactivado.
+
+El cambio más relevante del nuevo *modo _no legacy_* consiste en que el descubrimiento de las tablas se realiza en tres niveles:
+
+* base de datos -> esquema -> tabla
+
+En lugar de los dos niveles del obsoleto _legacy_:
+
+* base de datos -> esquema.tabla
+
+Sólo aplica a los agentes SSCC JDBC que descubren bases de datos que tienen tres niveles en origen:
+
+* xref:ibm-db2:quick-start-guide.adoc[sscc-db2]
+* xref:mssql:quick-start-guide.adoc[sscc-mssql]
+* xref:oracle:quick-start-guide.adoc[sscc-oracle]
+* xref:databricks:quick-start-guide.adoc[sscc-databricks]
+* xref:saphana:quick-start-guide.adoc[sscc-saphana]
+* xref:snowflake:quick-start-guide.adoc[sscc-snowflake]
+* xref:postgres:quick-start-guide.adoc[sscc-postgresql]
+
+[#agent-sscc-legacy-to-sscc-non-legacy-governance-migration]
+
+=== Migración de datos de _Stratio Data Governance_
+
+==== Prerrequisitos
+
+. Apagar todos los servicios que utilicen los _schemas_ `dg_metadata`, `dg_datamarket` y `cct-orchestrator` de la base de datos utilizada por _Stratio Data Governance_ y _Stratio Command Center_, por defecto llamada `postgreskeos`, para evitar realizar escrituras mientras se hace la migración y así prevenir la posible pérdida de información en caso de tener que realizar un _Rollback_, incluyendo:
+* _Stratio Data Governance_, el servicio `cct-orchestrator`, _Stratio Eureka_ y _Stratio Rocket_.
+* Todos los agentes de descubrimiento.
+* _Stratio Rocket_, ya que el resultado de las reglas de calidad planificadas ejecutadas durante la migración podría afectar a la misma.
++
+NOTE: Es posible realizar la migración apagando únicamente _Stratio Data Governance_, _Stratio Eureka_, los agentes de descubrimiento y _Stratio Rocket_. En este caso, habría que hacer una copia de seguridad del _schema_ `dg_metadata` de la base de datos `postgreskeos`.
+
+. Para la correcta ejecución de los _scripts_ será necesario recopilar la siguiente información:
++
+--
+. El nombre del _cluster_ de PostgreSQL® donde se instaló _Stratio Data Governance_ y la base de datos utilizada.
+** En los ejemplos se usará el nombre por defecto para ambos: `postgreskeos`.
+. El nombre del agente SSCC que se va a migrar.
+. El _tenant_ del _cluster_ al que pertenece el agente SSCC.
+--
++
+. Es necesario tener la herramienta kubectl configurada para acceder al _cluster_ del entorno.
+
+==== Proceso de migración
+
+El proceso de migración consiste en realizar las modificaciones necesarias la base de datos `postgreskeos`, en el _schema_ `dg_metadata` donde se guardan los metadatos del _Data Catalog_, para después arrancar un agente SSCC con el modo _legacy_ desactivado.
+
+Tras estas modificaciones, al arrancar el servicio de _Stratio Eureka_, este iniciará la sincronización de los cambios realizados en el catálogo de _Stratio Virtualizer_.
+
+IMPORTANT: Este proceso de sincronización podría dilatarse en el tiempo en función del número de tablas técnicas asociadas al agente migrado y el número de instancias y recursos asignados al servicio de _Stratio Eureka_.
+
+Después de aplicar el proceso, podrás seguir utilizando las _Data collections_, _bdl.options_, atributos personalizados y _assets_ relacionados creados por los usuarios para el agente SSCC _legacy_ a migrar.
+
+==== Pasos a realizar
+
+. Antes de realizar la intervención se debe hacer una copia de seguridad de los schemas `dg_metadata`, `dg_datamarket` y `cct-orchestrator` de la base de datos PostgreSQL® usada por los servicios _Stratio Data Governance_ y `cct-orchestrator` para almacenar los metadatos descubiertos (por defecto llamada `postgreskeos`).
++
+--
+TIP: Puedes encontrar más información acerca de las copias de seguridad en xref:stratio-postgres:administration-guide:pgcluster/disaster-recovery-logical.adoc#_backup_pgbackup[la guía de administración de __Stratio PostgreSQL Operator__].
+--
+IMPORTANT: Un error en el proceso de migración podría provocar pérdidas de información esenciales para el correcto funcionamiento de la plataforma, por lo que nunca debes hacerla sin una copia de seguridad previa.
+
+. Descarga los _scripts_ de migración en el equipo local en un directorio dedicado que sólo contenga dichos _scripts_.
++
+* xref:attachment$/migrations-guide/from-sscc-legacy-agent/sanity-check-legacy.sql[Comprobaciones previas]
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-sscc-legacy-agent/sanity-check-legacy.sql[]
+----
+
+====
++
+* xref:attachment$/migrations-guide/from-sscc-legacy-agent/sscc-legacy-to-sscc.sql[_Script_ de migración de un agente SSCC _legacy_ a un agente SSCC _no legacy_]
++
+.Ver _script_
+
+[%collapsible]
+====
++
+[source,sql]
+----
+include::attachment$/migrations-guide/from-sscc-legacy-agent/sscc-legacy-to-sscc.sql[]
+----
++
+====
+. Establece el _namespace_ y nombre del _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+# El namespace por defecto es `keos-core`
+# El cluster de PostgreSQL® y la base de datos por defecto es `postgreskeos`
+export PG_CLUSTER_NAME=<postgres_cluster_name>
+export POD_NAMESPACE=<namespace>
+export POD_NAME=$(kubectl get endpoints $PG_CLUSTER_NAME-primary -n $POD_NAMESPACE -o=jsonpath={..targetRef.name})
+----
++
+. Sube la carpeta que contiene los _scripts_ de migración.
++
+[source, bash]
+----
+kubectl cp /path/to/downloaded/migration-scripts $POD_NAMESPACE/$POD_NAME:/tmp
+----
++
+. Abre una consola en el _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+kubectl exec -it $POD_NAME -n=$POD_NAMESPACE -- bash
+----
++
+NOTE: A partir de este punto, los comandos deben ejecutarse en la consola del _pod_ primario del _cluster_ de PostgreSQL®.
++
+. Ejecuta xref:attachment$/migrations-guide/from-sscc-legacy-agent/sanity-check-legacy.sql[el _script_ de comprobación previa] que devolverá el número de registros a migrar por tabla. Al finalizar la migración, se volverá a ejecutar para comprobar que coincide.
++
+Este _script_ necesita las siguientes https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] para su funcionamiento:
++
+--
+* `tenant`: _tenant_ donde se encuentra desplegado el agente.
+** Por ejemplo: _s000001_.
+* `dg_sscc_agent_name`: nombre del agente a migrar que aparece en _Stratio Data Governance_.
++
+image::governance-sources.png[]
++
+** Por ejemplo: _dg-mssql-sscc-agent_.
+--
++
+Ejemplo de escritura del recuento de elementos a migrar en un archivo para poder usarlo en posteriores comprobaciones:
++
+[source,bash]
+----
+psql -d postgreskeos -f /tmp/migration-scripts/sanity-check-legacy.sql --set tenant="'s000001'" --set dg_sscc_agent_name="'dg-mssql-sscc-agent'" -o /tmp/migration-scripts/elements-to-migrate.txt
+----
++
+[source,bash]
+----
+Password for user postgres:
+postgres@postgreskeos-1:/tmp/migration-scripts$ cat elements-to-migrate.txt
+               table               | count
+-----------------------------------+-------
+ metrics_mdp_execution_aggregation |     6
+ metrics                           |     6
+ data_asset_enriched               |     0
+ entity_relation                   |     2
+ actor_data_asset                  |     0
+ quality                           |     2
+ data_asset                        |   176
+ business_layer_event_historic     |     0
+ business_layer_event              |     0
+ key_data_asset                    |     0
+ data_asset                        |  5029
+ quality                           |     0
+ metrics_mdp_execution_aggregation |     0
+ enriched_properties_modified      |     3
+(10 rows)
+----
++
+. Ejecuta el _script_ de migración:
++
+Este _script_ necesita una serie de https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] establecidas para su correcto funcionamiento:
++
+--
+* `tenant`: _tenant_ donde se encuentra desplegado el agente.
+** Por ejemplo: _s000001_.
+* `dg_sscc_agent_name`: nombre del agente SSCC que se va a instalar.
+** Por ejemplo: _dg-mssql-sscc-agent_.
++
+--
++
+El _script_ realizará las modificaciones temporalmente y hará una consulta sobre las filas modificadas.
++
+Ejemplo de migración de un agente MSSQL _legacy_ a un agente SSCC _no legacy_:
++
+[source,bash]
+----
+psql -d postgreskeos --set tenant="'s000001'" --set dg_sscc_agent_name="'dg-mssql-sscc-agent'"
+----
++
+[source,bash]
+----
+Password for user postgres:
+psql (14.7 (Ubuntu 14.7-1.pgdg22.04+1))
+Type "help" for help.
+
+postgreskeos=# \i /tmp/migration-scripts/sscc-legacy-to-sscc.sql
+BEGIN
+UPDATE 5028
+UPDATE 5028
+UPDATE 2
+UPDATE 1
+UPDATE 1
+UPDATE 2
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+UPDATE 0
+               table               | count
+-----------------------------------+-------
+ metrics                           |     0
+ data_asset_enriched               |     0
+ entity_relation                   |     2
+ actor_data_asset                  |     0
+ business_layer_event_historic     |     0
+ business_layer_event              |     0
+ key_data_asset                    |     0
+ data_asset                        |  5029
+ quality                           |     0
+ metrics_mdp_execution_aggregation |     0
+(10 rows)
+----
+
+. Ahora y todavía en la consola `psql` se pueden hacer las comprobaciones necesarias, como comparar las tablas modificadas con las que devolvió el _script_ de comprobación inicial:
++
+[source,bash]
+----
+psql (14.7 (Ubuntu 14.7-1.pgdg22.04+1))
+Type "help" for help.
+
+postgreskeos=# \! cat /tmp/migration-scripts/elements-to-migrate.txt
+               table               | count
+-----------------------------------+-------
+ metrics_mdp_execution_aggregation |     6
+ metrics                           |     6
+ data_asset_enriched               |     0
+ entity_relation                   |     2
+ actor_data_asset                  |     0
+ quality                           |     2
+ data_asset                        |   176
+ business_layer_event_historic     |     0
+ business_layer_event              |     0
+ key_data_asset                    |     0
+ data_asset                        |  5029
+ quality                           |     0
+ metrics_mdp_execution_aggregation |     0
+ enriched_properties_modified      |     3
+----
++
+. Como último paso, en la consola `psql` debes:
+.. Descartar los cambios si se ha detectado algún error o incoherencia en los datos:
++
+[source,bash]
+----
+postgreskeos=# rollback;
+----
++
+.. Confirmarlos en caso contrario.
++
+IMPORTANT: Después de este paso, si es necesario volver a la situación previa a la migración tendrás que restaurar la copia de seguridad creada previamente.
++
+[source,bash]
+----
+postgreskeos=# commit;
+----
+
+. Arranca los servicios parados previamente en los prerrequisitos excepto el *agente migrado* y *_Stratio Rocket_* (para arrancar _Stratio Rocket_, espera hasta completar la xref:#agent-sscc-legacy-to-sscc-non-legacy-rocket-migration[migración de datos de _Stratio Rocket_]).
++
+. Modifica desde _Stratio Command Center_ el despliegue del agente SSCC migrado y desactiva el modo _legacy_ poniendo a _false_ el valor, como se aprecia en la imagen:
++
+image::command-center-disable-legacy-mode.png
++
+IMPORTANT: Tras la migración, el nombre del recurso ya no incluye el esquema de la base de datos, por lo que es necesario revisar si el filtro usando la variable de entorno `CUSTOM_SERVICE_RESOURCES_REGEX` contiene nombres de esquemas y, si es así, moverlo a la variable `CUSTOM_SERVICE_PATHS_REGEX`.
+
+. Arranca el agente de descubrimiento y comprueba en la interfaz de usuario de _Stratio Data Governance_ que se puede acceder a los datos descubiertos, colecciones, atributos, relaciones entre _assets_, etc.
+
+[#agent-sscc-legacy-to-sscc-non-legacy-rocket-migration]
+
+=== Migración de datos de _Stratio Rocket_
+
+==== Prerrequisitos
+
+. Comprobar que el servicio _Stratio Rocket_ sigue suspendido y suspenderlo si no lo está.
+** Debes hacer una copia de seguridad de todos los _workflows_ y el _schema_ de PostgreSQL® usado por _Stratio Rocket_ para evitar la pérdida de datos si se encuentra un problema durante la actualización.
+** Además, debes detener todos los _assets_ de tipo _workflow_, _AutoMLPipeline_ y _MLProject_ en ejecución. Esto puede provocar una pérdida de servicio en el caso de _workflows_ de _streaming_, pero es necesario hacerlo.
+. Instalar o actualizar a la versión del conector SSCC adecuada en _Stratio Rocket_ siguiendo la correspondiente guía de operaciones.
+** Recuerda no activar el servicio todavía.
+. Comprobar que la opción "Enable proactive quality rules scheduling" está activada en la configuración del servicio de _Stratio_Rocket_ y activarla si no lo está.
++
+image:command-center-qr-scheduling.png[]
++
+IMPORTANT: Debido a un error en el proceso de sincronización, es necesario usar una versión de _Stratio Rocket_ superior o igual a 3.1.2.
++
+. Para la correcta ejecución de los _scripts_ será necesario recopilar la siguiente información:
++
+--
+. El nombre del _cluster_ de  PostgreSQL® donde se instaló la base de datos de _Stratio Rocket_ (por defecto `psql`).
+. El nombre de la base de datos utilizada (por defecto `rocket`).
+. El esquema de la instancia del servicio de _Stratio Rocket_ (por defecto `rocket.<tenant-id>-rocket`).
+** En los ejemplos, se usará el nombre por defecto para los tres: `psql`, `rocket` y `rocket.<tenant-id>-rocket`.
+. El nombre del agente SSCC que se va a migrar.
+--
++
+. Es necesario tener la herramienta kubectl configurada para acceder al _cluster_ del entorno.
+
+==== Proceso de migración
+
+El proceso de migración consiste en:
+
+* Realizar las modificaciones necesarias en la base de datos `rocket` en el _schema_ `rocket.<tenantId>-rocket` no cubiertas por el punto posterior.
+* Dejar que _Stratio Rocket_ sincronice automáticamente los datos sobre reglas de calidad planificadas modificados en _Stratio Data Governance_ con los _scripts_ según lo descrito en la xref:#agent-sscc-legacy-to-sscc-non-legacy-governance-migration[sección anterior].
+
+Después de aplicar el proceso, podrás seguir utilizando las reglas de calidad planificadas y las incrustadas en el _workflow_ para el agente SSCC _legacy_ a migrar.
+
+==== Pasos a realizar
+
+. Antes de realizar la intervención se debe hacer una copia de seguridad de la base de datos PostgreSQL® usada por _Stratio Rocket_ para almacenar los metadatos descubiertos (por defecto llamada `rocket`).
++
+--
+* Puedes encontrar más información acerca de las copias de seguridad en xref:stratio-postgres:administration-guide:pgcluster/disaster-recovery-logical.adoc#_backup_pgbackup[la guía de administración de __Stratio PostgreSQL Operator__].
++
+--
+IMPORTANT: Un error en el proceso de migración podría provocar pérdidas de información esenciales para el correcto funcionamiento de la plataforma, por lo que nunca debes hacerla sin una copia de seguridad previa.
+
+. Descarga los _scripts_ de migración en el equipo local en un directorio dedicado que sólo contenga dichos _scripts_.
++
+--
+* xref:attachment$/migrations-guide/from-sscc-legacy-agent/rocket-sanity-check-legacy.sql[Comprobaciones previas].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-sscc-legacy-agent/rocket-sanity-check-legacy.sql[]
+----
+
+====
++
+* xref:attachment$/migrations-guide/from-sscc-legacy-agent/rocket-sscc-legacy-to-sscc.sql[_Script_ de migración de un agente SSCC _legacy_ a uno _no legacy_].
++
+.Ver _script_
+
+[%collapsible]
+====
+
+[source,sql]
+----
+include::attachment$/migrations-guide/from-sscc-legacy-agent/rocket-sscc-legacy-to-sscc.sql[]
+----
+
+====
+--
++
+. Establece el _namespace_ y nombre del _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+# El namespace por defecto es `<tenantId>-datastores`
+# El cluster de PostgreSQL® y la base de datos por defecto es `psql`
+export PG_CLUSTER_NAME=<postgres_cluster_name>
+export POD_NAMESPACE=<namespace>
+export POD_NAME=$(kubectl get endpoints $PG_CLUSTER_NAME-primary -n $POD_NAMESPACE -o=jsonpath={..targetRef.name})
+----
++
+. Sube la carpeta que contiene los _scripts_ de migración.
++
+[source, bash]
+----
+kubectl cp /path/to/downloaded/migration-scripts $POD_NAMESPACE/$POD_NAME:/tmp
+----
++
+. Abre una consola en el _pod_ primario del _cluster_ de PostgreSQL®.
++
+[source, bash]
+----
+kubectl exec -it $POD_NAME -n=$POD_NAMESPACE -- bash
+----
++
+NOTE: A partir de este punto, los comandos deben ejecutarse en la consola del _pod_ primario del _cluster_ de PostgreSQL®.
++
+. Ejecuta xref:attachment$/migrations-guide/from-sscc-legacy-agent/rocket-sscc-legacy-to-sscc.sql[el _script_ de comprobación previa] que devolverá el número de registros a migrar por tabla. Al finalizar la migración, se volverá a ejecutar para comprobar que coincide.
++
+Este _script_ necesita las siguientes https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] para su funcionamiento:
++
+--
+* `dg_sscc_agent_name`: nombre del agente a migrar que aparece en _Stratio Data Governance_.
++
+image::governance-sources.png[]
++
+** Por ejemplo: _dg-mssql-sscc-agent_.
+* `rocket_instance_schema`: esquema de la instancia del servicio de rocket a migrar entre dobles comillas.
+** Por ejemplo: _"rocket.s000001-rocket"_.
+--
++
+Ejemplo de escritura del recuento de elementos a migrar en un archivo para poder usarlo en posteriores comprobaciones:
++
+[source,bash]
+----
+psql -d rocket -f /tmp/migration-scripts/rocket-sanity-check-legacy.sql --set dg_sscc_agent_name="'dg-mssql-sscc-agent'" --set rocket_instance_schema="\"rocket.s000001-rocket\"" -o /tmp/migration-scripts/elements-to-migrate.txt
+----
++
+[source,bash]
+----
+Password for user postgres:
+postgres@psql-1:/tmp/migration-scripts$ cat elements-to-migrate.txt
+        table            | count
+-------------------------+-------
+ quality_rule_result     |     76
+ workflow_version        |      1
+(2 rows)
+----
++
+. Ejecuta el _script_ de migración:
++
+Este _script_ necesita una serie de https://www.postgresql.org/docs/current/ecpg-variables.html[variables de _host_] establecidas para su correcto funcionamiento:
++
+--
+* `dg_sscc_agent_name`: nombre del agente SSCC que se va a instalar.
+** Por ejemplo: _dg-mssql-sscc-agent_.
+* `rocket_instance_schema`: esquema de la instancia del servicio de rocket a migrar entre dobles comillas.
+** Por ejemplo: _"rocket.s000001-rocket"_.
++
+--
++
+El _script_ realizará las modificaciones temporalmente, informando del número de filas modificadas.
++
+Ejemplo de migración de un agente MSSQL _legacy_ a un agente SSCC _no legacy_:
++
+[source,bash]
+----
+psql -d rocket --set dg_sscc_agent_name="'dg-mssql-sscc-agent'" --set rocket_instance_schema="\"rocket.s000001-rocket\""
+----
++
+[source,bash]
+----
+Password for user postgres:
+psql (14.7 (Ubuntu 14.7-1.pgdg22.04+1))
+Type "help" for help.
+
+rocket=# \i /tmp/migration-scripts/rocket-sscc-legacy-to-sscc.sql
+BEGIN
+UPDATE  1
+UPDATE 76
+        table            | count
+-------------------------+-------
+ quality_rule_result     |     76
+ workflow_version        |      1
+(2 rows)
+----
++
+. Ahora y todavía en la consola `psql` puedes hacer las comprobaciones necesarias, como comparar las tablas modificadas con las que devolvió el _script_ de comprobación inicial:
++
+[source,bash]
+----
+rocket=# \! cat /tmp/migration-scripts/elements-to-migrate.txt
+        table            | count
+-------------------------+-------
+ quality_rule_result     |     76
+ workflow_version        |      1
+(2 rows)
+----
++
+. Como último paso, en la consola `psql` debes:
+.. Descartar los cambios si se ha detectado algún error o incoherencia en los datos:
++
+[source,bash]
+----
+postgreskeos=# rollback;
+----
++
+.. Confirmarlos en caso contrario.
++
+IMPORTANT: Después de este paso, si es necesario volver a la situación previa a la migración tendrás que restaurar la copia de seguridad creada previamente tanto de _Stratio Rocket_ *como de _Stratio Data Governance_* (revirtiendo la migración en esta última).
++
+[source,bash]
+----
+postgreskeos=# commit;
+----
++
+. Arranca el servicio de _Stratio Rocket_ parado previamente en los prerrequisitos con la configuración adecuada para activar el linaje y las reglas de calidad. Puedes consultar la configuración de las reglas de calidad y linaje de cada conector en su apartado de xref:stratio-connectors:arangodb:operations-guide.adoc#agent-sscc-configuration-qrs-and-lineage[Gestión de la configuración: reglas de calidad y linaje].
++
+. Espera a que los datos de reglas de calidad planificadas se sincronicen automáticamente usando "proactive quality rules scheduling".
++
+. Comprueba en la interfaz de usuario de _Stratio Rocket_ que se puede acceder a las reglas de calidad tanto en el planificador como en los _workflows_ en los que se estaban utilizando.

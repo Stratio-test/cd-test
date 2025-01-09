@@ -1,0 +1,84 @@
+= Configuración avanzada
+
+== Variables de entorno Apache Hadoop®
+
+El conector _cloud_ permite cambiar propiedades de Apache Hadoop® (HDFS) para modificar ciertos parámetros. A continuación se muestra cómo realizar esa operativa en cada módulo de _Stratio Generative AI Data Fabric_.
+
+Para consultar las propiedades que se pueden modificar en las distintas _clouds_, visita:
+
+* https://hadoop.apache.org/docs/r3.2.4/hadoop-aws/tools/hadoop-aws/index.html[AWS]
+* https://hadoop.apache.org/docs/r3.2.4/hadoop-azure/abfs.html[Azure]
+* https://github.com/GoogleCloudDataproc/hadoop-connectors/blob/branch-2.2.x/gcs/CONFIGURATION.md[Google Cloud]
+
+=== Agentes de descubrimiento acoplados (_HDFS agent_ y _Cloud agent_)
+
+Para introducir nuevas propiedades de Apache Hadoop® en los agentes de descubrimiento _cloud_ debes dirigirte al despliegue e introducir las propiedades que quieras, precedidas del prefijo `HDFS_SERVICE_CUSTOM_PROPERTY_`. Las propiedades deben tener los puntos sustituidos por guión bajo, como se muestra en el siguiente ejemplo:
+
+Ejemplo:
+
+[source,yaml]
+----
+- name: HDFS_SERVICE_CUSTOM_PROPERTY_fs_s3a_endpoint
+  value: oss.eu-west-0.prod-cloud-ocb.orange-business.com
+----
+
+Siendo la propiedad de Apache Hadoop® `fs.s3a.endpoint`.
+
+En el ejemplo se muestra cómo se modificaría una propiedad para AWS. Para Google Cloud se utilizaría `HDFS_SERVICE_CUSTOM_PROPERTY_fs_gs_<nombre_propiedad>` y para Azure `HDFS_SERVICE_CUSTOM_PROPERTY_fs_azure_<nombre_propiedad>`.
+
+[#hadoop-config-sscc]
+
+=== Agentes de descubrimiento desacoplados
+
+En determinados casos, es necesario propagar propiedades de Apache Hadoop® a todas las tablas virtualizadas que tienen como origen los _assets_ de un agente. Para ello, en la creación o modificación del servicio del agente de descubrimiento en _Stratio Command Center_ puedes añadir propiedades personalizadas que empiecen por el prefijo `SSCC_BDL_OPTIONS_`.
+
+Las propiedades deben tener los puntos sustituidos por guión bajo, como se muestra en el ejemplo:
+
+[source,yaml]
+----
+- name: SSCC_BDL_OPTIONS_fs_s3a_path_style_access
+  value: true
+----
+
+Siendo `fs.s3a.path.style.access` la propiedad de Apache Hadoop®.
+
+En el ejemplo se indica cómo modificar una propiedad para AWS (para Google Cloud se utilizaría `SSCC_BDL_OPTIONS_fs_gs_<nombre_propiedad>` y para Azure `SSCC_BDL_OPTIONS_fs_azure_<nombre_propiedad>`).
+
+IMPORTANT: Estas propiedades *no afectan* al descubrimiento mismo, sino que se usan exclusivamente para que las tablas virtualizadas las incluyan.
+
+=== _Stratio Virtualizer_, _Stratio Rocket_ e _Stratio Intelligence_: modificar archivo _core-site.xml_
+
+Para introducir nuevas propiedades de Apache Hadoop® (HDFS) en _Stratio Virtualizer_, _Stratio Rocket_ y _Stratio Intelligence_ de forma global, una de las opciones es modificar el archivo _core-site.xml_ de Apache Hadoop® (HDFS) que están usando los distintos módulos de _Stratio Generative AI Data Fabric_.
+
+Este archivo se almacena en un _ConfigMap_. Cada uno de los módulos tiene una variable en el _deployment_ que indica qué _ConfigMap_ se está usando:
+
+* _Stratio Rocket_: `HADOOP_CONF_URI`.
+* _Stratio Virtualizer_: `HADOOP_CONF_DIR`.
+* _Stratio Intelligence_: `ANALYTIC_ENV_HDFS_CONFIGMAP_NAME`.
+
+Para añadir una propiedad de Apache Hadoop®, debes añadir un bloque como el que se muestra en este ejemplo:
+
+[source,xml]
+----
+<!-- SPARK_HADOOP_FS_S3A_ENDPOINT-->
+<property>
+<name>fs.s3a.endpoint</name>
+<value>oss.eu-west-0.prod-cloud-ocb.orange-business.com</value>
+<description>AWS S3 endpoint to connect to. An up-to-date list is
+provided in the AWS Documentation: regions and endpoints. Without this
+property, the standard region (s3.amazonaws.com) is assumed.
+</description>
+</property>
+----
+
+Donde se indica cómo se modificaría una propiedad para AWS (para Google Cloud se utilizaría `fs.gs.<nombre_propiedad>` y para Azure `fs.azure.<nombre_propiedad>`).
+
+=== _Workflow_ de _Stratio Rocket_
+
+Cuando configures un _workflow_ de _Stratio Rocket_ puedes añadir una propiedad específica de Apache Hadoop® (HDFS) con Apache Spark™. En 'Workflow Settings' -> 'Spark' -> 'Spark Configuration' -> 'User Properties' debes añadir la propiedad que necesites, como se muestra en el siguiente ejemplo:
+
+*spark.hadoop.fs.s3a.endpoint*: *oss.eu-west-0.prod-cloud-ocb.orange-business.com*
+
+image::ejemplo-variable-hadoop.png[]
+
+Este ejemplo muestra cómo se modificaría una propiedad para AWS (para Google Cloud se utilizaría `fs.gs.<nombre_propiedad>` y para Azure `fs.azure.<nombre_propiedad>`).

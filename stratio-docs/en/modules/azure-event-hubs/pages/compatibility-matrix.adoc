@@ -1,0 +1,28 @@
+﻿= Compatibility matrix
+
+The modules that are compatible with the SSCC Azure Event Hubs connector along with the different options that are supported starting with the version of the artifact specified are as follows:
+
+[cols="1,1,1"]
+|===
+|Module |Capacity |Connector
+
+| _Stratio Data Governance_
+| -
+| -
+
+| _Stratio BDL_
+| -
+| -
+
+| _Stratio Virtualizer_
+| -
+| -
+
+| _Stratio Rocket_
+| Virtualized read/write
+| Integrated
+
+| _Stratio Intelligence_
+| -
+| -
+|===

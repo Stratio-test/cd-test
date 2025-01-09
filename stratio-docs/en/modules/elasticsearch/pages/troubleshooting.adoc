@@ -1,0 +1,62 @@
+= Troubleshooting
+
+== Elasticsearch & OpenSearch Settings
+
+Although Elasticsearch and OpenSearch are widely used tools with great potential, both have some inefficiencies in handling large amounts of data.
+
+One of the main ones is the definition of the index schema. Both instances can be considered as a *NoSQL database*. This, by definition of its architecture, allows dynamism in terms of the index schema, which will be reflected in the dynamism of the schema in its representation as a table in _Stratio Virtualizer_.
+
+Both use a meta-information called _mapping_, where the schema definition of the different indexes is described. However, the semantics of this _mapping_ object is not rigorous and presents ambiguities, such as:
+
+* The https://www.elastic.co/guide/en/elasticsearch/reference/master/array.html[arrays] are not represented under a specific data type.
++
+For arrays, the _mapping_ shows the contained data type, regardless of whether it is a single value, an array of values of that type, an array of arrays of that type, etc.
+
+* For the case of the spatial types `geo_point` and `geo_shape` something similar happens. The _mapping_ shows whether it is either of the two, but both types can be defined in different ways in the table schema in _Stratio Virtualizer_ depending on the structure of the actual data inserted in the index.
+
+In short, there are discrepancies between the semantics of the datatype displayed in the _mapping_ and the semantics of the datatype of the actual data being indexed in the index.
+
+TIP: Visit the xref:elasticsearch:operations-guide.adoc#_discover_your_data[installation guide] of the discovery agent for more information.
+
+=== Elasticsearch & OpenSearch InferSchema Option
+
+To help maintain consistency in the data types discovered, an "Elasticsearch & OpenSearch InferSchema Option" has been included in the agent configuration. The mechanism makes a data type inference based on a fixed (user-defined) number of indexed documents.
+
+The option is enabled by default and it is *highly recommended* to keep it that way to have a more accurate index schema. To use it:
+
+* Turn on the 'Elasticsearch & OpenSearch Settings' -> "Elasticsearch & OpenSearch InferSchema Option".
+
+=== Elasticsearch & OpenSearch Document Sample Size
+
+This option sets the number of documents to be considered as a batch for data type inference.
+
+It is available and only makes sense if the "Elasticsearch & OpenSearch InferSchema Option" is previously activated. To configure it:
+
+* Activate the option 'Elasticsearch & OpenSearch Settings' -> "Elasticsearch & OpenSearch InferSchema Option".
+* Define the amount in 'Elasticsearch & OpenSearch Settings' -> "Elasticsearch & OpenSearch Document Sample Size".
+
+Its default value is 100.
+
+IMPORTANT: The performance of the data discovery process in _Stratio Data Governance_ *may be reduced* depending on the number of documents considered for inference.
+
+=== Force OpenSearch Cluster Settings
+
+OpenSearch is a fork of Elasticsearch. The latter changed its license starting with version 7.x, which is why the OpenSearch project was started.
+
+Because of the above, many of the resources used for Elasticsearch also work for OpenSearch. However, Elasticsearch defined a cluster validation system in all the resources developed by themselves, some as the _datasource_ itself, which uses the SSCC Elasticsearch connector, which invalidates on many occasions the use of those resources to OpenSearch clusters.
+
+[TIP]
+====
+You can learn more about this in the following reference to the documentation:
+
+* *OpenSearch Doc*. https://opensearch.org/blog/community-clients/[Carrying forward the OpenSearch client libraries as a community].
+* *OpenSearch Forum*. https://forum.opensearch.org/t/opensearch-hadoop-apache-spark-elasticsearch-connector/7730[OpenSearch Apache Hadoop®/Apache Spark™ Elasticsearch connector].
+====
+
+Therefore, if you have an OpenSearch instance, you need to make several changes to the cluster configuration to make it compatible with Elasticsearch tools.
+
+Two ways to enable compatibility are explained below:
+
+* *Native configuration of the cluster.* Here the configuration change is delegated to the user of the _Stratio Generative AI Data Fabric_ tool. For this, it is suggested to follow the documentation https://docs.aws.amazon.com/opensearch-service/latest/developerguide/rename.html#rename-upgrade[Get started: Upgrade your domains to OpenSearch 1.x].
+
+* *Discovery agent configuration.* The option to delegate the change of the cluster configuration to the discovery agent is provided here. To do this, activate the option 'Elasticsearch & OpenSearch Settings' -> "Force OpenSearch Cluster Settings".

@@ -1,0 +1,81 @@
+= Guía de inicio rápido
+
+El propósito de esta guía es explicar brevemente cómo integrar una base de datos IBM Db2 en la plataforma _Stratio Generative AI Data Fabric_.
+
+== Prerrequisitos
+
+Puedes encontrar los prerrequisitos para la instalación del conector de SSCC IBM Db2 en la xref:ibm-db2:operations-guide.adoc#_prerrequisitos[Guía de operaciones].
+
+== Descubre tus datos
+
+=== Agente de descubrimiento
+
+Para instalar un agente de descubrimiento de _Stratio Data Governance_ para IBM Db2, debes seleccionar en '_Stratio Command Center_' -> 'Deploy a Service' -> 'Connectors RDBMS' el agente `IBM Db2 Agent`. En la instalación debes añadir la información correspondiente a la instancia de la base de datos a descubrir, además de las URL del repositorio de conectores donde se almacenan los artefactos `sscc-db2-0.3_2.12-1.4.x.jar` y `jcc-11.5.0.0.jar` y subir las credenciales de acceso a _Stratio KMS_.
+
+Los campos más importantes a rellenar son:
+
+* *_Root discovery path_*: ruta desde la cual quieres descubrir los metadatos de forma recursiva. Ejemplo: _/db1,/db2,/db3_.
+* *_Custom Service URL_*: URL JDBC usada para conectarse a IBM Db2. Ejemplo: `jdbc:db2://your.host.com:50000/-db-`. Es importante que al final de la cadena contenga el sufijo `/-db-`.
+* *_SSCC driver location_*. URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del conector SSCC IBM Db2. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar`.
+* *_JDBC driver location_*. URL donde se encuentra el artefacto en el repositorio de conectores que contendrá el JAR del _driver JDBC_ elegido. Ejemplo: `http://connectors.<tenant>-<namespace>/v1/api/artifact/jcc-11.5.0.0.jar`.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:ibm-db2:operations-guide.adoc#_agente_de_descubrimiento[Guía de operaciones].
+
+Si toda la configuración es correcta, el agente de descubrimiento se desplegará correctamente. Accede a _Stratio Data Governance_ para hacer una comprobación de que el despliegue se ha realizado correctamente.
+
+== Virtualiza tus datos
+
+=== Agente de Eureka
+
+Para el uso de la BDL es necesario configurar el agente de Eureka con el conector SSCC IBM Db2. Para ello, hay que añadir la URL del repositorio de conectores del artefacto `sscc-db2-0.3_2.12-1.4.x.jar` en la variable 'Customized deployment' -> 'Settings' -> `Additional jars`.
+
+En el ejemplo que se está siguiendo, el agente de Eureka queda de esta manera:
+
+* _Additional jars_: *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar*.
+
+NOTE: Recuerda que, si ya tienes más de un artefacto en la lista, se deben añadir los siguientes separándolos por una coma.
+
+=== _Stratio Virtualizer_
+
+Para el uso de _Stratio Virtualizer_ es necesario tener configurado el conector de IBM Db2. Para ello, debes añadir la URL del artefacto `sscc-db2-0.3_2.12-1.4.x.jar` en la variable 'Customized deployment' -> 'Environment' -> 'External datastores' -> `JDBC Drivers URL List` y además subir las credenciales de acceso a _Stratio KMS_.
+
+En el ejemplo que se está siguiendo, _Stratio Virtualizer_ queda de esta manera:
+
+* _JDBC Drivers URL List_: *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/jcc-11.5.0.0.jar*.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Para el uso de _Stratio Rocket_ es necesario tener configurado el conector SSCC IBM Db2. Para ello, debes añadir la URL de los artefactos `sscc-db2-0.3_2.12-1.4.x.jar` y `http://connectors.<tenant>-<namespace>/v1/api/artifact/jcc-11.5.0.0.jar` en la variable 'Customized deployment' -> 'Settings' -> 'Classpath' -> `Rocket extra jars` y además, subir las credenciales de acceso para los _workflows_ y para _Stratio Rocket_ a _Stratio KMS_.
+
+En el ejemplo que se está siguiendo, _Stratio Rocket_ queda de esta manera:
+
+* _Rocket extra jars_: *http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar,http://connectors.<tenant>-<namespace>/v1/api/artifact/jcc-11.5.0.0.jar*.
+* _Spark classpath extra jars_: *http://connectors.<tenant>-<namespace>/v1/api/artifact/jcc-11.5.0.0.jar*.
+
+TIP: Puedes consultar más información sobre el resto de parámetros de configuración en la xref:ibm-db2:operations-guide.adoc#rocket-configuration[guía de operaciones].
+
+=== _Stratio Intelligence_
+
+Para ver cómo configurar _Stratio Intelligence_ visita la sección xref:stratio-connectors:ROOT:quick-start-guide.adoc#_stratio_intelligence[_Stratio Intelligence_] de la guía de inicio rápido general.
+
+Una vez esté configurado _Stratio Intelligence_, tienes que añadir el conector SSCC IBM Db2 en el directorio _artifacts/spark++_++jars_ (si no existe, créalo) y subir las credenciales a _Stratio KMS_.
+
+Para la subida de los artefactos, estos se deben descargar en el directorio _artifacts/spark++_++jars_ dentro del _workspace_ de _Stratio Intelligence_ realizando una petición cURL. En el caso que se está tratando, se debería realizar la siguiente petición:
+
+[source,bash]
+----
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/sscc-db2-0.3_2.12-1.4.x.jar --output sscc-db2-0.3_2.12-1.4.x.jar
+curl http://connectors.<tenant>-<namespace>/v1/api/artifact/jcc-11.5.0.0.jar --output jcc-11.5.0.0.jar
+----
+
+En la siguiente imagen se ve cómo queda almacenado en la carpeta:
+
+image::db2-intelligence-packages.png[]
+
+Una vez configurado esto, puedes ver en el ejemplo cómo acceder a las tablas que se han virtualizado de la base de datos IBM Db2 externa.
+
+image::db2-intelligence-consulta-db2.png[]
+
+Reinicia el Kernel de PySpark.

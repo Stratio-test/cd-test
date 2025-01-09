@@ -1,0 +1,121 @@
+= Guía de usuario
+
+== Descripción
+
+El conector SSCC SAS® te permite la integración completa de SAS® Viya® en _Stratio Generative AI Data Fabric_.
+
+Las funcionalidades y versiones soportadas se encuentran en la xref:sas-viya:compatibility-matrix.adoc[matriz de compatibilidad].
+
+== Descubre tus datos
+
+=== Conoce tus datos
+
+El conector SSCC SAS® descubre los diferentes datos de la plataforma SAS® Viya® de la siguiente manera:
+
+image::sas-viya-data-architecture.png[]
+
+El usuario debe seleccionar el tipo de recurso a descubrir, que puede ser de un servidor CAS (_CAS resource_) o de un servidor SPRE (_Compute resource_). En ambos tipos las librerías deben ser globales y permanentes.
+
+NOTE: En la configuración del agente de descubrimiento puedes seleccionar si descubrir las tablas que no se han cargado en memoria CAS para los recursos de tipo CAS.
+
+Además de lo que se muestra en xref:stratio-data-governance:user-manual:from-a-data-store-to-a-dictionary.adoc#_tablas_y_columnas[__Stratio Data Governance__], también puedes encontrar los atributos técnicos extraídos de los recursos de SAS® Viya®. Se extraen todos los metadatos que proporciona SAS® Viya® y se añaden a la interfaz de usuario de _Stratio Data Governance_.
+
+* Los metadatos extraídos a nivel de almacén de datos son _SasProviderType_, _databaseName_, _typed_ y _shouldDiscoverUnloadedCASResources_.
+* Los metadatos extraídos a nivel de esquema son:
+    ** _Compute resources_: _type_, _concatenationCount_, _engineName_, _fileFormat_, _flags_, _readOnly_ y _version_.
+    ** _Cas resources_: _type_, _active_, _caslibType_, _path_, _personal_, _scope_, _subDirs_ y _transient_.
+* Los metadatos extraídos a nivel de tabla son:
+    ** _Compute resources_: _LibraryReference_, _computeContextId_ y _tableType_.
+    ** _Cas resources_: _casLibId_, _serverId_ y _tableType_.
+* Los metadatos extraídos a nivel de columna son _type_, _formatName_ y _description_.
+
+SAS® Viya® soporta unos pocos tipos de datos. Sin embargo, las columnas de SAS® Viya® soportan múltiples tipos de formatos. En _Stratio Data Governance_, la conversión de tipos se realiza de la siguiente manera:
+
+- Si el tipo de dato es _char_ o _varchar_, el tipo de dato en _Stratio Data Governance_ será _string_. Si es _int32_, será _integer_; si es _int64_, será _long_, y si es _varbinary_, será _binary_.
+
+- Si el tipo de dato es _double_, se tendrá en cuenta el formato. Si el formato es de tipo _binary_, _date_, _time_, _datetime_, _datetime._, _double_, _best_ o _float_, el tipo de dato en _Stratio Data Governance_ será el mismo que el formato. Si no tiene formato, el tipo de dato será _double_. Si el formato no es ninguno de los anteriores, será representado como un _string_. En cualquier caso, el usuario podrá ver el formato original en el atributo de columna `format`.
+
+=== Virtualización de la BDL
+
+El proceso de descubrimiento es asíncrono, una vez terminado el descubrimiento se podrá visualizar desde la interfaz de usuario de _Stratio Data Governance_.
+
+El conector soporta la personalización del acceso al dato en las tablas virtualizadas mediante los siguientes xref:stratio-data-governance:user-manual:bdl-virtualization.adoc#_atributos_personalizados_de_bdl[atributos avanzados de BDL] de _Stratio Data Governance_, modificables desde la interfaz de usuario:
+
+* *bdl.limit*
+* *bdl.numPartitions*
+
+NOTE: Puedes consultar cómo crear atributos en la xref:stratio-data-governance:user-manual:addition-of-metadata[Guía de usuario] de _Stratio Data Governance_.
+
+TIP: Para más detalles del uso de la BDL consulta la xref:stratio-data-governance:user-manual:data-processing-with-bdl.adoc[documentación de procesamiento de datos con BDL].
+
+== Virtualiza tus datos
+
+Una vez descubiertas las tablas, es posible añadirlas a una vista técnica de una colección. Todos los parámetros configurables del descubrimiento y los modificados desde la interfaz de usuario de _Stratio Data Governance_ se propagan en las colecciones donde se añada esa tabla.
+
+TIP: Para saber más sobre cómo gestionar las colecciones puedes consultar xref:stratio-data-governance:user-manual:collections.adoc[la guía de usuario de _Stratio Data Governance_].
+
+IMPORTANT: Ten en cuenta que, para virtualizar las tablas descubiertas, es necesario gestionar las xref:stratio-gosec:operations-manual:data-access/manage-policies/manage-domains-policies.adoc[políticas de dominios] a través de _Stratio GoSec_.
+
+Para crear una tabla directamente en el catálogo de _Stratio Virtualizer_ puedes ejecutar las siguientes sentencias:
+
+* Si se quiere crear la tabla con el proveedor *CAS*:
+
+[source,sql]
+----
+CREATE TABLE sas_table USING com.stratio.connectors.sas OPTIONS (
+   `url`                'https://<sas_url>',
+   `stratiosecurity`     'true',
+   `stratiosecuritymode` 'custom_sscc',
+   `stratiocredentials`  '<nombre_secreto>',
+   `stratiossccdriver`   'com.stratio.connectors.ssccsas.SasDriverMD5',
+   `sasProvider`   'cas',
+   `sasDatabase`   '<sas_cas_server_name>',
+   `sasSchema`   '<sas_caslib>',
+   `sasTable`   '<nombre_tabla>'
+)
+----
+
+* Si se quiere crear la tabla con el proveedor *Compute*:
+
+[source,sql]
+----
+CREATE TABLE sas_table USING com.stratio.connectors.sas OPTIONS (
+   `url`                'https://<sas_url>',
+   `stratiosecurity`     'true',
+   `stratiosecuritymode` 'custom_sscc',
+   `stratiocredentials`  '<nombre_secreto>',
+   `stratiossccdriver`   'com.stratio.connectors.ssccsas.SasDriverMD5',
+   `sasProvider`   'Compute',
+   `sasDatabase`   '<sas_spre_compute_id>',
+   `sasSchema`   '<nombre_libreria>',
+   `sasTable`   '<nombre_tabla>'
+)
+----
+
+Añade las opciones _limit_ (límite nativo de filas) y _numPartitions_ (número de particiones de la tabla) a la tabla.
+
+Puedes realizar escrituras en SAS® Viya® usando recursos de tipo *CAS*. Cada vez que realices una escritura de tipo "INSERT INTO" sobre una tabla creada, el contenido se materializará como una tabla nueva tanto física como cargada en memoria, usando el siguiente modelo de nombre: `{NOMBRETABLE}_{timestampActual}`.
+
+Deberás gestionar cada _insert_ en SAS® Viya®, ya que cada inserción creará una tabla nueva en la misma _caslib_ donde se encuentra la tabla original. Cada vez que realices una escritura de tipo "SAVE TABLE", la tabla del resultado del "select" se guardará como una tabla nueva en la misma _caslib_ que la tabla original con el nombre que se haya seleccionado para el guardado.
+
+== Transforma tus datos
+
+=== _Stratio Rocket_
+
+Una vez virtualizados los datos, es posible acceder desde _Stratio Rocket_ mediante:
+
+* El catálogo.
++
+image::sas-viya-rocket-catalog.png[]
+
+* Dentro de los _workflows_, haciendo uso del _input_ de xref:stratio-rocket:user-guide:workflow-asset/data-inputs.adoc#_stratio_virtualizer[_Stratio Virtualizer_].
++
+image::sas-viya-rocket-virtualizer.png[]
++
+El resultado de la ejecución de un _workflow_:
++
+image::sas-viya-rocket-output.png[]
+
+=== _Stratio Intelligence_
+
+Se puede comprobar cómo se accede a los datos desde _Stratio Intelligence_ en la xref:ROOT:quick-start-guide.adoc#_stratio_intelligence[guía de inicio rápido general].

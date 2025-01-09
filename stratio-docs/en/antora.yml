@@ -1,0 +1,6 @@
+name: stratio-connectors
+title: Stratio Connectors
+version: '1.3'
+nav:
+- modules/ROOT/nav.adoc
+start_page: ROOT:introduction.adoc

@@ -1,0 +1,161 @@
+= Ficheros de serialización de datos
+
+A continuación se muestran los ficheros de datos serializados que se soportan. Estos ficheros deben estar almacenados en algún DFS accesible desde _Stratio Generative AI Data Fabric_.
+
+== Avro
+
+Avro es un formato de serialización de datos creado por https://avro.apache.org/[Apache Avro]. _Stratio Virtualizer_ proporciona por defecto un conector que permite leer y escribir usando este formato de datos.
+
+TIP: Consulta más información en la https://archive.apache.org/dist/spark/docs/3.1.1/sql-data-sources-avro.html[documentación oficial de Apache Spark™].
+
+*Ejemplo usando la consola de _Stratio Virtualizer_*
+
+[source,sql]
+----
+CREATE TABLE episodes USING avro OPTIONS (
+    path "/tmp/episodes.avro"
+    )
+----
+
+== CSV
+
+_Stratio Virtualizer_ proporciona un conector para poder leer y escribir en formato CSV (_Comma Separated Values_).
+
+TIP: Consulta más información en la https://archive.apache.org/dist/spark/docs/3.2.0/sql-data-sources-csv.html[documentación oficial de Apache Spark™].
+
+*Ejemplo usando la consola de _Stratio Virtualizer_*
+
+[source,sql]
+----
+CREATE TABLE csvS3Table USING csv OPTIONS (
+    path "s3n://myBucket/myFile.csv",
+    header "true",
+    inferSchema "true"
+)
+----
+
+*Formato de fechas y _timestamps_*
+
+El conector de Apache Spark™ de CSV tiene dos propiedades para los formatos de fechas y _timestamp_ específicos de datos CSV:
+
+* *_dateFormat_*: configura la cadena de caracteres que indica el formato de fecha. Los formatos de fecha personalizados siguen los formatos en `java.text.SimpleDateFormat`. Esto se aplica al tipo de fecha.
+* *_timestampFormat_*: establece la cadena de caracteres que indica un formato de _timestamp_. Los formatos de fecha personalizados siguen los formatos en `java.text.SimpleDateFormat`. Esto se aplica al tipo de _timestamp_.
+
+Ejemplo:
+
+[source,sql]
+----
+CREATE TABLE csv_table (
+    country string,
+    date_field date,
+    time_field timestamp
+) USING csv OPTIONS (
+    inferSchema "true",
+    path "/tmp/dates.csv",
+    header "true",
+    mode "FAILFAST",
+    dateFormat "yyyy/MM/dd",
+    timestampFormat "yyyy/MM/dd HH:mm:ss"
+)
+----
+
+WARNING: Ten en cuenta que el _dateFormat_ se aplica de forma genérica a todos los campos de fechas de tu CSV.
+
+== Delta
+
+_Stratio Virtualizer_ proporciona la integración con Delta Lake. Para una información en mayor profundidad sobre Delta Lake, visita la https://docs.delta.io/latest/index.html[documentación oficial].
+
+*Ejemplo usando la consola de _Stratio Virtualizer_*
+
+[source,bash]
+----
+CREATE TABLE example(id string, age string) USING delta
+----
+
+== JSON
+
+_Stratio Virtualizer_ proporciona un conector para leer y escribir datos en formato JSON.
+
+TIP: Consulta más información en la https://archive.apache.org/dist/spark/docs/3.1.1/sql-data-sources-json.html[documentación oficial de Apache Spark™].
+
+*Ejemplo usando la consola de _Stratio Virtualizer_*
+
+[source,sql]
+----
+CREATE TABLE jsonTable USING org.apache.spark.sql.json OPTIONS (
+    path "hdfs://nameNode:9000/examples/people.json"
+    )
+----
+
+*Formato de fechas y _Timestamps_*
+
+El conector de _Stratio Virtualizer_ de JSON ofrece dos propiedades para los formatos de fechas y _timestamp_ específicos de datos JSON.
+
+* *dateFormat*: configura la cadena de caracteres que indica el formato de la fecha. Los formatos de fecha personalizados siguen los formatos en `java.text.SimpleDateFormat`. Esto se aplica al tipo de fecha.
+* *timestampFormat*: establece la cadena de caracteres que indica un formato de _timestamp_. Los formatos de fecha personalizados siguen los formatos en `java.text.SimpleDateFormat`. Esto se aplica al tipo de _timestamp_.
+
+Ejemplo:
+
+[source,sql]
+----
+CREATE TABLE json_table (
+    country string,
+    date_field date,
+    time_field timestamp
+) USING json OPTIONS (
+    path "/tmp/dates.json",
+    dateFormat "yyyy/MM/dd",
+    timestampFormat "yyyy/MM/dd HH:mm:ss"
+)
+----
+
+*Datos en JSON*
+
+WARNING: Ten en cuenta que el _dateFormat_ se aplica de forma genérica a todos los campos de fecha de tu JSON.
+
+== ORC
+
+_Stratio Virtualizer_ proporciona la integración con ORC (_Optimized Row Columnar_). Para una información en mayor profundidad sobre ORC, visita la https://orc.apache.org/docs/[documentación oficial].
+
+*Ejemplo usando la consola de _Stratio Virtualizer_*
+
+[source,bash]
+----
+CREATE TABLE example(id string, age string) USING orc
+----
+
+== Parquet
+
+Esta página describe algunas operaciones básicas que puedes llevar a cabo con _Stratio Virtualizer_ y Parquet.
+
+TIP: Para ver en mayor profundidad las operaciones y opciones de Parquet visita la https://spark.apache.org/docs/latest/sql-programming-guide.html#parquet-files[documentación oficial de Apache Spark™].
+
+=== Registrar ficheros Parquet en _Stratio Virtualizer_
+
+Se debe especificar la ruta de _Stratio Virtualizer_ donde se cargarán los ficheros Parquet existentes. Si _Stratio Virtualizer_ se ha configurado para utilizar Apache Hadoop® (HDFS), dicha configuración se aplicará para el acceso a los ficheros de Parquet. Esto se puede configurar xref:stratio-virtualizer:user-guide:stratio-virtualizer-as-a-library.adoc[programáticamente] o mediante la consulta (SQL).
+
+*Ejemplo usando la consola de _Stratio Virtualizer_*
+
+[source,sql]
+----
+CREATE TABLE [<database>.] < tablename > USING parquet OPTIONS (
+    path '<parquet_path>'
+    )
+
+CREATE TABLE users USING parquet OPTIONS (
+    path '/stratio/shared/users'
+    )
+----
+
+== Text
+
+_Stratio Virtualizer_ proporciona un conector para poder leer y escribir en formato texto. Este conector lee ficheros de texto y convierte cada línea en una fila. Por lo tanto, el único esquema aceptado aquí es sólo una columna de tipo _string_.
+
+TIP: Consulta la https://archive.apache.org/dist/spark/docs/3.2.0/sql-data-sources-text.html[documentación oficial de Apache Spark™] para más información.
+
+*Ejemplo usando la consola de _Stratio Virtualizer_*
+
+[source,sql]
+----
+CREATE TABLE textExample USING text OPTIONS (path '/tmp/example')
+----
