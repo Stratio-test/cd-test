@@ -9,7 +9,7 @@
             <artifactId>testng</artifactId>
             <version>6.14.3</version>
             <scope>test</scope>
-        </dependency>
+        </dependency> 
     </dependencies>
 
     <parent>
